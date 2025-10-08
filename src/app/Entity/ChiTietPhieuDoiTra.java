@@ -1,4 +1,5 @@
 package app.Entity;
+
 public class ChiTietPhieuDoiTra {
     private String maPhieuDoiTra;
     private String maThuoc;
@@ -6,17 +7,19 @@ public class ChiTietPhieuDoiTra {
     private float donGia;
     private String maLo;
     private String lyDo;
+    private boolean isActive; // true = chi tiết có hiệu lực, false = đã hủy/ẩn
 
     public ChiTietPhieuDoiTra() {
     }
 
-    public ChiTietPhieuDoiTra(String maPhieuDoiTra, String maThuoc, int soLuong, float donGia, String maLo, String lyDo) {
+    public ChiTietPhieuDoiTra(String maPhieuDoiTra, String maThuoc, int soLuong, float donGia, String maLo, String lyDo, boolean isActive) {
         this.maPhieuDoiTra = maPhieuDoiTra;
         this.maThuoc = maThuoc;
         this.soLuong = soLuong;
         this.donGia = donGia;
         this.maLo = maLo;
         this.lyDo = lyDo;
+        this.isActive = isActive;
     }
 
     public String getMaPhieuDoiTra() {
@@ -66,6 +69,27 @@ public class ChiTietPhieuDoiTra {
     public void setLyDo(String lyDo) {
         this.lyDo = lyDo;
     }
+    
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+    
+    // --- Phương thức tiện ích ---
+    
+    /** Kiểm tra xem chi tiết đổi trả có đang hiển thị (chưa bị hủy) hay không */
+    public boolean isVisible() {
+        return this.isActive;
+    }
+    
+    /** Đánh dấu chi tiết là đã hủy/ẩn */
+    public void markAsDeleted() {
+        this.isActive = false;
+    }
+
 
     @Override
     public String toString() {
@@ -76,6 +100,7 @@ public class ChiTietPhieuDoiTra {
                 ", donGia=" + donGia +
                 ", maLo='" + maLo + '\'' +
                 ", lyDo='" + lyDo + '\'' +
+                ", isActive=" + isActive +
                 '}';
     }
 }

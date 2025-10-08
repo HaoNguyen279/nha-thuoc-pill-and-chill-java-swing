@@ -1,33 +1,23 @@
 package app.Entity;
+
 import java.util.Date;
 
 public class ChiTietLoThuoc {
     private String maLo;
     private String maThuoc;
-    private String tenThuoc;
     private Date ngaySanXuat;
     private Date hanSuDung;
-    private int soLuongTon;
-    private float giaBan;
-    private String donVi;
-    private int soLuongToiThieu;
-    private String maNSX;
+    private boolean isActive; // true = đang hiển thị, false = đã xóa/ẩn
 
     public ChiTietLoThuoc() {
     }
 
-    public ChiTietLoThuoc(String maLo, String maThuoc, String tenThuoc, Date ngaySanXuat, Date hanSuDung, 
-                          int soLuongTon, float giaBan, String donVi, int soLuongToiThieu, String maNSX) {
+    public ChiTietLoThuoc(String maLo, String maThuoc, Date ngaySanXuat, Date hanSuDung, boolean isActive) {
         this.maLo = maLo;
         this.maThuoc = maThuoc;
-        this.tenThuoc = tenThuoc;
         this.ngaySanXuat = ngaySanXuat;
         this.hanSuDung = hanSuDung;
-        this.soLuongTon = soLuongTon;
-        this.giaBan = giaBan;
-        this.donVi = donVi;
-        this.soLuongToiThieu = soLuongToiThieu;
-        this.maNSX = maNSX;
+        this.isActive = isActive;
     }
 
     public String getMaLo() {
@@ -46,14 +36,6 @@ public class ChiTietLoThuoc {
         this.maThuoc = maThuoc;
     }
 
-    public String getTenThuoc() {
-        return tenThuoc;
-    }
-
-    public void setTenThuoc(String tenThuoc) {
-        this.tenThuoc = tenThuoc;
-    }
-
     public Date getNgaySanXuat() {
         return ngaySanXuat;
     }
@@ -69,60 +51,36 @@ public class ChiTietLoThuoc {
     public void setHanSuDung(Date hanSuDung) {
         this.hanSuDung = hanSuDung;
     }
-
-    public int getSoLuongTon() {
-        return soLuongTon;
+    
+    public boolean isIsActive() {
+        return isActive;
     }
 
-    public void setSoLuongTon(int soLuongTon) {
-        this.soLuongTon = soLuongTon;
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+    
+    // --- Phương thức tiện ích ---
+    
+    /** Kiểm tra xem chi tiết lô thuốc có đang hiển thị (chưa bị ẩn) hay không */
+    public boolean isVisible() {
+        return this.isActive;
+    }
+    
+    /** Đánh dấu chi tiết là đã ẩn/xóa */
+    public void markAsDeleted() {
+        this.isActive = false;
     }
 
-    public float getGiaBan() {
-        return giaBan;
-    }
-
-    public void setGiaBan(float giaBan) {
-        this.giaBan = giaBan;
-    }
-
-    public String getDonVi() {
-        return donVi;
-    }
-
-    public void setDonVi(String donVi) {
-        this.donVi = donVi;
-    }
-
-    public int getSoLuongToiThieu() {
-        return soLuongToiThieu;
-    }
-
-    public void setSoLuongToiThieu(int soLuongToiThieu) {
-        this.soLuongToiThieu = soLuongToiThieu;
-    }
-
-    public String getMaNSX() {
-        return maNSX;
-    }
-
-    public void setMaNSX(String maNSX) {
-        this.maNSX = maNSX;
-    }
 
     @Override
     public String toString() {
         return "ChiTietLoThuoc{" +
                 "maLo='" + maLo + '\'' +
                 ", maThuoc='" + maThuoc + '\'' +
-                ", tenThuoc='" + tenThuoc + '\'' +
                 ", ngaySanXuat=" + ngaySanXuat +
                 ", hanSuDung=" + hanSuDung +
-                ", soLuongTon=" + soLuongTon +
-                ", giaBan=" + giaBan +
-                ", donVi='" + donVi + '\'' +
-                ", soLuongToiThieu=" + soLuongToiThieu +
-                ", maNSX='" + maNSX + '\'' +
+                ", isActive=" + isActive +
                 '}';
     }
 }

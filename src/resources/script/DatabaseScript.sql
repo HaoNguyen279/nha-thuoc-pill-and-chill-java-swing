@@ -1,6 +1,8 @@
--- Tạo database
-use master
-go
+-- ===============================================
+-- KHỞI TẠO CƠ SỞ DỮ LIỆU VÀ BẢNG (DÙNG isActive)
+-- ===============================================
+USE master
+GO
 DROP database QuanLyNhaThuoc;
 GO
 CREATE DATABASE QuanLyNhaThuoc;
@@ -13,7 +15,7 @@ CREATE TABLE NhaSanXuat (
     tenNSX NVARCHAR(100),
     diaChiNSX NVARCHAR(200),
     soDienThoai VARCHAR(20),
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
 );
 GO
 
@@ -21,7 +23,7 @@ GO
 CREATE TABLE LoThuoc (
     maLo VARCHAR(50) PRIMARY KEY,
     maNSX VARCHAR(50),
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
     FOREIGN KEY (maNSX) REFERENCES NhaSanXuat(maNSX)
 );
 GO
@@ -37,7 +39,7 @@ CREATE TABLE Thuoc (
     donVi NVARCHAR(50),
     soLuongToiThieu INT,
 	maNSX VARCHAR(50),
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
 	FOREIGN KEY (maNSX) REFERENCES NhaSanXuat(maNSX)
 );
 GO
@@ -47,7 +49,7 @@ CREATE TABLE ChiTietLoThuoc (
     maThuoc VARCHAR(50),
     ngaySanXuat DATE,
     hanSuDung DATE,
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
     PRIMARY KEY (maLo, maThuoc),
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo),
 
@@ -59,7 +61,7 @@ CREATE TABLE KhachHang (
     tenKH NVARCHAR(100),
     soDienThoai VARCHAR(20),
     diemTichLuy INT,
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
 );
 GO
 -- Tạo bảng NhanVien
@@ -68,14 +70,14 @@ CREATE TABLE NhanVien (
     tenNV NVARCHAR(100),
     chucVu NVARCHAR(50),
     soDienThoai VARCHAR(20),
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
 );
 GO
 -- Tạo bảng TaiKhoan
 CREATE TABLE TaiKhoan(
 	maNV VARCHAR(50) PRIMARY KEY,
 	matKhau VARCHAR(50),
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
 	FOREIGN KEY (maNV)	REFERENCES NhanVien(maNV)
 );
 GO
@@ -85,7 +87,7 @@ CREATE TABLE KhuyenMai (
     mucGiamGia FLOAT,
 	ngayApDung DATE,
 	ngayKetThuc DATE,
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
 );
 GO
 -- Tạo bảng Thue
@@ -94,7 +96,7 @@ CREATE TABLE Thue (
 	mucThue FLOAT,
     ngayApDung DATE,
     ngayKetThuc DATE,
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
 );
 GO
 -- Tạo bảng HoaDon
@@ -106,7 +108,7 @@ CREATE TABLE HoaDon (
     maKH VARCHAR(50),
 	maKM VARCHAR(50),
 	maThue VARCHAR(50),
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
 	FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
@@ -119,7 +121,7 @@ CREATE TABLE ChiTietHoaDon (
     maThuoc VARCHAR(50),
     soLuong INT,
 	donGia FLOAT,
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
     PRIMARY KEY (maHoaDon, maThuoc),
     FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
@@ -131,7 +133,7 @@ CREATE TABLE PhieuDoiTra (
     ngayDoiTra DATE,
 	maNV VARCHAR(50),
 	maKH VARCHAR(50),
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
 );
@@ -144,7 +146,7 @@ CREATE TABLE ChiTietPhieuDoiTra (
     donGia FLOAT,
     maLo VARCHAR(50),
     lyDo NVARCHAR(200),
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
     PRIMARY KEY (maPhieuDoiTra, maThuoc),
     FOREIGN KEY (maPhieuDoiTra) REFERENCES PhieuDoiTra(maPhieuDoiTra),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
@@ -157,7 +159,7 @@ CREATE TABLE PhieuDat (
     maNV VARCHAR(50),
     ngayDat DATE,
     maKH VARCHAR(50),
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
 );
@@ -168,7 +170,7 @@ CREATE TABLE ChiTietPhieuDat (
     maThuoc VARCHAR(50),
     tenThuoc NVARCHAR(100),
     soLuong INT,
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
     PRIMARY KEY (maPhieuDat, maThuoc),
     FOREIGN KEY (maPhieuDat) REFERENCES PhieuDat(maPhieuDat),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
@@ -179,7 +181,7 @@ CREATE TABLE PhieuNhapThuoc (
     maPhieuNhapThuoc VARCHAR(50) PRIMARY KEY,
     maNV VARCHAR(50),
     ngayNhap DATE,
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
 );
 GO
@@ -189,17 +191,21 @@ CREATE TABLE ChiTietPhieuNhap (
     maLo VARCHAR(50),
 	soLuong INT,
 	donGia FLOAT,
-	show bit DEFAULT 1,
+	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
     PRIMARY KEY (maPhieuNhapThuoc, maLo),
     FOREIGN KEY (maPhieuNhapThuoc) REFERENCES PhieuNhapThuoc(maPhieuNhapThuoc),
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo)
 );
 GO
 
+-- ===============================================
+-- XÓA DỮ LIỆU CŨ
+-- ===============================================
+
 USE QuanLyNhaThuoc;
 GO
 
--- Xóa dữ liệu cũ nếu có
+-- Xóa dữ liệu cũ nếu có (Vẫn cần thiết nếu chạy lại script)
 DELETE FROM ChiTietPhieuNhap;
 DELETE FROM PhieuNhapThuoc;
 DELETE FROM ChiTietPhieuDat;
@@ -218,6 +224,10 @@ DELETE FROM NhanVien;
 DELETE FROM KhachHang;
 DELETE FROM NhaSanXuat;
 GO
+
+-- ===============================================
+-- CHÈN DỮ LIỆU CƠ BẢN
+-- ===============================================
 
 use QuanLyNhaThuoc
 go
@@ -352,134 +362,137 @@ INSERT INTO LoThuoc (maLo, maNSX) VALUES
 ('LO025', 'NSX005');
 GO
 
--- Chèn dữ liệu vào bảng Thuoc
+-- ===============================================
+-- CHÈN DỮ LIỆU BẢNG THUOC (ĐÃ CHUYỂN ĐỔI donVi)
+-- ===============================================
+-- Dựa trên việc chuyển đổi: Hộp/Lọ/Chai/Bình -> Viên/Chai/Gói/Viên/Tuýp
 INSERT INTO Thuoc (maThuoc, maLo, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX) VALUES
 -- Nhóm thuốc giảm đau, hạ sốt
-('T001', 'LO001', N'Paracetamol 500mg', 1000, 5000, N'Hộp', 100, 'NSX001'),
-('T002', 'LO001', N'Efferalgan 500mg', 800, 7500, N'Vỉ', 80, 'NSX001'),
-('T003', 'LO002', N'Ibuprofen 400mg', 600, 8000, N'Hộp', 60, 'NSX002'),
-('T004', 'LO002', N'Aspirin 100mg', 900, 6500, N'Lọ', 90, 'NSX002'),
-('T005', 'LO003', N'Mobic 7.5mg', 500, 12000, N'Hộp', 50, 'NSX003'),
+('T001', 'LO001', N'Paracetamol 500mg', 1000, 5000, N'Viên', 100, 'NSX001'), -- Hộp -> Viên
+('T002', 'LO001', N'Efferalgan 500mg', 800, 7500, N'Viên', 80, 'NSX001'),
+('T003', 'LO002', N'Ibuprofen 400mg', 600, 8000, N'Viên', 60, 'NSX002'), -- Hộp -> Viên
+('T004', 'LO002', N'Aspirin 100mg', 900, 6500, N'Viên', 90, 'NSX002'), -- Lọ -> Viên
+('T005', 'LO003', N'Mobic 7.5mg', 500, 12000, N'Viên', 50, 'NSX003'), -- Hộp -> Viên
 
 -- Nhóm kháng sinh
-('T006', 'LO003', N'Amoxicillin 500mg', 700, 15000, N'Hộp', 70, 'NSX003'),
-('T007', 'LO004', N'Augmentin 625mg', 400, 25000, N'Vỉ', 40, 'NSX004'),
-('T008', 'LO004', N'Cefuroxime 500mg', 350, 22000, N'Hộp', 35, 'NSX004'),
-('T009', 'LO005', N'Azithromycin 250mg', 450, 18000, N'Lọ', 45, 'NSX005'),
-('T010', 'LO005', N'Ciprofloxacin 500mg', 550, 16000, N'Hộp', 55, 'NSX005'),
+('T006', 'LO003', N'Amoxicillin 500mg', 700, 15000, N'Viên', 70, 'NSX003'), -- Hộp -> Viên
+('T007', 'LO004', N'Augmentin 625mg', 400, 25000, N'Viên', 40, 'NSX004'),
+('T008', 'LO004', N'Cefuroxime 500mg', 350, 22000, N'Viên', 35, 'NSX004'), -- Hộp -> Viên
+('T009', 'LO005', N'Azithromycin 250mg', 450, 18000, N'Viên', 45, 'NSX005'), -- Lọ -> Viên
+('T010', 'LO005', N'Ciprofloxacin 500mg', 550, 16000, N'Viên', 55, 'NSX005'), -- Hộp -> Viên
 
 -- Nhóm thuốc đau dạ dày
-('T011', 'LO006', N'Omeprazole 20mg', 600, 14000, N'Vỉ', 60, 'NSX006'),
-('T012', 'LO006', N'Nexium 40mg', 400, 32000, N'Hộp', 40, 'NSX006'),
-('T013', 'LO007', N'Pantoprazole 40mg', 450, 28000, N'Lọ', 45, 'NSX007'),
+('T011', 'LO006', N'Omeprazole 20mg', 600, 14000, N'Viên', 60, 'NSX006'),
+('T012', 'LO006', N'Nexium 40mg', 400, 32000, N'Viên', 40, 'NSX006'), -- Hộp -> Viên
+('T013', 'LO007', N'Pantoprazole 40mg', 450, 28000, N'Viên', 45, 'NSX007'), -- Lọ -> Viên
 ('T014', 'LO007', N'Maalox', 800, 8500, N'Chai', 80, 'NSX007'),
 ('T015', 'LO008', N'Phosphalugel', 700, 9500, N'Gói', 70, 'NSX008'),
 
 -- Nhóm thuốc trị tiêu chảy
 ('T016', 'LO008', N'Smecta', 900, 7000, N'Gói', 90, 'NSX008'),
-('T017', 'LO009', N'Imodium 2mg', 600, 12500, N'Vỉ', 60, 'NSX009'),
-('T018', 'LO009', N'Bioflora', 500, 11000, N'Hộp', 50, 'NSX009'),
-('T019', 'LO010', N'Lacteol Fort', 700, 9000, N'Hộp', 70, 'NSX010'),
-('T020', 'LO010', N'Enterogermina', 650, 10500, N'Hộp', 65, 'NSX010'),
+('T017', 'LO009', N'Imodium 2mg', 600, 12500, N'Viên', 60, 'NSX009'),
+('T018', 'LO009', N'Bioflora', 500, 11000, N'Gói', 50, 'NSX009'), -- Hộp -> Gói
+('T019', 'LO010', N'Lacteol Fort', 700, 9000, N'Gói', 70, 'NSX010'), -- Hộp -> Gói
+('T020', 'LO010', N'Enterogermina', 650, 10500, N'Ống', 65, 'NSX010'), -- Hộp -> Ống
 
 -- Nhóm vitamin và khoáng chất
-('T021', 'LO011', N'Vitamin C 500mg', 1200, 8000, N'Hộp', 120, 'NSX001'),
-('T022', 'LO011', N'Vitamin E 400UI', 950, 12000, N'Lọ', 95, 'NSX001'),
-('T023', 'LO012', N'Multivitamin', 800, 15000, N'Hộp', 80, 'NSX002'),
-('T024', 'LO012', N'Canxi D3', 1000, 13500, N'Chai', 100, 'NSX002'),
-('T025', 'LO013', N'Zinc 20mg', 750, 9500, N'Vỉ', 75, 'NSX003'),
+('T021', 'LO011', N'Vitamin C 500mg', 1200, 8000, N'Viên', 120, 'NSX001'), -- Hộp -> Viên
+('T022', 'LO011', N'Vitamin E 400UI', 950, 12000, N'Viên', 95, 'NSX001'), -- Lọ -> Viên
+('T023', 'LO012', N'Multivitamin', 800, 15000, N'Viên', 80, 'NSX002'), -- Hộp -> Viên
+('T024', 'LO012', N'Canxi D3', 1000, 13500, N'Viên', 100, 'NSX002'), -- Chai -> Viên
+('T025', 'LO013', N'Zinc 20mg', 750, 9500, N'Viên', 75, 'NSX003'),
 
 -- Nhóm thuốc chống dị ứng
-('T026', 'LO013', N'Loratadine 10mg', 850, 7500, N'Hộp', 85, 'NSX003'),
-('T027', 'LO014', N'Cetirizine 10mg', 900, 8000, N'Vỉ', 90, 'NSX004'),
-('T028', 'LO014', N'Fexofenadine 60mg', 700, 12500, N'Hộp', 70, 'NSX004'),
-('T029', 'LO015', N'Claritine', 600, 14000, N'Hộp', 60, 'NSX005'),
-('T030', 'LO015', N'Telfast 180mg', 500, 18000, N'Vỉ', 50, 'NSX005'),
+('T026', 'LO013', N'Loratadine 10mg', 850, 7500, N'Viên', 85, 'NSX003'), -- Hộp -> Viên
+('T027', 'LO014', N'Cetirizine 10mg', 900, 8000, N'Viên', 90, 'NSX004'),
+('T028', 'LO014', N'Fexofenadine 60mg', 700, 12500, N'Viên', 70, 'NSX004'), -- Hộp -> Viên
+('T029', 'LO015', N'Claritine', 600, 14000, N'Viên', 60, 'NSX005'), -- Hộp -> Viên
+('T030', 'LO015', N'Telfast 180mg', 500, 18000, N'Viên', 50, 'NSX005'),
 
 -- Nhóm thuốc huyết áp
-('T031', 'LO016', N'Amlodipine 5mg', 450, 8500, N'Hộp', 45, 'NSX006'),
-('T032', 'LO016', N'Amlodipine 10mg', 400, 10500, N'Vỉ', 40, 'NSX006'),
-('T033', 'LO017', N'Bisoprolol 2.5mg', 350, 12000, N'Hộp', 35, 'NSX007'),
-('T034', 'LO017', N'Enalapril 5mg', 380, 9500, N'Vỉ', 38, 'NSX007'),
-('T035', 'LO018', N'Losartan 50mg', 420, 11000, N'Hộp', 42, 'NSX008'),
+('T031', 'LO016', N'Amlodipine 5mg', 450, 8500, N'Viên', 45, 'NSX006'), -- Hộp -> Viên
+('T032', 'LO016', N'Amlodipine 10mg', 400, 10500, N'Viên', 40, 'NSX006'),
+('T033', 'LO017', N'Bisoprolol 2.5mg', 350, 12000, N'Viên', 35, 'NSX007'), -- Hộp -> Viên
+('T034', 'LO017', N'Enalapril 5mg', 380, 9500, N'Viên', 38, 'NSX007'),
+('T035', 'LO018', N'Losartan 50mg', 420, 11000, N'Viên', 42, 'NSX008'), -- Hộp -> Viên
 
 -- Nhóm thuốc tiểu đường
-('T036', 'LO018', N'Metformin 500mg', 480, 7000, N'Hộp', 48, 'NSX008'),
-('T037', 'LO019', N'Metformin 850mg', 450, 8500, N'Vỉ', 45, 'NSX009'),
-('T038', 'LO019', N'Glibenclamide 5mg', 400, 6500, N'Hộp', 40, 'NSX009'),
-('T039', 'LO020', N'Acarbose 50mg', 350, 13000, N'Vỉ', 35, 'NSX010'),
-('T040', 'LO020', N'Januvia 100mg', 300, 28000, N'Hộp', 30, 'NSX010'),
+('T036', 'LO018', N'Metformin 500mg', 480, 7000, N'Viên', 48, 'NSX008'), -- Hộp -> Viên
+('T037', 'LO019', N'Metformin 850mg', 450, 8500, N'Viên', 45, 'NSX009'),
+('T038', 'LO019', N'Glibenclamide 5mg', 400, 6500, N'Viên', 40, 'NSX009'), -- Hộp -> Viên
+('T039', 'LO020', N'Acarbose 50mg', 350, 13000, N'Viên', 35, 'NSX010'),
+('T040', 'LO020', N'Januvia 100mg', 300, 28000, N'Viên', 30, 'NSX010'), -- Hộp -> Viên
 
 -- Nhóm thuốc giảm mỡ máu
-('T041', 'LO021', N'Atorvastatin 10mg', 480, 15000, N'Hộp', 48, 'NSX001'),
-('T042', 'LO021', N'Atorvastatin 20mg', 450, 19000, N'Vỉ', 45, 'NSX001'),
-('T043', 'LO022', N'Rosuvastatin 10mg', 420, 22000, N'Hộp', 42, 'NSX002'),
-('T044', 'LO022', N'Simvastatin 20mg', 400, 14000, N'Vỉ', 40, 'NSX002'),
-('T045', 'LO023', N'Lipitor 10mg', 380, 26000, N'Hộp', 38, 'NSX003'),
+('T041', 'LO021', N'Atorvastatin 10mg', 480, 15000, N'Viên', 48, 'NSX001'), -- Hộp -> Viên
+('T042', 'LO021', N'Atorvastatin 20mg', 450, 19000, N'Viên', 45, 'NSX001'),
+('T043', 'LO022', N'Rosuvastatin 10mg', 420, 22000, N'Viên', 42, 'NSX002'), -- Hộp -> Viên
+('T044', 'LO022', N'Simvastatin 20mg', 400, 14000, N'Viên', 40, 'NSX002'),
+('T045', 'LO023', N'Lipitor 10mg', 380, 26000, N'Viên', 38, 'NSX003'), -- Hộp -> Viên
 
 -- Nhóm thuốc chống viêm
-('T046', 'LO023', N'Meloxicam 7.5mg', 500, 11000, N'Hộp', 50, 'NSX003'),
-('T047', 'LO024', N'Diclofenac 50mg', 550, 8500, N'Vỉ', 55, 'NSX004'),
-('T048', 'LO024', N'Celecoxib 200mg', 450, 16000, N'Hộp', 45, 'NSX004'),
-('T049', 'LO025', N'Methylprednisolone 16mg', 400, 18000, N'Vỉ', 40, 'NSX005'),
-('T050', 'LO025', N'Prednisone 5mg', 500, 9500, N'Hộp', 50, 'NSX005'),
+('T046', 'LO023', N'Meloxicam 7.5mg', 500, 11000, N'Viên', 50, 'NSX003'), -- Hộp -> Viên
+('T047', 'LO024', N'Diclofenac 50mg', 550, 8500, N'Viên', 55, 'NSX004'),
+('T048', 'LO024', N'Celecoxib 200mg', 450, 16000, N'Viên', 45, 'NSX004'), -- Hộp -> Viên
+('T049', 'LO025', N'Methylprednisolone 16mg', 400, 18000, N'Viên', 40, 'NSX005'),
+('T050', 'LO025', N'Prednisone 5mg', 500, 9500, N'Viên', 50, 'NSX005'), -- Hộp -> Viên
 
--- Các thuốc khác
-('T051', 'LO001', N'Salbutamol 2mg', 600, 7500, N'Vỉ', 60, 'NSX001'),
-('T052', 'LO001', N'Ventolin inhaler', 350, 85000, N'Chai', 35, 'NSX001'),
+-- Các thuốc khác (đã chuyển đổi)
+('T051', 'LO001', N'Salbutamol 2mg', 600, 7500, N'Viên', 60, 'NSX001'),
+('T052', 'LO001', N'Ventolin inhaler', 350, 85000, N'Bình', 35, 'NSX001'), -- Chai -> Bình xịt
 ('T053', 'LO002', N'Seretide 250mcg', 300, 145000, N'Bình', 30, 'NSX002'),
-('T054', 'LO002', N'Combivent', 320, 120000, N'Chai', 32, 'NSX002'),
-('T055', 'LO003', N'Bromhexine 8mg', 700, 6500, N'Vỉ', 70, 'NSX003'),
-('T056', 'LO003', N'Ambroxol 30mg', 750, 7000, N'Hộp', 75, 'NSX003'),
-('T057', 'LO004', N'N-acetylcysteine 200mg', 600, 12000, N'Vỉ', 60, 'NSX004'),
+('T054', 'LO002', N'Combivent', 320, 120000, N'Bình', 32, 'NSX002'), -- Chai -> Bình xịt
+('T055', 'LO003', N'Bromhexine 8mg', 700, 6500, N'Viên', 70, 'NSX003'),
+('T056', 'LO003', N'Ambroxol 30mg', 750, 7000, N'Viên', 75, 'NSX003'), -- Hộp -> Viên
+('T057', 'LO004', N'N-acetylcysteine 200mg', 600, 12000, N'Viên', 60, 'NSX004'),
 ('T058', 'LO004', N'Bisolvon', 650, 9500, N'Chai', 65, 'NSX004'),
 ('T059', 'LO005', N'Fluconazole 150mg', 400, 18000, N'Viên', 40, 'NSX005'),
-('T060', 'LO005', N'Ketoconazole 200mg', 450, 16000, N'Hộp', 45, 'NSX005'),
-('T061', 'LO006', N'Metronidazole 250mg', 800, 5500, N'Vỉ', 80, 'NSX006'),
+('T060', 'LO005', N'Ketoconazole 200mg', 450, 16000, N'Viên', 45, 'NSX005'), -- Hộp -> Viên
+('T061', 'LO006', N'Metronidazole 250mg', 800, 5500, N'Viên', 80, 'NSX006'),
 ('T062', 'LO006', N'Albendazole 400mg', 600, 7500, N'Viên', 60, 'NSX006'),
-('T063', 'LO007', N'Mebendazole 500mg', 550, 8000, N'Hộp', 55, 'NSX007'),
-('T064', 'LO007', N'Domperidone 10mg', 650, 9500, N'Vỉ', 65, 'NSX007'),
-('T065', 'LO008', N'Metoclopramide 10mg', 700, 6000, N'Hộp', 70, 'NSX008'),
-('T066', 'LO008', N'Ondansetron 8mg', 500, 14000, N'Vỉ', 50, 'NSX008'),
-('T067', 'LO009', N'Dexamethasone 0.5mg', 450, 7500, N'Hộp', 45, 'NSX009'),
-('T068', 'LO009', N'Betamethasone 0.5mg', 400, 8500, N'Vỉ', 40, 'NSX009'),
+('T063', 'LO007', N'Mebendazole 500mg', 550, 8000, N'Viên', 55, 'NSX007'), -- Hộp -> Viên
+('T064', 'LO007', N'Domperidone 10mg', 650, 9500, N'Viên', 65, 'NSX007'),
+('T065', 'LO008', N'Metoclopramide 10mg', 700, 6000, N'Viên', 70, 'NSX008'), -- Hộp -> Viên
+('T066', 'LO008', N'Ondansetron 8mg', 500, 14000, N'Viên', 50, 'NSX008'),
+('T067', 'LO009', N'Dexamethasone 0.5mg', 450, 7500, N'Viên', 45, 'NSX009'), -- Hộp -> Viên
+('T068', 'LO009', N'Betamethasone 0.5mg', 400, 8500, N'Viên', 40, 'NSX009'),
 ('T069', 'LO010', N'Hydrocortisone 10mg', 350, 9500, N'Tuýp', 35, 'NSX010'),
-('T070', 'LO010', N'Triamcinolone 4mg', 300, 12000, N'Hộp', 30, 'NSX010'),
-('T071', 'LO011', N'Furosemide 40mg', 450, 6500, N'Vỉ', 45, 'NSX001'),
-('T072', 'LO011', N'Spironolactone 25mg', 400, 9500, N'Hộp', 40, 'NSX001'),
-('T073', 'LO012', N'Indapamide 1.5mg', 350, 11000, N'Vỉ', 35, 'NSX002'),
-('T074', 'LO012', N'Hydrochlorothiazide 25mg', 400, 7500, N'Hộp', 40, 'NSX002'),
-('T075', 'LO013', N'Isosorbide dinitrate 10mg', 350, 10500, N'Vỉ', 35, 'NSX003'),
-('T076', 'LO013', N'Nitroglycerin 0.5mg', 300, 12500, N'Hộp', 30, 'NSX003'),
-('T077', 'LO014', N'Digoxin 0.25mg', 250, 8500, N'Vỉ', 25, 'NSX004'),
-('T078', 'LO014', N'Verapamil 40mg', 300, 11000, N'Hộp', 30, 'NSX004'),
-('T079', 'LO015', N'Diltiazem 60mg', 280, 12500, N'Vỉ', 28, 'NSX005'),
-('T080', 'LO015', N'Atenolol 50mg', 320, 9500, N'Hộp', 32, 'NSX005'),
-('T081', 'LO016', N'Propranolol 40mg', 350, 7500, N'Vỉ', 35, 'NSX006'),
-('T082', 'LO016', N'Carvedilol 6.25mg', 300, 13500, N'Hộp', 30, 'NSX006'),
-('T083', 'LO017', N'Tamsulosin 0.4mg', 250, 16000, N'Vỉ', 25, 'NSX007'),
-('T084', 'LO017', N'Sildenafil 50mg', 200, 25000, N'Hộp', 20, 'NSX007'),
-('T085', 'LO018', N'Tadalafil 10mg', 180, 28000, N'Vỉ', 18, 'NSX008'),
-('T086', 'LO018', N'Finasteride 5mg', 220, 18000, N'Hộp', 22, 'NSX008'),
-('T087', 'LO019', N'Ethinylestradiol 35mcg', 300, 12000, N'Vỉ', 30, 'NSX009'),
-('T088', 'LO019', N'Medroxyprogesterone 5mg', 280, 14000, N'Hộp', 28, 'NSX009'),
-('T089', 'LO020', N'Clomiphene citrate 50mg', 220, 22000, N'Vỉ', 22, 'NSX010'),
-('T090', 'LO020', N'Levothyroxine 50mcg', 350, 9500, N'Hộp', 35, 'NSX010'),
-('T091', 'LO021', N'Levothyroxine 100mcg', 320, 11000, N'Vỉ', 32, 'NSX001'),
-('T092', 'LO021', N'Methimazole 5mg', 280, 13500, N'Hộp', 28, 'NSX001'),
-('T093', 'LO022', N'Gliclazide 30mg', 350, 15000, N'Vỉ', 35, 'NSX002'),
-('T094', 'LO022', N'Pioglitazone 15mg', 300, 18000, N'Hộp', 30, 'NSX002'),
-('T095', 'LO023', N'Gabapentin 300mg', 250, 16000, N'Vỉ', 25, 'NSX003'),
-('T096', 'LO023', N'Pregabalin 75mg', 220, 22000, N'Hộp', 22, 'NSX003'),
-('T097', 'LO024', N'Alprazolam 0.5mg', 300, 8500, N'Vỉ', 30, 'NSX004'),
-('T098', 'LO024', N'Diazepam 5mg', 250, 7000, N'Hộp', 25, 'NSX004'),
-('T099', 'LO025', N'Fluoxetine 20mg', 280, 12500, N'Vỉ', 28, 'NSX005'),
-('T100', 'LO025', N'Sertraline 50mg', 260, 14000, N'Hộp', 26, 'NSX005'),
-('T101', 'LO001', N'Esomeprazole 20mg', 320, 16500, N'Vỉ', 32, 'NSX001'),
-('T102', 'LO002', N'Lansoprazole 30mg', 290, 15500, N'Hộp', 29, 'NSX002'),
-('T103', 'LO003', N'Rabeprazole 20mg', 270, 17500, N'Vỉ', 27, 'NSX003'),
-('T104', 'LO004', N'Famotidine 40mg', 310, 9500, N'Hộp', 31, 'NSX004'),
-('T105', 'LO005', N'Ranitidine 150mg', 350, 8500, N'Vỉ', 35, 'NSX005');
+('T070', 'LO010', N'Triamcinolone 4mg', 300, 12000, N'Viên', 30, 'NSX010'), -- Hộp -> Viên
+('T071', 'LO011', N'Furosemide 40mg', 450, 6500, N'Viên', 45, 'NSX001'),
+('T072', 'LO011', N'Spironolactone 25mg', 400, 9500, N'Viên', 40, 'NSX001'), -- Hộp -> Viên
+('T073', 'LO012', N'Indapamide 1.5mg', 350, 11000, N'Viên', 35, 'NSX002'),
+('T074', 'LO012', N'Hydrochlorothiazide 25mg', 400, 7500, N'Viên', 40, 'NSX002'), -- Hộp -> Viên
+('T075', 'LO013', N'Isosorbide dinitrate 10mg', 350, 10500, N'Viên', 35, 'NSX003'),
+('T076', 'LO013', N'Nitroglycerin 0.5mg', 300, 12500, N'Viên', 30, 'NSX003'), -- Hộp -> Viên
+('T077', 'LO014', N'Digoxin 0.25mg', 250, 8500, N'Viên', 25, 'NSX004'),
+('T078', 'LO014', N'Verapamil 40mg', 300, 11000, N'Viên', 30, 'NSX004'), -- Hộp -> Viên
+('T079', 'LO015', N'Diltiazem 60mg', 280, 12500, N'Viên', 28, 'NSX005'),
+('T080', 'LO015', N'Atenolol 50mg', 320, 9500, N'Viên', 32, 'NSX005'), -- Hộp -> Viên
+('T081', 'LO016', N'Propranolol 40mg', 350, 7500, N'Viên', 35, 'NSX006'),
+('T082', 'LO016', N'Carvedilol 6.25mg', 300, 13500, N'Viên', 30, 'NSX006'), -- Hộp -> Viên
+('T083', 'LO017', N'Tamsulosin 0.4mg', 250, 16000, N'Viên', 25, 'NSX007'),
+('T084', 'LO017', N'Sildenafil 50mg', 200, 25000, N'Viên', 20, 'NSX007'), -- Hộp -> Viên
+('T085', 'LO018', N'Tadalafil 10mg', 180, 28000, N'Viên', 18, 'NSX008'),
+('T086', 'LO018', N'Finasteride 5mg', 220, 18000, N'Viên', 22, 'NSX008'), -- Hộp -> Viên
+('T087', 'LO019', N'Ethinylestradiol 35mcg', 300, 12000, N'Viên', 30, 'NSX009'),
+('T088', 'LO019', N'Medroxyprogesterone 5mg', 280, 14000, N'Viên', 28, 'NSX009'), -- Hộp -> Viên
+('T089', 'LO020', N'Clomiphene citrate 50mg', 220, 22000, N'Viên', 22, 'NSX010'),
+('T090', 'LO020', N'Levothyroxine 50mcg', 350, 9500, N'Viên', 35, 'NSX010'), -- Hộp -> Viên
+('T091', 'LO021', N'Levothyroxine 100mcg', 320, 11000, N'Viên', 32, 'NSX001'),
+('T092', 'LO021', N'Methimazole 5mg', 280, 13500, N'Viên', 28, 'NSX001'), -- Hộp -> Viên
+('T093', 'LO022', N'Gliclazide 30mg', 350, 15000, N'Viên', 35, 'NSX002'),
+('T094', 'LO022', N'Pioglitazone 15mg', 300, 18000, N'Viên', 30, 'NSX002'), -- Hộp -> Viên
+('T095', 'LO023', N'Gabapentin 300mg', 250, 16000, N'Viên', 25, 'NSX003'),
+('T096', 'LO023', N'Pregabalin 75mg', 220, 22000, N'Viên', 22, 'NSX003'), -- Hộp -> Viên
+('T097', 'LO024', N'Alprazolam 0.5mg', 300, 8500, N'Viên', 30, 'NSX004'),
+('T098', 'LO024', N'Diazepam 5mg', 250, 7000, N'Viên', 25, 'NSX004'), -- Hộp -> Viên
+('T099', 'LO025', N'Fluoxetine 20mg', 280, 12500, N'Viên', 28, 'NSX005'),
+('T100', 'LO025', N'Sertraline 50mg', 260, 14000, N'Viên', 26, 'NSX005'), -- Hộp -> Viên
+('T101', 'LO001', N'Esomeprazole 20mg', 320, 16500, N'Viên', 32, 'NSX001'),
+('T102', 'LO002', N'Lansoprazole 30mg', 290, 15500, N'Viên', 29, 'NSX002'), -- Hộp -> Viên
+('T103', 'LO003', N'Rabeprazole 20mg', 270, 17500, N'Viên', 27, 'NSX003'),
+('T104', 'LO004', N'Famotidine 40mg', 310, 9500, N'Viên', 31, 'NSX004'), -- Hộp -> Viên
+('T105', 'LO005', N'Ranitidine 150mg', 350, 8500, N'Viên', 35, 'NSX005');
 GO
 
 -- Chèn dữ liệu vào bảng ChiTietLoThuoc
@@ -1208,7 +1221,7 @@ GO
 
 -- Phiếu đổi trả 5: Thuốc bị lỗi
 INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
-('PDT005', 'T036', 2, 7000, 'LO018', N'Vỉ thuốc bị móp méo');
+('PDT005', 'T036', 2, 7000, 'LO018', N'Viên thuốc bị móp méo');
 GO
 
 -- Phiếu đổi trả 6: Dị ứng và đổi thuốc
@@ -1270,59 +1283,3 @@ INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, l
 ('PDT015', 'T026', 3, 7500, 'LO013', N'Khách hàng khỏi bệnh, còn thừa thuốc'),
 ('PDT015', 'T022', 1, 12000, 'LO011', N'Mua thừa, chưa mở hộp');
 GO
-
-
-
--- Test dataset
-
--- 1
-SELECT * FROM NhaSanXuat;
-
--- 2
-SELECT * FROM LoThuoc;
-
--- 3
-SELECT * FROM ChiTietLoThuoc;
-
--- 4
-SELECT * FROM Thuoc;
-
--- 5
-SELECT * FROM ChiTietPhieuDat;
-
--- 6
-SELECT * FROM PhieuDat; 
-
--- 7
-SELECT * FROM ChiTietPhieuNhap;
-
--- 8
-SELECT * FROM PhieuNhapThuoc; 
-
--- 9
-SELECT * FROM ChiTietPhieuDoiTra;
-
--- 10
-SELECT * FROM PhieuDoiTra;
-
--- 11
-SELECT * FROM ChiTietHoaDon;
-
--- 12
-SELECT * FROM HoaDon;
-
--- 13
-SELECT * FROM KhachHang;
-
--- 14
-SELECT * FROM KhuyenMai;
-
--- 15
-SELECT * FROM Thue;
-
--- 16
-SELECT * FROM NhanVien;
-
--- 17
-SELECT * FROM TaiKhoan;
-

@@ -8,137 +8,157 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import app.ConnectDB.ConnectDB;
-
 import app.Entity.Thuoc;
 
+/**
+ * DAO (Data Access Object) for the Thuoc entity.
+ * Handles all database operations related to drugs.
+ */
 public class ThuocDAO {
-	ArrayList<Thuoc> dsThuoc;
-	
-	public ThuocDAO() {
-		dsThuoc = new ArrayList<Thuoc>();
-		
-	}
-	
-	public ArrayList<Thuoc> getListThuoc(){
-        try {
-            ConnectDB.getInstance();
-            Connection con = ConnectDB.getConnection();
-            Statement statement = con.createStatement();
-            String sql = "SELECT * FROM THUOC";
-            ResultSet rs = statement.executeQuery(sql);
-            while(rs.next()){
-                String maThuoc = rs.getString(1);
-                String maLo = rs.getString(2);
-                String tenThuoc = rs.getString(3);
-               	int soLuongTon = rs.getInt(4);
-                Double giaBan = rs.getDouble(5);
-                String donVi = rs.getString(6);
-                int soLuongToiThieu = rs.getInt(7);
-                String maNSX = rs.getString(8);
-                Thuoc thuoc1 = new Thuoc(maThuoc, maLo, tenThuoc, soLuongTon, soLuongTon, donVi, soLuongToiThieu, maNSX);
-                dsThuoc.add(thuoc1);
-                
+
+    /**
+     * Retrieves a list of all active drugs from the database.
+     * @return An ArrayList of Thuoc objects.
+     */
+    public ArrayList<Thuoc> getAllThuoc() {
+        ArrayList<Thuoc> dsThuoc = new ArrayList<>();
+        String sql = "SELECT * FROM Thuoc WHERE isActive = 1"; // Only fetch active drugs
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                String maThuoc = rs.getString("maThuoc");
+                String maLo = rs.getString("maLo");
+                String tenThuoc = rs.getString("tenThuoc");
+                int soLuongTon = rs.getInt("soLuongTon");
+                double giaBan = rs.getDouble("giaBan");
+                String donVi = rs.getString("donVi");
+                int soLuongToiThieu = rs.getInt("soLuongToiThieu");
+                String maNSX = rs.getString("maNSX");
+                boolean isActive = rs.getBoolean("isActive");
+
+                Thuoc thuoc = new Thuoc(maThuoc, maLo, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive);
+                dsThuoc.add(thuoc);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return dsThuoc;
-	}
-	
-	public Thuoc getThuoc(String maThuoc) {
-		Thuoc thuoc1 = new Thuoc();
-    	try {
-            ConnectDB.getInstance();
-            Connection con = ConnectDB.getConnection();
-            String sql = "SELECT * FROM	THUOC where maThuoc = ?";
-            PreparedStatement statement = null;
-            statement = con.prepareStatement(sql);  
-            statement.setString(1, maThuoc);
-            ResultSet rs = statement.executeQuery();
-            while(rs.next()) {
-            	String maThuoc1 = rs.getString(1);
-                String maLo = rs.getString(2);
-                String tenThuoc = rs.getString(3);
-               	int soLuongTon = rs.getInt(4);
-                Double giaBan = rs.getDouble(5);
-                String donVi = rs.getString(6);
-                int soLuongToiThieu = rs.getInt(7);
-                String maNSX = rs.getString(8);
-                
-                 thuoc1 = new Thuoc(maThuoc1, maLo, tenThuoc, soLuongTon, soLuongTon, donVi, soLuongToiThieu, maNSX);
+    }
+
+    /**
+     * Retrieves a single drug by its ID.
+     * @param id The ID of the drug to find.
+     * @return A Thuoc object if found, otherwise null.
+     */
+    public Thuoc getThuocById(String id) {
+        String sql = "SELECT * FROM Thuoc WHERE maThuoc = ?";
+        Thuoc thuoc = null;
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, id);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String maThuoc = rs.getString("maThuoc");
+                    String maLo = rs.getString("maLo");
+                    String tenThuoc = rs.getString("tenThuoc");
+                    int soLuongTon = rs.getInt("soLuongTon");
+                    double giaBan = rs.getDouble("giaBan");
+                    String donVi = rs.getString("donVi");
+                    int soLuongToiThieu = rs.getInt("soLuongToiThieu");
+                    String maNSX = rs.getString("maNSX");
+                    boolean isActive = rs.getBoolean("isActive");
+                    
+                    thuoc = new Thuoc(maThuoc, maLo, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive);
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return thuoc1;
-    }
-    
-    public boolean update(Thuoc thuoc){
-        ConnectDB.getInstance();
-        Connection con = ConnectDB.getConnection();
-        PreparedStatement stmt = null;
-        int n =0 ;
-        try {
-        	stmt = con.prepareStatement("update THUOC set maLo=?,tenThuoc=?,soLuongTon=?,giaBan=?,donVi=?,soLuongToiThieu=?,maNSX=? where MaThuoc=?");
-        	stmt.setString(1,thuoc.getMaLo());
-        	stmt.setString(2,thuoc.getTenThuoc());
-        	stmt.setInt(3,thuoc.getSoLuongTon());
-        	stmt.setDouble(4,thuoc.getGiaBan());
-        	stmt.setString(5,thuoc.getDonVi());
-        	stmt.setInt(6,thuoc.getSoLuongToiThieu());
-        	stmt.setString(7, thuoc.getMaNSX());
-        	
-        	stmt.setString(8, thuoc.getMaThuoc());
-        	n = stmt.executeUpdate();
-        }catch (SQLException e) {
-			e.printStackTrace();
-		}
-   
-        return n>0;	
+        return thuoc;
     }
 
-    public boolean create(Thuoc thuoc) throws SQLException{
-        ConnectDB.getInstance();
-        Connection con = ConnectDB.getConnection();
-        PreparedStatement stmt = null;
+    /**
+     * Adds a new drug to the database.
+     * @param thuoc The Thuoc object to add.
+     * @return true if the operation was successful, false otherwise.
+     */
+    public boolean addThuoc(Thuoc thuoc) {
+        String sql = "INSERT INTO Thuoc (maThuoc, maLo, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int n = 0;
-        stmt = con.prepareStatement("insert into" +" Thuoc values(?,?,?,?,?,?,?,?)");
-        stmt.setString(1,thuoc.getMaThuoc());
-        stmt.setString(2,thuoc.getMaLo());
-    	stmt.setString(3,thuoc.getTenThuoc());
-    	stmt.setInt(4,thuoc.getSoLuongTon());
-    	stmt.setDouble(5,thuoc.getGiaBan());
-    	stmt.setString(6,thuoc.getDonVi());
-    	stmt.setInt(7,thuoc.getSoLuongToiThieu());
-    	stmt.setString(8, thuoc.getMaNSX());
 
-        n =stmt.executeUpdate();
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, thuoc.getMaThuoc());
+            stmt.setString(2, thuoc.getMaLo());
+            stmt.setString(3, thuoc.getTenThuoc());
+            stmt.setInt(4, thuoc.getSoLuongTon());
+            stmt.setDouble(5, thuoc.getGiaBan());
+            stmt.setString(6, thuoc.getDonVi());
+            stmt.setInt(7, thuoc.getSoLuongToiThieu());
+            stmt.setString(8, thuoc.getMaNSX());
+            stmt.setBoolean(9, thuoc.isIsActive()); // Use the provided getter
+            
+            n = stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return n > 0;
+    }
 
-        return n>0;
-	}
-	public static void main(String[] args) {
-		ConnectDB.getInstance().connect();
-		ThuocDAO dao = new ThuocDAO();
-//		ArrayList<Thuoc> thuocds = new ArrayList<Thuoc>();
-//		thuocds = dao.getListNhanVien();
-//		for(Thuoc thuoc2 : thuocds) {
-//			System.out.println(thuoc2);
-//		}
-		Thuoc thuock = new Thuoc();
-		thuock = dao.getThuoc("T001");
-		System.out.println(thuock);
-		thuock.setMaLo("0101");
-		dao.update(thuock);
-		thuock = dao.getThuoc("T001");
-		System.out.println(thuock);
-		try {
-			dao.create(thuock);
-		}
-		catch (Exception e) {
-			System.out.println(e);
-		}
-		
-	}
-	
+    /**
+     * Updates an existing drug's information in the database.
+     * @param thuoc The Thuoc object with updated information.
+     * @return true if the update was successful, false otherwise.
+     */
+    public boolean updateThuoc(Thuoc thuoc) {
+        String sql = "UPDATE Thuoc SET maLo = ?, tenThuoc = ?, soLuongTon = ?, giaBan = ?, donVi = ?, soLuongToiThieu = ?, maNSX = ?, isActive = ? WHERE maThuoc = ?";
+        int n = 0;
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, thuoc.getMaLo());
+            stmt.setString(2, thuoc.getTenThuoc());
+            stmt.setInt(3, thuoc.getSoLuongTon());
+            stmt.setDouble(4, thuoc.getGiaBan());
+            stmt.setString(5, thuoc.getDonVi());
+            stmt.setInt(6, thuoc.getSoLuongToiThieu());
+            stmt.setString(7, thuoc.getMaNSX());
+            stmt.setBoolean(8, thuoc.isIsActive()); // Use the provided getter
+            stmt.setString(9, thuoc.getMaThuoc());
+            
+            n = stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return n > 0;
+    }
+
+    /**
+     * Deletes a drug from the database by setting its isActive flag to false (soft delete).
+     * @param id The ID of the drug to delete.
+     * @return true if the deletion was successful, false otherwise.
+     */
+    public boolean deleteThuoc(String id) {
+        String sql = "UPDATE Thuoc SET isActive = 0 WHERE maThuoc = ?";
+        int n = 0;
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, id);
+            
+            n = stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return n > 0;
+    }
 }
-
