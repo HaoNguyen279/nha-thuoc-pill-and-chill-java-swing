@@ -4,53 +4,55 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Date;
 
 import app.ConnectDB.ConnectDB;
 import app.Entity.ChiTietLoThuoc;
 
 /**
- * DAO (Data Access Object) for the ChiTietLoThuoc entity.
- * Handles all database operations related to medicine batch details.
+ * DAO (Data Access Object) cho thực thể ChiTietLoThuoc.
+ * Chịu trách nhiệm cho tất cả các hoạt động cơ sở dữ liệu liên quan đến chi tiết lô thuốc.
  */
 public class ChiTietLoThuocDAO {
 
     /**
-     * Retrieves all detail lines for a specific medicine batch.
-     * @param maLo The ID of the parent medicine batch.
-     * @return An ArrayList of ChiTietLoThuoc objects.
+     * Lấy danh sách tất cả các chi tiết lô thuốc đang hoạt động (isActive = 1).
+     * @return ArrayList chứa các đối tượng ChiTietLoThuoc.
      */
-    public ArrayList<ChiTietLoThuoc> getChiTietByMaLo(String maLo) {
+    public ArrayList<ChiTietLoThuoc> getAllActiveChiTietLoThuoc() {
         ArrayList<ChiTietLoThuoc> dsChiTiet = new ArrayList<>();
-        String sql = "SELECT * FROM ChiTietLoThuoc WHERE maLo = ? AND isActive = 1";
+        String sql = "SELECT * FROM ChiTietLoThuoc WHERE isActive = 1";
 
         try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
 
-            stmt.setString(1, maLo);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    dsChiTiet.add(mapResultSetToChiTiet(rs));
-                }
+            while (rs.next()) {
+                ChiTietLoThuoc ct = new ChiTietLoThuoc(
+                    rs.getString("maLo"),
+                    rs.getString("maThuoc"),
+                    rs.getDate("ngaySanXuat"),
+                    rs.getDate("hanSuDung"),
+                    rs.getBoolean("isActive")
+                );
+                dsChiTiet.add(ct);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return dsChiTiet;
     }
-
+    
     /**
-     * Retrieves a single medicine batch detail by its composite key.
-     * @param maLo The ID of the medicine batch.
-     * @param maThuoc The ID of the medicine.
-     * @return A ChiTietLoThuoc object if found, otherwise null.
+     * Lấy một chi tiết lô thuốc cụ thể dựa trên khóa chính tổng hợp (mã lô và mã thuốc).
+     * @param maLo Mã lô thuốc.
+     * @param maThuoc Mã thuốc.
+     * @return Đối tượng ChiTietLoThuoc nếu tìm thấy, ngược lại trả về null.
      */
-    public ChiTietLoThuoc getChiTietById(String maLo, String maThuoc) {
+    public ChiTietLoThuoc getChiTietLoThuocById(String maLo, String maThuoc) {
         String sql = "SELECT * FROM ChiTietLoThuoc WHERE maLo = ? AND maThuoc = ?";
-        ChiTietLoThuoc ctlt = null;
+        ChiTietLoThuoc chiTiet = null;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -60,30 +62,40 @@ public class ChiTietLoThuocDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    ctlt = mapResultSetToChiTiet(rs);
+                    chiTiet = new ChiTietLoThuoc(
+                        rs.getString("maLo"),
+                        rs.getString("maThuoc"),
+                        rs.getDate("ngaySanXuat"),
+                        rs.getDate("hanSuDung"),
+                        rs.getBoolean("isActive")
+                    );
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return ctlt;
+        return chiTiet;
     }
 
     /**
-     * Adds a new medicine batch detail to the database.
-     * @param ctlt The ChiTietLoThuoc object to add.
-     * @return true if the operation was successful, false otherwise.
+     * Thêm một chi tiết lô thuốc mới vào cơ sở dữ liệu.
+     * @param chiTiet Đối tượng ChiTietLoThuoc cần thêm.
+     * @return true nếu thêm thành công, false nếu thất bại.
      */
-    public boolean addChiTietLoThuoc(ChiTietLoThuoc ctlt) {
+    public boolean create(ChiTietLoThuoc chiTiet) {
         String sql = "INSERT INTO ChiTietLoThuoc (maLo, maThuoc, ngaySanXuat, hanSuDung, isActive) VALUES (?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
-            setChiTietParameters(stmt, ctlt, false);
-            n = stmt.executeUpdate();
 
+            stmt.setString(1, chiTiet.getMaLo());
+            stmt.setString(2, chiTiet.getMaThuoc());
+            stmt.setDate(3, new java.sql.Date(chiTiet.getNgaySanXuat().getTime()));
+            stmt.setDate(4, new java.sql.Date(chiTiet.getHanSuDung().getTime()));
+            stmt.setBoolean(5, chiTiet.isIsActive());
+            
+            n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -91,20 +103,24 @@ public class ChiTietLoThuocDAO {
     }
 
     /**
-     * Updates an existing medicine batch detail.
-     * @param ctlt The ChiTietLoThuoc object with updated information.
-     * @return true if the update was successful, false otherwise.
+     * Cập nhật thông tin của một chi tiết lô thuốc.
+     * @param chiTiet Đối tượng ChiTietLoThuoc chứa thông tin cần cập nhật.
+     * @return true nếu cập nhật thành công, false nếu thất bại.
      */
-    public boolean updateChiTietLoThuoc(ChiTietLoThuoc ctlt) {
+    public boolean update(ChiTietLoThuoc chiTiet) {
         String sql = "UPDATE ChiTietLoThuoc SET ngaySanXuat = ?, hanSuDung = ?, isActive = ? WHERE maLo = ? AND maThuoc = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
-            setChiTietParameters(stmt, ctlt, true);
-            n = stmt.executeUpdate();
+            stmt.setDate(1, new java.sql.Date(chiTiet.getNgaySanXuat().getTime()));
+            stmt.setDate(2, new java.sql.Date(chiTiet.getHanSuDung().getTime()));
+            stmt.setBoolean(3, chiTiet.isIsActive());
+            stmt.setString(4, chiTiet.getMaLo());
+            stmt.setString(5, chiTiet.getMaThuoc());
 
+            n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -112,15 +128,15 @@ public class ChiTietLoThuocDAO {
     }
 
     /**
-     * Deactivates a medicine batch detail by setting its isActive flag to false (soft delete).
-     * @param maLo The ID of the medicine batch.
-     * @param maThuoc The ID of the medicine.
-     * @return true if the deactivation was successful, false otherwise.
+     * Xóa mềm một chi tiết lô thuốc bằng cách đặt isActive = 0.
+     * @param maLo Mã lô của chi tiết cần xóa.
+     * @param maThuoc Mã thuốc của chi tiết cần xóa.
+     * @return true nếu thành công, false nếu thất bại.
      */
-    public boolean deleteChiTietLoThuoc(String maLo, String maThuoc) {
+    public boolean softDelete(String maLo, String maThuoc) {
         String sql = "UPDATE ChiTietLoThuoc SET isActive = 0 WHERE maLo = ? AND maThuoc = ?";
         int n = 0;
-        
+
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
@@ -132,56 +148,5 @@ public class ChiTietLoThuocDAO {
             e.printStackTrace();
         }
         return n > 0;
-    }
-
-    // --- Helper Methods ---
-
-    private ChiTietLoThuoc mapResultSetToChiTiet(ResultSet rs) throws SQLException {
-        return new ChiTietLoThuoc(
-            rs.getString("maLo"),
-            rs.getString("maThuoc"),
-            rs.getDate("ngaySanXuat"),
-            rs.getDate("hanSuDung"),
-            rs.getBoolean("isActive")
-        );
-    }
-
-    private void setChiTietParameters(PreparedStatement stmt, ChiTietLoThuoc ctlt, boolean isUpdate) throws SQLException {
-        if (isUpdate) {
-            // For UPDATE statement
-            if (ctlt.getNgaySanXuat() != null) {
-                stmt.setDate(1, new java.sql.Date(ctlt.getNgaySanXuat().getTime()));
-            } else {
-                stmt.setNull(1, Types.DATE);
-            }
-
-            if (ctlt.getHanSuDung() != null) {
-                stmt.setDate(2, new java.sql.Date(ctlt.getHanSuDung().getTime()));
-            } else {
-                stmt.setNull(2, Types.DATE);
-            }
-
-            stmt.setBoolean(3, ctlt.isIsActive());
-            stmt.setString(4, ctlt.getMaLo());
-            stmt.setString(5, ctlt.getMaThuoc());
-        } else {
-            // For INSERT statement
-            stmt.setString(1, ctlt.getMaLo());
-            stmt.setString(2, ctlt.getMaThuoc());
-
-            if (ctlt.getNgaySanXuat() != null) {
-                stmt.setDate(3, new java.sql.Date(ctlt.getNgaySanXuat().getTime()));
-            } else {
-                stmt.setNull(3, Types.DATE);
-            }
-
-            if (ctlt.getHanSuDung() != null) {
-                stmt.setDate(4, new java.sql.Date(ctlt.getHanSuDung().getTime()));
-            } else {
-                stmt.setNull(4, Types.DATE);
-            }
-            
-            stmt.setBoolean(5, ctlt.isIsActive());
-        }
     }
 }

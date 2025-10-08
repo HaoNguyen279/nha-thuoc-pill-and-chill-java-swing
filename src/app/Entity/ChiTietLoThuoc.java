@@ -2,16 +2,31 @@ package app.Entity;
 
 import java.util.Date;
 
+/**
+ * Lớp ChiTietLoThuoc đại diện cho một chi tiết cụ thể của một lô thuốc trong cơ sở dữ liệu.
+ * Nó là bảng nối giữa Thuốc và Lô Thuốc.
+ */
 public class ChiTietLoThuoc {
     private String maLo;
     private String maThuoc;
     private Date ngaySanXuat;
     private Date hanSuDung;
-    private boolean isActive; // true = đang hiển thị, false = đã xóa/ẩn
+    private boolean isActive; // Trạng thái của lô thuốc trong chi tiết này
 
+    /**
+     * Hàm dựng mặc định.
+     */
     public ChiTietLoThuoc() {
     }
 
+    /**
+     * Hàm dựng đầy đủ các tham số.
+     * @param maLo Mã lô thuốc.
+     * @param maThuoc Mã thuốc.
+     * @param ngaySanXuat Ngày sản xuất.
+     * @param hanSuDung Hạn sử dụng.
+     * @param isActive Trạng thái hoạt động.
+     */
     public ChiTietLoThuoc(String maLo, String maThuoc, Date ngaySanXuat, Date hanSuDung, boolean isActive) {
         this.maLo = maLo;
         this.maThuoc = maThuoc;
@@ -19,6 +34,8 @@ public class ChiTietLoThuoc {
         this.hanSuDung = hanSuDung;
         this.isActive = isActive;
     }
+
+    // --- GETTERS AND SETTERS ---
 
     public String getMaLo() {
         return maLo;
@@ -51,7 +68,7 @@ public class ChiTietLoThuoc {
     public void setHanSuDung(Date hanSuDung) {
         this.hanSuDung = hanSuDung;
     }
-    
+
     public boolean isIsActive() {
         return isActive;
     }
@@ -59,19 +76,8 @@ public class ChiTietLoThuoc {
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
-    
-    // --- Phương thức tiện ích ---
-    
-    /** Kiểm tra xem chi tiết lô thuốc có đang hiển thị (chưa bị ẩn) hay không */
-    public boolean isVisible() {
-        return this.isActive;
-    }
-    
-    /** Đánh dấu chi tiết là đã ẩn/xóa */
-    public void markAsDeleted() {
-        this.isActive = false;
-    }
 
+    // --- toString METHOD ---
 
     @Override
     public String toString() {

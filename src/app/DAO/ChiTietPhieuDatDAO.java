@@ -4,34 +4,42 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 import app.ConnectDB.ConnectDB;
 import app.Entity.ChiTietPhieuDat;
 
 /**
- * DAO (Data Access Object) for the ChiTietPhieuDat entity.
- * Handles all database operations related to order note details.
+ * DAO (Data Access Object) cho thực thể ChiTietPhieuDat.
+ * Chịu trách nhiệm cho tất cả các hoạt động cơ sở dữ liệu liên quan đến chi tiết phiếu đặt.
  */
 public class ChiTietPhieuDatDAO {
 
     /**
-     * Retrieves all detail lines for a specific order note.
-     * @param maPhieuDat The ID of the parent order note.
-     * @return An ArrayList of ChiTietPhieuDat objects.
+     * Lấy tất cả các chi tiết phiếu đặt đang hoạt động (isActive = 1) theo mã phiếu đặt.
+     * @param maPhieuDat Mã của phiếu đặt cần lấy chi tiết.
+     * @return ArrayList chứa các đối tượng ChiTietPhieuDat.
      */
-    public ArrayList<ChiTietPhieuDat> getChiTietByMaPhieuDat(String maPhieuDat) {
+    public ArrayList<ChiTietPhieuDat> getAllByPhieuDatId(String maPhieuDat) {
         ArrayList<ChiTietPhieuDat> dsChiTiet = new ArrayList<>();
         String sql = "SELECT * FROM ChiTietPhieuDat WHERE maPhieuDat = ? AND isActive = 1";
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-
+            
             stmt.setString(1, maPhieuDat);
-
+            
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
-                    dsChiTiet.add(mapResultSetToChiTiet(rs));
+                    ChiTietPhieuDat ct = new ChiTietPhieuDat(
+                        rs.getString("maPhieuDat"),
+                        rs.getString("maThuoc"),
+                        rs.getString("tenThuoc"),
+                        rs.getInt("soLuong"),
+                        rs.getBoolean("isActive")
+                    );
+                    dsChiTiet.add(ct);
                 }
             }
         } catch (SQLException e) {
@@ -41,14 +49,14 @@ public class ChiTietPhieuDatDAO {
     }
 
     /**
-     * Retrieves a single order note detail by its composite key.
-     * @param maPhieuDat The ID of the parent order note.
-     * @param maThuoc The ID of the medicine.
-     * @return A ChiTietPhieuDat object if found, otherwise null.
+     * Lấy một chi tiết phiếu đặt cụ thể dựa trên khóa chính tổng hợp.
+     * @param maPhieuDat Mã phiếu đặt.
+     * @param maThuoc Mã thuốc.
+     * @return Đối tượng ChiTietPhieuDat nếu tìm thấy, ngược lại trả về null.
      */
     public ChiTietPhieuDat getChiTietById(String maPhieuDat, String maThuoc) {
         String sql = "SELECT * FROM ChiTietPhieuDat WHERE maPhieuDat = ? AND maThuoc = ?";
-        ChiTietPhieuDat ctpd = null;
+        ChiTietPhieuDat chiTiet = null;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
@@ -58,32 +66,38 @@ public class ChiTietPhieuDatDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    ctpd = mapResultSetToChiTiet(rs);
+                    chiTiet = new ChiTietPhieuDat(
+                        rs.getString("maPhieuDat"),
+                        rs.getString("maThuoc"),
+                        rs.getString("tenThuoc"),
+                        rs.getInt("soLuong"),
+                        rs.getBoolean("isActive")
+                    );
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return ctpd;
+        return chiTiet;
     }
 
     /**
-     * Adds a new order note detail to the database.
-     * @param ctpd The ChiTietPhieuDat object to add.
-     * @return true if the operation was successful, false otherwise.
+     * Thêm một chi tiết phiếu đặt mới vào cơ sở dữ liệu.
+     * @param chiTiet Đối tượng ChiTietPhieuDat cần thêm.
+     * @return true nếu thêm thành công, false nếu thất bại.
      */
-    public boolean addChiTietPhieuDat(ChiTietPhieuDat ctpd) {
+    public boolean create(ChiTietPhieuDat chiTiet) {
         String sql = "INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong, isActive) VALUES (?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
-            stmt.setString(1, ctpd.getMaPhieuDat());
-            stmt.setString(2, ctpd.getMaThuoc());
-            stmt.setString(3, ctpd.getTenThuoc());
-            stmt.setInt(4, ctpd.getSoLuong());
-            stmt.setBoolean(5, ctpd.isIsActive());
+
+            stmt.setString(1, chiTiet.getMaPhieuDat());
+            stmt.setString(2, chiTiet.getMaThuoc());
+            stmt.setString(3, chiTiet.getTenThuoc());
+            stmt.setInt(4, chiTiet.getSoLuong());
+            stmt.setBoolean(5, chiTiet.isIsActive());
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -93,23 +107,23 @@ public class ChiTietPhieuDatDAO {
     }
 
     /**
-     * Updates an existing order note detail.
-     * @param ctpd The ChiTietPhieuDat object with updated information.
-     * @return true if the update was successful, false otherwise.
+     * Cập nhật thông tin của một chi tiết phiếu đặt.
+     * @param chiTiet Đối tượng ChiTietPhieuDat chứa thông tin cần cập nhật.
+     * @return true nếu cập nhật thành công, false nếu thất bại.
      */
-    public boolean updateChiTietPhieuDat(ChiTietPhieuDat ctpd) {
+    public boolean update(ChiTietPhieuDat chiTiet) {
         String sql = "UPDATE ChiTietPhieuDat SET tenThuoc = ?, soLuong = ?, isActive = ? WHERE maPhieuDat = ? AND maThuoc = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
-            stmt.setString(1, ctpd.getTenThuoc());
-            stmt.setInt(2, ctpd.getSoLuong());
-            stmt.setBoolean(3, ctpd.isIsActive());
-            stmt.setString(4, ctpd.getMaPhieuDat());
-            stmt.setString(5, ctpd.getMaThuoc());
-            
+            stmt.setString(1, chiTiet.getTenThuoc());
+            stmt.setInt(2, chiTiet.getSoLuong());
+            stmt.setBoolean(3, chiTiet.isIsActive());
+            stmt.setString(4, chiTiet.getMaPhieuDat());
+            stmt.setString(5, chiTiet.getMaThuoc());
+
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -118,15 +132,15 @@ public class ChiTietPhieuDatDAO {
     }
 
     /**
-     * Deactivates an order note detail by setting its isActive flag to false (soft delete).
-     * @param maPhieuDat The ID of the parent order note.
-     * @param maThuoc The ID of the medicine.
-     * @return true if the deactivation was successful, false otherwise.
+     * Xóa mềm một chi tiết phiếu đặt bằng cách đặt isActive = 0.
+     * @param maPhieuDat Mã phiếu đặt của chi tiết cần xóa.
+     * @param maThuoc Mã thuốc của chi tiết cần xóa.
+     * @return true nếu thành công, false nếu thất bại.
      */
-    public boolean deleteChiTietPhieuDat(String maPhieuDat, String maThuoc) {
+    public boolean softDelete(String maPhieuDat, String maThuoc) {
         String sql = "UPDATE ChiTietPhieuDat SET isActive = 0 WHERE maPhieuDat = ? AND maThuoc = ?";
         int n = 0;
-        
+
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
@@ -139,17 +153,35 @@ public class ChiTietPhieuDatDAO {
         }
         return n > 0;
     }
-
+    
     /**
-     * Helper method to map a ResultSet row to a ChiTietPhieuDat object.
+     * Tính tổng số lượng thuốc trong một phiếu đặt (chỉ tính các chi tiết đang hoạt động).
+     * @param maPhieuDat Mã phiếu đặt cần tính tổng.
+     * @return Tổng số lượng.
      */
-    private ChiTietPhieuDat mapResultSetToChiTiet(ResultSet rs) throws SQLException {
-        return new ChiTietPhieuDat(
-            rs.getString("maPhieuDat"),
-            rs.getString("maThuoc"),
-            rs.getString("tenThuoc"),
-            rs.getInt("soLuong"),
-            rs.getBoolean("isActive")
-        );
+    public int getTongSoLuongTrongPhieu(String maPhieuDat) {
+        int tongSoLuong = 0;
+        String sql = "SELECT SUM(soLuong) FROM ChiTietPhieuDat WHERE maPhieuDat = ? AND isActive = 1";
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, maPhieuDat);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    tongSoLuong = rs.getInt(1); // Lấy kết quả từ cột đầu tiên
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tongSoLuong;
     }
+    
+    // Lưu ý: Phương thức getTongTienPhieuDat không thể được triển khai một cách chính xác
+    // vì lớp ChiTietPhieuDat không chứa thông tin về đơn giá. Để tính tổng tiền,
+    // cần phải JOIN với bảng chứa thông tin thuốc (ví dụ: bảng Thuoc) để lấy đơn giá.
+    // Ví dụ câu lệnh SQL có thể là:
+    // SELECT SUM(ct.soLuong * t.giaBan) FROM ChiTietPhieuDat ct JOIN Thuoc t ON ct.maThuoc = t.maThuoc WHERE ct.maPhieuDat = ?
 }
