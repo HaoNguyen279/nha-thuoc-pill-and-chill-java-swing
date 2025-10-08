@@ -4,35 +4,20 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
-public class LapHoaDon extends JFrame {
+public class LapHoaDonPanel extends JPanel {
     
-    public LapHoaDon() {
-        setTitle("Lập Hóa Đơn");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1200, 800);
-        setLocationRelativeTo(null);
+    public LapHoaDonPanel() {
+        setLayout(new BorderLayout());
+        setBackground(Color.WHITE);
         
-        // Main panel với BorderLayout
-        JPanel pnlMain = new JPanel(new BorderLayout());
-        pnlMain.setBackground(Color.WHITE);
-        
-        // Panel menu phía trên (NORTH)
-        MenuBarPanel menu = new MenuBarPanel();
-        JPanel pnlMenu = menu.get();
-        pnlMain.add(pnlMenu, BorderLayout.NORTH);
-        
-        // Panel chính giữa chứa 2 bảng(CENTER)
+        // Panel chính giữa chứa 2 bảng
         JPanel pnlCenter = createCenterPanel();
-        pnlMain.add(pnlCenter, BorderLayout.CENTER);
+        add(pnlCenter, BorderLayout.CENTER);
         
-        // Panel nút xác nhận phía dưới (SOUTH)
+        // Panel nút xác nhận phía dưới
         JPanel pnlBottom = createBottomPanel();
-        pnlMain.add(pnlBottom, BorderLayout.SOUTH);
-        
-        add(pnlMain);
-        setVisible(true);
+        add(pnlBottom, BorderLayout.SOUTH);
     }
-    
     
     private JPanel createCenterPanel() {
         JPanel centerPanel = new JPanel(new BorderLayout(0, 20));
@@ -74,7 +59,6 @@ public class LapHoaDon extends JFrame {
         searchPanel.setBackground(Color.WHITE);
         
         JTextField searchField = new JTextField(25);
-//        searchField.setText("Nhập từ khóa tìm kiếm");
         searchField.setForeground(Color.GRAY);
         searchField.setFont(new Font("Arial", Font.ITALIC, 13));
         searchField.setBackground(new Color(245, 245, 245));
@@ -110,7 +94,10 @@ public class LapHoaDon extends JFrame {
         }
         
         // Bảng dữ liệu
-        JTable table = new JTable(5, 5);
+        String[] columns = {"Mã thuốc", "Tên thuốc", "Số lượng", "Giá", "Thành tiền"};
+        Object[][] data = {};
+        
+        JTable table = new JTable(data, columns);
         table.setRowHeight(30);
         table.setBackground(new Color(240, 250, 240));
         table.setGridColor(Color.LIGHT_GRAY);
@@ -165,10 +152,5 @@ public class LapHoaDon extends JFrame {
         bottomPanel.add(confirmButton);
         
         return bottomPanel;
-    }
-    
-    
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new LapHoaDon());
     }
 }

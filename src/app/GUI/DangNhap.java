@@ -161,7 +161,7 @@ public class DangNhap extends JFrame implements ActionListener {
 		if (taiKhoan != null) {
 			JOptionPane.showMessageDialog(loginFrame, "Đăng nhập thành công! Xin chào " + taiKhoan.getMaNV());
 			loginFrame.dispose(); 
-			new Menu();
+			new Menu(taiKhoan.getMaNV());
 			
 		} else {
 			// Nếu taiKhoan là null -> Sai thông tin hoặc tài khoản bị khóa
