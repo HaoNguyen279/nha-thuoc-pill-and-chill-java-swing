@@ -12,7 +12,8 @@ CREATE TABLE NhaSanXuat (
     maNSX VARCHAR(50) PRIMARY KEY,
     tenNSX NVARCHAR(100),
     diaChiNSX NVARCHAR(200),
-    soDienThoai VARCHAR(20)
+    soDienThoai VARCHAR(20),
+	show bit DEFAULT 1,
 );
 GO
 
@@ -20,6 +21,7 @@ GO
 CREATE TABLE LoThuoc (
     maLo VARCHAR(50) PRIMARY KEY,
     maNSX VARCHAR(50),
+	show bit DEFAULT 1,
     FOREIGN KEY (maNSX) REFERENCES NhaSanXuat(maNSX)
 );
 GO
@@ -34,7 +36,8 @@ CREATE TABLE Thuoc (
     giaBan FLOAT,
     donVi NVARCHAR(50),
     soLuongToiThieu INT,
-	maNSX VARCHAR(50)
+	maNSX VARCHAR(50),
+	show bit DEFAULT 1,
 	FOREIGN KEY (maNSX) REFERENCES NhaSanXuat(maNSX)
 );
 GO
@@ -44,9 +47,10 @@ CREATE TABLE ChiTietLoThuoc (
     maThuoc VARCHAR(50),
     ngaySanXuat DATE,
     hanSuDung DATE,
+	show bit DEFAULT 1,
     PRIMARY KEY (maLo, maThuoc),
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo),
-    FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
+
 );
 GO
 -- Tạo bảng KhachHang
@@ -54,7 +58,8 @@ CREATE TABLE KhachHang (
     maKH VARCHAR(50) PRIMARY KEY,
     tenKH NVARCHAR(100),
     soDienThoai VARCHAR(20),
-    diemTichLuy INT
+    diemTichLuy INT,
+	show bit DEFAULT 1,
 );
 GO
 -- Tạo bảng NhanVien
@@ -62,13 +67,15 @@ CREATE TABLE NhanVien (
     maNV VARCHAR(50) PRIMARY KEY,
     tenNV NVARCHAR(100),
     chucVu NVARCHAR(50),
-    soDienThoai VARCHAR(20)
+    soDienThoai VARCHAR(20),
+	show bit DEFAULT 1,
 );
 GO
 -- Tạo bảng TaiKhoan
 CREATE TABLE TaiKhoan(
 	maNV VARCHAR(50) PRIMARY KEY,
 	matKhau VARCHAR(50),
+	show bit DEFAULT 1,
 	FOREIGN KEY (maNV)	REFERENCES NhanVien(maNV)
 );
 GO
@@ -77,7 +84,8 @@ CREATE TABLE KhuyenMai (
     maKM VARCHAR(50) PRIMARY KEY,
     mucGiamGia FLOAT,
 	ngayApDung DATE,
-	ngayKetThuc DATE
+	ngayKetThuc DATE,
+	show bit DEFAULT 1,
 );
 GO
 -- Tạo bảng Thue
@@ -85,7 +93,8 @@ CREATE TABLE Thue (
     maThue VARCHAR(50) PRIMARY KEY,
 	mucThue FLOAT,
     ngayApDung DATE,
-    ngayKetThuc DATE
+    ngayKetThuc DATE,
+	show bit DEFAULT 1,
 );
 GO
 -- Tạo bảng HoaDon
@@ -97,6 +106,7 @@ CREATE TABLE HoaDon (
     maKH VARCHAR(50),
 	maKM VARCHAR(50),
 	maThue VARCHAR(50),
+	show bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
 	FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
@@ -109,6 +119,7 @@ CREATE TABLE ChiTietHoaDon (
     maThuoc VARCHAR(50),
     soLuong INT,
 	donGia FLOAT,
+	show bit DEFAULT 1,
     PRIMARY KEY (maHoaDon, maThuoc),
     FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
@@ -120,6 +131,7 @@ CREATE TABLE PhieuDoiTra (
     ngayDoiTra DATE,
 	maNV VARCHAR(50),
 	maKH VARCHAR(50),
+	show bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
 );
@@ -132,6 +144,7 @@ CREATE TABLE ChiTietPhieuDoiTra (
     donGia FLOAT,
     maLo VARCHAR(50),
     lyDo NVARCHAR(200),
+	show bit DEFAULT 1,
     PRIMARY KEY (maPhieuDoiTra, maThuoc),
     FOREIGN KEY (maPhieuDoiTra) REFERENCES PhieuDoiTra(maPhieuDoiTra),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
@@ -144,6 +157,7 @@ CREATE TABLE PhieuDat (
     maNV VARCHAR(50),
     ngayDat DATE,
     maKH VARCHAR(50),
+	show bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
 );
@@ -154,6 +168,7 @@ CREATE TABLE ChiTietPhieuDat (
     maThuoc VARCHAR(50),
     tenThuoc NVARCHAR(100),
     soLuong INT,
+	show bit DEFAULT 1,
     PRIMARY KEY (maPhieuDat, maThuoc),
     FOREIGN KEY (maPhieuDat) REFERENCES PhieuDat(maPhieuDat),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
@@ -164,6 +179,7 @@ CREATE TABLE PhieuNhapThuoc (
     maPhieuNhapThuoc VARCHAR(50) PRIMARY KEY,
     maNV VARCHAR(50),
     ngayNhap DATE,
+	show bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
 );
 GO
@@ -173,6 +189,7 @@ CREATE TABLE ChiTietPhieuNhap (
     maLo VARCHAR(50),
 	soLuong INT,
 	donGia FLOAT,
+	show bit DEFAULT 1,
     PRIMARY KEY (maPhieuNhapThuoc, maLo),
     FOREIGN KEY (maPhieuNhapThuoc) REFERENCES PhieuNhapThuoc(maPhieuNhapThuoc),
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo)
