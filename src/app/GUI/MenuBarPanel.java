@@ -2,27 +2,73 @@ package app.GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.Box;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
-public class MenuBarPanel extends JPanel {
+import app.Entity.PhieuDoiTra;
+
+public class MenuBarPanel extends JPanel implements ActionListener {
 	
-    public MenuBarPanel() {
-		super();
+	private JFrame frmParent;
+	// MenuItem cho hệ thống
+	private JMenuItem mniHoTro;
+	private JMenuItem mniDangXuat;
+	private JMenuItem mniThoat;
+
+	// MenuItem cho danh mục
+	private JMenuItem mniHoaDon;
+	private JMenuItem mniPhieuDoiTra;
+	private JMenuItem mniPhieuDatThuoc;
+
+	// MenuItem cho cập nhật
+	private JMenuItem mniCapNhatThuoc;
+	private JMenuItem mniCapNhatKhachHang;
+	private JMenuItem mniCapNhatNhanVien;
+	private JMenuItem mniCapNhatKhuyenMai;
+
+	// MenuItem cho tìm kiếm
+	private JMenuItem mniTimKiemThuoc;
+	private JMenuItem mniTimKiemKhachHang;
+	private JMenuItem mniTimKiemNhanVien;
+
+	// MenuItem cho xử lí
+	private JMenuItem mniLapHoaDon;
+	private JMenuItem mniLapPhieuDatThuoc;
+	private JMenuItem mniLapPhieuTraThuoc;
+
+	// MenuItem cho thống kê
+	private JMenuItem mniDoanhThu;
+	private JMenuItem mniNhanVien;
+	private JMenuItem mniKhachHang;
+	private JMenuItem mniHanSuDung;
+	private JMenuItem mniThue;
+	private JMenuItem mniThuocDuocMuaNhieu;
+	
+    public MenuBarPanel(JFrame parent) {
+    	this.frmParent = parent;
 	}
 
 	public JPanel get() {
     	JPanel pnlMenu = new JPanel(new BorderLayout());
         JMenuBar mnuMenuBar = new JMenuBar();
         
-        JLabel ten = new JLabel("Tên nhân viên: Huynh Gia Man");
+        JLabel lblTenNhanVien = new JLabel("Tên nhân viên: Huynh Gia Man");
+        lblTenNhanVien.setFont(new Font("Arial", Font.PLAIN, 15));
+        
         JMenu mnuHeThong = new JMenu("Hệ thống");
         JMenu mnuDanhMuc = new JMenu("Danh mục");
         JMenu mnuCapNhat = new JMenu("Cập nhật");
@@ -37,52 +83,45 @@ public class MenuBarPanel extends JPanel {
         		mnuTimKiem, mnuXuLy, mnuThongKe
     	    }) {
     	        item.setFont(fntMenu);
-//    	        item.setMargin(new Insets(50, 20, 20, 20)); // trên, trái, dưới, phải
-//    	        item.setPreferredSize(new Dimension(180,40));
     	    }
 
         mnuMenuBar.setPreferredSize(new Dimension(1900,50));
         mnuMenuBar.setBackground(new Color(240,250,240));
 
-
-        
-        
         // MenuItem cho hệ thống
-        JMenuItem mniHoTro = new JMenuItem("Hỗ trợ");
-        JMenuItem mniDangXuat = new JMenuItem("Đăng xuất");
-        JMenuItem mniThoat = new JMenuItem("Thoát");
-        
+        mniHoTro = new JMenuItem("Hỗ trợ");
+        mniDangXuat = new JMenuItem("Đăng xuất");
+        mniThoat = new JMenuItem("Thoát");
+
         // MenuItem cho danh mục
-        JMenuItem mniHoaDon = new JMenuItem("Hóa đơn");
-        JMenuItem mniPhieuDoiTra = new JMenuItem("Phiếu đổi trả");
-        JMenuItem mniPhieuDatThuoc = new JMenuItem("Phiếu đặt thuốc");
-        
+        mniHoaDon = new JMenuItem("Hóa đơn");
+        mniPhieuDoiTra = new JMenuItem("Phiếu đổi trả");
+        mniPhieuDatThuoc = new JMenuItem("Phiếu đặt thuốc");
+
         // MenuItem cho cập nhật
-        JMenuItem mniCapNhatThuoc = new JMenuItem("Thuốc");
-        JMenuItem mniCapNhatKhachHang = new JMenuItem("Khách hàng");
-        JMenuItem mniCapNhatNhanVien = new JMenuItem("Nhân viên");
-        JMenuItem mniCapNhatKhuyenMai = new JMenuItem("Khuyến mãi");
+        mniCapNhatThuoc = new JMenuItem("Thuốc");
+        mniCapNhatKhachHang = new JMenuItem("Khách hàng");
+        mniCapNhatNhanVien = new JMenuItem("Nhân viên");
+        mniCapNhatKhuyenMai = new JMenuItem("Khuyến mãi");
 
         // MenuItem cho tìm kiếm
-        JMenuItem mniTimKiemThuoc = new JMenuItem("Thuốc");
-        JMenuItem mniTimKiemKhachHang = new JMenuItem("Khách hàng");
-        JMenuItem mniTimKiemNhanVien = new JMenuItem("Nhân viên");
+        mniTimKiemThuoc = new JMenuItem("Thuốc");
+        mniTimKiemKhachHang = new JMenuItem("Khách hàng");
+        mniTimKiemNhanVien = new JMenuItem("Nhân viên");
 
-        // MenuItem cho xử lí	
-        JMenuItem mniLapHoaDon = new JMenuItem("Lập hóa đơn");
-        JMenuItem mniLapPhieuDatThuoc = new JMenuItem("Lập phiếu đặt thuốc");
-        JMenuItem mniLapPhieuTraThuoc = new JMenuItem("Lập phiếu trả thuốc");
+        // MenuItem cho xử lí
+        mniLapHoaDon = new JMenuItem("Lập hóa đơn");
+        mniLapPhieuDatThuoc = new JMenuItem("Lập phiếu đặt thuốc");
+        mniLapPhieuTraThuoc = new JMenuItem("Lập phiếu trả thuốc");
         
         // MenuItem cho thống kê
-        JMenuItem mniDoanhThu = new JMenuItem("Doanh thu");
-        JMenuItem mniNhanVien = new JMenuItem("Nhân viên");
-        JMenuItem mniKhachHang = new JMenuItem("Khách hàng");
-        JMenuItem mniHanSuDung = new JMenuItem("Khách hàng");
-        JMenuItem mniThue = new JMenuItem("Khách hàng");
-        JMenuItem mniThuocDuocMuaNhieu = new JMenuItem("Thuốc mua nhiều");
+        mniDoanhThu = new JMenuItem("Doanh thu");
+        mniNhanVien = new JMenuItem("Nhân viên");
+        mniKhachHang = new JMenuItem("Khách hàng");
+        mniHanSuDung = new JMenuItem("Hạn sử dụng");
+        mniThue = new JMenuItem("Thuế");
+        mniThuocDuocMuaNhieu = new JMenuItem("Thuốc mua nhiều");
             
-       
-       
         Font itemFont = new Font("Arial", Font.PLAIN, 14);
 
         for (JMenuItem item1 : new JMenuItem[]{
@@ -94,10 +133,10 @@ public class MenuBarPanel extends JPanel {
             mniDoanhThu, mniNhanVien, mniKhachHang, mniHanSuDung, mniThue, mniThuocDuocMuaNhieu
         }) {
             item1.setFont(itemFont);
-//            item.setMargin(new Insets(50, 20, 20, 20)); // trên, trái, dưới, phải
+            item1.setBackground(getBackground());
             item1.setPreferredSize(new Dimension(180,40));
         }
-
+        
         // Hệ thống
         mnuHeThong.add(mniHoTro);
         mnuHeThong.add(mniDangXuat);
@@ -132,7 +171,6 @@ public class MenuBarPanel extends JPanel {
         mnuThongKe.add(mniHanSuDung);
         mnuThongKe.add(mniThuocDuocMuaNhieu);
 
-        
         // Thêm vào Menubar chính
         mnuMenuBar.add(mnuHeThong);
         mnuMenuBar.add(mnuDanhMuc);
@@ -143,12 +181,55 @@ public class MenuBarPanel extends JPanel {
         //Tạo khoảng cách giữa mnubar và tên nhân viên
         mnuMenuBar.add(Box.createHorizontalGlue());
         
-        
-        mnuMenuBar.add(ten);
+       
+        JMenuItem[] menuItems = {
+        	    mniHoTro, mniDangXuat, mniThoat,
+        	    mniHoaDon, mniPhieuDoiTra, mniPhieuDatThuoc,
+        	    mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai,
+        	    mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,
+        	    mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc,
+        	    mniDoanhThu, mniNhanVien, mniKhachHang, mniHanSuDung, mniThue, mniThuocDuocMuaNhieu
+        	};
+    	for (JMenuItem item : menuItems) {
+    	    item.addActionListener(this);
+    	}
+
+        mnuMenuBar.add(lblTenNhanVien);
         mnuMenuBar.add(Box.createHorizontalStrut(10));
         
         pnlMenu.add(mnuMenuBar);
         return pnlMenu;
     }
 
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		Object o = e.getSource();
+		if(o == mniLapHoaDon) {
+			new LapHoaDon();
+		}
+		else if(o == mniCapNhatKhachHang) {
+			new CapNhatKhachHangGUI();
+		}
+		else if(o == mniLapPhieuTraThuoc) {
+			new LapPhieuDoiThuoc();
+		}
+		else if(o == mniTimKiemThuoc) {
+			new TimKiemThuoc();
+		}
+		else if(o == mniDangXuat) { // Loi dispose
+			CustomJOptionPane a = new CustomJOptionPane(this, "Bạn có chắc muốn đăng xuất?", true);
+			int choice = a.show();
+			if(choice == JOptionPane.YES_OPTION) {
+				Window window = SwingUtilities.getWindowAncestor(frmParent);
+				window.dispose();
+				new LoginGUI();
+			}
+		}
+		else if(o == mniThoat) {
+			CustomJOptionPane a = new CustomJOptionPane(this, "Bạn có chắc muốn tắt ứng dụng?", true);
+			int choice = a.show();
+			if(choice == JOptionPane.YES_OPTION) System.exit(0);
+		}
+	}
 }

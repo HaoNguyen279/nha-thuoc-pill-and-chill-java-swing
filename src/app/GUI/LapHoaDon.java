@@ -8,7 +8,7 @@ public class LapHoaDon extends JFrame {
     
     public LapHoaDon() {
         setTitle("Lập Hóa Đơn");
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setSize(1200, 800);
         setLocationRelativeTo(null);
         
@@ -17,7 +17,7 @@ public class LapHoaDon extends JFrame {
         pnlMain.setBackground(Color.WHITE);
         
         // Panel menu phía trên (NORTH)
-        MenuBarPanel menu = new MenuBarPanel();
+        MenuBarPanel menu = new MenuBarPanel(this);
         JPanel pnlMenu = menu.get();
         pnlMain.add(pnlMenu, BorderLayout.NORTH);
         
@@ -35,6 +35,7 @@ public class LapHoaDon extends JFrame {
     
     
     private JPanel createCenterPanel() {
+    	
         JPanel centerPanel = new JPanel(new BorderLayout(0, 20));
         centerPanel.setBackground(Color.WHITE);
         centerPanel.setBorder(new EmptyBorder(20, 40, 20, 40));
@@ -167,8 +168,4 @@ public class LapHoaDon extends JFrame {
         return bottomPanel;
     }
     
-    
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> new LapHoaDon());
-    }
 }

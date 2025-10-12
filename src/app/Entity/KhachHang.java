@@ -5,16 +5,18 @@ public class KhachHang {
     private String soDienThoai;
     private int diemTichLuy;
     private String diaChi;
+    private boolean isActive;
 
     public KhachHang() {
     }
 
-    public KhachHang(String maKH, String tenKH, String soDienThoai, int diemTichLuy, String diaChi) {
+    public KhachHang(String maKH, String tenKH, String soDienThoai, int diemTichLuy , boolean isActive) {
         this.maKH = maKH;
         this.tenKH = tenKH;
         this.soDienThoai = soDienThoai;
         this.diemTichLuy = diemTichLuy;
         this.diaChi = diaChi;
+        this.isActive = isActive;
     }
 
     public String getMaKH() {
@@ -56,6 +58,13 @@ public class KhachHang {
     public void setDiaChi(String diaChi) {
         this.diaChi = diaChi;
     }
+    
+   public boolean isIsActive() {
+	   return isActive;
+   }
+   public void setIsActive(boolean is) {
+	   this.isActive = is;
+   }
 
     @Override
     public String toString() {

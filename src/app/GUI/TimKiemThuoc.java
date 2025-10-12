@@ -8,19 +8,25 @@ import app.DAO.ThuocDAO;
 import app.Entity.Thuoc;
 
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
-public class TimKiemThuoc extends JFrame{
+public class TimKiemThuoc extends JFrame implements ActionListener{
 	    private DefaultTableModel dtmTable;
 	    private ArrayList<Thuoc> dsThuoc;
-
-
+		private JButton btnTim;
+		private JTextField txtTim;
+		private String tieuChi = "Mã thuốc";
+		private JComboBox<String> cboTieuChi;
+		
 		public TimKiemThuoc() {
 	        setTitle("Tìm kiếm thuốc");
-	        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 	        setSize(1200, 800);
 	        setLocationRelativeTo(null);
 	        ConnectDB.getInstance().connect();
-	        
+	        ThuocDAO thuocdao = new ThuocDAO();
+	    	dsThuoc = thuocdao.getListThuoc();
 	        JPanel mainPanel = new JPanel(new BorderLayout());
 	        mainPanel.setBackground(Color.WHITE);
 	        
@@ -63,8 +69,16 @@ public class TimKiemThuoc extends JFrame{
 
 	        // Bảng dữ liệu
 	        String[] cols = {"Mã thuốc" , "Mã lô" , "Tên thuốc", "Số lượng tồn", "Giá bán","Đơn vị","Số lượng tối thiểu","Mã nsx"};
-	        dtmTable = new DefaultTableModel(cols,0);
-	        loadData_Thuoc();
+	        
+	        dtmTable = new DefaultTableModel(cols, 0) {
+
+	            @Override
+	            public boolean isCellEditable(int row, int column) {
+	               //all cells false
+	               return false;
+	            }
+	        };
+	    	loadData_Thuoc(dsThuoc);
 	        
 	        JTable table = new JTable(dtmTable);
 	        
@@ -91,64 +105,44 @@ public class TimKiemThuoc extends JFrame{
 	        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
 	        searchPanel.setBackground(Color.WHITE);
 	        
-	        JTextField searchField = new JTextField(25);
-	        searchField.setText("");
-	        searchField.setForeground(Color.GRAY);
-	        searchField.setFont(new Font("Arial", Font.ITALIC, 13));
-	        searchField.setBackground(new Color(245, 245, 245));
-	        searchField.setBorder(BorderFactory.createCompoundBorder(
+	        txtTim = new JTextField(25);
+	        txtTim.setText("");
+	        txtTim.setForeground(Color.GRAY);
+	        txtTim.setFont(new Font("Arial", Font.ITALIC, 13));
+	        txtTim.setBackground(new Color(245, 245, 245));
+	        txtTim.setBorder(BorderFactory.createCompoundBorder(
 	            BorderFactory.createLineBorder(Color.LIGHT_GRAY),
 	            BorderFactory.createEmptyBorder(5, 10, 5, 10)
 	        ));
 	        
-	        JButton searchButton = new JButton("Tìm");
-	        searchButton.setFont(new Font("Arial", Font.PLAIN, 13));
-	        searchButton.setPreferredSize(new Dimension(80, 30));
-	        searchButton.setBackground(Color.WHITE);
-	        searchButton.setBorder(BorderFactory.createLineBorder(Color.BLACK));
-	        searchButton.setFocusPainted(false);
-	        searchButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
+	        btnTim = new JButton("Tìm");
+	        btnTim.setFont(new Font("Arial", Font.PLAIN, 13));
+	        btnTim.setPreferredSize(new Dimension(80, 30));
+	        btnTim.setBackground(Color.WHITE);
+	        btnTim.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+	        btnTim.setFocusPainted(false);
+	        btnTim.setCursor(new Cursor(Cursor.HAND_CURSOR));
+	        btnTim.addActionListener(this);
 	        
-	        searchPanel.add(searchField);
-	        searchPanel.add(searchButton);
+	        String[] tieuChiTim = {"Mã thuốc","Mã lô","Tên thuốc"};
+	        cboTieuChi = new JComboBox<String>(tieuChiTim);
 	        
+	        cboTieuChi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+	        cboTieuChi.setBackground(Color.WHITE);
+	        cboTieuChi.setForeground(Color.BLACK);
+	        cboTieuChi.setFocusable(false);
+	        cboTieuChi.setBorder(BorderFactory.createLineBorder(Color.gray));
+	        
+	        cboTieuChi.addActionListener(this);
+	        searchPanel.add(txtTim);
+	        searchPanel.add(btnTim);
+	        searchPanel.add(cboTieuChi);
 	        return searchPanel;
 	    }
+	   
 	    
-	    private JPanel taoTablePanel(String title, String buttonText) {
-	        JPanel panel = new JPanel(new BorderLayout());
-	        panel.setBackground(Color.WHITE);
-	        
-	        
-	        
-	        
-	        // Bảng dữ liệu
-	        String[] cols = {"Mã thuốc" , "Mã lô" , "Tên thuốc", "Số lượng tồn", "Giá bán","Đơn vị","Số lượng tối thiểu","Mã nsx"};
-	        dtmTable = new DefaultTableModel(cols,0);
-	        loadData_Thuoc();
-	        
-	        JTable table = new JTable(dtmTable);
-	        
-	        table.setBackground(new Color(240, 240, 245));
-	        table.setGridColor(Color.LIGHT_GRAY);
-	        table.setFont(new Font("Arial", Font.PLAIN, 12));
-	        
-	        JScrollPane scrollPane = new JScrollPane(table);
-//	        scrollPane.setPreferredSize(new Dimension(0, 300));
-	        scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
-	        
-	        
-	        
-	        panel.add(scrollPane, BorderLayout.CENTER);
-
-	        
-	        return panel;
-	    }
-	    
-	    public void loadData_Thuoc() {
+	    public void loadData_Thuoc(ArrayList<Thuoc> dsThuoc) {
 	    	dtmTable.setRowCount(0);
-	    	ThuocDAO thuocdao = new ThuocDAO();
-	    	dsThuoc = thuocdao.getListThuoc();
 	    	for(Thuoc thuoc : dsThuoc) {
 	    		Object[] rowData =  {
 	    				thuoc.getMaThuoc(),
@@ -166,9 +160,66 @@ public class TimKiemThuoc extends JFrame{
 	    
 	    
 	    
+	    
+	    
 	    public static void main(String[] args) {
 	        SwingUtilities.invokeLater(() -> new TimKiemThuoc());
 	    }
+
+
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			Object o = e.getSource();
+			if(o==btnTim) {
+				ArrayList<Thuoc> ketQuaTim = new ArrayList<Thuoc>();
+				String timString = txtTim.getText().toLowerCase().trim();
+				if(timString.isBlank()) {
+					 loadData_Thuoc(dsThuoc);
+				}
+				else {
+					if(tieuChi.equals("Mã thuốc")) {
+						for(Thuoc thuoc: dsThuoc) {
+							if(thuoc.getMaThuoc().toLowerCase().matches("^"+timString+".*")) {
+								ketQuaTim.add(thuoc);
+							}
+						}
+						loadData_Thuoc(ketQuaTim);
+					}
+					else if(tieuChi.equals("Mã lô")) {
+						for(Thuoc thuoc: dsThuoc) {
+							if(thuoc.getMaLo().toLowerCase().matches("^"+timString+".*")) {
+								ketQuaTim.add(thuoc);
+							}
+						}
+						loadData_Thuoc(ketQuaTim);
+					}
+					else {
+						for(Thuoc thuoc: dsThuoc) {
+							if(thuoc.getTenThuoc().toLowerCase().matches("^"+timString+".*")) {
+								ketQuaTim.add(thuoc);
+							}
+						}
+						loadData_Thuoc(ketQuaTim);
+					}
+					
+				}
+				if(ketQuaTim.isEmpty()) {
+					JOptionPane.showMessageDialog(this,
+		                    "Không tìm thấy!!",
+		                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+					loadData_Thuoc(dsThuoc);
+					txtTim.setText("");
+					txtTim.requestFocus();
+				}
+
+				System.out.println(timString);
+			}
+			else if(o == cboTieuChi) {
+				tieuChi = cboTieuChi.getSelectedItem().toString();
+				System.out.println(tieuChi);
+			}
+		}
 	}
 
 

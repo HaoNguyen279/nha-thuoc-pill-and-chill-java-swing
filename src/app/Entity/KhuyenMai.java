@@ -1,20 +1,21 @@
 package app.Entity;
-import java.util.Date;
+import java.sql.Date;
 
 public class KhuyenMai {
     private String maKM;
-    private float phanTramGia;
+    private float mucGiam;
     private Date ngayApDung;
     private Date ngayKetThuc;
 
     public KhuyenMai() {
     }
 
-    public KhuyenMai(String maKM, float phanTramGia, Date ngayApDung, Date ngayKetThuc) {
+    public KhuyenMai(String maKM, float mucGiam, Date ngayApDung, Date ngayKetThuc) {
         this.maKM = maKM;
-        this.phanTramGia = phanTramGia;
+        this.mucGiam = mucGiam;
         this.ngayApDung = ngayApDung;
         this.ngayKetThuc = ngayKetThuc;
+        
     }
 
     public String getMaKM() {
@@ -25,12 +26,12 @@ public class KhuyenMai {
         this.maKM = maKM;
     }
 
-    public float getPhanTramGia() {
-        return phanTramGia;
+    public float getMucGiam() {
+        return mucGiam;
     }
 
-    public void setPhanTramGia(float phanTramGia) {
-        this.phanTramGia = phanTramGia;
+    public void setMucGiam(float mucGiam) {
+        this.mucGiam = mucGiam;
     }
 
     public Date getNgayApDung() {
@@ -53,7 +54,7 @@ public class KhuyenMai {
     public String toString() {
         return "KhuyenMai{" +
                 "maKM='" + maKM + '\'' +
-                ", phanTramGia=" + phanTramGia +
+                ", mucGiam=" + mucGiam +
                 ", ngayApDung=" + ngayApDung +
                 ", ngayKetThuc=" + ngayKetThuc +
                 '}';
