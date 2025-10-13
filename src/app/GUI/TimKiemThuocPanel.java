@@ -4,7 +4,6 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import app.ConnectDB.ConnectDB;
 import app.DAO.ThuocDAO;
 import app.Entity.Thuoc;
 

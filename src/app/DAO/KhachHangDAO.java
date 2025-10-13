@@ -48,9 +48,9 @@ public class KhachHangDAO {
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             stmt.setString(1, id);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     kh = mapResultSetToKhachHang(rs);
@@ -73,7 +73,7 @@ public class KhachHangDAO {
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             String searchKeyword = "%" + keyword + "%";
             stmt.setString(1, searchKeyword);
             stmt.setString(2, searchKeyword);
@@ -100,13 +100,13 @@ public class KhachHangDAO {
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             stmt.setString(1, kh.getMaKH());
             stmt.setString(2, kh.getTenKH());
             stmt.setString(3, kh.getSoDienThoai());
             stmt.setInt(4, kh.getDiemTichLuy());
             stmt.setBoolean(5, kh.isIsActive());
-            
+
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -125,13 +125,13 @@ public class KhachHangDAO {
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             stmt.setString(1, kh.getTenKH());
             stmt.setString(2, kh.getSoDienThoai());
             stmt.setInt(3, kh.getDiemTichLuy());
             stmt.setBoolean(4, kh.isIsActive());
             stmt.setString(5, kh.getMaKH());
-            
+
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -147,12 +147,12 @@ public class KhachHangDAO {
     public boolean deleteKhachHang(String id) {
         String sql = "UPDATE KhachHang SET isActive = 0 WHERE maKH = ?";
         int n = 0;
-        
+
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             stmt.setString(1, id);
-            
+
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();

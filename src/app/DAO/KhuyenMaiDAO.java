@@ -25,10 +25,10 @@ public class KhuyenMaiDAO {
     public ArrayList<KhuyenMai> getKhuyenMaiHieuLuc() {
         ArrayList<KhuyenMai> dsKhuyenMai = new ArrayList<>();
         String sql = "SELECT * FROM KhuyenMai WHERE isActive = 1 AND ? >= ngayApDung AND ? <= ngayKetThuc";
-        
+
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             // Get current date as java.sql.Date for DB comparison
             java.sql.Date homNay = new java.sql.Date(new Date().getTime());
             stmt.setDate(1, homNay);
@@ -77,9 +77,9 @@ public class KhuyenMaiDAO {
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             stmt.setString(1, id);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     km = mapResultSetToKhuyenMai(rs);
@@ -102,9 +102,9 @@ public class KhuyenMaiDAO {
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             setKhuyenMaiParameters(stmt, km, false);
-            
+
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -123,9 +123,9 @@ public class KhuyenMaiDAO {
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             setKhuyenMaiParameters(stmt, km, true);
-            
+
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -141,19 +141,18 @@ public class KhuyenMaiDAO {
     public boolean deleteKhuyenMai(String id) {
         String sql = "UPDATE KhuyenMai SET isActive = 0 WHERE maKM = ?";
         int n = 0;
-        
+
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             stmt.setString(1, id);
-            
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return n > 0;
     }
-    
+
     // --- Helper Methods ---
 
     /**
@@ -184,36 +183,32 @@ public class KhuyenMaiDAO {
         if (isUpdate) {
             stmt.setFloat(paramIndex++, km.getMucGiamGia());
 
-            if (km.getNgayApDung() != null) {
+            if (km.getNgayApDung() != null)
                 stmt.setDate(paramIndex++, new java.sql.Date(km.getNgayApDung().getTime()));
-            } else {
+            else
                 stmt.setNull(paramIndex++, Types.DATE);
-            }
 
-            if (km.getNgayKetThuc() != null) {
+            if (km.getNgayKetThuc() != null)
                 stmt.setDate(paramIndex++, new java.sql.Date(km.getNgayKetThuc().getTime()));
-            } else {
+            else
                 stmt.setNull(paramIndex++, Types.DATE);
-            }
-            
+
             stmt.setBoolean(paramIndex++, km.isIsActive());
             stmt.setString(paramIndex++, km.getMaKM());
         } else {
             stmt.setString(paramIndex++, km.getMaKM());
             stmt.setFloat(paramIndex++, km.getMucGiamGia());
 
-            if (km.getNgayApDung() != null) {
+            if (km.getNgayApDung() != null)
                 stmt.setDate(paramIndex++, new java.sql.Date(km.getNgayApDung().getTime()));
-            } else {
+            else
                 stmt.setNull(paramIndex++, Types.DATE);
-            }
 
-            if (km.getNgayKetThuc() != null) {
+            if (km.getNgayKetThuc() != null)
                 stmt.setDate(paramIndex++, new java.sql.Date(km.getNgayKetThuc().getTime()));
-            } else {
+            else
                 stmt.setNull(paramIndex++, Types.DATE);
-            }
-            
+
             stmt.setBoolean(paramIndex++, km.isIsActive());
         }
     }
