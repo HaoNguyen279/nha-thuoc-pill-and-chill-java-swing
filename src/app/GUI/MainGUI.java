@@ -30,7 +30,7 @@ public class MainGUI extends JFrame{
 		
 		
 	    frame.setSize(1028, 720);
-	    frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+	    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 	    frame.setVisible(true);
 	    setLocationRelativeTo(null);
 	}

@@ -2,12 +2,14 @@ package app.GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.net.URL;
 
 import javax.swing.Box;
 import javax.swing.JFrame;
@@ -20,6 +22,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import app.Entity.PhieuDoiTra;
+import app.Main.App;
 
 public class MenuBarPanel extends JPanel implements ActionListener {
 	
@@ -208,8 +211,17 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 		if(o == mniLapHoaDon) {
 			new LapHoaDon();
 		}
+		else if(o == mniCapNhatThuoc) {
+			new CapNhatThuocGUI();
+		}
 		else if(o == mniCapNhatKhachHang) {
 			new CapNhatKhachHangGUI();
+		}
+		else if(o == mniCapNhatNhanVien) {
+			new CapNhatNhanVienGUI();
+		}
+		else if(o == mniCapNhatKhuyenMai) {
+			new CapNhatKhuyenMaiGUI();
 		}
 		else if(o == mniLapPhieuTraThuoc) {
 			new LapPhieuDoiThuoc();
@@ -230,6 +242,34 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 			CustomJOptionPane a = new CustomJOptionPane(this, "Bạn có chắc muốn tắt ứng dụng?", true);
 			int choice = a.show();
 			if(choice == JOptionPane.YES_OPTION) System.exit(0);
+		}
+		else if(o == mniHoTro) {
+			try {
+				URL fileURL = App.class.getResource("/resources/pdf/HuongDanSuDung.pdf");
+				if(fileURL != null) {
+					File file = new File(fileURL.toURI());
+					if(file.exists()) {
+						if(Desktop.isDesktopSupported()) {
+							Desktop.getDesktop().open(file);
+						}
+					}
+					else {
+						CustomJOptionPane a =  new CustomJOptionPane(this, "File PDF không tồn tại!", false);
+						a.show();
+					}
+				}else {
+					CustomJOptionPane a =  new CustomJOptionPane(this, "File PDF không tồn tại!", false);
+					a.show();
+				}
+			} catch (Exception e1) {
+				new CustomJOptionPane(this, "Gặp lỗi khi mở file PDF, mã lỗi:!" + e1.getMessage(), false);
+			}
+		}
+		else if(o == mniDoanhThu) {
+			CustomJOptionPane a = new CustomJOptionPane(this, "Test jcustom", false);
+			int choice = a.show();
+			System.out.println(choice);
+//			if(choice == JOptionPane.YES_OPTION) System.exit(0);
 		}
 	}
 }

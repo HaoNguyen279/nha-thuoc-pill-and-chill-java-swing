@@ -1,8 +1,8 @@
 package app.Main;
-import app.GUI.LoginGUI;
+import app.GUI.MainGUI;
 
 public class App {
 	public static void main(String[] args) {
-		LoginGUI b = new LoginGUI();
+		MainGUI b = new MainGUI();
 	}
 }
