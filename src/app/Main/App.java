@@ -1,8 +1,9 @@
 package app.Main;
-import app.GUI.MainGUI;
+import app.GUI.DangNhap;
+
 
 public class App {
 	public static void main(String[] args) {
-		MainGUI b = new MainGUI();
+		DangNhap b = new DangNhap();
 	}
 }

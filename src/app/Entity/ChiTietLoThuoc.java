@@ -1,34 +1,41 @@
 package app.Entity;
+
 import java.util.Date;
 
+/**
+ * Lớp ChiTietLoThuoc đại diện cho một chi tiết cụ thể của một lô thuốc trong cơ sở dữ liệu.
+ * Nó là bảng nối giữa Thuốc và Lô Thuốc.
+ */
 public class ChiTietLoThuoc {
     private String maLo;
     private String maThuoc;
-    private String tenThuoc;
     private Date ngaySanXuat;
     private Date hanSuDung;
-    private int soLuongTon;
-    private float giaBan;
-    private String donVi;
-    private int soLuongToiThieu;
-    private String maNSX;
+    private boolean isActive; // Trạng thái của lô thuốc trong chi tiết này
 
+    /**
+     * Hàm dựng mặc định.
+     */
     public ChiTietLoThuoc() {
     }
 
-    public ChiTietLoThuoc(String maLo, String maThuoc, String tenThuoc, Date ngaySanXuat, Date hanSuDung, 
-                          int soLuongTon, float giaBan, String donVi, int soLuongToiThieu, String maNSX) {
+    /**
+     * Hàm dựng đầy đủ các tham số.
+     * @param maLo Mã lô thuốc.
+     * @param maThuoc Mã thuốc.
+     * @param ngaySanXuat Ngày sản xuất.
+     * @param hanSuDung Hạn sử dụng.
+     * @param isActive Trạng thái hoạt động.
+     */
+    public ChiTietLoThuoc(String maLo, String maThuoc, Date ngaySanXuat, Date hanSuDung, boolean isActive) {
         this.maLo = maLo;
         this.maThuoc = maThuoc;
-        this.tenThuoc = tenThuoc;
         this.ngaySanXuat = ngaySanXuat;
         this.hanSuDung = hanSuDung;
-        this.soLuongTon = soLuongTon;
-        this.giaBan = giaBan;
-        this.donVi = donVi;
-        this.soLuongToiThieu = soLuongToiThieu;
-        this.maNSX = maNSX;
+        this.isActive = isActive;
     }
+
+    // --- GETTERS AND SETTERS ---
 
     public String getMaLo() {
         return maLo;
@@ -44,14 +51,6 @@ public class ChiTietLoThuoc {
 
     public void setMaThuoc(String maThuoc) {
         this.maThuoc = maThuoc;
-    }
-
-    public String getTenThuoc() {
-        return tenThuoc;
-    }
-
-    public void setTenThuoc(String tenThuoc) {
-        this.tenThuoc = tenThuoc;
     }
 
     public Date getNgaySanXuat() {
@@ -70,59 +69,24 @@ public class ChiTietLoThuoc {
         this.hanSuDung = hanSuDung;
     }
 
-    public int getSoLuongTon() {
-        return soLuongTon;
+    public boolean isIsActive() {
+        return isActive;
     }
 
-    public void setSoLuongTon(int soLuongTon) {
-        this.soLuongTon = soLuongTon;
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
 
-    public float getGiaBan() {
-        return giaBan;
-    }
-
-    public void setGiaBan(float giaBan) {
-        this.giaBan = giaBan;
-    }
-
-    public String getDonVi() {
-        return donVi;
-    }
-
-    public void setDonVi(String donVi) {
-        this.donVi = donVi;
-    }
-
-    public int getSoLuongToiThieu() {
-        return soLuongToiThieu;
-    }
-
-    public void setSoLuongToiThieu(int soLuongToiThieu) {
-        this.soLuongToiThieu = soLuongToiThieu;
-    }
-
-    public String getMaNSX() {
-        return maNSX;
-    }
-
-    public void setMaNSX(String maNSX) {
-        this.maNSX = maNSX;
-    }
+    // --- toString METHOD ---
 
     @Override
     public String toString() {
         return "ChiTietLoThuoc{" +
                 "maLo='" + maLo + '\'' +
                 ", maThuoc='" + maThuoc + '\'' +
-                ", tenThuoc='" + tenThuoc + '\'' +
                 ", ngaySanXuat=" + ngaySanXuat +
                 ", hanSuDung=" + hanSuDung +
-                ", soLuongTon=" + soLuongTon +
-                ", giaBan=" + giaBan +
-                ", donVi='" + donVi + '\'' +
-                ", soLuongToiThieu=" + soLuongToiThieu +
-                ", maNSX='" + maNSX + '\'' +
+                ", isActive=" + isActive +
                 '}';
     }
 }

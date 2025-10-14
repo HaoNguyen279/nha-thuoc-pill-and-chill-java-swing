@@ -1,21 +1,20 @@
 package app.Entity;
+
 public class KhachHang {
     private String maKH;
     private String tenKH;
     private String soDienThoai;
     private int diemTichLuy;
-    private String diaChi;
-    private boolean isActive;
+    private boolean isActive; // true = đang hoạt động/hiển thị, false = đã xóa/ẩn
 
     public KhachHang() {
     }
 
-    public KhachHang(String maKH, String tenKH, String soDienThoai, int diemTichLuy , boolean isActive) {
+    public KhachHang(String maKH, String tenKH, String soDienThoai, int diemTichLuy, boolean isActive) {
         this.maKH = maKH;
         this.tenKH = tenKH;
         this.soDienThoai = soDienThoai;
         this.diemTichLuy = diemTichLuy;
-        this.diaChi = diaChi;
         this.isActive = isActive;
     }
 
@@ -51,20 +50,25 @@ public class KhachHang {
         this.diemTichLuy = diemTichLuy;
     }
 
-    public String getDiaChi() {
-        return diaChi;
+    public boolean isIsActive() {
+        return isActive;
     }
 
-    public void setDiaChi(String diaChi) {
-        this.diaChi = diaChi;
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
     }
     
-   public boolean isIsActive() {
-	   return isActive;
-   }
-   public void setIsActive(boolean is) {
-	   this.isActive = is;
-   }
+    // --- Phương thức tiện ích ---
+    
+    /** Kiểm tra xem khách hàng có đang hoạt động/hiển thị hay không */
+    public boolean isVisible() {
+        return this.isActive;
+    }
+    
+    /** Đánh dấu khách hàng là đã ẩn/xóa */
+    public void markAsDeleted() {
+        this.isActive = false;
+    }
 
     @Override
     public String toString() {
@@ -73,7 +77,7 @@ public class KhachHang {
                 ", tenKH='" + tenKH + '\'' +
                 ", soDienThoai='" + soDienThoai + '\'' +
                 ", diemTichLuy=" + diemTichLuy +
-                ", diaChi='" + diaChi + '\'' +
+                ", isActive=" + isActive +
                 '}';
     }
 }

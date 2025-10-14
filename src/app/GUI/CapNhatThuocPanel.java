@@ -35,7 +35,7 @@ import app.Entity.KhachHang;
 import app.Entity.NhanVien;
 import app.Entity.Thuoc;
 
-public class CapNhatThuocGUI extends JFrame implements ActionListener, MouseListener{
+public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseListener{
 	
 	private JLabel lblTieuDe;
 	private JLabel lblMaThuoc;
@@ -65,7 +65,7 @@ public class CapNhatThuocGUI extends JFrame implements ActionListener, MouseList
 	
 	private ArrayList<Thuoc> dsThuoc;
 	
-	public CapNhatThuocGUI() {
+	public CapNhatThuocPanel() {
         lblTieuDe = new JLabel("Cập nhật thuốc", SwingConstants.CENTER);
         lblTieuDe.setFont(new Font("Arial", Font.BOLD, 24));
         lblTieuDe.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
@@ -108,11 +108,9 @@ public class CapNhatThuocGUI extends JFrame implements ActionListener, MouseList
         add(createBotPanel(), BorderLayout.CENTER);
         
         loadNhanVienData();
-        setTitle("Cập nhật thuốc");
         setBackground(new Color(248, 248, 248));
-        setVisible(true);
-        setSize(new Dimension(1200,700));
-        setLocationRelativeTo(null);
+//        setVisible(true);
+//        setSize(new Dimension(1200,700));
         
 	}
 	
@@ -258,7 +256,7 @@ public class CapNhatThuocGUI extends JFrame implements ActionListener, MouseList
 	public void loadNhanVienData() {
 		ConnectDB.getInstance().connect();
         ThuocDAO thuocDAO = new ThuocDAO();
-        dsThuoc = thuocDAO.getListThuoc();
+        dsThuoc = thuocDAO.getAllThuoc();
 		dtm.setRowCount(0);
 		for(Thuoc thuoc : dsThuoc) {
 			Object[] rowData = {
@@ -282,9 +280,6 @@ public class CapNhatThuocGUI extends JFrame implements ActionListener, MouseList
 		
 	}
 	
-	public static void main(String[] args) {
-		new CapNhatThuocGUI();
-	}
 
 	@Override	
 	public void mouseClicked(MouseEvent e) {

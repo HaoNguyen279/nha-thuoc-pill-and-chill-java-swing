@@ -1,124 +1,148 @@
 package app.DAO;
 
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import app.Entity.*;
 import app.ConnectDB.ConnectDB;
+import app.Entity.NhanVien;
 
+/**
+ * DAO (Data Access Object) cho thực thể NhanVien.
+ * Chịu trách nhiệm xử lý tất cả các thao tác cơ sở dữ liệu liên quan đến nhân viên.
+ */
 public class NhanVienDAO {
-	ArrayList<NhanVien> dsnv;
-	NhanVien nv;
-	public NhanVienDAO() {
-		dsnv = new ArrayList<NhanVien>();
-		nv = new NhanVien();
-	}
-	
-	public ArrayList<NhanVien> getListNhanVien(){
-        try {
-            ConnectDB.getInstance();
-            Connection con = ConnectDB.getConnection();
-            Statement statement = con.createStatement();
-            String sql = "SELECT * FROM NhanVien";
-            ResultSet rs = statement.executeQuery(sql);
-            while(rs.next()){
-                String manv = rs.getString(1);
-                String tennv = rs.getString(2);
-                String chucvu = rs.getString(3);
-                String sdt = rs.getString(4);
-                
-                NhanVien nv1 = new NhanVien(manv, tennv, chucvu, sdt);
-                dsnv.add(nv1);
-                
+
+    /**
+     * Lấy danh sách tất cả nhân viên đang hoạt động từ cơ sở dữ liệu.
+     * @return Một ArrayList chứa các đối tượng NhanVien.
+     */
+    public ArrayList<NhanVien> getAllNhanVien() {
+        ArrayList<NhanVien> dsNhanVien = new ArrayList<>();
+        String sql = "SELECT * FROM NhanVien WHERE isActive = 1"; // Chỉ lấy nhân viên đang làm việc
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                String maNV = rs.getString("maNV");
+                String tenNV = rs.getString("tenNV");
+                String chucVu = rs.getString("chucVu");
+                String soDienThoai = rs.getString("soDienThoai");
+                boolean isActive = rs.getBoolean("isActive");
+
+                NhanVien nv = new NhanVien(maNV, tenNV, chucVu, soDienThoai, isActive);
+                dsNhanVien.add(nv);
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return dsnv;
-	}
-	
-	public NhanVien getNhanVien(String manv) {
-    	try {
-            ConnectDB.getInstance();
-            Connection con = ConnectDB.getConnection();
+        return dsNhanVien;
+    }
+
+    /**
+     * Lấy thông tin một nhân viên dựa vào mã nhân viên (ID).
+     * @param id Mã của nhân viên cần tìm.
+     * @return Một đối tượng NhanVien nếu tìm thấy, ngược lại trả về null.
+     */
+    public NhanVien getNhanVienById(String id) {
+        String sql = "SELECT * FROM NhanVien WHERE maNV = ?";
+        NhanVien nv = null;
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
             
-            String sql = "SELECT * FROM NhanVien where maNV = ?";
-            PreparedStatement statement = null;
-            statement = con.prepareStatement(sql);  
-            statement.setString(1, manv);
-            ResultSet rs = statement.executeQuery();
-            while(rs.next()) {
-            	String manv1 = rs.getString(1);
-                String tennv = rs.getString(2);
-                String chucvu = rs.getString(3);
-                String sdt = rs.getString(4);
-                nv = new NhanVien(manv1, tennv, chucvu, sdt);
+            stmt.setString(1, id);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String maNV = rs.getString("maNV");
+                    String tenNV = rs.getString("tenNV");
+                    String chucVu = rs.getString("chucVu");
+                    String soDienThoai = rs.getString("soDienThoai");
+                    boolean isActive = rs.getBoolean("isActive");
+                    
+                    nv = new NhanVien(maNV, tenNV, chucVu, soDienThoai, isActive);
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return nv;
     }
-    
-    public boolean update(NhanVien nv){
-        ConnectDB.getInstance();
-        Connection con = ConnectDB.getConnection();
-        PreparedStatement stmt = null;
-        int n =0 ;
-        try {
-        	stmt = con.prepareStatement("update NhanVien set TenNV=?,NgaySinh=?,NgayVaoLam=?,ChucVu=? where MaNV=?");
-        	stmt.setString(1, nv.getTenNV());
-        	stmt.setString(2,nv.getChucVu());
-        	stmt.setString(3, nv.getSoDienThoai());
-        	stmt.setString(4, nv.getMaNV());
 
-        	n = stmt.executeUpdate();
-        }catch (SQLException e) {
-			e.printStackTrace();
-		}
-   
-        return n>0;	
+    /**
+     * Thêm một nhân viên mới vào cơ sở dữ liệu.
+     * @param nhanVien Đối tượng NhanVien cần thêm.
+     * @return true nếu thêm thành công, false nếu thất bại.
+     */
+    public boolean addNhanVien(NhanVien nhanVien) {
+        String sql = "INSERT INTO NhanVien (maNV, tenNV, chucVu, soDienThoai, isActive) VALUES (?, ?, ?, ?, ?)";
+        int n = 0;
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, nhanVien.getMaNV());
+            stmt.setString(2, nhanVien.getTenNV());
+            stmt.setString(3, nhanVien.getChucVu());
+            stmt.setString(4, nhanVien.getSoDienThoai());
+            stmt.setBoolean(5, nhanVien.isIsActive());
+            
+            n = stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return n > 0;
     }
 
-    public boolean create(NhanVien nv) throws SQLException{
-        ConnectDB.getInstance();
-        Connection con = ConnectDB.getConnection();
-        PreparedStatement stmt = null;
+    /**
+     * Cập nhật thông tin của một nhân viên đã có trong cơ sở dữ liệu.
+     * @param nhanVien Đối tượng NhanVien chứa thông tin đã được cập nhật.
+     * @return true nếu cập nhật thành công, false nếu thất bại.
+     */
+    public boolean updateNhanVien(NhanVien nhanVien) {
+        String sql = "UPDATE NhanVien SET tenNV = ?, chucVu = ?, soDienThoai = ?, isActive = ? WHERE maNV = ?";
         int n = 0;
-        stmt = con.prepareStatement("insert into" +" NhanVien values(?,?,?,?,?)");
-        stmt.setString(1, nv.getMaNV());
-        stmt.setString(2, nv.getTenNV());
-        stmt.setString(3, nv.getChucVu());
-        stmt.setString(4, nv.getSoDienThoai());
 
-        n =stmt.executeUpdate();
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, nhanVien.getTenNV());
+            stmt.setString(2, nhanVien.getChucVu());
+            stmt.setString(3, nhanVien.getSoDienThoai());
+            stmt.setBoolean(4, nhanVien.isIsActive());
+            stmt.setString(5, nhanVien.getMaNV());
+            
+            n = stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return n > 0;
+    }
 
-        return n>0;
-	}
-    
-    
-    // Viết lại hàm delete với update thuộc tính ẩn
-//	public boolean delete(String manv){
-//		
-//	    ConnectDB.getInstance();
-//	    Connection con = ConnectDB.getConnection();
-//	    PreparedStatement stmt = null;
-//	    int n = 0;
-//	    try {
-//	    	ConnectDB.getInstance().connect();
-//			NhanVien dao = new NhanVien();
-//			stmt = con.prepareStatement("delete from NhanVien where MaNV = ?");
-//			stmt.setString(1, manv);
-//			n = stmt.executeUpdate();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//	    return n>0;
-//	}
-	
+    /**
+     * Xóa một nhân viên khỏi hệ thống bằng cách cập nhật trạng thái isActive = 0 (xóa mềm).
+     * @param id Mã của nhân viên cần xóa.
+     * @return true nếu xóa thành công, false nếu thất bại.
+     */
+    public boolean deleteNhanVien(String id) {
+        String sql = "UPDATE NhanVien SET isActive = 0 WHERE maNV = ?";
+        int n = 0;
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, id);
+            
+            n = stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return n > 0;
+    }
 }

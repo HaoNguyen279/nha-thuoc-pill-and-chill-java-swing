@@ -6,15 +6,17 @@ public class NhaSanXuat {
     private String tenNSX;
     private String diaChi;
     private String soDienThoai;
+    private boolean isActive; // true = đang hoạt động/hiển thị, false = đã ẩn/ngừng hợp tác
 
     public NhaSanXuat() {
     }
 
-    public NhaSanXuat(String maNSX, String tenNSX, String diaChi, String soDienThoai) {
+    public NhaSanXuat(String maNSX, String tenNSX, String diaChi, String soDienThoai, boolean isActive) {
         this.maNSX = maNSX;
         this.tenNSX = tenNSX;
         this.diaChi = diaChi;
         this.soDienThoai = soDienThoai;
+        this.isActive = isActive;
     }
 
     public String getMaNSX() {
@@ -49,6 +51,26 @@ public class NhaSanXuat {
         this.soDienThoai = soDienThoai;
     }
 
+    public boolean isIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+    
+    // --- Phương thức tiện ích ---
+    
+    /** Kiểm tra xem nhà sản xuất có đang hoạt động/hiển thị hay không */
+    public boolean isVisible() {
+        return this.isActive;
+    }
+    
+    /** Đánh dấu nhà sản xuất là đã ẩn (ngừng hợp tác) */
+    public void markAsDeleted() {
+        this.isActive = false;
+    }
+
     @Override
     public String toString() {
         return "NhaSanXuat{" +
@@ -56,6 +78,7 @@ public class NhaSanXuat {
                 ", tenNSX='" + tenNSX + '\'' +
                 ", diaChi='" + diaChi + '\'' +
                 ", soDienThoai='" + soDienThoai + '\'' +
+                ", isActive=" + isActive +
                 '}';
     }
 }

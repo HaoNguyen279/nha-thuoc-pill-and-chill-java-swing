@@ -25,7 +25,8 @@ import app.Entity.PhieuDoiTra;
 import app.Main.App;
 
 public class MenuBarPanel extends JPanel implements ActionListener {
-	
+    private String tenNhanVien;
+    private Menu parentFrame;
 	private JFrame frmParent;
 	// MenuItem cho hệ thống
 	private JMenuItem mniHoTro;
@@ -61,11 +62,13 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	private JMenuItem mniThue;
 	private JMenuItem mniThuocDuocMuaNhieu;
 	
-    public MenuBarPanel(JFrame parent) {
-    	this.frmParent = parent;
-	}
+    public MenuBarPanel(String tenNhanVien, Menu parentFrame) {
+        this.tenNhanVien = tenNhanVien;
+        this.parentFrame = parentFrame;
+        initializeMenuBar();
+    }
 
-	public JPanel get() {
+    private void initializeMenuBar() {
     	JPanel pnlMenu = new JPanel(new BorderLayout());
         JMenuBar mnuMenuBar = new JMenuBar();
         
@@ -184,7 +187,6 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         //Tạo khoảng cách giữa mnubar và tên nhân viên
         mnuMenuBar.add(Box.createHorizontalGlue());
         
-       
         JMenuItem[] menuItems = {
         	    mniHoTro, mniDangXuat, mniThoat,
         	    mniHoaDon, mniPhieuDoiTra, mniPhieuDatThuoc,
@@ -201,7 +203,6 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mnuMenuBar.add(Box.createHorizontalStrut(10));
         
         pnlMenu.add(mnuMenuBar);
-        return pnlMenu;
     }
 
 	@Override
@@ -209,33 +210,48 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 		// TODO Auto-generated method stub
 		Object o = e.getSource();
 		if(o == mniLapHoaDon) {
-			new LapHoaDon();
+			new LapHoaDonPanel();
+		} else if (o == mniCapNhatKhachHang) {
+		    parentFrame.showCapNhatKhachHangPanel();
+		} else if (o == mniCapNhatNhanVien) {
+		    parentFrame.showCapNhatNhanVienPanel();
+		} else if (o == mniCapNhatThuoc) {
+		    parentFrame.showCapNhatThuocPanel();
+		} else if (o == mniCapNhatKhuyenMai) {
+		    parentFrame.showCapNhatKhuyenMaiPanel();
+		} else if (o == mniTimKiemThuoc) {
+		    parentFrame.showTimKiemThuocPanel();
+		} else if (o == mniTimKiemKhachHang) {
+		    parentFrame.showTimKiemKhachHangPanel();
+		} else if (o == mniTimKiemNhanVien) {
+		    parentFrame.showTimKiemNhanVienPanel();
+		} else if (o == mniLapHoaDon) {
+		    parentFrame.showLapHoaDonPanel();
+		} else if (o == mniLapPhieuDatThuoc) {
+		    parentFrame.showLapPhieuDatThuocPanel();
+		} else if (o == mniLapPhieuTraThuoc) {
+		    parentFrame.showLapPhieuDoiThuocPanel();
+		} else if (o == mniDoanhThu) {
+		    parentFrame.showThongKeTheoDoanhThuPanel();
+		} else if (o == mniNhanVien) {
+		    parentFrame.showThongKeTheoNhanVienPanel();
+		} else if (o == mniKhachHang) {
+		    parentFrame.showThongKeTheoKhachHangPanel();
+		} else if (o == mniHanSuDung) {
+		    parentFrame.showThongKeTheoHSDPanel();
+		} else if (o == mniThuocDuocMuaNhieu) {
+		    parentFrame.showThongKeTheoThuocPanel();
+		} else if (o == mniThue) {
+		    parentFrame.showThongKeTheoThuePanel();
 		}
-		else if(o == mniCapNhatThuoc) {
-			new CapNhatThuocGUI();
-		}
-		else if(o == mniCapNhatKhachHang) {
-			new CapNhatKhachHangGUI();
-		}
-		else if(o == mniCapNhatNhanVien) {
-			new CapNhatNhanVienGUI();
-		}
-		else if(o == mniCapNhatKhuyenMai) {
-			new CapNhatKhuyenMaiGUI();
-		}
-		else if(o == mniLapPhieuTraThuoc) {
-			new LapPhieuDoiThuoc();
-		}
-		else if(o == mniTimKiemThuoc) {
-			new TimKiemThuoc();
-		}
+
 		else if(o == mniDangXuat) { // Loi dispose
 			CustomJOptionPane a = new CustomJOptionPane(this, "Bạn có chắc muốn đăng xuất?", true);
 			int choice = a.show();
 			if(choice == JOptionPane.YES_OPTION) {
 				Window window = SwingUtilities.getWindowAncestor(frmParent);
 				window.dispose();
-				new LoginGUI();
+				new DangNhap();
 			}
 		}
 		else if(o == mniThoat) {

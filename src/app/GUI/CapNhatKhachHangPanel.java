@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -28,7 +27,7 @@ import app.ConnectDB.ConnectDB;
 import app.DAO.KhachHangDAO;
 import app.Entity.KhachHang;
 
-public class CapNhatKhachHangGUI extends JFrame implements ActionListener{
+public class CapNhatKhachHangPanel extends JPanel implements ActionListener{
 	
 	private JLabel lblTieuDe;
 	private JLabel lblMaKh;
@@ -50,7 +49,7 @@ public class CapNhatKhachHangGUI extends JFrame implements ActionListener{
 	
 	private ArrayList<KhachHang> dsKhachHang;
 	
-	public CapNhatKhachHangGUI() {
+	public CapNhatKhachHangPanel() {
 		
         lblTieuDe = new JLabel("Cập nhật khách hàng", SwingConstants.CENTER);
         lblTieuDe.setFont(new Font("Arial", Font.BOLD, 24));
@@ -86,11 +85,8 @@ public class CapNhatKhachHangGUI extends JFrame implements ActionListener{
         add(createBotPanel(), BorderLayout.CENTER);
         
         loadKhachHangData();
-        setTitle("Cập nhật khách hàng");
         setBackground(new Color(248, 248, 248));
         setVisible(true);
-        setSize(new Dimension(1200,700));
-        setLocationRelativeTo(null);
         
 	}
 	
@@ -221,7 +217,7 @@ public class CapNhatKhachHangGUI extends JFrame implements ActionListener{
 	}
 	
 	public static void main(String[] args) {
-		new CapNhatKhachHangGUI();
+		new CapNhatKhachHangPanel();
 	}
 
 }

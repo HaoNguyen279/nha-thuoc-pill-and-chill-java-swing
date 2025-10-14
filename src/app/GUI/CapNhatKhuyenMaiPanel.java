@@ -25,52 +25,52 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import app.ConnectDB.ConnectDB;
-import app.DAO.NhanVienDAO;
-import app.Entity.NhanVien;
+import app.DAO.KhuyenMaiDAO;
+import app.Entity.KhuyenMai;
 
-public class CapNhatNhanVienGUI extends JFrame implements ActionListener{
+public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener{
 	
 	private JLabel lblTieuDe;
-	private JLabel lblMaNv;
-	private JLabel lblTenNv;
-	private JLabel lblSoDienThoai;
-	private JLabel lblChucVu;
+	private JLabel lblMaKM;
+	private JLabel lblMucGiam;
+	private JLabel lblngayApDung;
+	private JLabel lblNgayKetThuc;
 
-	private JTextField txtMaNv;
-	private JTextField txtTenNv;
-	private JTextField txtSoDienThoai;
-	private JTextField txtChucVu;
+	private JTextField txtMaKM;
+	private JTextField txtMucGiam;
+	private JTextField txtngayApDung;
+	private JTextField txtNgayKetThuc;
 
 	private JButton btnXoa;
 	private JButton btnSua;
 	private JButton btnThem;
 	
 	private DefaultTableModel dtm;
-	private JTable tblNhanVien;
+	private JTable tblKhuyenMai;
 	
-	private ArrayList<NhanVien> dsNhanVien;
+	private ArrayList<KhuyenMai> dsKhuyenMai;
 	
-	public CapNhatNhanVienGUI() {
-        lblTieuDe = new JLabel("Cập nhật nhân viên", SwingConstants.CENTER);
+	public CapNhatKhuyenMaiPanel() {
+        lblTieuDe = new JLabel("Cập nhật khuyến mãi", SwingConstants.CENTER);
         lblTieuDe.setFont(new Font("Arial", Font.BOLD, 24));
         lblTieuDe.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
 
-        lblMaNv = new JLabel("Mã NV:");
-        lblTenNv = new JLabel("Tên NV:");
-        lblSoDienThoai = new JLabel("Số điện thoại:");
-        lblChucVu = new JLabel("Chức vụ:");
+        lblMaKM = new JLabel("Mã KM:");
+        lblMucGiam = new JLabel("Mức giảm:");
+        lblngayApDung = new JLabel("Ngày bắt đầu:");
+        lblNgayKetThuc = new JLabel("Ngày kết thúc:");
         
-        txtMaNv = new JTextField(15);
-        txtTenNv = new JTextField(15);
-        txtSoDienThoai = new JTextField(15);
-        txtChucVu = new JTextField(15);
+        txtMaKM = new JTextField(15);
+        txtMucGiam = new JTextField(15);
+        txtngayApDung = new JTextField(15);
+        txtNgayKetThuc = new JTextField(15);
 
         btnXoa = new JButton("Xóa");
         btnSua = new JButton("Sửa");
         btnThem = new JButton("Thêm");
         
         // Table init
-        String[] cols = {"Mã nhân viên" , "Tên nhân viên" , "Số điện thoại", "Chức vụ"};
+        String[] cols = {"Mã khuyến mãi" , "Mức giảm" , "Ngày bắt đầu", "Ngày kết thúc"};
         dtm = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -85,27 +85,24 @@ public class CapNhatNhanVienGUI extends JFrame implements ActionListener{
         add(createBotPanel(), BorderLayout.CENTER);
         
         loadNhanVienData();
-        setTitle("Cập nhật nhân viên");
         setBackground(new Color(248, 248, 248));
         setVisible(true);
-        setSize(new Dimension(1200,700));
-        setLocationRelativeTo(null);
         
 	}
 	
 	public JScrollPane createBotPanel() {
-        tblNhanVien = new JTable(dtm);        
-        tblNhanVien.setBackground(new Color(240, 240, 245));
-        tblNhanVien.setGridColor(Color.LIGHT_GRAY);
-        tblNhanVien.setFont(new Font("Arial", Font.PLAIN, 15));
-        tblNhanVien.setRowHeight(40);
-        tblNhanVien.setGridColor(Color.LIGHT_GRAY);
-        tblNhanVien.setSelectionBackground(new Color(100, 149, 237));
-        JTableHeader header = tblNhanVien.getTableHeader();
+        tblKhuyenMai = new JTable(dtm);        
+        tblKhuyenMai.setBackground(new Color(240, 240, 245));
+        tblKhuyenMai.setGridColor(Color.LIGHT_GRAY);
+        tblKhuyenMai.setFont(new Font("Arial", Font.PLAIN, 15));
+        tblKhuyenMai.setRowHeight(40);
+        tblKhuyenMai.setGridColor(Color.LIGHT_GRAY);
+        tblKhuyenMai.setSelectionBackground(new Color(100, 149, 237));
+        JTableHeader header = tblKhuyenMai.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 35));
         header.setBackground(new Color(192, 232, 246));
         header.setFont(new Font("Arial", Font.BOLD, 15));
-        JScrollPane scrollPane = new JScrollPane(tblNhanVien);
+        JScrollPane scrollPane = new JScrollPane(tblKhuyenMai);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(
     		BorderFactory.createEmptyBorder(00,50,50,50),
     		BorderFactory.createLineBorder(Color.GRAY, 2)
@@ -126,23 +123,23 @@ public class CapNhatNhanVienGUI extends JFrame implements ActionListener{
 		pnlTopOfMain.add(lblTieuDe);
 		
 		JPanel pnlr1 = new JPanel(new BorderLayout());
-		pnlr1.add(lblMaNv, BorderLayout.WEST);
-		pnlr1.add(txtMaNv);
+		pnlr1.add(lblMaKM, BorderLayout.WEST);
+		pnlr1.add(txtMaKM);
 		pnlr1.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 
 		JPanel pnlr2 = new JPanel(new BorderLayout());
-		pnlr2.add(lblTenNv, BorderLayout.WEST);
-		pnlr2.add(txtTenNv);
+		pnlr2.add(lblMucGiam, BorderLayout.WEST);
+		pnlr2.add(txtMucGiam);
 		pnlr2.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 		
 		JPanel pnlr3 = new JPanel(new BorderLayout());
-		pnlr3.add(lblSoDienThoai, BorderLayout.WEST);
-		pnlr3.add(txtSoDienThoai);
+		pnlr3.add(lblngayApDung, BorderLayout.WEST);
+		pnlr3.add(txtngayApDung);
 		pnlr3.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 		
 		JPanel pnlr4 = new JPanel(new BorderLayout());
-		pnlr4.add(lblChucVu, BorderLayout.WEST);
-		pnlr4.add(txtChucVu);
+		pnlr4.add(lblNgayKetThuc, BorderLayout.WEST);
+		pnlr4.add(txtNgayKetThuc);
 		pnlr4.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 		
 		pnlCenterOfMain.add(pnlr1);
@@ -166,12 +163,12 @@ public class CapNhatNhanVienGUI extends JFrame implements ActionListener{
 			item.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			item.addActionListener(this);
 		}
-        JLabel[] lblItems =  { lblMaNv, lblTenNv,lblSoDienThoai, lblChucVu };
+        JLabel[] lblItems =  { lblMaKM, lblMucGiam,lblngayApDung, lblNgayKetThuc };
         for(JLabel item : lblItems) {
         	item.setFont(new Font("Arial", Font.PLAIN, 15));
         	item.setPreferredSize(new Dimension(100,0));
         }
-        JTextField[] txtItems =  { txtMaNv, txtTenNv,txtSoDienThoai, txtChucVu };
+        JTextField[] txtItems =  { txtMaKM, txtMucGiam,txtngayApDung, txtNgayKetThuc };
         for(JTextField item : txtItems) {
         	item.setFont(new Font("Arial", Font.ITALIC, 16));
         	item.setForeground(Color.BLUE); // Màu font 
@@ -201,15 +198,15 @@ public class CapNhatNhanVienGUI extends JFrame implements ActionListener{
 	
 	public void loadNhanVienData() {
 		ConnectDB.getInstance().connect();
-        NhanVienDAO nvDAO = new NhanVienDAO();
-        dsNhanVien = nvDAO.getListNhanVien();
+        KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
+        dsKhuyenMai = kmDAO.getAllKhuyenMai();
 		dtm.setRowCount(0);
-		for(NhanVien nv : dsNhanVien) {
+		for(KhuyenMai km : dsKhuyenMai) {
 			Object[] rowData = {
-					nv.getMaNV(),
-					nv.getTenNV(),
-					nv.getSoDienThoai(),
-					nv.getChucVu()
+					km.getMaKM(),
+					km.getMucGiamGia(),
+					km.getNgayApDung(),
+					km.getNgayKetThuc()
 			};
 		dtm.addRow(rowData);
 		}
@@ -223,7 +220,7 @@ public class CapNhatNhanVienGUI extends JFrame implements ActionListener{
 	}
 	
 	public static void main(String[] args) {
-		new CapNhatNhanVienGUI();
+		new CapNhatKhuyenMaiPanel();
 	}
 
 }

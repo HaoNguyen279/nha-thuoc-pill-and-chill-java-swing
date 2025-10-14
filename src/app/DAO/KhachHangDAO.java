@@ -22,12 +22,12 @@ public class KhachHangDAO {
      */
     public ArrayList<KhachHang> getAllKhachHang() {
         ArrayList<KhachHang> dsKhachHang = new ArrayList<>();
-        String sql = "SELECT * FROM KhachHang WHERE show = 1 ORDER BY tenKH";
+        String sql = "SELECT * FROM KhachHang WHERE isActive = 1 ORDER BY tenKH";
 
-        try{
-        	Connection con = ConnectDB.getInstance().getConnection();
-            Statement stmt = con.createStatement();
-            ResultSet rs = stmt.executeQuery(sql);
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
             while (rs.next()) {
                 dsKhachHang.add(mapResultSetToKhachHang(rs));
             }
@@ -48,9 +48,9 @@ public class KhachHangDAO {
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             stmt.setString(1, id);
-            
+
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     kh = mapResultSetToKhachHang(rs);
@@ -69,11 +69,11 @@ public class KhachHangDAO {
      */
     public ArrayList<KhachHang> findKhachHang(String keyword) {
         ArrayList<KhachHang> dsKhachHang = new ArrayList<>();
-        String sql = "SELECT * FROM KhachHang WHERE show = 1 AND (tenKH LIKE ? OR soDienThoai LIKE ?)";
+        String sql = "SELECT * FROM KhachHang WHERE isActive = 1 AND (tenKH LIKE ? OR soDienThoai LIKE ?)";
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             String searchKeyword = "%" + keyword + "%";
             stmt.setString(1, searchKeyword);
             stmt.setString(2, searchKeyword);
@@ -95,18 +95,18 @@ public class KhachHangDAO {
      * @return true if the operation was successful, false otherwise.
      */
     public boolean addKhachHang(KhachHang kh) {
-        String sql = "INSERT INTO KhachHang (maKH, tenKH, soDienThoai, diemTichLuy, show) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO KhachHang (maKH, tenKH, soDienThoai, diemTichLuy, isActive) VALUES (?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             stmt.setString(1, kh.getMaKH());
             stmt.setString(2, kh.getTenKH());
             stmt.setString(3, kh.getSoDienThoai());
             stmt.setInt(4, kh.getDiemTichLuy());
             stmt.setBoolean(5, kh.isIsActive());
-            
+
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -120,18 +120,18 @@ public class KhachHangDAO {
      * @return true if the update was successful, false otherwise.
      */
     public boolean updateKhachHang(KhachHang kh) {
-        String sql = "UPDATE KhachHang SET tenKH = ?, soDienThoai = ?, diemTichLuy = ?, show = ? WHERE maKH = ?";
+        String sql = "UPDATE KhachHang SET tenKH = ?, soDienThoai = ?, diemTichLuy = ?, isActive = ? WHERE maKH = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             stmt.setString(1, kh.getTenKH());
             stmt.setString(2, kh.getSoDienThoai());
             stmt.setInt(3, kh.getDiemTichLuy());
             stmt.setBoolean(4, kh.isIsActive());
             stmt.setString(5, kh.getMaKH());
-            
+
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -140,19 +140,19 @@ public class KhachHangDAO {
     }
 
     /**
-     * Deactivates a customer by setting their show flag to false (soft delete).
+     * Deactivates a customer by setting their isActive flag to false (soft delete).
      * @param id The ID of the customer to deactivate.
      * @return true if the deactivation was successful, false otherwise.
      */
     public boolean deleteKhachHang(String id) {
-        String sql = "UPDATE KhachHang SET show = 0 WHERE maKH = ?";
+        String sql = "UPDATE KhachHang SET isActive = 0 WHERE maKH = ?";
         int n = 0;
-        
+
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+
             stmt.setString(1, id);
-            
+
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -172,7 +172,7 @@ public class KhachHangDAO {
             rs.getString("tenKH"),
             rs.getString("soDienThoai"),
             rs.getInt("diemTichLuy"),
-            rs.getBoolean("show")
+            rs.getBoolean("isActive")
         );
     }
 }

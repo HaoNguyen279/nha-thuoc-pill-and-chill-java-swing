@@ -9,100 +9,35 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
-import javax.swing.SwingConstants;
 
-public class LapPhieuDoiThuoc extends JFrame implements ActionListener{
+public class LapPhieuDoiThuocPanel extends JPanel implements ActionListener{
 
 	private JSpinner soLuongThem;
 	private JButton btnThem;
 	private JButton btnXacNhan;
 	private JSpinner soLuongGiam;
 	private JButton btnXoa;
-	private DefaultListModel danhSachModel;
-	private JList danhSachDoiTra;
-	private DefaultListModel thuocModel;
-	private JList danhSachThuoc;
+	private DefaultListModel<String> danhSachModel;
+	private JList<String> danhSachDoiTra;
+	private DefaultListModel<String> thuocModel;
+	private JList<String> danhSachThuoc;
 
-	public LapPhieuDoiThuoc() {
+	public LapPhieuDoiThuocPanel() {
 		createLapPhieuDoiThuoc();
 	}
 
 	private void createLapPhieuDoiThuoc() {
-	    JMenuBar menuBar = new JMenuBar();
-
-	    JLabel ten = new JLabel("Ten nv: Huynh Gia Man");
-	    
-	    menuBar.setPreferredSize(new Dimension(50,40));
-	     
-	    // Tạo menu chính
-	    JMenu menuHeThong = new JMenu("Hệ thống");
-	    JMenu menuDanhMuc = new JMenu("Danh mục");
-	    JMenu menuCapNhat = new JMenu("Cập nhật");
-	    JMenu menuTimKiem = new JMenu("Tìm kiếm");
-	    JMenu menuXuLi = new JMenu("Xử lý");
-	    JMenu menuThongKe = new JMenu("Thống kê");
-	    
-	  
-
-	    menuHeThong.setHorizontalAlignment(SwingConstants.CENTER);
-	    menuCapNhat.setHorizontalAlignment(SwingConstants.CENTER);
-	    menuDanhMuc.setHorizontalAlignment(SwingConstants.CENTER);
-	    menuThongKe.setHorizontalAlignment(SwingConstants.CENTER);
-	    menuTimKiem.setHorizontalAlignment(SwingConstants.CENTER);
-	    menuXuLi.setHorizontalAlignment(SwingConstants.CENTER);
-	    
-	    
-	    
-	    JMenuItem openItem = new JMenuItem("Open");
-	    JMenuItem exitItem = new JMenuItem("Exit");
-	    JMenuItem testItem1 = new JMenuItem("Test menu");
-	    JMenuItem testItem2 = new JMenuItem("Test menu");
-	    JMenuItem testItem3 = new JMenuItem("Test menu");
-	    JMenuItem testItem4 = new JMenuItem("Test menu");
-	    
-	    
-	    openItem.setPreferredSize(new Dimension(60,20));
-	    exitItem.setPreferredSize(new Dimension(60,20));
-	    testItem1.setPreferredSize(new Dimension(60,20));
-	    testItem2.setPreferredSize(new Dimension(60,20));
-	    testItem3.setPreferredSize(new Dimension(60,20));
-	    testItem4.setPreferredSize(new Dimension(60,20));
-	    
-	    testItem1.addActionListener(e -> JOptionPane.showMessageDialog(new JFrame(), "Demo menu chức năng"));
-	    testItem2.addActionListener(e -> JOptionPane.showMessageDialog(new JFrame(), "Demo menu chức năng"));
-	    testItem3.addActionListener(e -> JOptionPane.showMessageDialog(new JFrame(), "Demo menu chức năng"));
-	    testItem4.addActionListener(e -> JOptionPane.showMessageDialog(new JFrame(), "Demo menu chức năng"));
-	    
-	    
-	    exitItem.addActionListener(e -> System.exit(0));
-
-	    menuHeThong.add(openItem);
-	    menuHeThong.add(exitItem);
-	    menuCapNhat.add(testItem1);
-	    menuThongKe.add(testItem2);
-	    menuTimKiem.add(testItem3);
-	    menuXuLi.add(testItem4);
-	    
-	    JMenuItem aboutItem = new JMenuItem("About");
-	    aboutItem.addActionListener(e -> JOptionPane.showMessageDialog(new JFrame(), "Demo menu chức năng"));
-	    menuDanhMuc.add(aboutItem);
-	    menuXuLi.add(openItem);
+	    setLayout(new BorderLayout());
 	    
 	    JPanel mainPanel = new JPanel();
 	    mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
@@ -170,28 +105,9 @@ public class LapPhieuDoiThuoc extends JFrame implements ActionListener{
 	    
 	    add(mainPanel, BorderLayout.CENTER);
 	    
-	    
 	    btnThem.addActionListener(this);
 	    btnXoa.addActionListener(this);
 	    btnXacNhan.addActionListener(this);
-	    
-        
-	    menuBar.add(menuHeThong);
-	    menuBar.add(menuDanhMuc);
-	    menuBar.add(menuCapNhat);
-	    menuBar.add(menuTimKiem);
-	    menuBar.add(menuXuLi);
-	    menuBar.add(menuThongKe);
-	    menuBar.add(Box.createHorizontalGlue());
-	    menuBar.add(ten);
-	    menuBar.add(Box.createHorizontalStrut(10));
-	   
-	    setTitle("LẬP PHIẾU ĐỔI TRẢ THUỐC");
-	    setJMenuBar(menuBar);
-	    setSize(1028, 720);
-	    setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-	    setVisible(true);
-	    setLocationRelativeTo(null);
 	    
 	}
 
