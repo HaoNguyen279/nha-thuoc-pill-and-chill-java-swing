@@ -26,23 +26,33 @@ public class TaiKhoanDAO {
         String sql = "SELECT * FROM TaiKhoan WHERE maNV = ? AND matKhau = ? AND isActive = 1";
         TaiKhoan tk = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, maNV);
             stmt.setString(2, matKhau);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    tk = new TaiKhoan(
-                        rs.getString("maNV"),
-                        rs.getString("matKhau"),
-                        rs.getBoolean("isActive")
-                    );
-                }
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                tk = new TaiKhoan(
+                    rs.getString("maNV"),
+                    rs.getString("matKhau"),
+                    rs.getBoolean("isActive")
+                );
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            // Đóng ResultSet và Statement, KHÔNG đóng Connection
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return tk;
     }

@@ -9,12 +9,13 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -24,11 +25,10 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-import app.ConnectDB.ConnectDB;
 import app.DAO.NhanVienDAO;
 import app.Entity.NhanVien;
 
-public class CapNhatNhanVienPanel extends JPanel implements ActionListener{
+public class CapNhatNhanVienPanel extends JPanel implements ActionListener, MouseListener{
 	
 	private JLabel lblTieuDe;
 	private JLabel lblMaNv;
@@ -91,7 +91,8 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener{
 	}
 	
 	public JScrollPane createBotPanel() {
-        tblNhanVien = new JTable(dtm);        
+		tblNhanVien = new JTable(dtm);
+		tblNhanVien.addMouseListener(this);
         tblNhanVien.setBackground(new Color(240, 240, 245));
         tblNhanVien.setGridColor(Color.LIGHT_GRAY);
         tblNhanVien.setFont(new Font("Arial", Font.PLAIN, 15));
@@ -197,7 +198,6 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener{
 	}
 	
 	public void loadNhanVienData() {
-		ConnectDB.getInstance().connect();
         NhanVienDAO nvDAO = new NhanVienDAO();
         dsNhanVien = nvDAO.getAllNhanVien();
 		dtm.setRowCount(0);
@@ -215,12 +215,129 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+		Object source = e.getSource();
+		if (source.equals(btnThem)) {
+			String maNV = txtMaNv.getText().trim();
+			String tenNV = txtTenNv.getText().trim();
+			String soDienThoai = txtSoDienThoai.getText().trim();
+			String chucVu = txtChucVu.getText().trim();
+			
+			if(maNV.isEmpty() || tenNV.isEmpty() || soDienThoai.isEmpty() || chucVu.isEmpty()) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin.");
+				return;
+			}
+			
+			NhanVien nv = new NhanVien(maNV, tenNV, chucVu, soDienThoai, true);
+			NhanVienDAO nvDAO = new NhanVienDAO();
+			boolean success = nvDAO.addNhanVien(nv);
+			if(success) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công.");
+				loadNhanVienData();
+				clearFields();
+			} else {
+				javax.swing.JOptionPane.showMessageDialog(this, "Thêm nhân viên thất bại.");
+			}
+			
+		} else if (source.equals(btnSua)) {
+			int selectedRow = tblNhanVien.getSelectedRow();
+			if(selectedRow == -1) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên để sửa.");
+				return;
+			}
+			
+			String maNV = txtMaNv.getText().trim();
+			String tenNV = txtTenNv.getText().trim();
+			String soDienThoai = txtSoDienThoai.getText().trim();
+			String chucVu = txtChucVu.getText().trim();
+			
+			if(maNV.isEmpty() || tenNV.isEmpty() || soDienThoai.isEmpty() || chucVu.isEmpty()) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin.");
+				return;
+			}
+			
+			NhanVien nv = new NhanVien(maNV, tenNV, chucVu, soDienThoai, true);
+			NhanVienDAO nvDAO = new NhanVienDAO();
+			boolean success = nvDAO.updateNhanVien(nv);
+			if(success) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Cập nhật nhân viên thành công.");
+				loadNhanVienData();
+				clearFields();
+			} else {
+				javax.swing.JOptionPane.showMessageDialog(this, "Cập nhật nhân viên thất bại.");
+			}
+			
+		} else if (source.equals(btnXoa)) {
+			int selectedRow = tblNhanVien.getSelectedRow();
+			if(selectedRow == -1) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên để xóa.");
+				return;
+			}
+			
+			int confirm = javax.swing.JOptionPane.showConfirmDialog(this, 
+				"Bạn có chắc chắn muốn xóa nhân viên này?", 
+				"Xác nhận xóa", 
+				javax.swing.JOptionPane.YES_NO_OPTION);
+			
+			if(confirm == javax.swing.JOptionPane.YES_OPTION) {
+				String maNV = (String) dtm.getValueAt(selectedRow, 0);
+				NhanVienDAO nvDAO = new NhanVienDAO();
+				boolean success = nvDAO.deleteNhanVien(maNV);
+				if(success) {
+					javax.swing.JOptionPane.showMessageDialog(this, "Xóa nhân viên thành công.");
+					loadNhanVienData();
+					clearFields();
+				} else {
+					javax.swing.JOptionPane.showMessageDialog(this, "Xóa nhân viên thất bại.");
+				}
+			}
+		}
 		
+	}
+	
+	private void clearFields() {
+		txtMaNv.setText("");
+		txtTenNv.setText("");
+		txtSoDienThoai.setText("");
+		txtChucVu.setText("");
+		tblNhanVien.clearSelection();
 	}
 	
 	public static void main(String[] args) {
 		new CapNhatNhanVienPanel();
 	}
+	@Override
+	public void mouseClicked(MouseEvent e) {	
+		int selectedRow = tblNhanVien.getSelectedRow();
+		if(selectedRow != -1) {
+			String maNV = (String) dtm.getValueAt(selectedRow, 0);
+			String tenNV = (String) dtm.getValueAt(selectedRow, 1);
+			String soDienThoai = (String) dtm.getValueAt(selectedRow, 2);
+			String chucVu = (String) dtm.getValueAt(selectedRow, 3);
+			
+			txtMaNv.setText(maNV);
+			txtTenNv.setText(tenNV);
+			txtSoDienThoai.setText(soDienThoai);
+			txtChucVu.setText(chucVu);
+		}
+	}
 
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// Không cần xử lý
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// Không cần xử lý
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// Không cần xử lý
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// Không cần xử lý
+	}
 }

@@ -23,16 +23,26 @@ public class KhachHangDAO {
     public ArrayList<KhachHang> getAllKhachHang() {
         ArrayList<KhachHang> dsKhachHang = new ArrayList<>();
         String sql = "SELECT * FROM KhachHang WHERE isActive = 1 ORDER BY tenKH";
+        Connection con = ConnectDB.getInstance().getConnection();
+        Statement stmt = null;
+        ResultSet rs = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
                 dsKhachHang.add(mapResultSetToKhachHang(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return dsKhachHang;
     }
@@ -45,19 +55,27 @@ public class KhachHangDAO {
     public KhachHang getKhachHangById(String id) {
         String sql = "SELECT * FROM KhachHang WHERE maKH = ?";
         KhachHang kh = null;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, id);
+            rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    kh = mapResultSetToKhachHang(rs);
-                }
+            if (rs.next()) {
+                kh = mapResultSetToKhachHang(rs);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return kh;
     }
@@ -70,21 +88,29 @@ public class KhachHangDAO {
     public ArrayList<KhachHang> findKhachHang(String keyword) {
         ArrayList<KhachHang> dsKhachHang = new ArrayList<>();
         String sql = "SELECT * FROM KhachHang WHERE isActive = 1 AND (tenKH LIKE ? OR soDienThoai LIKE ?)";
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        try {
+            stmt = con.prepareStatement(sql);
             String searchKeyword = "%" + keyword + "%";
             stmt.setString(1, searchKeyword);
             stmt.setString(2, searchKeyword);
+            rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    dsKhachHang.add(mapResultSetToKhachHang(rs));
-                }
+            while (rs.next()) {
+                dsKhachHang.add(mapResultSetToKhachHang(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return dsKhachHang;
     }
@@ -97,10 +123,11 @@ public class KhachHangDAO {
     public boolean addKhachHang(KhachHang kh) {
         String sql = "INSERT INTO KhachHang (maKH, tenKH, soDienThoai, diemTichLuy, isActive) VALUES (?, ?, ?, ?, ?)";
         int n = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, kh.getMaKH());
             stmt.setString(2, kh.getTenKH());
             stmt.setString(3, kh.getSoDienThoai());
@@ -110,6 +137,12 @@ public class KhachHangDAO {
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return n > 0;
     }
@@ -122,10 +155,11 @@ public class KhachHangDAO {
     public boolean updateKhachHang(KhachHang kh) {
         String sql = "UPDATE KhachHang SET tenKH = ?, soDienThoai = ?, diemTichLuy = ?, isActive = ? WHERE maKH = ?";
         int n = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, kh.getTenKH());
             stmt.setString(2, kh.getSoDienThoai());
             stmt.setInt(3, kh.getDiemTichLuy());
@@ -135,6 +169,12 @@ public class KhachHangDAO {
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return n > 0;
     }
@@ -147,15 +187,22 @@ public class KhachHangDAO {
     public boolean deleteKhachHang(String id) {
         String sql = "UPDATE KhachHang SET isActive = 0 WHERE maKH = ?";
         int n = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, id);
 
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return n > 0;
     }

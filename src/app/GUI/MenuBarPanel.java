@@ -108,8 +108,6 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         menuThongKe.add(thongKeTheoThue);
         // Placeholder items cho các menu khác
         JMenuItem placeholderItem1 = new JMenuItem("Đang phát triển...");
-        JMenuItem placeholderItem2 = new JMenuItem("Đang phát triển...");
-        JMenuItem placeholderItem3 = new JMenuItem("Đang phát triển...");
         
         placeholderItem1.addActionListener(e -> 
             JOptionPane.showMessageDialog(this, "Chức năng đang được phát triển", "Thông báo", JOptionPane.INFORMATION_MESSAGE));

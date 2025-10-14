@@ -23,10 +23,13 @@ public class NhanVienDAO {
     public ArrayList<NhanVien> getAllNhanVien() {
         ArrayList<NhanVien> dsNhanVien = new ArrayList<>();
         String sql = "SELECT * FROM NhanVien WHERE isActive = 1"; // Chỉ lấy nhân viên đang làm việc
+        Connection con = ConnectDB.getInstance().getConnection();
+        Statement stmt = null;
+        ResultSet rs = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
                 String maNV = rs.getString("maNV");
@@ -40,6 +43,13 @@ public class NhanVienDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return dsNhanVien;
     }
@@ -52,25 +62,33 @@ public class NhanVienDAO {
     public NhanVien getNhanVienById(String id) {
         String sql = "SELECT * FROM NhanVien WHERE maNV = ?";
         NhanVien nv = null;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, id);
+            rs = stmt.executeQuery();
             
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    String maNV = rs.getString("maNV");
-                    String tenNV = rs.getString("tenNV");
-                    String chucVu = rs.getString("chucVu");
-                    String soDienThoai = rs.getString("soDienThoai");
-                    boolean isActive = rs.getBoolean("isActive");
-                    
-                    nv = new NhanVien(maNV, tenNV, chucVu, soDienThoai, isActive);
-                }
+            if (rs.next()) {
+                String maNV = rs.getString("maNV");
+                String tenNV = rs.getString("tenNV");
+                String chucVu = rs.getString("chucVu");
+                String soDienThoai = rs.getString("soDienThoai");
+                boolean isActive = rs.getBoolean("isActive");
+                
+                nv = new NhanVien(maNV, tenNV, chucVu, soDienThoai, isActive);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return nv;
     }
@@ -83,10 +101,11 @@ public class NhanVienDAO {
     public boolean addNhanVien(NhanVien nhanVien) {
         String sql = "INSERT INTO NhanVien (maNV, tenNV, chucVu, soDienThoai, isActive) VALUES (?, ?, ?, ?, ?)";
         int n = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, nhanVien.getMaNV());
             stmt.setString(2, nhanVien.getTenNV());
             stmt.setString(3, nhanVien.getChucVu());
@@ -96,6 +115,12 @@ public class NhanVienDAO {
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return n > 0;
     }
@@ -108,10 +133,11 @@ public class NhanVienDAO {
     public boolean updateNhanVien(NhanVien nhanVien) {
         String sql = "UPDATE NhanVien SET tenNV = ?, chucVu = ?, soDienThoai = ?, isActive = ? WHERE maNV = ?";
         int n = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, nhanVien.getTenNV());
             stmt.setString(2, nhanVien.getChucVu());
             stmt.setString(3, nhanVien.getSoDienThoai());
@@ -121,6 +147,12 @@ public class NhanVienDAO {
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return n > 0;
     }
@@ -133,15 +165,22 @@ public class NhanVienDAO {
     public boolean deleteNhanVien(String id) {
         String sql = "UPDATE NhanVien SET isActive = 0 WHERE maNV = ?";
         int n = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
         
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, id);
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return n > 0;
     }

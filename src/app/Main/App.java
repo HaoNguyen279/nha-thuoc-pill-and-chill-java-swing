@@ -4,13 +4,12 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import app.ConnectDB.ConnectDB;
-import app.GUI.DangNhap; // hoặc LoginGUI nếu bạn đã đổi tên lớp này
+import app.GUI.DangNhap; 
 
 public class App {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                // Kết nối CSDL
                 ConnectDB.getInstance().connect();
             } catch (Exception e) {
                 e.printStackTrace();
@@ -23,8 +22,7 @@ public class App {
                 return;
             }
 
-            // Mở giao diện đăng nhập
-            new DangNhap(); // hoặc new LoginGUI(); nếu bạn dùng tên khác
+            new DangNhap(); 
         });
     }
 }

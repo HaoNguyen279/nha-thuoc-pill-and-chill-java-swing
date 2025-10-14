@@ -13,13 +13,10 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
@@ -72,10 +69,10 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener{
         lblMaThuoc = new JLabel("Mã thuốc:");
         lblMaLo = new JLabel("Mã lô:");
         lblTenThuoc = new JLabel("Tên thuốc:");
-        lblSoLuongTon = new JLabel("Số lượng tồn:");
+        lblSoLuongTon = new JLabel("SL tồn:");
         lblGiaBan = new JLabel("Giá bán:");
     	lblDonVi = new JLabel("Đơn vị:");
-    	lblSoLuongToiThieu = new JLabel("Số lượng tối thiểu:");
+    	lblSoLuongToiThieu = new JLabel("SL tối thiểu:");
     	lblNhaSanXuat = new JLabel("Nhà sản xuất:");
     	
         txtMaNv = new JTextField(15);

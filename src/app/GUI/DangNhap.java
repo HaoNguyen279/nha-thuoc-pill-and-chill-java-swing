@@ -107,28 +107,40 @@ public class DangNhap extends JFrame implements ActionListener {
 		loginFrame.setVisible(true);
 	}
 
-	public static void main(String[] args) {
-		SwingUtilities.invokeLater(() -> {
-			try {
-				ConnectDB.getInstance().connect();
-			} catch (Exception e) {
-				e.printStackTrace();
-				JOptionPane.showMessageDialog(null, "Không thể kết nối đến cơ sở dữ liệu.", "Lỗi Kết Nối", JOptionPane.ERROR_MESSAGE);
-				return; 
-			}
-			new DangNhap();
-		});
-	}
+
 
 	class LeftSubPanel extends JPanel {
 		public LeftSubPanel() {
 			setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
-			ImageIcon icon = new ImageIcon(getClass().getResource("/resources/image/hinh-anh-nha-thuoc.jpg"));
-			JLabel background = new JLabel(icon);
-			background.setLayout(new BoxLayout(background, BoxLayout.Y_AXIS));
-			background.add(Box.createVerticalStrut(50));
 			setBackground(new Color(248, 248, 248));
-			add(background);
+			
+			// Try to load image, if not found just show background color
+			try {
+				java.net.URL imageURL = getClass().getResource("/resources/image/hinh-anh-nha-thuoc.jpg");
+				if (imageURL != null) {
+					ImageIcon icon = new ImageIcon(imageURL);
+					JLabel backgroundLabel = new JLabel(icon);
+					backgroundLabel.setLayout(new BoxLayout(backgroundLabel, BoxLayout.Y_AXIS));
+					backgroundLabel.add(Box.createVerticalStrut(50));
+					add(backgroundLabel);
+				} else {
+					// Image not found, just show background color with text
+					JLabel placeholder = new JLabel("NHÀ THUỐC", JLabel.CENTER);
+					placeholder.setFont(new Font("Arial", Font.BOLD, 48));
+					placeholder.setForeground(new Color(70, 130, 180));
+					add(Box.createVerticalGlue());
+					add(placeholder);
+					add(Box.createVerticalGlue());
+				}
+			} catch (Exception e) {
+				// If any error, just show background color
+				JLabel placeholder = new JLabel("NHÀ THUỐC", JLabel.CENTER);
+				placeholder.setFont(new Font("Arial", Font.BOLD, 48));
+				placeholder.setForeground(new Color(70, 130, 180));
+				add(Box.createVerticalGlue());
+				add(placeholder);
+				add(Box.createVerticalGlue());
+			}
 		}
 	}
 
@@ -159,7 +171,6 @@ public class DangNhap extends JFrame implements ActionListener {
 
 		// 3. Xử lý kết quả trả về
 		if (taiKhoan != null) {
-			JOptionPane.showMessageDialog(loginFrame, "Đăng nhập thành công! Xin chào " + taiKhoan.getMaNV());
 			loginFrame.dispose(); 
 			new Menu(taiKhoan.getMaNV());
 			

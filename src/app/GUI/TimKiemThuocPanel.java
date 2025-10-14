@@ -101,7 +101,7 @@ public class TimKiemThuocPanel extends JPanel {
         dtmTable.setRowCount(0);
         
         // Thêm dữ liệu mới
-        if (dsThuoc != null) {
+        if (dsThuoc != null && !dsThuoc.isEmpty()) {
             for (Thuoc thuoc : dsThuoc) {
                 String[] row = {
                     thuoc.getMaThuoc(),

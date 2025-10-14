@@ -9,12 +9,13 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -24,11 +25,10 @@ import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
-import app.ConnectDB.ConnectDB;
 import app.DAO.KhuyenMaiDAO;
 import app.Entity.KhuyenMai;
 
-public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener{
+public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, MouseListener{
 	
 	private JLabel lblTieuDe;
 	private JLabel lblMaKM;
@@ -91,7 +91,8 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener{
 	}
 	
 	public JScrollPane createBotPanel() {
-        tblKhuyenMai = new JTable(dtm);        
+        tblKhuyenMai = new JTable(dtm);
+        tblKhuyenMai.addMouseListener(this);
         tblKhuyenMai.setBackground(new Color(240, 240, 245));
         tblKhuyenMai.setGridColor(Color.LIGHT_GRAY);
         tblKhuyenMai.setFont(new Font("Arial", Font.PLAIN, 15));
@@ -197,7 +198,6 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener{
 	}
 	
 	public void loadNhanVienData() {
-		ConnectDB.getInstance().connect();
         KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
         dsKhuyenMai = kmDAO.getAllKhuyenMai();
 		dtm.setRowCount(0);
@@ -215,12 +215,148 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-		// TODO Auto-generated method stub
+		Object source = e.getSource();
+		if (source.equals(btnThem)) {
+			String maKM = txtMaKM.getText().trim();
+			String mucGiamStr = txtMucGiam.getText().trim();
+			String ngayBatDauStr = txtngayApDung.getText().trim();
+			String ngayKetThucStr = txtNgayKetThuc.getText().trim();
+			
+			if(maKM.isEmpty() || mucGiamStr.isEmpty() || ngayBatDauStr.isEmpty() || ngayKetThucStr.isEmpty()) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin.");
+				return;
+			}
+			
+			try {
+				float mucGiam = Float.parseFloat(mucGiamStr);
+				java.sql.Date ngayBatDau = java.sql.Date.valueOf(ngayBatDauStr); // Format: yyyy-MM-dd
+				java.sql.Date ngayKetThuc = java.sql.Date.valueOf(ngayKetThucStr);
+				
+				KhuyenMai km = new KhuyenMai(maKM, mucGiam, ngayBatDau, ngayKetThuc, true);
+				KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
+				boolean success = kmDAO.addKhuyenMai(km);
+				if(success) {
+					javax.swing.JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thành công.");
+					loadNhanVienData();
+					clearFields();
+				} else {
+					javax.swing.JOptionPane.showMessageDialog(this, "Thêm khuyến mãi thất bại.");
+				}
+			} catch (NumberFormatException ex) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Mức giảm phải là số thực.");
+			} catch (IllegalArgumentException ex) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Định dạng ngày không hợp lệ. Vui lòng nhập theo format: yyyy-MM-dd (ví dụ: 2024-01-15)");
+			}
+			
+		} else if (source.equals(btnSua)) {
+			int selectedRow = tblKhuyenMai.getSelectedRow();
+			if(selectedRow == -1) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng chọn khuyến mãi để sửa.");
+				return;
+			}
+			
+			String maKM = txtMaKM.getText().trim();
+			String mucGiamStr = txtMucGiam.getText().trim();
+			String ngayBatDauStr = txtngayApDung.getText().trim();
+			String ngayKetThucStr = txtNgayKetThuc.getText().trim();
+			
+			if(maKM.isEmpty() || mucGiamStr.isEmpty() || ngayBatDauStr.isEmpty() || ngayKetThucStr.isEmpty()) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin.");
+				return;
+			}
+			
+			try {
+				float mucGiam = Float.parseFloat(mucGiamStr);
+				java.sql.Date ngayBatDau = java.sql.Date.valueOf(ngayBatDauStr);
+				java.sql.Date ngayKetThuc = java.sql.Date.valueOf(ngayKetThucStr);
+				
+				KhuyenMai km = new KhuyenMai(maKM, mucGiam, ngayBatDau, ngayKetThuc, true);
+				KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
+				boolean success = kmDAO.updateKhuyenMai(km);
+				if(success) {
+					javax.swing.JOptionPane.showMessageDialog(this, "Cập nhật khuyến mãi thành công.");
+					loadNhanVienData();
+					clearFields();
+				} else {
+					javax.swing.JOptionPane.showMessageDialog(this, "Cập nhật khuyến mãi thất bại.");
+				}
+			} catch (NumberFormatException ex) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Mức giảm phải là số thực.");
+			} catch (IllegalArgumentException ex) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Định dạng ngày không hợp lệ. Vui lòng nhập theo format: yyyy-MM-dd (ví dụ: 2024-01-15)");
+			}
+			
+		} else if (source.equals(btnXoa)) {
+			int selectedRow = tblKhuyenMai.getSelectedRow();
+			if(selectedRow == -1) {
+				javax.swing.JOptionPane.showMessageDialog(this, "Vui lòng chọn khuyến mãi để xóa.");
+				return;
+			}
+			
+			int confirm = javax.swing.JOptionPane.showConfirmDialog(this, 
+				"Bạn có chắc chắn muốn xóa khuyến mãi này?", 
+				"Xác nhận xóa", 
+				javax.swing.JOptionPane.YES_NO_OPTION);
+			
+			if(confirm == javax.swing.JOptionPane.YES_OPTION) {
+				String maKM = (String) dtm.getValueAt(selectedRow, 0);
+				KhuyenMaiDAO kmDAO = new KhuyenMaiDAO();
+				boolean success = kmDAO.deleteKhuyenMai(maKM);
+				if(success) {
+					javax.swing.JOptionPane.showMessageDialog(this, "Xóa khuyến mãi thành công.");
+					loadNhanVienData();
+					clearFields();
+				} else {
+					javax.swing.JOptionPane.showMessageDialog(this, "Xóa khuyến mãi thất bại.");
+				}
+			}
+		}
 		
 	}
 	
-	public static void main(String[] args) {
-		new CapNhatKhuyenMaiPanel();
+	private void clearFields() {
+		txtMaKM.setText("");
+		txtMucGiam.setText("");
+		txtngayApDung.setText("");
+		txtNgayKetThuc.setText("");
+		tblKhuyenMai.clearSelection();
 	}
+	
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		int selectedRow = tblKhuyenMai.getSelectedRow();
+		if(selectedRow != -1) {
+			String maKM = (String) dtm.getValueAt(selectedRow, 0);
+			float mucGiam = (float) dtm.getValueAt(selectedRow, 1);
+			java.sql.Date ngayBatDau = (java.sql.Date) dtm.getValueAt(selectedRow, 2);
+			java.sql.Date ngayKetThuc = (java.sql.Date) dtm.getValueAt(selectedRow, 3);
+			
+			txtMaKM.setText(maKM);
+			txtMucGiam.setText(String.valueOf(mucGiam));
+			txtngayApDung.setText(ngayBatDau.toString());
+			txtNgayKetThuc.setText(ngayKetThuc.toString());
+		}
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// Không cần xử lý
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// Không cần xử lý
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// Không cần xử lý
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// Không cần xử lý
+	}
+
 
 }

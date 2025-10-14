@@ -26,6 +26,16 @@ public class ConnectDB {
         return con;
     }
     public void connect() {
+        // Kiểm tra nếu đã có connection và connection vẫn còn mở, không tạo mới
+        try {
+            if (con != null && !con.isClosed()) {
+                return;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        // Tạo connection mới
         String url = "jdbc:sqlserver://localhost:1433;DatabaseName=QuanLyNhaThuoc;encrypt=true;trustServerCertificate=true;";
         String user = "sa";
         String pwd = "sapassword";
@@ -42,6 +52,5 @@ public class ConnectDB {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-
     }
 }
