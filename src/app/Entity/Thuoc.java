@@ -25,10 +25,9 @@ public class Thuoc {
         this.donVi = donVi;
         this.soLuongToiThieu = soLuongToiThieu;
         this.maNSX = maNSX;
-        this.isActive = isActive; // Đã đổi tên
+        this.isActive = isActive;
     }
 
-    // --- Getters & Setters ---
     public String getMaThuoc() {
         return maThuoc;
     }

@@ -4,14 +4,14 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import app.ConnectDB.ConnectDB;
-import app.GUI.DangNhap; 
+import app.GUI.DangNhap;
 
 public class App {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
                 ConnectDB.getInstance().connect();
-            } catch (Exception e) {
+            }catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(
                     null,
@@ -22,7 +22,7 @@ public class App {
                 return;
             }
 
-            new DangNhap(); 
+            new DangNhap();
         });
     }
 }

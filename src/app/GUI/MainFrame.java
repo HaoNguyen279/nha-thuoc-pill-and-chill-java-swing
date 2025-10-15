@@ -3,7 +3,8 @@ package app.GUI;
 import java.awt.*;
 import javax.swing.*;
 
-public class Menu extends JFrame {
+
+public class MainFrame extends JFrame {
     private String tenNhanVien;
     private MenuBarPanel menuBarPanel;
     private JPanel contentPanel;
@@ -24,7 +25,7 @@ public class Menu extends JFrame {
     private TimKiemKhachHangPanel timKiemKhachHangPanel;
     private TimKiemNhanVienPanel timKiemNhanVienPanel;
     
-    public Menu(String tenNhanVien) {
+    public MainFrame(String tenNhanVien) {
         this.tenNhanVien = tenNhanVien;
         initializeFrame();
         initializePanels();
@@ -93,7 +94,6 @@ public class Menu extends JFrame {
             welcomeLabel.setForeground(Color.BLUE);
             panel.add(welcomeLabel, BorderLayout.CENTER);
         }
-        
         return panel;
     }
     
@@ -168,12 +168,12 @@ public class Menu extends JFrame {
         showPanel(lapPhieuDoiThuocPanel);
     }
     
-    public void showThongKeTheoDoanhThuPanel() {
-        if (thongKeTheoDoanhThuPanel == null) {
-            thongKeTheoDoanhThuPanel = new ThongKeTheoDoanhThuPanel();
-        }
-        showPanel(thongKeTheoDoanhThuPanel);
-    }
+//    public void showThongKeTheoDoanhThuPanel() {
+//        if (thongKeTheoDoanhThuPanel == null) {
+//            thongKeTheoDoanhThuPanel = new ThongKeTheoDoanhThuPanel();
+//        }
+//        showPanel(thongKeTheoDoanhThuPanel);
+//    }
     
     public void showThongKeTheoNhanVienPanel() {
         if (thongKeTheoNhanVienPanel == null) {
@@ -202,7 +202,12 @@ public class Menu extends JFrame {
         }
         showPanel(thongKeTheoThuocPanel);
     }
-    
+    public void showThongKeTheoDoanhThuPanel() {
+        if (thongKeTheoDoanhThuPanel == null) {
+        	thongKeTheoDoanhThuPanel = new ThongKeTheoDoanhThuPanel();
+        }
+        showPanel(thongKeTheoDoanhThuPanel);
+    }
     public void showThongKeTheoThuePanel() {
         if (thongKeTheoThuePanel == null) {
             thongKeTheoThuePanel = new ThongKeTheoThuePanel();
@@ -210,10 +215,18 @@ public class Menu extends JFrame {
         showPanel(thongKeTheoThuePanel);
     }
     
+    
+    // Show panel - đổi panel khi chọn tab khác
     private void showPanel(JPanel panel) {
         contentPanel.removeAll();
         contentPanel.add(panel, BorderLayout.CENTER);
         contentPanel.revalidate();
         contentPanel.repaint();
     }
+    
+    public void dangXuatHandle() {
+    	this.dispose();
+    	new DangNhapFrame();
+   }
+
 }

@@ -27,9 +27,9 @@ public class LapHoaDonPanel extends JPanel {
         // Panel tiêu đề
         JPanel titlePanel = new JPanel(new BorderLayout());
         titlePanel.setBackground(Color.WHITE);
-        JLabel titleLabel = new JLabel("LẬP HÓA ĐƠN", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        titlePanel.add(titleLabel, BorderLayout.CENTER);
+        JLabel lblTitle = new JLabel("LẬP HÓA ĐƠN", SwingConstants.CENTER);
+        lblTitle.setFont(new Font("Arial", Font.BOLD, 24));
+        titlePanel.add(lblTitle, BorderLayout.CENTER);
 
         // Panel tìm kiếm
         JPanel searchPanel = createSearchPanel();
@@ -38,18 +38,18 @@ public class LapHoaDonPanel extends JPanel {
         centerPanel.add(titlePanel, BorderLayout.NORTH);
 
         // Panel giữa chứa 2 bảng
-        JPanel tablesPanel = new JPanel(new GridLayout(2, 1, 0, 20));
-        tablesPanel.setBackground(Color.WHITE);
+        JPanel pnlTable = new JPanel(new GridLayout(2, 1, 0, 20));
+        pnlTable.setBackground(Color.WHITE);
 
         // Bảng trên - Lập hóa đơn
         JPanel topTablePanel = createTablePanel("", "Thêm vào giỏ hàng");
-        tablesPanel.add(topTablePanel);
+        pnlTable.add(topTablePanel);
 
         // Bảng dưới - Giỏ hàng
         JPanel bottomTablePanel = createTablePanel("GIỎ HÀNG", "Xóa khỏi giỏ hàng");
-        tablesPanel.add(bottomTablePanel);
+        pnlTable.add(bottomTablePanel);
 
-        centerPanel.add(tablesPanel, BorderLayout.CENTER);
+        centerPanel.add(pnlTable, BorderLayout.CENTER);
 
         return centerPanel;
     }
@@ -58,11 +58,11 @@ public class LapHoaDonPanel extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
         searchPanel.setBackground(Color.WHITE);
 
-        JTextField searchField = new JTextField(25);
-        searchField.setForeground(Color.GRAY);
-        searchField.setFont(new Font("Arial", Font.ITALIC, 13));
-        searchField.setBackground(new Color(245, 245, 245));
-        searchField.setBorder(BorderFactory.createCompoundBorder(
+        JTextField txtSearch = new JTextField(25);
+        txtSearch.setForeground(Color.GRAY);
+        txtSearch.setFont(new Font("Arial", Font.ITALIC, 13));
+        txtSearch.setBackground(new Color(245, 245, 245));
+        txtSearch.setBorder(BorderFactory.createCompoundBorder(
             BorderFactory.createLineBorder(Color.LIGHT_GRAY),
             BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
@@ -75,7 +75,7 @@ public class LapHoaDonPanel extends JPanel {
         searchButton.setFocusPainted(false);
         searchButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        searchPanel.add(searchField);
+        searchPanel.add(txtSearch);
         searchPanel.add(searchButton);
 
         return searchPanel;
@@ -85,25 +85,17 @@ public class LapHoaDonPanel extends JPanel {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
 
-        // Tiêu đề bảng (nếu có)
-        if (!title.isEmpty()) {
-            JLabel titleLabel = new JLabel(title, SwingConstants.CENTER);
-            titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
-            titleLabel.setBorder(new EmptyBorder(10, 0, 10, 0));
-            panel.add(titleLabel, BorderLayout.NORTH);
-        }
-
         // Bảng dữ liệu
         String[] columns = {"Mã thuốc", "Tên thuốc", "Số lượng", "Giá", "Thành tiền"};
         Object[][] data = {};
 
-        JTable table = new JTable(data, columns);
-        table.setRowHeight(30);
-        table.setBackground(new Color(240, 250, 240));
-        table.setGridColor(Color.LIGHT_GRAY);
-        table.setFont(new Font("Arial", Font.PLAIN, 12));
+        JTable tblThuoc = new JTable(data, columns);
+        tblThuoc.setRowHeight(30);
+        tblThuoc.setBackground(new Color(240, 250, 240));
+        tblThuoc.setGridColor(Color.LIGHT_GRAY);
+        tblThuoc.setFont(new Font("Arial", Font.PLAIN, 12));
 
-        JScrollPane scrollPane = new JScrollPane(table);
+        JScrollPane scrollPane = new JScrollPane(tblThuoc);
         scrollPane.setPreferredSize(new Dimension(0, 200));
         scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 

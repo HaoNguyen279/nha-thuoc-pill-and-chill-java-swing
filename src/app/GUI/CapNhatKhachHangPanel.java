@@ -202,15 +202,14 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
 		dtm.setRowCount(0);
 		for(KhachHang kh : dsKhachHang) {
 			Object[] rowData = {
-					kh.getMaKH(),
-					kh.getTenKH(),
-					kh.getSoDienThoai(),
-					kh.getDiemTichLuy()	
+				kh.getMaKH(),
+				kh.getTenKH(),
+				kh.getSoDienThoai(),
+				kh.getDiemTichLuy()	
 			};
 		dtm.addRow(rowData);
 		}
 	}
-	
 
 	@Override
 	public void actionPerformed(ActionEvent e) {

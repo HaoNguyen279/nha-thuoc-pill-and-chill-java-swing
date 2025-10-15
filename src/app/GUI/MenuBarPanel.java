@@ -1,207 +1,322 @@
 package app.GUI;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.*;
+import java.io.File;
+import java.net.URL;
+
+import javax.swing.Box;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
+
+import app.Main.App;
 
 public class MenuBarPanel extends JPanel implements ActionListener {
     private String tenNhanVien;
-    private Menu parentFrame;
-    private JMenuItem timKiemThuocItem;
-    private JMenuItem timKiemKhachHangItem;
-    private JMenuItem timNhanVienItem;
-    private JMenuItem lapHoaDonItem;
-    private JMenuItem lapPhieuDatThuocItem;
-    private JMenuItem lapPhieuDoiThuocItem;
-    private JMenuItem capNhatKhachHangItem;
-    private JMenuItem capNhatNhanVienItem;
-    private JMenuItem capNhatThuocItem;
-    private JMenuItem capNhatKhuyenMaiItem;
-    private JMenuItem thongKeTheoDoanhThu;
-    private JMenuItem thongKeTheoNhanVien;
-    private JMenuItem thongKeTheoKhachHang;
-    private JMenuItem thongKeTheoHanSuDung;
-    private JMenuItem thongKeTheoThuoc;
-    private JMenuItem thongKeTheoThue;
-    public MenuBarPanel(String tenNhanVien, Menu parentFrame) {
+    private MainFrame parentFrame;
+	private JFrame frmParent;
+	// MenuItem cho hệ thống
+	private JMenuItem mniHoTro;
+	private JMenuItem mniDangXuat;
+	private JMenuItem mniThoat;
+
+	// MenuItem cho cập nhật
+	private JMenuItem mniCapNhatThuoc;
+	private JMenuItem mniCapNhatKhachHang;
+	private JMenuItem mniCapNhatNhanVien;
+	private JMenuItem mniCapNhatKhuyenMai;
+
+	// MenuItem cho tìm kiếm
+	private JMenuItem mniTimKiemThuoc;
+	private JMenuItem mniTimKiemKhachHang;
+	private JMenuItem mniTimKiemNhanVien;
+
+	// MenuItem cho xử lí
+	private JMenuItem mniLapHoaDon;
+	private JMenuItem mniLapPhieuDatThuoc;
+	private JMenuItem mniLapPhieuTraThuoc;
+
+	// MenuItem cho thống kê
+	private JMenuItem mniDoanhThu;
+	private JMenuItem mniNhanVien;
+	private JMenuItem mniKhachHang;
+	private JMenuItem mniHanSuDung;
+	private JMenuItem mniThue;
+	private JMenuItem mniThuocDuocMuaNhieu;
+	
+    public MenuBarPanel(String tenNhanVien, MainFrame parentFrame) {
         this.tenNhanVien = tenNhanVien;
         this.parentFrame = parentFrame;
         initializeMenuBar();
     }
-    
+
     private void initializeMenuBar() {
-        setLayout(new BorderLayout());
+        JMenuBar mnuMenuBar = new JMenuBar();
         
-        JMenuBar menuBar = new JMenuBar();
-        menuBar.setPreferredSize(new Dimension(0, 40));
+        JLabel lblTenNhanVien = new JLabel("Chào mừng:" + tenNhanVien);
+        lblTenNhanVien.setFont(new Font("Arial", Font.PLAIN, 15));
         
-        // Tạo các menu chính
-        JMenu menuHeThong = new JMenu("Hệ thống");
-        JMenu menuDanhMuc = new JMenu("Danh mục");
-        JMenu menuCapNhat = new JMenu("Cập nhật");
-        JMenu menuTimKiem = new JMenu("Tìm kiếm");
-        JMenu menuXuLi = new JMenu("Xử lý");
-        JMenu menuThongKe = new JMenu("Thống kê");
+        // Tạo các menu với icon
+        JMenu mnuHeThong = new JMenu("Hệ thống");
+        mnuHeThong.setIcon(loadIcon("/resources/icon/system_icon.png"));  
         
-        // Menu Hệ thống
-        JMenuItem dangXuatItem = new JMenuItem("Đăng xuất");
-        JMenuItem thoatItem = new JMenuItem("Thoát");
-        dangXuatItem.addActionListener(this);
-        thoatItem.addActionListener(this);
-        menuHeThong.add(dangXuatItem);
-        menuHeThong.addSeparator();
-        menuHeThong.add(thoatItem);
-        // Menu Danh mục
-        // Menu Cập nhật
-        capNhatKhachHangItem = new JMenuItem("Khách hàng");
-        capNhatKhachHangItem.addActionListener(this);
-        capNhatNhanVienItem = new JMenuItem("Nhân viên");
-        capNhatNhanVienItem.addActionListener(this);
-        capNhatThuocItem = new JMenuItem("Thuốc");
-        capNhatThuocItem.addActionListener(this);
-        capNhatKhuyenMaiItem = new JMenuItem("Khuyến mãi");
-        capNhatKhuyenMaiItem.addActionListener(this);
-        menuCapNhat.add(capNhatKhachHangItem);
-        menuCapNhat.add(capNhatNhanVienItem);
-        menuCapNhat.add(capNhatThuocItem);
-        menuCapNhat.add(capNhatKhuyenMaiItem);
-        // Menu Tìm kiếm
-        timKiemThuocItem = new JMenuItem("Thuốc");
-        timKiemThuocItem.addActionListener(this);
-        timKiemKhachHangItem = new JMenuItem("Khách hàng");
-        timKiemKhachHangItem.addActionListener(this);
-        timNhanVienItem = new JMenuItem("Nhân viên");
-        timNhanVienItem.addActionListener(this);
-        menuTimKiem.add(timKiemThuocItem);
-        menuTimKiem.add(timKiemKhachHangItem);
-        menuTimKiem.add(timNhanVienItem);
+        JMenu mnuCapNhat = new JMenu("Danh mục");
+        mnuCapNhat.setIcon(loadIcon("/resources/icon/task_icon.png"));  
+        
+        JMenu mnuTimKiem = new JMenu("Tìm kiếm");
+        mnuTimKiem.setIcon(loadIcon("/resources/icon/magnifier_icon.png"));  
+        
+        JMenu mnuXuLy = new JMenu("Xử lý");
+        mnuXuLy.setIcon(loadIcon("/resources/icon/update_icon.png"));  
+        
+        JMenu mnuThongKe = new JMenu("Thống kê");
+        mnuThongKe.setIcon(loadIcon("/resources/icon/chart_icon.png"));  
+        
+        Font fntMenu = new Font("Arial", Font.PLAIN, 15);
+        
+        for (JMenu item : new JMenu[]{
+        		mnuHeThong , mnuCapNhat,
+        		mnuTimKiem, mnuXuLy, mnuThongKe
+    	    }) {
+    	        item.setFont(fntMenu);
+    	    }
 
-        // Menu Xử lý
-        lapHoaDonItem = new JMenuItem("Lập hóa đơn");
-        lapHoaDonItem.addActionListener(this);
-        lapPhieuDatThuocItem = new JMenuItem("Lập phiếu đặt thuốc");
-        lapPhieuDatThuocItem.addActionListener(this);
-        lapPhieuDoiThuocItem = new JMenuItem("Lập phiếu đổi thuốc");
-        lapPhieuDoiThuocItem.addActionListener(this);
-        menuXuLi.add(lapHoaDonItem);
-        menuXuLi.add(lapPhieuDatThuocItem);
-        menuXuLi.add(lapPhieuDoiThuocItem);
-        // Menu Thống kê
-        thongKeTheoDoanhThu = new JMenuItem("Thống kê theo doanh thu");
-        thongKeTheoDoanhThu.addActionListener(this);
-        thongKeTheoNhanVien = new JMenuItem("Thống kê theo nhân viên");
-        thongKeTheoNhanVien.addActionListener(this);
-        thongKeTheoKhachHang = new JMenuItem("Thống kê theo khách hàng");
-        thongKeTheoKhachHang.addActionListener(this);
-        thongKeTheoHanSuDung = new JMenuItem("Thống kê theo hạn sử dụng");
-        thongKeTheoHanSuDung.addActionListener(this);
-        thongKeTheoThuoc = new JMenuItem("Thống kê theo thuốc");
-        thongKeTheoThuoc.addActionListener(this);
-        thongKeTheoThue = new JMenuItem("Thống kê theo thuế");
-        thongKeTheoThue.addActionListener(this);
-        menuThongKe.add(thongKeTheoDoanhThu);
-        menuThongKe.add(thongKeTheoNhanVien);
-        menuThongKe.add(thongKeTheoKhachHang);
-        menuThongKe.add(thongKeTheoHanSuDung);
-        menuThongKe.add(thongKeTheoThuoc);
-        menuThongKe.add(thongKeTheoThue);
-        // Placeholder items cho các menu khác
-        JMenuItem placeholderItem1 = new JMenuItem("Đang phát triển...");
-        
-        placeholderItem1.addActionListener(e -> 
-            JOptionPane.showMessageDialog(this, "Chức năng đang được phát triển", "Thông báo", JOptionPane.INFORMATION_MESSAGE));
+        this.setPreferredSize(new Dimension(0,50));
+        mnuMenuBar.setBackground(new Color(240,250,240));
 
-        menuDanhMuc.add(placeholderItem1);
+        // MenuItem cho hệ thống với icon
+        mniHoTro = new JMenuItem("Hỗ trợ");
+        mniHoTro.setIcon(loadIcon("/resources/icon/support_icon.png"));  
         
-        // Thêm các menu vào menu bar
-        menuBar.add(menuHeThong);
-        menuBar.add(menuDanhMuc);
-        menuBar.add(menuCapNhat);
-        menuBar.add(menuTimKiem);
-        menuBar.add(menuXuLi);
-        menuBar.add(menuThongKe);
+        mniDangXuat = new JMenuItem("Đăng xuất");
+        mniDangXuat.setIcon(loadIcon("/resources/icon/logout_icon.png"));  
         
-        // Thêm khoảng trống và tên nhân viên
-        menuBar.add(Box.createHorizontalGlue());
-        JLabel tenNVLabel = new JLabel("Nhân viên: " + tenNhanVien);
-        tenNVLabel.setFont(new Font("Arial", Font.BOLD, 12));
-        tenNVLabel.setForeground(Color.BLUE);
-        menuBar.add(tenNVLabel);
-        menuBar.add(Box.createHorizontalStrut(10));
+        mniThoat = new JMenuItem("Thoát");
+        mniThoat.setIcon(loadIcon("/resources/icon/poweroff_icon.png"));  
+
+        // MenuItem cho cập nhật với icon
+        mniCapNhatThuoc = new JMenuItem("Thuốc");
+        mniCapNhatThuoc.setIcon(loadIcon("/resources/icon/drug_icon.png"));  
         
-        add(menuBar, BorderLayout.CENTER);
-    }
-    
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        Object source = e.getSource();
+        mniCapNhatKhachHang = new JMenuItem("Khách hàng");
+        mniCapNhatKhachHang.setIcon(loadIcon("/resources/icon/customer_icon.png"));  
         
-        if (source == timKiemThuocItem) {
-            parentFrame.showTimKiemThuocPanel();
-        } else if (source == lapHoaDonItem) {
-            parentFrame.showLapHoaDonPanel();
-        } else if (source.equals(getMenuItemByText("Đăng xuất"))) {
-            int choice = JOptionPane.showConfirmDialog(this,
-                "Bạn có chắc chắn muốn đăng xuất?", 
-                "Xác nhận đăng xuất",
-                JOptionPane.YES_NO_OPTION);
-            if (choice == JOptionPane.YES_OPTION) {
-                parentFrame.dispose();
-                new DangNhap();
-            }
-        } else if (source.equals(getMenuItemByText("Thoát"))) {
-            int choice = JOptionPane.showConfirmDialog(this,
-                "Bạn có chắc chắn muốn thoát ứng dụng?", 
-                "Xác nhận thoát",
-                JOptionPane.YES_NO_OPTION);
-            if (choice == JOptionPane.YES_OPTION) {
-                System.exit(0);
-            }
-        } else if(source == capNhatKhachHangItem) {
-            parentFrame.showCapNhatKhachHangPanel();
-        } else if(source == capNhatNhanVienItem) {
-            parentFrame.showCapNhatNhanVienPanel();
-        } else if(source == capNhatThuocItem) {
-            parentFrame.showCapNhatThuocPanel();
-        } else if(source == capNhatKhuyenMaiItem) {
-            parentFrame.showCapNhatKhuyenMaiPanel();
-        } else if(source == timKiemKhachHangItem) {
-            parentFrame.showTimKiemKhachHangPanel();
-        } else if (source == timNhanVienItem) {
-            parentFrame.showTimKiemNhanVienPanel();
-        } else if (source == lapPhieuDatThuocItem) {
-            parentFrame.showLapPhieuDatThuocPanel();
-        } else if (source == lapPhieuDoiThuocItem) {
-            parentFrame.showLapPhieuDoiThuocPanel();
-        } else if(source == thongKeTheoDoanhThu) {
-            parentFrame.showThongKeTheoDoanhThuPanel();
-        } else if (source == thongKeTheoNhanVien) {
-            parentFrame.showThongKeTheoNhanVienPanel();
-        } else if (source == thongKeTheoKhachHang) {
-            parentFrame.showThongKeTheoKhachHangPanel();
-        } else if (source == thongKeTheoHanSuDung) {
-            parentFrame.showThongKeTheoHSDPanel();
-        } else if (source == thongKeTheoThuoc) {
-            parentFrame.showThongKeTheoThuocPanel();
-        } else if (source == thongKeTheoThue) {
-            parentFrame.showThongKeTheoThuePanel();
-        }
+        mniCapNhatNhanVien = new JMenuItem("Nhân viên");
+        mniCapNhatNhanVien.setIcon(loadIcon("/resources/icon/employee_icon.png"));  
+        
+        mniCapNhatKhuyenMai = new JMenuItem("Khuyến mãi");
+        mniCapNhatKhuyenMai.setIcon(loadIcon("/resources/icon/sale_icon.png")); 
+
+        // MenuItem cho tìm kiếm với icon
+        mniTimKiemThuoc = new JMenuItem("Thuốc");
+        mniTimKiemThuoc.setIcon(loadIcon("/resources/icon/drug_icon.png")); 
+        
+        mniTimKiemKhachHang = new JMenuItem("Khách hàng");
+        mniTimKiemKhachHang.setIcon(loadIcon("/resources/icon/customer_icon.png"));  
+        
+        mniTimKiemNhanVien = new JMenuItem("Nhân viên");
+        mniTimKiemNhanVien.setIcon(loadIcon("/resources/icon/employee_icon.png"));  
+
+        // MenuItem cho xử lí với icon
+        mniLapHoaDon = new JMenuItem("Lập hóa đơn");
+        mniLapHoaDon.setIcon(loadIcon("/resources/icon/bill_icon.png"));
+        
+        mniLapPhieuDatThuoc = new JMenuItem("Lập phiếu đặt thuốc");
+        mniLapPhieuDatThuoc.setIcon(loadIcon("/resources/icon/order_icon.png"));  
+        
+        mniLapPhieuTraThuoc = new JMenuItem("Lập phiếu trả thuốc");
+        mniLapPhieuTraThuoc.setIcon(loadIcon("/resources/icon/refund_icon.png"));  
+        
+        // MenuItem cho thống kê với icon
+        mniDoanhThu = new JMenuItem("Doanh thu nhà thuốc");
+        mniDoanhThu.setIcon(loadIcon("/resources/icon/revenue_icon.png"));  
+        
+        mniNhanVien = new JMenuItem("Doanh thu của NV");
+        mniNhanVien.setIcon(loadIcon("/resources/icon/employee_revenue_icon.png"));  
+        
+        mniKhachHang = new JMenuItem("Doanh thu của KH");
+        mniKhachHang.setIcon(loadIcon("/resources/icon/customer_revenue_icon.png"));  
+        
+        mniHanSuDung = new JMenuItem("Hạn sử dụng");
+        mniHanSuDung.setIcon(loadIcon("/resources/icon/refund_icon.png"));  
+        
+        mniThue = new JMenuItem("Thuế");
+        mniThue.setIcon(loadIcon("/resources/icon/refund_icon.png"));  
+        
+        mniThuocDuocMuaNhieu = new JMenuItem("Thuốc mua nhiều");
+        mniThuocDuocMuaNhieu.setIcon(loadIcon("/resources/icon/refund_icon.png"));  
             
+        Font itemFont = new Font("Arial", Font.PLAIN, 14);
+
+        for (JMenuItem item1 : new JMenuItem[]{
+            mniHoTro, mniDangXuat, mniThoat,
+            mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai,
+            mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,
+            mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc,
+            mniDoanhThu, mniNhanVien, mniKhachHang, mniHanSuDung, mniThue, mniThuocDuocMuaNhieu
+        }) {
+            item1.setFont(itemFont);
+            item1.setBackground(getBackground());
+            item1.setPreferredSize(new Dimension(180,40));
+        }
+        
+        // Hệ thống
+        mnuHeThong.add(mniHoTro);
+        mnuHeThong.add(mniDangXuat);
+        mnuHeThong.add(mniThoat);
+
+        // Cập nhật
+        mnuCapNhat.add(mniCapNhatThuoc);
+        mnuCapNhat.add(mniCapNhatKhachHang);
+        mnuCapNhat.add(mniCapNhatNhanVien);
+        mnuCapNhat.add(mniCapNhatKhuyenMai);
+
+        // Tìm kiếm
+        mnuTimKiem.add(mniTimKiemThuoc);
+        mnuTimKiem.add(mniTimKiemKhachHang);
+        mnuTimKiem.add(mniTimKiemNhanVien);
+
+        // Xử lý
+        mnuXuLy.add(mniLapHoaDon);
+        mnuXuLy.add(mniLapPhieuDatThuoc);
+        mnuXuLy.add(mniLapPhieuTraThuoc);
+        
+        // Thống kê
+        mnuThongKe.add(mniDoanhThu);
+        mnuThongKe.add(mniNhanVien);
+        mnuThongKe.add(mniKhachHang);
+        mnuThongKe.add(mniThue);
+        mnuThongKe.add(mniHanSuDung);
+        mnuThongKe.add(mniThuocDuocMuaNhieu);
+
+        // Thêm vào Menubar chính
+        mnuMenuBar.add(mnuHeThong);
+        mnuMenuBar.add(mnuCapNhat);
+        mnuMenuBar.add(mnuTimKiem);
+        mnuMenuBar.add(mnuXuLy);
+        mnuMenuBar.add(mnuThongKe);
+        //Tạo khoảng cách giữa mnubar và tên nhân viên
+        mnuMenuBar.add(Box.createHorizontalGlue());
+        
+        JMenuItem[] menuItems = {
+        	    mniHoTro, mniDangXuat, mniThoat,
+        	    mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai,
+        	    mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,
+        	    mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc,
+        	    mniDoanhThu, mniNhanVien, mniKhachHang, mniHanSuDung, mniThue, mniThuocDuocMuaNhieu
+        	};
+    	for (JMenuItem item : menuItems) {
+    	    item.addActionListener(this);
+    	}
+
+        mnuMenuBar.add(lblTenNhanVien);
+        mnuMenuBar.add(Box.createHorizontalStrut(10));
+        this.setLayout(new BorderLayout());
+        this.add(mnuMenuBar, BorderLayout.CENTER);
+        
     }
-    
-    private JMenuItem getMenuItemByText(String text) {
-        Component[] components = ((JMenuBar) getComponent(0)).getComponents();
-        for (Component comp : components) {
-            if (comp instanceof JMenu) {
-                JMenu menu = (JMenu) comp;
-                for (int i = 0; i < menu.getItemCount(); i++) {
-                    JMenuItem item = menu.getItem(i);
-                    if (item != null && text.equals(item.getText())) {
-                        return item;
-                    }
-                }
+
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		// TODO Auto-generated method stub
+		Object o = e.getSource();
+		if(o == mniLapHoaDon) {
+			new LapHoaDonPanel();
+		}
+		// Cập nhật
+		else if (o == mniCapNhatKhachHang) parentFrame.showCapNhatKhachHangPanel();
+
+		else if (o == mniCapNhatNhanVien) parentFrame.showCapNhatNhanVienPanel();
+
+		else if (o == mniCapNhatThuoc) parentFrame.showCapNhatThuocPanel();
+
+		else if (o == mniCapNhatKhuyenMai) parentFrame.showCapNhatKhuyenMaiPanel();
+		
+		// Tìm kiếm
+		else if (o == mniTimKiemThuoc) parentFrame.showTimKiemThuocPanel();
+
+		else if (o == mniTimKiemKhachHang) parentFrame.showTimKiemKhachHangPanel();
+
+		else if (o == mniTimKiemNhanVien) parentFrame.showTimKiemNhanVienPanel();
+		
+		// Xử lý
+		else if (o == mniLapHoaDon) parentFrame.showLapHoaDonPanel();
+
+		else if (o == mniLapPhieuDatThuoc) parentFrame.showLapPhieuDatThuocPanel();
+
+		else if (o == mniLapPhieuTraThuoc) parentFrame.showLapPhieuDoiThuocPanel();
+		
+		// Thống kê
+		else if (o == mniDoanhThu) parentFrame.showThongKeTheoDoanhThuPanel();
+
+		else if (o == mniNhanVien) parentFrame.showThongKeTheoNhanVienPanel();
+
+		else if (o == mniKhachHang) parentFrame.showThongKeTheoKhachHangPanel();
+
+		else if (o == mniHanSuDung) parentFrame.showThongKeTheoHSDPanel();
+
+		else if (o == mniThuocDuocMuaNhieu) parentFrame.showThongKeTheoThuocPanel();
+
+		else if (o == mniThue) parentFrame.showThongKeTheoThuePanel();
+		
+		// Hệ thống
+		else if(o == mniDangXuat) {
+			CustomJOptionPane a = new CustomJOptionPane(parentFrame, "Bạn có chắc muốn đăng xuất?", true);
+			int choice = a.show();
+			if(choice == JOptionPane.YES_OPTION) {
+				parentFrame.dangXuatHandle();
+			}
+		}
+		else if(o == mniThoat) {
+			CustomJOptionPane a = new CustomJOptionPane(parentFrame, "Bạn có chắc muốn tắt ứng dụng?", true);
+			int choice = a.show();
+			if(choice == JOptionPane.YES_OPTION) System.exit(0);
+		}
+		else if(o == mniHoTro) {
+			try {
+				URL fileURL = App.class.getResource("/resources/pdf/HuongDanSuDung.pdf");
+				if(fileURL != null) {
+					File file = new File(fileURL.toURI());
+					if(file.exists()) {
+						if(Desktop.isDesktopSupported()) {
+							Desktop.getDesktop().open(file);
+						}
+					}
+					else {
+						CustomJOptionPane a =  new CustomJOptionPane(parentFrame, "File PDF không tồn tại!", false);
+						a.show();
+					}
+				}else {
+					CustomJOptionPane a =  new CustomJOptionPane(parentFrame, "File PDF không tồn tại!", false);
+					a.show();
+				}
+			} catch (Exception e1) {
+				new CustomJOptionPane(this, "Gặp lỗi khi mở file PDF, mã lỗi:!" + e1.getMessage(), false);
+			}
+		}
+	}
+	
+    private ImageIcon loadIcon(String path) {
+        try {
+            URL iconURL = getClass().getResource(path);
+            if (iconURL != null) {
+                return new ImageIcon(iconURL);
             }
+        } catch (Exception e) {
+            System.err.println("Không thể tải icon: " + path);
         }
         return null;
     }

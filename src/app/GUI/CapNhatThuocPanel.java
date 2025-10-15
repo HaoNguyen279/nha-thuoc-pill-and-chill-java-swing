@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -19,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -31,7 +34,7 @@ import app.Entity.KhachHang;
 import app.Entity.NhanVien;
 import app.Entity.Thuoc;
 
-public class CapNhatThuocPanel extends JPanel implements ActionListener{
+public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseListener{
 	
 	private JLabel lblTieuDe;
 	private JLabel lblMaThuoc;
@@ -43,10 +46,10 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener{
 	private JLabel lblSoLuongToiThieu;
 	private JLabel lblNhaSanXuat;
 
-	private JTextField txtMaNv;
-	private JTextField txtTenNv;
-	private JTextField txtSoDienThoai;
-	private JTextField txtChucVu;
+	private JTextField txtMaThuoc;
+	private JTextField txtMaLo;
+	private JTextField txtTenThuoc;
+	private JTextField txtSoLuongTon;
 	private JTextField txtGiaBan;
 	private JTextField txtDonVi;
 	private JTextField txtSoLuongToiThieu;
@@ -75,10 +78,10 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener{
     	lblSoLuongToiThieu = new JLabel("SL tối thiểu:");
     	lblNhaSanXuat = new JLabel("Nhà sản xuất:");
     	
-        txtMaNv = new JTextField(15);
-        txtTenNv = new JTextField(15);
-        txtSoDienThoai = new JTextField(15);
-        txtChucVu = new JTextField(15);
+        txtMaThuoc = new JTextField(15);
+        txtMaLo = new JTextField(15);
+        txtTenThuoc = new JTextField(15);
+        txtSoLuongTon = new JTextField(15);
         txtGiaBan = new JTextField(15);
     	txtDonVi = new JTextField(15);
     	txtSoLuongToiThieu = new JTextField(15);
@@ -105,18 +108,21 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener{
         
         loadNhanVienData();
         setBackground(new Color(248, 248, 248));
-        setVisible(true);
+//        setVisible(true);
+//        setSize(new Dimension(1200,700));
         
 	}
 	
 	public JScrollPane createBotPanel() {
-        tblThuoc = new JTable(dtm);        
+        tblThuoc = new JTable(dtm);
         tblThuoc.setBackground(new Color(240, 240, 245));
         tblThuoc.setGridColor(Color.LIGHT_GRAY);
         tblThuoc.setFont(new Font("Arial", Font.PLAIN, 15));
         tblThuoc.setRowHeight(40);
         tblThuoc.setGridColor(Color.LIGHT_GRAY);
         tblThuoc.setSelectionBackground(new Color(100, 149, 237));
+        tblThuoc.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblThuoc.addMouseListener(this);
         JTableHeader header = tblThuoc.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 35));
         header.setBackground(new Color(192, 232, 246));
@@ -141,22 +147,22 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener{
 		
 		JPanel pnlr1 = new JPanel(new BorderLayout());
 		pnlr1.add(lblMaThuoc, BorderLayout.WEST);
-		pnlr1.add(txtMaNv);
+		pnlr1.add(txtMaThuoc);
 		pnlr1.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 
 		JPanel pnlr2 = new JPanel(new BorderLayout());
 		pnlr2.add(lblMaLo, BorderLayout.WEST);
-		pnlr2.add(txtTenNv);
+		pnlr2.add(txtMaLo);
 		pnlr2.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 		
 		JPanel pnlr3 = new JPanel(new BorderLayout());
 		pnlr3.add(lblTenThuoc, BorderLayout.WEST);
-		pnlr3.add(txtSoDienThoai);
+		pnlr3.add(txtTenThuoc);
 		pnlr3.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 		
 		JPanel pnlr4 = new JPanel(new BorderLayout());
 		pnlr4.add(lblSoLuongTon, BorderLayout.WEST);
-		pnlr4.add(txtChucVu);
+		pnlr4.add(txtSoLuongTon);
 		pnlr4.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 		
 		JPanel pnlr5 = new JPanel(new BorderLayout());
@@ -213,12 +219,12 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener{
         	item.setPreferredSize(new Dimension(100,0));
         }
         JTextField[] txtItems = { 
-        	    txtMaNv, txtTenNv, txtSoDienThoai, txtChucVu,
+        	    txtMaThuoc, txtMaLo, txtTenThuoc, txtSoLuongTon,
         	    txtGiaBan, txtDonVi, txtSoLuongToiThieu, txtNhaSanXuat
         	};
         for(JTextField item : txtItems) {
         	item.setFont(new Font("Arial", Font.ITALIC, 16));
-        	item.setForeground(Color.BLUE); // Màu font 
+        	item.setForeground(Color.BLUE);
         	item.setBackground(new Color(245, 245, 245));
         	item.setPreferredSize(new Dimension(200,20));
         	item.setBorder(BorderFactory.createCompoundBorder(
@@ -226,6 +232,9 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener{
         		BorderFactory.createEmptyBorder(5,10,5,10)
         	));
         }
+        
+		txtMaThuoc.setDisabledTextColor(Color.GRAY);
+		txtMaLo.setDisabledTextColor(Color.GRAY);
 		
 		pnlBottomOfMain.add(btnXoa);
 		pnlBottomOfMain.add(Box.createHorizontalStrut(10));
@@ -270,8 +279,50 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener{
 		
 	}
 	
-	public static void main(String[] args) {
-		new CapNhatThuocPanel();
+
+	@Override	
+	public void mouseClicked(MouseEvent e) {
+		Object o = e.getSource();
+		if(o == tblThuoc) {
+			txtMaThuoc.setEnabled(false);
+			txtMaLo.setEnabled(false);
+			int row = tblThuoc.getSelectedRow();
+	        if (row >= 0) {
+	            txtMaThuoc.setText(tblThuoc.getValueAt(row, 0).toString());
+	            txtMaLo.setText(tblThuoc.getValueAt(row, 1).toString());
+	            txtTenThuoc.setText(tblThuoc.getValueAt(row, 2).toString());
+	            txtSoLuongTon.setText(tblThuoc.getValueAt(row, 3).toString());
+	            txtGiaBan.setText(tblThuoc.getValueAt(row, 4).toString());
+	            txtDonVi.setText(tblThuoc.getValueAt(row, 5).toString());
+	            txtSoLuongToiThieu.setText(tblThuoc.getValueAt(row, 6).toString());
+	            txtNhaSanXuat.setText(tblThuoc.getValueAt(row, 7).toString());
+	        }
+		}
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }

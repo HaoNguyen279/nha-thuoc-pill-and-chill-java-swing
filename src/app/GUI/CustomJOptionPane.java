@@ -1,5 +1,7 @@
 package app.GUI;
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
+
 import java.awt.*;
 
 public class CustomJOptionPane {
@@ -17,14 +19,11 @@ public class CustomJOptionPane {
 
         JLabel lblTextDisplay = new JLabel(textDisplay);
         lblTextDisplay.setFont(new Font("Roboto", Font.BOLD, 17));
-        JPanel pnlTextDisplay = new JPanel(new BorderLayout());
-        pnlTextDisplay.setBorder(BorderFactory.createEmptyBorder(15, 25, 15, 25));
-        pnlTextDisplay.add(lblTextDisplay, BorderLayout.CENTER);
-        
-        
+        lblTextDisplay.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
+
         if(isYesNoOption) {
             pane = new JOptionPane(
-            	pnlTextDisplay,
+            	lblTextDisplay,
                 JOptionPane.PLAIN_MESSAGE,
                 JOptionPane.YES_NO_OPTION
             );
@@ -32,22 +31,21 @@ public class CustomJOptionPane {
         else {
             pane = new JOptionPane(
             		"<html>" +
-                            "<body style='font-family: Roboto; font-size: 12px;'>" +
+                            "<body style='font-family: Roboto; font-size: 11px;'>" +
                             textDisplay +
                             "</body>" +
-                            "</html>",
+                    "</html>",
                 JOptionPane.PLAIN_MESSAGE,
                 JOptionPane.DEFAULT_OPTION
             );
         }
-        
-        
+
         JButton btnXacNhan = new JButton("Xác nhận");
         JButton btnKhong = new JButton("Không");
         
         // Style nút 1
         btnXacNhan.setPreferredSize(new Dimension(100, 35));
-        btnXacNhan.setFont(new Font("Arial", Font.PLAIN, 13));
+        btnXacNhan.setFont(new Font("Arial", Font.PLAIN, 12));
         btnXacNhan.setBackground(new Color(230,255,230));
         btnXacNhan.setForeground(Color.BLACK);
         btnXacNhan.setBorder(BorderFactory.createLineBorder(Color.BLACK, 1));
@@ -68,7 +66,6 @@ public class CustomJOptionPane {
         	pane.setOptions(new Object[]{btnXacNhan, btnKhong});
         else
         	pane.setOptions(new Object[]{btnXacNhan});
-        
         
         // Tạo dialog
         JDialog dialog = pane.createDialog(parent, "Thông báo");
