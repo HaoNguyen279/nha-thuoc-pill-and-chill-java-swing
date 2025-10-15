@@ -8,6 +8,8 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import app.ConnectDB.ConnectDB;
+import app.Entity.ChiTietLoThuoc;
+import app.Entity.LoThuoc;
 import app.Entity.Thuoc;
 
 /**
@@ -110,6 +112,68 @@ public class ThuocDAO {
             e.printStackTrace();
         }
         return n > 0;
+    }
+    public boolean addDsThuoc(ArrayList<Thuoc> dsThuocNhap, ArrayList<ChiTietLoThuoc> dsCTLT) {
+        ThuocDAO daoThuoc = new ThuocDAO();
+        LoThuocDAO daoLo = new LoThuocDAO();
+        ChiTietLoThuocDAO daoCTLT = new ChiTietLoThuocDAO();
+
+      
+        ArrayList<Thuoc> dsThuocCoSan = daoThuoc.getAllThuoc();               
+        ArrayList<LoThuoc> dsLoThuocCoSan = daoLo.getAllLoThuoc();          
+        ArrayList<ChiTietLoThuoc> dsCTLTCoSan = daoCTLT.getAllActiveChiTietLoThuoc(); 
+
+        for (int i = 0; i < dsThuocNhap.size(); i++) {
+            Thuoc thuocNhap = dsThuocNhap.get(i);
+            ChiTietLoThuoc ctltNhap = dsCTLT.get(i);
+
+            String maThuoc = thuocNhap.getMaThuoc();
+            String maLo = thuocNhap.getMaLo(); 
+        
+            boolean thuocExists = dsThuocCoSan.stream()
+                    .anyMatch(t -> t.getMaThuoc().equals(maThuoc));
+            boolean loExists = dsLoThuocCoSan.stream()
+                    .anyMatch(l -> l.getMaLo().equals(maLo));
+            boolean ctltExists = dsCTLTCoSan.stream()
+                    .anyMatch(c -> c.getMaLo().equals(maLo) && c.getMaThuoc().equals(maThuoc));
+
+            if (thuocExists && ctltExists) {
+                // TH1: Có thuốc & lô chứa thuốc -> chỉ cập nhật số lượng tổng trong Thuoc
+                Thuoc thuocHienTai = daoThuoc.getThuocById(maThuoc);
+                thuocHienTai.setSoLuongTon(thuocHienTai.getSoLuongTon() + thuocNhap.getSoLuongTon());
+                daoThuoc.updateThuoc(thuocHienTai);
+
+            } else if (thuocExists && !ctltExists && loExists) {
+                // TH3: Có thuốc, có lô, nhưng lô chưa chứa thuốc -> thêm ChiTietLoThuoc
+                daoCTLT.create(ctltNhap);
+      
+                Thuoc thuocHienTai = daoThuoc.getThuocById(maThuoc);
+                thuocHienTai.setSoLuongTon(thuocHienTai.getSoLuongTon() + ctltNhap.getSoLuong());
+                daoThuoc.updateThuoc(thuocHienTai);
+            } else if (thuocExists && !loExists) {
+                // TH2 (ứng với "có thuốc nhưng chưa có lô") -> tạo LoThuoc mới rồi thêm ChiTietLoThuoc
+                LoThuoc newLo = new LoThuoc(maLo, thuocNhap.getMaNSX(), true); 
+                daoLo.addLoThuoc(newLo);
+                daoCTLT.create(ctltNhap);
+
+                
+                Thuoc thuocHienTai = daoThuoc.getThuocById(maThuoc);
+                thuocHienTai.setSoLuongTon(thuocHienTai.getSoLuongTon() + ctltNhap.getSoLuong());
+                daoThuoc.updateThuoc(thuocHienTai);
+            } else if (!thuocExists && loExists) {
+                // TH4: Thuốc mới, lô đã tồn tại -> thêm Thuoc rồi thêm ChiTietLoThuoc
+                daoThuoc.addThuoc(thuocNhap);
+                daoCTLT.create(ctltNhap);
+            } else {
+                // TH5: Thuốc mới & lô mới -> thêm cả 2 + chi tiết lô
+                LoThuoc newLo = new LoThuoc(maLo, thuocNhap.getMaNSX(), true);
+                daoLo.addLoThuoc(newLo);
+                daoThuoc.addThuoc(thuocNhap);
+                daoCTLT.create(ctltNhap);
+            }
+        }
+
+        return true;
     }
 
     /**

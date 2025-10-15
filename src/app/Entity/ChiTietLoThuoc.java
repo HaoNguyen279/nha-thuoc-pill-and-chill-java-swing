@@ -11,6 +11,8 @@ public class ChiTietLoThuoc {
     private String maThuoc;
     private Date ngaySanXuat;
     private Date hanSuDung;
+    private int soLuong;
+    private double giaNhap;
     private boolean isActive; // Trạng thái của lô thuốc trong chi tiết này
 
     /**
@@ -77,16 +79,36 @@ public class ChiTietLoThuoc {
         this.isActive = isActive;
     }
 
+	public int getSoLuong() {
+		return soLuong;
+	}
+
+	public void setSoLuong(int soLuong) {
+		this.soLuong = soLuong;
+	}
+
+	public double getGiaNhap() {
+		return giaNhap;
+	}
+
+	public void setGiaNhap(double giaNhap) {
+		this.giaNhap = giaNhap;
+	}
+
+	public ChiTietLoThuoc(String maLo, String maThuoc, Date ngaySanXuat, Date hanSuDung, int soLuong, double giaNhap,
+			boolean isActive) {
+		super();
+		this.maLo = maLo;
+		this.maThuoc = maThuoc;
+		this.ngaySanXuat = ngaySanXuat;
+		this.hanSuDung = hanSuDung;
+		this.soLuong = soLuong;
+		this.giaNhap = giaNhap;
+		this.isActive = isActive;
+	}
+
+
     // --- toString METHOD ---
 
-    @Override
-    public String toString() {
-        return "ChiTietLoThuoc{" +
-                "maLo='" + maLo + '\'' +
-                ", maThuoc='" + maThuoc + '\'' +
-                ", ngaySanXuat=" + ngaySanXuat +
-                ", hanSuDung=" + hanSuDung +
-                ", isActive=" + isActive +
-                '}';
-    }
+   
 }

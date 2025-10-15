@@ -45,6 +45,29 @@ public class PhieuNhapThuocDAO {
         }
         return dsPhieuNhap;
     }
+    
+    public String taoMaTuDong() {
+        String prefix = "PNT";
+        String sql = "SELECT MAX(maPhieuNhapThuoc) AS maxMa FROM PhieuNhapThuoc";
+        try (Connection con = ConnectDB.getInstance().getConnection();
+        	Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            if (rs.next()) {
+                String maxMa = rs.getString("maxMa");
+                if (maxMa != null) {
+                    // Tách số phía sau tiền tố PN
+                    int num = Integer.parseInt(maxMa.substring(prefix.length()));
+                    num++;
+                    return String.format("%s%03d", prefix, num); // ví dụ PN0005
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        // Nếu bảng trống
+        return prefix + "001";
+    }
+
 
     /**
      * Retrieves a single drug import note by its ID.

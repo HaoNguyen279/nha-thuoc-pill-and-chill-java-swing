@@ -22,7 +22,10 @@ public class ConnectDB {
     public static ConnectDB getInstance() {
         return instance;
     }
-    public static Connection getConnection(){
+    public Connection getConnection() throws SQLException {
+        if (con == null || con.isClosed()) {
+            connect();
+        }
         return con;
     }
     public void connect() {
