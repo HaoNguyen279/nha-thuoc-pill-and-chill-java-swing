@@ -218,6 +218,23 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         sdtPanel.setBackground(Color.WHITE);
         sdtPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
         txtSDTKhachHang = createTextField(fieldFont);
+        
+        // Thêm DocumentFilter để chỉ cho phép nhập số và giới hạn 10 ký tự
+        ((javax.swing.text.AbstractDocument) txtSDTKhachHang.getDocument()).setDocumentFilter(new javax.swing.text.DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+                if (string != null && string.matches("[0-9]*") && (fb.getDocument().getLength() + string.length()) <= 10) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+            
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
+                if (text != null && text.matches("[0-9]*") && (fb.getDocument().getLength() - length + text.length()) <= 10) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
         btnTim = new JButton("Tìm");
         btnTim.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnTim.setBackground(new Color(76, 175, 80));
@@ -234,6 +251,9 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         // Tên khách hàng
         panel.add(createInfoRow("Tên khách hàng:", labelFont));
         txtTenKhachHang = createTextField(fieldFont);
+        txtTenKhachHang.setEditable(false);
+        txtTenKhachHang.setBackground(new Color(220, 220, 220)); // Màu xám nhạt để thể hiện không editable
+        txtTenKhachHang.setFocusable(false); // Không thể focus vào
         panel.add(txtTenKhachHang);
          
         
@@ -475,9 +495,23 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     "Vui lòng nhập số điện thoại!",
                     "Thông báo",
                     JOptionPane.WARNING_MESSAGE);
+            txtSDTKhachHang.requestFocus();
             return;
         }
         
+        // Kiểm tra format số điện thoại: phải có đúng 10 số và bắt đầu bằng 0
+        if (!sdt.matches("^0\\d{9}$")) {
+            JOptionPane.showMessageDialog(this,
+                "Số điện thoại không hợp lệ!\n" +
+                "Yêu cầu: Phải có đúng 10 chữ số và bắt đầu bằng số 0\n" +
+                "Ví dụ: 0123456789",
+                "Lỗi định dạng",
+                JOptionPane.ERROR_MESSAGE);
+            txtSDTKhachHang.requestFocus();
+            txtSDTKhachHang.selectAll(); // Chọn toàn bộ text để người dùng sửa dễ hơn
+            return;
+        }
+
        
         
         try {
@@ -486,15 +520,9 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             
             // Tạo DAO mới và tìm khách hàng
             KhachHangDAO khDAO = new KhachHangDAO();
-            
-            // TEST: Thêm khách hàng mẫu để kiểm tra
-            
-            
-            // Tìm khách hàng
             KhachHang kh = khDAO.findKhachHangByPhone(sdt);
             
             if (kh != null) {
-                // Đã tìm thấy khách hàng
                 txtTenKhachHang.setText(kh.getTenKH());
             } else {
                 
@@ -570,7 +598,13 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             txtTienNhan.requestFocus();
             return;
         }
-        
+        if(txtTenKhachHang.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Vui lòng nhập tìm kiếm khách hàng!",
+                "Cảnh báo",
+                JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         // Xác nhận lưu hóa đơn
         int confirm = JOptionPane.showConfirmDialog(this,
             "Xác nhận lưu hóa đơn?",

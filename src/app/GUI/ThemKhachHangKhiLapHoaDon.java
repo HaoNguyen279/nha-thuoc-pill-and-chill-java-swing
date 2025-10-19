@@ -28,7 +28,7 @@ public class ThemKhachHangKhiLapHoaDon extends JFrame implements ActionListener 
         createGUI();
         
         // Đặt kích thước frame rõ ràng
-        setSize(500, 150);
+        setSize(500, 350);
         setMinimumSize(new Dimension(500, 150));
         setResizable(true);
         
@@ -112,7 +112,7 @@ public class ThemKhachHangKhiLapHoaDon extends JFrame implements ActionListener 
         Font fieldFont = new Font("Segoe UI", Font.PLAIN, 14);
         
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(8, 8, 8, 8);
+        gbc.insets = new Insets(0, 8, 8, 8);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.fill = GridBagConstraints.HORIZONTAL;
         
@@ -124,7 +124,9 @@ public class ThemKhachHangKhiLapHoaDon extends JFrame implements ActionListener 
         
         txtSDTKhachHang = new JTextField(sdt);
         txtSDTKhachHang.setFont(fieldFont);
-        txtSDTKhachHang.setEditable(false);
+        txtSDTKhachHang.setEditable(true); // Cho phép chỉnh sửa SDT
+        txtSDTKhachHang.setEnabled(true); // Đảm bảo component được enable
+        txtSDTKhachHang.setBackground(Color.WHITE); // Đặt màu nền trắng rõ ràng
         txtSDTKhachHang.setPreferredSize(new Dimension(300, 30));
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 1.0;
         fieldsPanel.add(txtSDTKhachHang, gbc);
@@ -140,10 +142,11 @@ public class ThemKhachHangKhiLapHoaDon extends JFrame implements ActionListener 
         txtTenKhachHang.setFont(fieldFont);
         txtTenKhachHang.setPreferredSize(new Dimension(300, 30));
         txtTenKhachHang.setMinimumSize(new Dimension(300, 30));
+        
         // Thêm border để debug
         txtTenKhachHang.setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
         gbc.gridx = 0; gbc.gridy = 3; gbc.weightx = 1.0;
-        gbc.insets = new Insets(8, 8, 15, 8); // Thêm khoảng cách dưới
+        gbc.insets = new Insets(0, 8, 8, 8); // Thêm khoảng cách dưới
         fieldsPanel.add(txtTenKhachHang, gbc);
         
         // Panel cho các nút ở dưới
@@ -211,13 +214,14 @@ public class ThemKhachHangKhiLapHoaDon extends JFrame implements ActionListener 
         }
 
         // Validate phone number format
-        if (!sdtKH.matches("\\d{10}")) {
+        if (!sdtKH.matches("^0\\d{9}$")) {
             JOptionPane.showMessageDialog(this,
-                    "Số điện thoại phải có 10 chữ số!",
-                    "Thông báo",
-                    JOptionPane.WARNING_MESSAGE);
+                    "Số điện thoại không hợp lệ! (Phải có 10 số và bắt đầu bằng 0)",
+                    "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
+
 
         // Generate mã khách hàng tự động (KHXXX)
         String maKH = khachHangDAO.generateMaKhachHang();
@@ -241,5 +245,4 @@ public class ThemKhachHangKhiLapHoaDon extends JFrame implements ActionListener 
                     JOptionPane.ERROR_MESSAGE);
         }
     }
-    
 }
