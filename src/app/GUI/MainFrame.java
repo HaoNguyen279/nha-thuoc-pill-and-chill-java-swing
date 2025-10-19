@@ -106,9 +106,23 @@ public class MainFrame extends JFrame {
     
     public void showLapHoaDonPanel() {
         if (lapHoaDonPanel == null) {
-            lapHoaDonPanel = new LapHoaDonPanel();
+            lapHoaDonPanel = new LapHoaDonPanel(tenNhanVien);
         }
+        // Luôn làm mới dữ liệu khi hiển thị panel này, bất kể là mới tạo hay đã tồn tại
+        lapHoaDonPanel.reloadDataFromDatabase();
         showPanel(lapHoaDonPanel);
+    }
+    
+    /**
+     * Trả về panel LapHoaDon hiện tại
+     * Thêm phương thức này để có thể gọi các phương thức của LapHoaDonPanel từ bên ngoài
+     * @return LapHoaDonPanel đang được sử dụng
+     */
+    public LapHoaDonPanel getLapHoaDonPanel() {
+        if (lapHoaDonPanel == null) {
+            lapHoaDonPanel = new LapHoaDonPanel(tenNhanVien);
+        }
+        return lapHoaDonPanel;
     }
     
     public void showCapNhatKhachHangPanel() {
@@ -226,7 +240,7 @@ public class MainFrame extends JFrame {
     
     public void dangXuatHandle() {
     	this.dispose();
-    	new DangNhapFrame();
+    	new DangNhap();
    }
 
 }

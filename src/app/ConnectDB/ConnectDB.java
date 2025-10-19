@@ -22,29 +22,27 @@ public class ConnectDB {
     public static ConnectDB getInstance() {
         return instance;
     }
-    public Connection getConnection() throws SQLException {
-        if (con == null || con.isClosed()) {
-            connect();
+    public static Connection getConnection() {
+        try {
+            if (con == null || con.isClosed()) {
+                connect();
+            }
+        } catch (SQLException e) {
+            connect(); // Ensure we have a connection even if check fails
         }
         return con;
     }
-    public void connect() {
-        // Kiểm tra nếu đã có connection và connection vẫn còn mở, không tạo mới
-        try {
-            if (con != null && !con.isClosed()) {
-                return;
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+    public static void connect() {
+        // Always close the existing connection first to ensure a fresh connection
+        disconnect();
         
-        // Tạo connection mới
+        // Create a new connection
         String url = "jdbc:sqlserver://localhost:1433;DatabaseName=QuanLyNhaThuoc;encrypt=true;trustServerCertificate=true;";
         String user = "sa";
         String pwd = "sapassword";
         try {
             con = DriverManager.getConnection(url,user,pwd);
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }

@@ -5,29 +5,17 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
 import java.net.URL;
 
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
+import javax.swing.*;
 import app.Main.App;
 
 public class MenuBarPanel extends JPanel implements ActionListener {
     private String tenNhanVien;
     private MainFrame parentFrame;
-	private JFrame frmParent;
 	// MenuItem cho hệ thống
 	private JMenuItem mniHoTro;
 	private JMenuItem mniDangXuat;
@@ -233,11 +221,9 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		Object o = e.getSource();
-		if(o == mniLapHoaDon) {
-			new LapHoaDonPanel();
-		}
+		
 		// Cập nhật
-		else if (o == mniCapNhatKhachHang) parentFrame.showCapNhatKhachHangPanel();
+		if (o == mniCapNhatKhachHang) parentFrame.showCapNhatKhachHangPanel();
 
 		else if (o == mniCapNhatNhanVien) parentFrame.showCapNhatNhanVienPanel();
 
@@ -314,9 +300,14 @@ public class MenuBarPanel extends JPanel implements ActionListener {
             URL iconURL = getClass().getResource(path);
             if (iconURL != null) {
                 return new ImageIcon(iconURL);
+            } else {
+                iconURL = getClass().getClassLoader().getResource(path.substring(1)); // bỏ dấu / đầu
+                if (iconURL != null) {
+                    return new ImageIcon(iconURL);
+                }
             }
         } catch (Exception e) {
-            System.err.println("Không thể tải icon: " + path);
+            e.printStackTrace();
         }
         return null;
     }

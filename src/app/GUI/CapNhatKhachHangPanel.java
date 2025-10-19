@@ -222,12 +222,12 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
 			try {
 				diemTL = Integer.parseInt(txtDiemTichLuy.getText().trim());
 			} catch (NumberFormatException ex) {
-				System.out.println("Điểm tích lũy phải là số nguyên.");
+
 				return;
 			}
 			
 			if(maKH.isEmpty() || tenKH.isEmpty() || sdt.isEmpty()) {
-				System.out.println("Vui lòng nhập đầy đủ thông tin.");
+
 				return;
 			}
 			
@@ -244,7 +244,7 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
 		} else if(o.equals(btnSua)) {
 			int selectedRow = tblKhachHang.getSelectedRow();
 			if(selectedRow == -1) {
-				System.out.println("Vui lòng chọn khách hàng để sửa.");
+
 				return;
 			}
 			

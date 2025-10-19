@@ -253,7 +253,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 	}
 	
 	public void loadNhanVienData() {
-		ConnectDB.getInstance().connect();
+		ConnectDB.connect();
         ThuocDAO thuocDAO = new ThuocDAO();
         dsThuoc = thuocDAO.getAllThuoc();
 		dtm.setRowCount(0);

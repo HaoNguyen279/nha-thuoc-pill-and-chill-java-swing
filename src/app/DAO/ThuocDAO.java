@@ -26,7 +26,7 @@ public class ThuocDAO {
         ArrayList<Thuoc> dsThuoc = new ArrayList<>();
         String sql = "SELECT * FROM Thuoc WHERE isActive = 1";
         
-        Connection con = ConnectDB.getInstance().getConnection();
+        Connection con = ConnectDB.getConnection();
         if (con == null) {
             return dsThuoc;
         }
@@ -74,7 +74,7 @@ public class ThuocDAO {
         String sql = "SELECT * FROM Thuoc WHERE maThuoc = ?";
         Thuoc thuoc = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, id);
@@ -109,7 +109,7 @@ public class ThuocDAO {
         String sql = "INSERT INTO Thuoc (maThuoc, maLo, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int n = 0;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, thuoc.getMaThuoc());
@@ -200,7 +200,7 @@ public class ThuocDAO {
         String sql = "UPDATE Thuoc SET maLo = ?, tenThuoc = ?, soLuongTon = ?, giaBan = ?, donVi = ?, soLuongToiThieu = ?, maNSX = ?, isActive = ? WHERE maThuoc = ?";
         int n = 0;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, thuoc.getMaLo());
@@ -229,7 +229,7 @@ public class ThuocDAO {
         String sql = "UPDATE Thuoc SET isActive = 0 WHERE maThuoc = ?";
         int n = 0;
         
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, id);

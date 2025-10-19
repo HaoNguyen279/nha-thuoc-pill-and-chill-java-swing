@@ -62,7 +62,7 @@ public class NhanVienDAO {
     public NhanVien getNhanVienById(String id) {
         String sql = "SELECT * FROM NhanVien WHERE maNV = ?";
         NhanVien nv = null;
-        Connection con = ConnectDB.getInstance().getConnection();
+        Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
@@ -74,7 +74,20 @@ public class NhanVienDAO {
             if (rs.next()) {
                 String maNV = rs.getString("maNV");
                 String tenNV = rs.getString("tenNV");
-                String chucVu = rs.getString("chucVu");
+                String chucVu = ""; // Mặc định nếu không có trường chucVu
+                
+                // Kiểm tra xem có trường chucVu hay không trước khi truy cập
+                try {
+                    chucVu = rs.getString("chucVu");
+                } catch (SQLException e) {
+                    // Có thể thử với tên trường khác nếu có
+                    try {
+                        chucVu = rs.getString("viTri"); // Thử với tên trường có thể là viTri
+                    } catch (SQLException e2) {
+                        // Không làm gì, giữ giá trị mặc định
+                    }
+                }
+                
                 String soDienThoai = rs.getString("soDienThoai");
                 boolean isActive = rs.getBoolean("isActive");
                 
@@ -101,7 +114,7 @@ public class NhanVienDAO {
     public boolean addNhanVien(NhanVien nhanVien) {
         String sql = "INSERT INTO NhanVien (maNV, tenNV, chucVu, soDienThoai, isActive) VALUES (?, ?, ?, ?, ?)";
         int n = 0;
-        Connection con = ConnectDB.getInstance().getConnection();
+        Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
 
         try {
@@ -133,7 +146,7 @@ public class NhanVienDAO {
     public boolean updateNhanVien(NhanVien nhanVien) {
         String sql = "UPDATE NhanVien SET tenNV = ?, chucVu = ?, soDienThoai = ?, isActive = ? WHERE maNV = ?";
         int n = 0;
-        Connection con = ConnectDB.getInstance().getConnection();
+        Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
 
         try {
@@ -184,4 +197,6 @@ public class NhanVienDAO {
         }
         return n > 0;
     }
+    
+    // Đã có phương thức getNhanVienById ở trên nên phần này đã bị xóa để tránh trùng lặp
 }

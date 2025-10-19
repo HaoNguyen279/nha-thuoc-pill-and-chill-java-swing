@@ -22,7 +22,7 @@ public class TimKiemNhanVienPanel extends JPanel implements ActionListener{
 		public TimKiemNhanVienPanel(){
 	    
 	        setPreferredSize(getPreferredSize());
-	        ConnectDB.getInstance().connect();
+	        ConnectDB.connect();
 	        NhanVienDAO nhanvienDao = new NhanVienDAO();
 	    	dsNhanVien= nhanvienDao.getAllNhanVien();
 	        JPanel mainPanel = new JPanel(new BorderLayout());
@@ -200,11 +200,11 @@ public class TimKiemNhanVienPanel extends JPanel implements ActionListener{
 					txtTim.requestFocus();
 				}
 
-				System.out.println(timString);
+
 			}
 			else if(o == cboTieuChi) {
 			tieuChi = cboTieuChi.getSelectedItem().toString();
-			System.out.println(tieuChi);
+
 		}
 	}
 }

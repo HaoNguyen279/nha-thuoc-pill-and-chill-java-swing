@@ -26,7 +26,9 @@ public class TaiKhoanDAO {
         String sql = "SELECT * FROM TaiKhoan WHERE maNV = ? AND matKhau = ? AND isActive = 1";
         TaiKhoan tk = null;
 
-        Connection con = ConnectDB.getInstance().getConnection();
+        // Make sure we have a fresh connection
+        ConnectDB.connect();
+        Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs = null;
         
@@ -66,7 +68,7 @@ public class TaiKhoanDAO {
         String sql = "SELECT * FROM TaiKhoan WHERE maNV = ?";
         TaiKhoan tk = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, maNV);
@@ -94,7 +96,7 @@ public class TaiKhoanDAO {
         ArrayList<TaiKhoan> dsTaiKhoan = new ArrayList<>();
         String sql = "SELECT * FROM TaiKhoan WHERE isActive = 1";
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -121,7 +123,7 @@ public class TaiKhoanDAO {
         String sql = "INSERT INTO TaiKhoan (maNV, matKhau, isActive) VALUES (?, ?, ?)";
         int n = 0;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, taiKhoan.getMaNV());
@@ -144,7 +146,7 @@ public class TaiKhoanDAO {
         String sql = "UPDATE TaiKhoan SET matKhau = ?, isActive = ? WHERE maNV = ?";
         int n = 0;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, taiKhoan.getMatKhau());
@@ -167,7 +169,7 @@ public class TaiKhoanDAO {
         String sql = "UPDATE TaiKhoan SET isActive = 0 WHERE maNV = ?";
         int n = 0;
         
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, maNV);

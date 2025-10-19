@@ -23,7 +23,7 @@ public class KhachHangDAO {
     public ArrayList<KhachHang> getAllKhachHang() {
         ArrayList<KhachHang> dsKhachHang = new ArrayList<>();
         String sql = "SELECT * FROM KhachHang WHERE isActive = 1 ORDER BY tenKH";
-        Connection con = ConnectDB.getInstance().getConnection();
+        Connection con = ConnectDB.getConnection();
         Statement stmt = null;
         ResultSet rs = null;
 
@@ -55,7 +55,7 @@ public class KhachHangDAO {
     public KhachHang getKhachHangById(String id) {
         String sql = "SELECT * FROM KhachHang WHERE maKH = ?";
         KhachHang kh = null;
-        Connection con = ConnectDB.getInstance().getConnection();
+        Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
@@ -88,7 +88,7 @@ public class KhachHangDAO {
     public ArrayList<KhachHang> findKhachHang(String keyword) {
         ArrayList<KhachHang> dsKhachHang = new ArrayList<>();
         String sql = "SELECT * FROM KhachHang WHERE isActive = 1 AND (tenKH LIKE ? OR soDienThoai LIKE ?)";
-        Connection con = ConnectDB.getInstance().getConnection();
+        Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs = null;
 
@@ -114,7 +114,59 @@ public class KhachHangDAO {
         }
         return dsKhachHang;
     }
+    public KhachHang findKhachHangByPhone(String soDienThoai) {
+        KhachHang kh = null;
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        Connection con = null;
 
+        try {
+            // Create a fresh connection
+            ConnectDB.connect();
+            con = ConnectDB.getConnection();
+            
+            // First, try direct exact match
+            String sql = "SELECT * FROM KhachHang WHERE soDienThoai = ?";
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, soDienThoai);
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                kh = mapResultSetToKhachHang(rs);
+                return kh;
+            }
+            
+            // If not found with exact match, try with trimmed string
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            
+            stmt = con.prepareStatement("SELECT * FROM KhachHang WHERE soDienThoai = ?");
+            stmt.setString(1, soDienThoai.trim());
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                kh = new KhachHang(
+                    rs.getString("maKH"),
+                    rs.getString("tenKH"),
+                    rs.getString("soDienThoai"),
+                    rs.getInt("diemTichLuy"),
+                    rs.getBoolean("isActive")
+                );
+                return kh;
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return kh;
+    }
     /**
      * Adds a new customer to the database.
      * @param kh The KhachHang object to add.
@@ -123,8 +175,11 @@ public class KhachHangDAO {
     public boolean addKhachHang(KhachHang kh) {
         String sql = "INSERT INTO KhachHang (maKH, tenKH, soDienThoai, diemTichLuy, isActive) VALUES (?, ?, ?, ?, ?)";
         int n = 0;
-        Connection con = ConnectDB.getInstance().getConnection();
+        Connection con = null;
         PreparedStatement stmt = null;
+        
+        // Make sure we have a connection
+        con = ConnectDB.getConnection();
 
         try {
             stmt = con.prepareStatement(sql);
@@ -155,7 +210,7 @@ public class KhachHangDAO {
     public boolean updateKhachHang(KhachHang kh) {
         String sql = "UPDATE KhachHang SET tenKH = ?, soDienThoai = ?, diemTichLuy = ?, isActive = ? WHERE maKH = ?";
         int n = 0;
-        Connection con = ConnectDB.getInstance().getConnection();
+        Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
 
         try {
@@ -187,7 +242,7 @@ public class KhachHangDAO {
     public boolean deleteKhachHang(String id) {
         String sql = "UPDATE KhachHang SET isActive = 0 WHERE maKH = ?";
         int n = 0;
-        Connection con = ConnectDB.getInstance().getConnection();
+        Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
 
         try {
@@ -208,8 +263,8 @@ public class KhachHangDAO {
     }
 
     /**
-     * Helper method to map a ResultSet row to a KhachHang object.
-     * @param rs The ResultSet to map.
+     * Maps a ResultSet row to a KhachHang object.
+     * @param rs The ResultSet containing customer data.
      * @return A KhachHang object.
      * @throws SQLException
      */
@@ -222,4 +277,45 @@ public class KhachHangDAO {
             rs.getBoolean("isActive")
         );
     }
+    
+    /**
+     * Generates a new customer code in format KHXXX (e.g., KH001, KH002, ..., KH999).
+     * Retrieves the last customer code from database and increments by 1.
+     * @return A new customer code string.
+     */
+    public String generateMaKhachHang() {
+        String sql = "SELECT TOP 1 maKH FROM KhachHang ORDER BY maKH DESC";
+        String newMaKH = "KH001"; // Default if no customers exist
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            Connection con = ConnectDB.getConnection();
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+
+            if (rs.next()) {
+                String lastMaKH = rs.getString("maKH");
+                // Extract number from KHXXX format
+                int num = Integer.parseInt(lastMaKH.substring(2));
+                num++;
+                // Format back to KHXXX
+                newMaKH = String.format("KH%03d", num);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return newMaKH;
+    }
+    
+
 }

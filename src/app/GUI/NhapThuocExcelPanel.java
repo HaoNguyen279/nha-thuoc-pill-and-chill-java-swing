@@ -39,7 +39,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
 	       
 	       
 	        
-	        ConnectDB.getInstance().connect();
+	        ConnectDB.connect();
 	        
 	        dsThuoc =  dsThuoc1;
 	        dsCTLT = dsCTLT1;
@@ -262,23 +262,20 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
 					txtTim.requestFocus();
 				}
 
-				System.out.println(timString);
+
 			}
 			else if(o == cboTieuChi) {
 				tieuChi = cboTieuChi.getSelectedItem().toString();
-				System.out.println(tieuChi);
+
 			}
 			else if(o == btnXoaThuoc) {
 				int row = table.getSelectedRow();
-				String maThuoc = table.getValueAt(row, 0).toString();
-				System.out.println(maThuoc);
+
 				dtmTable.removeRow(row);
 				dsThuoc.remove(row);
 				dsCTLT.remove(row);
 				tongSoThuoc.setText("Tổng số bản ghi:"+Integer.toString(dsThuoc.size()));
-				for(Thuoc thuoc: dsThuoc) {
-					System.out.println(thuoc);
-				}
+
 			}
 			else if (o == btnNhapThuoc) {
 				int result = JOptionPane.showConfirmDialog(
@@ -328,7 +325,6 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
 			phieuDAO.addPhieuNhapThuoc(phieu);
 			
 			for (int i = 0; i < dsThuoc.size(); i++) {
-			    Thuoc thuoc = dsThuoc.get(i);
 			    ChiTietLoThuoc ctlt = dsCTLT.get(i);		    
 			    ChiTietPhieuNhap ctpn = new ChiTietPhieuNhap();
 			    ctpn.setMaPhieuNhapThuoc(phieu.getMaPhieuNhapThuoc());

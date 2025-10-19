@@ -9,22 +9,27 @@ public class HoaDon {
     private String maNV;
     private String maKH;
     private String maKM;
-    private String maThue;
+    // Đã thay thế maThue bằng giaTriThue (float/double) và tenLoaiThue (String)
+    private double giaTriThue;
+    private String tenLoaiThue;
     private boolean isActive; // true = hóa đơn có hiệu lực, false = đã hủy/ẩn
 
     public HoaDon() {
     }
 
-    public HoaDon(String maHoaDon, Date ngayBan, String ghiChu, String maNV, String maKH, String maKM, String maThue, boolean isActive) {
+    public HoaDon(String maHoaDon, Date ngayBan, String ghiChu, String maNV, String maKH, String maKM, double giaTriThue, String tenLoaiThue, boolean isActive) {
         this.maHoaDon = maHoaDon;
         this.ngayBan = ngayBan;
         this.ghiChu = ghiChu;
         this.maNV = maNV;
         this.maKH = maKH;
         this.maKM = maKM;
-        this.maThue = maThue;
+        this.giaTriThue = giaTriThue;
+        this.tenLoaiThue = tenLoaiThue;
         this.isActive = isActive;
     }
+
+    // --- Getters and Setters ---
 
     public String getMaHoaDon() {
         return maHoaDon;
@@ -73,14 +78,26 @@ public class HoaDon {
     public void setMaKM(String maKM) {
         this.maKM = maKM;
     }
+    
+    // Getters/Setters mới cho Thuế
 
-    public String getMaThue() {
-        return maThue;
+    public double getGiaTriThue() {
+        return giaTriThue;
     }
 
-    public void setMaThue(String maThue) {
-        this.maThue = maThue;
+    public void setGiaTriThue(double giaTriThue) {
+        this.giaTriThue = giaTriThue;
     }
+
+    public String getTenLoaiThue() {
+        return tenLoaiThue;
+    }
+
+    public void setTenLoaiThue(String tenLoaiThue) {
+        this.tenLoaiThue = tenLoaiThue;
+    }
+    
+    // Getters/Setters cũ (Giữ nguyên)
 
     public boolean isIsActive() {
         return isActive;
@@ -111,7 +128,8 @@ public class HoaDon {
                 ", maNV='" + maNV + '\'' +
                 ", maKH='" + maKH + '\'' +
                 ", maKM='" + maKM + '\'' +
-                ", maThue='" + maThue + '\'' +
+                ", giaTriThue=" + giaTriThue + // Đã cập nhật
+                ", tenLoaiThue='" + tenLoaiThue + '\'' + // Đã cập nhật
                 ", isActive=" + isActive +
                 '}';
     }
