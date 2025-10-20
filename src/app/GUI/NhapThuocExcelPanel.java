@@ -21,7 +21,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
-public class NhapThuocExcelPanel extends JPanel implements ActionListener{ 
+public class NhapThuocExcelPanel extends JPanel implements ActionListener{
 	    private DefaultTableModel dtmTable;
 	    private ArrayList<Thuoc> dsThuoc;
 	    private ArrayList<ChiTietLoThuoc> dsCTLT;
@@ -53,8 +53,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
 	        setVisible(true);
 	    }
 	    
-	   
-	    
+
 	    private JPanel taoCenterPanel() {
 	        JPanel centerPanel = new JPanel(new BorderLayout(0, 20));
 	        centerPanel.setBackground(Color.WHITE);

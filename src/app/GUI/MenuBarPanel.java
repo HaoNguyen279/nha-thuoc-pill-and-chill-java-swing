@@ -8,6 +8,8 @@ import java.awt.Font;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URL;
 
@@ -48,6 +50,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	private JMenuItem mniLapHoaDon;
 	private JMenuItem mniLapPhieuDatThuoc;
 	private JMenuItem mniLapPhieuTraThuoc;
+	private JMenuItem mniNhapThuoc;
 
 	// MenuItem cho thống kê
 	private JMenuItem mniDoanhThu;
@@ -138,7 +141,10 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniLapPhieuDatThuoc.setIcon(loadIcon("/resources/icon/order_icon.png"));  
         
         mniLapPhieuTraThuoc = new JMenuItem("Lập phiếu trả thuốc");
-        mniLapPhieuTraThuoc.setIcon(loadIcon("/resources/icon/refund_icon.png"));  
+        mniLapPhieuTraThuoc.setIcon(loadIcon("/resources/icon/refund_icon.png"));
+        
+        mniNhapThuoc = new JMenuItem("Nhập thuốc");
+        mniNhapThuoc.setIcon(loadIcon("/resources/icon/refund_icon.png"));
         
         // MenuItem cho thống kê với icon
         mniDoanhThu = new JMenuItem("Doanh thu nhà thuốc");
@@ -165,12 +171,13 @@ public class MenuBarPanel extends JPanel implements ActionListener {
             mniHoTro, mniDangXuat, mniThoat,
             mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai,
             mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,
-            mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc,
+            mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc, mniNhapThuoc,
             mniDoanhThu, mniNhanVien, mniKhachHang, mniHanSuDung, mniThue, mniThuocDuocMuaNhieu
         }) {
             item1.setFont(itemFont);
             item1.setBackground(getBackground());
             item1.setPreferredSize(new Dimension(180,40));
+            item1.addActionListener(this);
         }
         
         // Hệ thống
@@ -193,6 +200,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mnuXuLy.add(mniLapHoaDon);
         mnuXuLy.add(mniLapPhieuDatThuoc);
         mnuXuLy.add(mniLapPhieuTraThuoc);
+        mnuXuLy.add(mniNhapThuoc);
         
         // Thống kê
         mnuThongKe.add(mniDoanhThu);
@@ -211,16 +219,6 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         //Tạo khoảng cách giữa mnubar và tên nhân viên
         mnuMenuBar.add(Box.createHorizontalGlue());
         
-        JMenuItem[] menuItems = {
-        	    mniHoTro, mniDangXuat, mniThoat,
-        	    mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai,
-        	    mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,
-        	    mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc,
-        	    mniDoanhThu, mniNhanVien, mniKhachHang, mniHanSuDung, mniThue, mniThuocDuocMuaNhieu
-        	};
-    	for (JMenuItem item : menuItems) {
-    	    item.addActionListener(this);
-    	}
 
         mnuMenuBar.add(lblTenNhanVien);
         mnuMenuBar.add(Box.createHorizontalStrut(10));
@@ -233,8 +231,10 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		Object o = e.getSource();
-		if(o == mniLapHoaDon) {
-			new LapHoaDonPanel();
+		if(o == mniThoat) {
+			CustomJOptionPane a = new CustomJOptionPane(parentFrame, "Bạn có chắc muốn tắt ứng dụng?", true);
+			int choice = a.show();
+			if(choice == JOptionPane.YES_OPTION) System.exit(0);
 		}
 		// Cập nhật
 		else if (o == mniCapNhatKhachHang) parentFrame.showCapNhatKhachHangPanel();
@@ -259,6 +259,8 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 
 		else if (o == mniLapPhieuTraThuoc) parentFrame.showLapPhieuDoiThuocPanel();
 		
+		else if (o == mniNhapThuoc) parentFrame.showNhapThuocPanel();
+		
 		// Thống kê
 		else if (o == mniDoanhThu) parentFrame.showThongKeTheoDoanhThuPanel();
 
@@ -279,11 +281,6 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 			if(choice == JOptionPane.YES_OPTION) {
 				parentFrame.dangXuatHandle();
 			}
-		}
-		else if(o == mniThoat) {
-			CustomJOptionPane a = new CustomJOptionPane(parentFrame, "Bạn có chắc muốn tắt ứng dụng?", true);
-			int choice = a.show();
-			if(choice == JOptionPane.YES_OPTION) System.exit(0);
 		}
 		else if(o == mniHoTro) {
 			try {

@@ -59,6 +59,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 	private JButton btnXoa;
 	private JButton btnSua;
 	private JButton btnThem;
+	private JButton btnXoaTrang;
 	
 	private DefaultTableModel dtm;
 	private JTable tblThuoc;
@@ -91,6 +92,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         btnXoa = new JButton("Xóa");
         btnSua = new JButton("Sửa");
         btnThem = new JButton("Thêm");
+        btnXoaTrang = new JButton("Xóa trắng");
         
         // Table init
         String[] cols = {"Mã thuốc" , "Mã lô" , "Tên thuốc", "Số lượng tồn", "Giá bán","Đơn vị","Số lượng tối thiểu","Mã nsx"};
@@ -109,8 +111,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         
         loadNhanVienData();
         setBackground(new Color(248, 248, 248));
-//        setVisible(true);
-//        setSize(new Dimension(1200,700));
+
         
 	}
 	
@@ -198,9 +199,10 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 		btnThem.setBackground(new Color(224, 248, 228));
 		btnXoa.setBackground(new Color(255, 121, 121));
 		btnSua.setBackground(new Color(223, 249, 251));
+		btnXoaTrang.setBackground(Color.WHITE);
 		
 		// JButton, JLabel, JTextField customization
-		JButton[] btnList = {btnXoa, btnThem, btnSua};
+		JButton[] btnList = {btnXoa, btnThem, btnSua,btnXoaTrang};
 		for(JButton item : btnList) {
 			item.setFont(new Font("Arial", Font.PLAIN, 15));
 			item.setBorder(BorderFactory.createCompoundBorder(
@@ -237,6 +239,8 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 		txtMaThuoc.setDisabledTextColor(Color.GRAY);
 		txtMaLo.setDisabledTextColor(Color.GRAY);
 		
+		pnlBottomOfMain.add(btnXoaTrang);
+		pnlBottomOfMain.add(Box.createHorizontalStrut(10));
 		pnlBottomOfMain.add(btnXoa);
 		pnlBottomOfMain.add(Box.createHorizontalStrut(10));
 		pnlBottomOfMain.add(btnSua);
@@ -271,6 +275,16 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 			};
 		dtm.addRow(rowData);
 		}
+	}
+	public void xoaTrang() {
+	    txtMaThuoc.setText("");
+	    txtMaLo.setText("");
+	    txtTenThuoc.setText("");
+	    txtGiaBan.setText("");
+	    txtSoLuongToiThieu.setText("");
+	    txtNhaSanXuat.setText("");
+	    txtDonVi.setText("");
+	    txtSoLuongTon.setText(""); 
 	}
 	
 

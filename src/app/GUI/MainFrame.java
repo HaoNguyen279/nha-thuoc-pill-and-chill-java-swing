@@ -16,6 +16,7 @@ public class MainFrame extends JFrame {
     private CapNhatKhuyenMaiPanel capNhatKhuyenMaiPanel;
     private LapPhieuDatThuocPanel lapPhieuDatThuocPanel;
     private LapPhieuDoiThuocPanel lapPhieuDoiThuocPanel;
+    private NhapThuocPanel nhapThuocPanel;
     private ThongKeTheoDoanhThuPanel thongKeTheoDoanhThuPanel;
     private ThongKeTheoNhanVienPanel thongKeTheoNhanVienPanel;
     private ThongKeTheoKhachHangPanel thongKeTheoKhachHangPanel;
@@ -61,6 +62,7 @@ public class MainFrame extends JFrame {
         capNhatKhuyenMaiPanel = null;
         lapPhieuDatThuocPanel = null;
         lapPhieuDoiThuocPanel = null;
+        nhapThuocPanel = null;
         thongKeTheoDoanhThuPanel = null;
         thongKeTheoNhanVienPanel = null;
         thongKeTheoKhachHangPanel = null;
@@ -166,6 +168,12 @@ public class MainFrame extends JFrame {
             lapPhieuDoiThuocPanel = new LapPhieuDoiThuocPanel();
         }
         showPanel(lapPhieuDoiThuocPanel);
+    }
+    public void showNhapThuocPanel() {
+    	if (nhapThuocPanel == null) {
+    		nhapThuocPanel = new NhapThuocPanel();
+    	}
+    	showPanel(nhapThuocPanel);
     }
     
 //    public void showThongKeTheoDoanhThuPanel() {

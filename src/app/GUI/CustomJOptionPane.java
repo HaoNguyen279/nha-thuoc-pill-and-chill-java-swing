@@ -12,15 +12,16 @@ public class CustomJOptionPane {
 		this.parent = parent;
 		this.textDisplay = textDisplay;
 		this.isYesNoOption = isYesNoOption;
+		
 	}
     public int show() {
         // Tạo JOptionPane
         JOptionPane pane;
 
-        JLabel lblTextDisplay = new JLabel(textDisplay);
+        JLabel lblTextDisplay = new JLabel(textDisplay, SwingConstants.CENTER);
         lblTextDisplay.setFont(new Font("Roboto", Font.BOLD, 17));
         lblTextDisplay.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
-
+       
         if(isYesNoOption) {
             pane = new JOptionPane(
             	lblTextDisplay,
@@ -30,11 +31,7 @@ public class CustomJOptionPane {
         }
         else {
             pane = new JOptionPane(
-            		"<html>" +
-                            "<body style='font-family: Roboto; font-size: 11px;'>" +
-                            textDisplay +
-                            "</body>" +
-                    "</html>",
+            	lblTextDisplay,
                 JOptionPane.PLAIN_MESSAGE,
                 JOptionPane.DEFAULT_OPTION
             );
@@ -67,6 +64,7 @@ public class CustomJOptionPane {
         else
         	pane.setOptions(new Object[]{btnXacNhan});
         
+        pane.setInitialValue(btnXacNhan);
         // Tạo dialog
         JDialog dialog = pane.createDialog(parent, "Thông báo");
         

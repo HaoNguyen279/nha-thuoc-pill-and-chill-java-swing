@@ -28,12 +28,12 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import app.Entity.ChiTietLoThuoc;
 import app.Entity.Thuoc;
 
-public class DocThuocExcelPanel extends JPanel {
+public class NhapThuocPanel extends JPanel {
 	private ArrayList<Thuoc> dsThuoc;
     private JButton btnChonFile;
     private ArrayList<ChiTietLoThuoc> dsCTLT;
 	private NhapThuocExcelPanel nhapThuocPanel;
-    public DocThuocExcelPanel() {
+    public NhapThuocPanel() {
       
 //        setSize(400, 200);
         

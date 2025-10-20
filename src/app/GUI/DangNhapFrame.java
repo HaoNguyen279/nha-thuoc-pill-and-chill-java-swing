@@ -205,17 +205,19 @@ public class DangNhapFrame extends JFrame {
 		String pwd = new String(txtMatKhau.getPassword());
 
 		if (user.isEmpty() || pwd.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!", "Thông Báo", JOptionPane.WARNING_MESSAGE);
+			CustomJOptionPane a = new CustomJOptionPane(this, "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!", false);
+			a.show();
 			return;
 		}
 		TaiKhoan taiKhoan = taiKhoanDAO.kiemTraDangNhap(user, pwd);
 		if (taiKhoan != null) {
-			JOptionPane.showMessageDialog(this, "Đăng nhập thành công! Xin chào " + taiKhoan.getMaNV());
+			CustomJOptionPane a = new CustomJOptionPane(this, "Đăng nhập thành công! Xin chào "+ taiKhoan.getMaNV(), false);
+			a.show();
 			this.dispose(); 
 			new MainFrame(taiKhoan.getMaNV());
 		} else {
-
-			JOptionPane.showMessageDialog(this, "Tên đăng nhập hoặc mật khẩu không đúng, hoặc tài khoản của bạn đã bị khóa.", "Đăng Nhập Thất Bại", JOptionPane.ERROR_MESSAGE);
+			CustomJOptionPane a = new CustomJOptionPane(this,  "Tên đăng nhập hoặc mật khẩu không đúng, hoặc tài khoản của bạn đã bị khóa.", false);
+			a.show();
 			txtMatKhau.setText("");
 			txtMaNhanVien.requestFocus();
 		}
