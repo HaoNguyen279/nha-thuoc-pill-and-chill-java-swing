@@ -170,7 +170,7 @@ public class MainFrame extends JFrame {
     
     public void showLapPhieuDatThuocPanel() {
         if (lapPhieuDatThuocPanel == null) {
-            lapPhieuDatThuocPanel = new LapPhieuDatThuocPanel();
+            lapPhieuDatThuocPanel = new LapPhieuDatThuocPanel(tenNhanVien);
         }
         showPanel(lapPhieuDatThuocPanel);
     }

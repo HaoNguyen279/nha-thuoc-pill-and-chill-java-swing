@@ -525,7 +525,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             if (kh != null) {
                 txtTenKhachHang.setText(kh.getTenKH());
             } else {
-                
+                txtTenKhachHang.setText("");
                 if (JOptionPane.showConfirmDialog(this,
                     "Không tìm thấy khách hàng với số điện thoại đã nhập. Bạn có muốn thêm khách hàng mới?",
                     "Xác nhận",

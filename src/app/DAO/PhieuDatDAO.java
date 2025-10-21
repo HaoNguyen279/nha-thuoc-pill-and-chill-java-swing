@@ -140,6 +140,47 @@ public class PhieuDatDAO {
     }
 
     /**
+     * Generates the next sequential order number (maPhieuDat) based on existing records.
+     * Pattern: PDXXX where XXX is a 3-digit sequential number.
+     * @return The next order number (e.g., "PD001", "PD011", etc.)
+     */
+    public String generateNextMaPhieuDat() {
+        String sql = "SELECT maPhieuDat FROM PhieuDat WHERE maPhieuDat LIKE 'PD%' ORDER BY maPhieuDat DESC";
+        String nextMaPhieuDat = "PD001"; // Default if no records exist
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            if (rs.next()) {
+                String lastMaPhieuDat = rs.getString("maPhieuDat");
+                
+                // Extract the numeric part from the last order number
+                if (lastMaPhieuDat != null && lastMaPhieuDat.startsWith("PD") && lastMaPhieuDat.length() >= 5) {
+                    try {
+                        String numericPart = lastMaPhieuDat.substring(2); // Remove "PD" prefix
+                        int lastNumber = Integer.parseInt(numericPart);
+                        int nextNumber = lastNumber + 1;
+                        
+                        // Format with leading zeros to maintain 3-digit format
+                        nextMaPhieuDat = String.format("PD%03d", nextNumber);
+                    } catch (NumberFormatException e) {
+                        // If parsing fails, fall back to default
+                        System.err.println("Error parsing order number: " + lastMaPhieuDat);
+                        nextMaPhieuDat = "PD001";
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Return default if database error occurs
+            nextMaPhieuDat = "PD001";
+        }
+        
+        return nextMaPhieuDat;
+    }
+
+    /**
      * Cancels an order note by setting its isActive flag to false (soft delete).
      * @param id The ID of the order note to cancel.
      * @return true if the cancellation was successful, false otherwise.
