@@ -520,13 +520,17 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                 return;
             }
             
+            // Lấy ghi chú từ form
+            String ghiChu = txtGhiChu.getText().trim();
+            
             // Lưu phiếu đặt vào database
             PhieuDat phieuDat = new PhieuDat(
                 maPhieuDat,
                 maNhanVien, 
                 new Date(), // Ngày đặt
                 khachHang.getMaKH(),
-                true // isActive
+                ghiChu,     // Ghi chú
+                true        // isActive
             );
             
             boolean success = phieuDatDAO.addPhieuDat(phieuDat);
@@ -538,8 +542,9 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                 if (success) {
                     // Lưu chi tiết phiếu đặt thành công
                     
-                    // Cập nhật số lượng tồn kho sau khi đặt thuốc thành công
-                    updateInventory(dsChiTietData);
+                    // Lấy ghi chú để hiển thị trong thông báo
+                    String ghiChuDisplay = txtGhiChu.getText().trim();
+                    String ghiChuText = ghiChuDisplay.isEmpty() ? "(Không có ghi chú)" : ghiChuDisplay;
                     
                     // Hỏi người dùng có muốn xuất phiếu đặt PDF không
                     int printOption = JOptionPane.showConfirmDialog(this,
@@ -547,7 +552,8 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                         "Mã phiếu đặt: " + maPhieuDat + "\n" +
                         "Khách hàng: " + tenKH + "\n" +
                         "SĐT: " + sdt + "\n" +
-                        "Ngày giao: " + new SimpleDateFormat("dd/MM/yyyy").format(ngayGiao) + "\n\n" +
+                        "Ngày giao: " + new SimpleDateFormat("dd/MM/yyyy").format(ngayGiao) + "\n" +
+                        "Ghi chú: " + ghiChuText + "\n\n" +
                         "Bạn có muốn xuất phiếu đặt PDF không?",
                         "Xuất phiếu đặt",
                         JOptionPane.YES_NO_OPTION,
@@ -815,45 +821,6 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
             headerCell.setPadding(8);
             table.addCell(headerCell);
-        }
-    }
-    
-    /**
-     * Cập nhật số lượng tồn kho sau khi đặt thuốc thành công
-     * Trừ số lượng tồn kho vì nhà thuốc sẽ chừa ra thuốc ngay khi có phiếu đặt
-     * @param dsChiTietData danh sách chi tiết sản phẩm đã đặt
-     */
-    private void updateInventory(ArrayList<Object[]> dsChiTietData) {
-        try {
-            // Sử dụng TonKhoDAO để cập nhật số lượng tồn kho
-            // Phiếu đặt cũng trừ tồn kho vì sẽ chừa ra thuốc ngay
-            TonKhoDAO tonKhoDAO = new TonKhoDAO();
-            boolean success = tonKhoDAO.capNhatTonKhoSauKhiBan(dsChiTietData);
-            
-            if (success) {
-                // Đồng bộ lại tổng thể để đảm bảo tính nhất quán dữ liệu
-                boolean syncSuccess = tonKhoDAO.dongBoSoLuongTon(null);
-                
-                // Nếu đồng bộ tổng thể thất bại, thử đồng bộ từng thuốc cụ thể
-                if (!syncSuccess) {
-                    for (Object[] item : dsChiTietData) {
-                        String maThuoc = (String) item[0];
-                        tonKhoDAO.dongBoSoLuongTon(maThuoc);
-                    }
-                }
-                System.out.println("Đã cập nhật tồn kho sau khi đặt thuốc thành công.");
-            } else {
-                JOptionPane.showMessageDialog(this,
-                    "Không thể cập nhật số lượng tồn kho. Phiếu đặt đã được lưu nhưng tồn kho chưa được cập nhật.",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                "Lỗi cập nhật số lượng tồn kho: " + e.getMessage(),
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
         }
     }
     

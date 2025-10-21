@@ -161,12 +161,13 @@ CREATE TABLE ChiTietPhieuDoiTra (
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo)
 );
 GO
--- Tạo bảng PhieuDat
+-- Tạo bảng PhieuDat (ĐÃ CẬP NHẬT)
 CREATE TABLE PhieuDat (
     maPhieuDat VARCHAR(50) PRIMARY KEY,
     maNV VARCHAR(50),
     ngayDat DATE,
     maKH VARCHAR(50),
+	ghiChu NVARCHAR(200), -- <-- ĐÃ THÊM
 	isActive bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
@@ -886,28 +887,28 @@ INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, maLo, soLuong, donGia) VALUES
 ('HD050', 'T017', 'LO009', 2, 28000);
 
 GO
--- Insert dữ liệu vào bảng PhieuDat
-INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH) VALUES
-('PD001', 'NV004', '2025-09-01', 'KH001'),
-('PD002', 'NV005', '2025-09-02', 'KH004'),
-('PD003', 'NV009', '2025-09-03', 'KH007'),
-('PD004', 'NV010', '2025-09-05', 'KH012'),
-('PD005', 'NV004', '2025-09-06', 'KH015'),
-('PD006', 'NV005', '2025-09-08', 'KH019'),
-('PD007', 'NV009', '2025-09-10', 'KH024'),
-('PD008', 'NV010', '2025-09-11', 'KH028'),
-('PD009', 'NV004', '2025-09-13', 'KH002'),
-('PD010', 'NV005', '2025-09-14', 'KH006'),
-('PD011', 'NV009', '2025-09-16', 'KH010'),
-('PD012', 'NV010', '2025-09-17', 'KH014'),
-('PD013', 'NV004', '2025-09-19', 'KH018'),
-('PD014', 'NV005', '2025-09-20', 'KH022'),
-('PD015', 'NV009', '2025-09-22', 'KH026'),
-('PD016', 'NV010', '2025-09-23', 'KH030'),
-('PD017', 'NV004', '2025-09-25', 'KH034'),
-('PD018', 'NV005', '2025-09-26', 'KH003'),
-('PD019', 'NV009', '2025-09-28', 'KH009'),
-('PD020', 'NV010', '2025-09-29', 'KH016');
+-- Insert dữ liệu vào bảng PhieuDat (ĐÃ CẬP NHẬT)
+INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH, ghiChu) VALUES
+('PD001', 'NV004', '2025-09-01', 'KH001', N'Khách hẹn lấy sau 5h chiều'),
+('PD002', 'NV005', '2025-09-02', 'KH004', N'Gọi điện trước khi giao'),
+('PD003', 'NV009', '2025-09-03', 'KH007', N'Khách quen, giảm giá nếu có thể'),
+('PD004', 'NV010', '2025-09-05', 'KH012', NULL),
+('PD005', 'NV004', '2025-09-06', 'KH015', N'Đơn thuốc bác sĩ A'),
+('PD006', 'NV005', '2025-09-08', 'KH019', N'Lấy thuốc cho mẹ'),
+('PD007', 'NV009', '2025-09-10', 'KH024', NULL),
+('PD008', 'NV010', '2025-09-11', 'KH028', N'Giao hàng nhanh'),
+('PD009', 'NV004', '2025-09-13', 'KH002', NULL),
+('PD010', 'NV005', '2025-09-14', 'KH006', N'Kiểm tra lại thuốc dạ dày'),
+('PD011', 'NV009', '2025-09-16', 'KH010', N'Đơn đặt hàng tháng'),
+('PD012', 'NV010', '2025-09-17', 'KH014', NULL),
+('PD013', 'NV004', '2025-09-19', 'KH018', N'Khách hàng cần tư vấn thêm'),
+('PD014', 'NV005', '2025-09-20', 'KH022', NULL),
+('PD015', 'NV009', '2025-09-22', 'KH026', N'Giao cho người nhà tên B'),
+('PD016', 'NV010', '2025-09-23', 'KH030', NULL),
+('PD017', 'NV004', '2025-09-25', 'KH034', N'Thuốc tiểu đường, kiểm tra kỹ'),
+('PD018', 'NV005', '2025-09-26', 'KH003', N'Đơn thuốc hen'),
+('PD019', 'NV009', '2025-09-28', 'KH009', NULL),
+('PD020', 'NV010', '2025-09-29', 'KH016', N'Khách hàng VIP');
 GO
 
 -- Insert dữ liệu vào bảng ChiTietPhieuDat (ĐÃ CẬP NHẬT với maLo)
