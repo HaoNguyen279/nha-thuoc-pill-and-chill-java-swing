@@ -3,6 +3,7 @@ package app.Entity;
 public class ChiTietPhieuDat {
     private String maPhieuDat;
     private String maThuoc;
+    private String maLo; // <-- ĐÃ THÊM
     private String tenThuoc;
     private int soLuong;
     private boolean isActive; // true = chi tiết đang hiển thị, false = đã hủy/ẩn
@@ -10,9 +11,11 @@ public class ChiTietPhieuDat {
     public ChiTietPhieuDat() {
     }
 
-    public ChiTietPhieuDat(String maPhieuDat, String maThuoc, String tenThuoc, int soLuong, boolean isActive) {
+    // Constructor đã được cập nhật
+    public ChiTietPhieuDat(String maPhieuDat, String maThuoc, String maLo, String tenThuoc, int soLuong, boolean isActive) {
         this.maPhieuDat = maPhieuDat;
         this.maThuoc = maThuoc;
+        this.maLo = maLo;
         this.tenThuoc = tenThuoc;
         this.soLuong = soLuong;
         this.isActive = isActive;
@@ -33,6 +36,16 @@ public class ChiTietPhieuDat {
     public void setMaThuoc(String maThuoc) {
         this.maThuoc = maThuoc;
     }
+
+    // --- Getter/Setter cho maLo ---
+    public String getMaLo() {
+        return maLo;
+    }
+
+    public void setMaLo(String maLo) {
+        this.maLo = maLo;
+    }
+    // -----------------------------
 
     public String getTenThuoc() {
         return tenThuoc;
@@ -70,11 +83,13 @@ public class ChiTietPhieuDat {
         this.isActive = false;
     }
 
+    // toString() đã được cập nhật
     @Override
     public String toString() {
         return "ChiTietPhieuDat{" +
                 "maPhieuDat='" + maPhieuDat + '\'' +
                 ", maThuoc='" + maThuoc + '\'' +
+                ", maLo='" + maLo + '\'' + // <-- ĐÃ THÊM
                 ", tenThuoc='" + tenThuoc + '\'' +
                 ", soLuong=" + soLuong +
                 ", isActive=" + isActive +

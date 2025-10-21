@@ -352,4 +352,98 @@ public class HoaDonDAO {
     public boolean saveHoaDon(ArrayList<Object[]> chiTietData, double tongTien, String maHoaDon, String maNhanVien) {
         return saveHoaDon(chiTietData, tongTien, maHoaDon, maNhanVien, null, null, null);
     }
+    
+    /**
+     * Lưu hóa đơn với maLo bao gồm trong chi tiết
+     * @param chiTietData Dữ liệu chi tiết [maThuoc, tenThuoc, soLuong, donGia, thanhTien, maLo]
+     * @param tongTien Tổng tiền hóa đơn
+     * @param maHoaDon Mã hóa đơn
+     * @param maNhanVien Mã nhân viên
+     * @param maKhachHang Mã khách hàng (có thể null)
+     * @param maKhuyenMai Mã khuyến mãi (có thể null)
+     * @param ghiChu Ghi chú (có thể null)
+     * @return true nếu lưu thành công, false nếu thất bại
+     */
+    public boolean saveHoaDonWithMaLo(ArrayList<Object[]> chiTietData, double tongTien, String maHoaDon, String maNhanVien, 
+    						 String maKhachHang, String maKhuyenMai, String ghiChu) {
+        Connection con = null;
+        boolean success = false;
+        
+        try {
+            // Lấy connection và set auto commit = false để thực hiện transaction
+            con = ConnectDB.getConnection();
+            con.setAutoCommit(false);
+            
+            // 1. Lưu thông tin hóa đơn
+            double giaTriThue = 0.10; // Mặc định 10%
+            String tenLoaiThue = "VAT 10%";
+            
+            HoaDon hoaDon = new HoaDon(
+                maHoaDon,
+                new java.util.Date(), 
+                ghiChu != null ? ghiChu : "", 
+                maNhanVien,
+                maKhachHang,
+                maKhuyenMai,
+                giaTriThue,
+                tenLoaiThue,
+                true 
+            );
+            
+            String sqlHoaDon = "INSERT INTO HoaDon (maHoaDon, ngayBan, ghiChu, maNV, maKH, maKM, giaTriThue, tenLoaiThue, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = con.prepareStatement(sqlHoaDon)) {
+                setHoaDonParameters(stmt, hoaDon, false);
+                stmt.executeUpdate();
+            }
+            
+            // 2. Lưu chi tiết hóa đơn với maLo
+            String sqlChiTiet = "INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, maLo, soLuong, donGia, isActive) VALUES (?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = con.prepareStatement(sqlChiTiet)) {
+                for (Object[] item : chiTietData) {
+                    String maThuoc = (String) item[0];
+                    // item[1] = tenThuoc (không cần thiết trong ChiTietHoaDon)
+                    int soLuong = (Integer) item[2];
+                    float donGia = (Float) item[3];
+                    // item[4] = thanhTien (không cần thiết)
+                    String maLo = item.length > 5 ? (String) item[5] : "N/A"; // Lấy maLo nếu có
+                    
+                    stmt.setString(1, maHoaDon);
+                    stmt.setString(2, maThuoc);
+                    stmt.setString(3, maLo);
+                    stmt.setInt(4, soLuong);
+                    stmt.setDouble(5, donGia);
+                    stmt.setBoolean(6, true);
+                    
+                    stmt.executeUpdate();
+                }
+            }
+            
+            // Commit transaction
+            con.commit();
+            success = true;
+            
+        } catch (SQLException e) {
+            // Rollback nếu có lỗi
+            if (con != null) {
+                try {
+                    con.rollback();
+                    System.err.println("Transaction rolled back: " + e.getMessage());
+                } catch (SQLException ex) {
+                    ex.printStackTrace();
+                }
+            }
+            e.printStackTrace();
+        } finally {
+            // Khôi phục auto commit
+            if (con != null) {
+                try {
+                    con.setAutoCommit(true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        
+        return success;
+    }
 }

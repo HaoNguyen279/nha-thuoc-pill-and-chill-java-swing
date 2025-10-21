@@ -5,9 +5,12 @@ import javax.swing.table.DefaultTableModel;
 import app.DAO.KhachHangDAO;
 import app.DAO.PhieuDatDAO;
 import app.DAO.ChiTietPhieuDatDAO;
+import app.DAO.NhanVienDAO;
+import app.DAO.TonKhoDAO;
 import app.Entity.KhachHang;
 import app.Entity.PhieuDat;
 import app.Entity.ChiTietPhieuDat;
+import app.Entity.NhanVien;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -16,6 +19,13 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Calendar;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.awt.Desktop;
+
+// Import all iTextPDF classes
+import com.itextpdf.text.*;
+import com.itextpdf.text.pdf.*;
 
 public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListener {
     
@@ -26,6 +36,9 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
     private String maPhieuDat;
     private String maNhanVien;
     private LapPhieuDatThuocPanel parentPanel;
+    
+    // Callback khi lập phiếu đặt thành công
+    private PhieuDatCallback phieuDatCallback;
     
     // Components theo style của XacNhanLapHoaDonFrame
     private JButton btnQuayVe, btnTim, btnXacNhan;
@@ -39,6 +52,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
     private KhachHangDAO khachHangDAO;
     private PhieuDatDAO phieuDatDAO;
     private ChiTietPhieuDatDAO chiTietPhieuDatDAO;
+    private NhanVienDAO nhanVienDAO;
     
     public XacNhanLapPhieuDatThuocFrame(ArrayList<Object[]> dsChiTietData, double tongTien,
                                         String maPhieuDat, String maNhanVien,
@@ -48,10 +62,13 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         this.maPhieuDat = maPhieuDat;
         this.maNhanVien = maNhanVien;
         this.parentPanel = parentPanel;
+        // Đặt callback từ parentPanel vì LapPhieuDatThuocPanel implement PhieuDatCallback
+        this.phieuDatCallback = parentPanel;
         
         khachHangDAO = new KhachHangDAO();
         phieuDatDAO = new PhieuDatDAO();
         chiTietPhieuDatDAO = new ChiTietPhieuDatDAO();
+        nhanVienDAO = new NhanVienDAO();
         
         setTitle("Xác Nhận Lập Phiếu Đặt Thuốc - " + maPhieuDat);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
@@ -62,6 +79,14 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         loadChiTietPhieuDat();
         
         setVisible(true);
+    }
+    
+    // Constructor với callback
+    public XacNhanLapPhieuDatThuocFrame(ArrayList<Object[]> dsChiTietData, double tongTien,
+                                        String maPhieuDat, String maNhanVien, 
+                                        PhieuDatCallback callback) {
+        this(dsChiTietData, tongTien, maPhieuDat, maNhanVien, (LapPhieuDatThuocPanel) null);
+        this.phieuDatCallback = callback;
     }
     
     private void createGUI() {
@@ -91,7 +116,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         
         // Nút quay về
         btnQuayVe = new JButton("← Quay về");
-        btnQuayVe.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        btnQuayVe.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14));
         btnQuayVe.setBackground(new Color(240, 240, 240));
         btnQuayVe.setBorder(BorderFactory.createLineBorder(Color.GRAY));
         btnQuayVe.setFocusPainted(false);
@@ -104,11 +129,11 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
         
         JLabel lblTitle = new JLabel("LẬP PHIẾU ĐẶT THUỐC");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblTitle.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 24));
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         JLabel lblMaPhieuDat = new JLabel("Mã phiếu đặt: " + maPhieuDat);
-        lblMaPhieuDat.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        lblMaPhieuDat.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 16));
         lblMaPhieuDat.setAlignmentX(Component.CENTER_ALIGNMENT);
         
         titlePanel.add(lblTitle);
@@ -133,9 +158,9 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         };
         
         tblChiTiet = new JTable(modelChiTiet);
-        tblChiTiet.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tblChiTiet.setRowHeight(30);
-        tblChiTiet.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        tblChiTiet.setFont(new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 13));
+        tblChiTiet.setRowHeight(25);
+        tblChiTiet.getTableHeader().setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 13));
         tblChiTiet.getTableHeader().setBackground(new Color(240, 250, 240));
         tblChiTiet.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
@@ -183,8 +208,8 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        Font labelFont = new Font("Segoe UI", Font.PLAIN, 14);
-        Font fieldFont = new Font("Segoe UI", Font.PLAIN, 14);
+        java.awt.Font labelFont = new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14);
+        java.awt.Font fieldFont = new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14);
         
         // SDT khách hàng (với nút Tìm)
         panel.add(createInfoRow("SĐT khách hàng:", labelFont));
@@ -211,7 +236,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         });
         
         btnTim = new JButton("Tìm");
-        btnTim.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnTim.setFont(new java.awt.Font("Segoe UI", java.awt.Font.BOLD, 12));
         btnTim.setBackground(new Color(76, 175, 80));
         btnTim.setForeground(Color.WHITE);
         btnTim.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
@@ -272,8 +297,8 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         
-        Font labelFont = new Font("Segoe UI", Font.PLAIN, 14);
-        Font fieldFont = new Font("Segoe UI", Font.PLAIN, 14);
+        java.awt.Font labelFont = new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14);
+        java.awt.Font fieldFont = new java.awt.Font("Segoe UI", java.awt.Font.PLAIN, 14);
         
         DecimalFormat df = new DecimalFormat("#,###");
         
@@ -305,7 +330,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         return panel;
     }
     
-    private JPanel createInfoRow(String text, Font font) {
+    private JPanel createInfoRow(String text, java.awt.Font font) {
         JPanel rowPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
         rowPanel.setBackground(Color.WHITE);
         rowPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 25));
@@ -317,7 +342,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         return rowPanel;
     }
     
-    private JTextField createTextField(Font font) {
+    private JTextField createTextField(java.awt.Font font) {
         JTextField textField = new JTextField();
         textField.setFont(font);
         textField.setPreferredSize(new Dimension(0, 35));
@@ -333,7 +358,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         panel.setPreferredSize(new Dimension(0, 80)); // Độ cao tương tự XacNhanLapHoaDonFrame
 
         btnXacNhan = new JButton("Xác nhận");
-        btnXacNhan.setFont(new Font("Arial", Font.PLAIN, 14));
+        btnXacNhan.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 14));
         btnXacNhan.setPreferredSize(new Dimension(150, 40));
         btnXacNhan.setBackground(new Color(240, 240, 240));
         btnXacNhan.setForeground(Color.BLACK);
@@ -391,8 +416,6 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             KhachHang kh = khachHangDAO.findKhachHangByPhone(sdt);
             if (kh != null) {
                 txtTenKhachHang.setText(kh.getTenKH());
-                JOptionPane.showMessageDialog(this, "Đã tìm thấy khách hàng: " + kh.getTenKH(), 
-                    "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 txtTenKhachHang.setText("");
                 if (JOptionPane.showConfirmDialog(this,
@@ -515,20 +538,29 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                 if (success) {
                     // Lưu chi tiết phiếu đặt thành công
                     
-                    // Note: Đối với phiếu đặt, thông thường không cần cập nhật tồn kho ngay
-                    // vì đây chỉ là đặt hàng chưa xuất kho. Tồn kho sẽ được cập nhật khi giao hàng.
-                    // Nếu cần cập nhật tồn kho ngay (reserve inventory), có thể thêm logic ở đây.
+                    // Cập nhật số lượng tồn kho sau khi đặt thuốc thành công
+                    updateInventory(dsChiTietData);
                     
-                    JOptionPane.showMessageDialog(this, 
+                    // Hỏi người dùng có muốn xuất phiếu đặt PDF không
+                    int printOption = JOptionPane.showConfirmDialog(this,
                         "Lập phiếu đặt thành công!\n" +
                         "Mã phiếu đặt: " + maPhieuDat + "\n" +
                         "Khách hàng: " + tenKH + "\n" +
                         "SĐT: " + sdt + "\n" +
-                        "Ngày giao: " + new SimpleDateFormat("dd/MM/yyyy").format(ngayGiao),
-                        "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                        "Ngày giao: " + new SimpleDateFormat("dd/MM/yyyy").format(ngayGiao) + "\n\n" +
+                        "Bạn có muốn xuất phiếu đặt PDF không?",
+                        "Xuất phiếu đặt",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE);
+                        
+                    if (printOption == JOptionPane.YES_OPTION) {
+                        // Xuất phiếu đặt PDF
+                        xuatPhieuDatPDF(maPhieuDat, dsChiTietData, tongTien, khachHang.getMaKH(), maNhanVien, ngayGiao);
+                    }
                     
-                    if (parentPanel != null) {
-                        parentPanel.onPhieuDatSuccess(dsChiTietData, maPhieuDat);
+                    // Gọi callback khi lập phiếu đặt thành công
+                    if (phieuDatCallback != null) {
+                        phieuDatCallback.onPhieuDatSuccess(dsChiTietData, maPhieuDat);
                     }
                     
                     dispose();
@@ -554,11 +586,13 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                 String maThuoc = (String) item[0];
                 String tenThuoc = (String) item[1];
                 int soLuong = (Integer) item[2];
-                // Note: ChiTietPhieuDat không lưu donGia và thanhTien như ChiTietHoaDon
+                // item[3] và item[4] là donGia và thanhTien (không dùng cho PhieuDat)
+                String maLo = item.length > 5 ? (String) item[5] : "N/A"; // Lấy maLo nếu có
                 
                 ChiTietPhieuDat chiTiet = new ChiTietPhieuDat(
                     maPhieuDat,
                     maThuoc,
+                    maLo,      // Thêm maLo
                     tenThuoc,
                     soLuong,
                     true // isActive
@@ -573,6 +607,253 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         } catch (Exception e) {
             e.printStackTrace();
             return false;
+        }
+    }
+    
+    /**
+     * Xuất phiếu đặt PDF
+     * @param maPhieuDat Mã phiếu đặt
+     * @param dsChiTietData Danh sách chi tiết sản phẩm
+     * @param tongTien Tổng tiền phiếu đặt
+     * @param maKhachHang Mã khách hàng
+     * @param maNhanVien Mã nhân viên lập phiếu đặt
+     * @param ngayGiao Ngày giao hàng
+     */
+    private void xuatPhieuDatPDF(String maPhieuDat, ArrayList<Object[]> dsChiTietData, 
+                                double tongTien, String maKhachHang, String maNhanVien, Date ngayGiao) {
+        try {
+            // Sử dụng đường dẫn mặc định để lưu file
+            String defaultDir = "E:\\PTUD\\PDF\\PhieuDat";
+            File directory = new File(defaultDir);
+            
+            // Kiểm tra và tạo thư mục nếu chưa tồn tại
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+            
+            String fileName = "PhieuDat_" + maPhieuDat + ".pdf";
+            String filePath = defaultDir + "\\" + fileName;
+            
+            // Tạo document và writer
+            Document document = new Document(PageSize.A4);
+            PdfWriter.getInstance(document, new FileOutputStream(filePath));
+            document.open();
+            
+            // Font chữ
+            BaseFont baseFont = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
+            com.itextpdf.text.Font titleFont = new com.itextpdf.text.Font(baseFont, 18, com.itextpdf.text.Font.BOLD);
+            com.itextpdf.text.Font headerFont = new com.itextpdf.text.Font(baseFont, 12, com.itextpdf.text.Font.BOLD);
+            com.itextpdf.text.Font normalFont = new com.itextpdf.text.Font(baseFont, 11, com.itextpdf.text.Font.NORMAL);
+            com.itextpdf.text.Font totalFont = new com.itextpdf.text.Font(baseFont, 12, com.itextpdf.text.Font.BOLD);
+            
+            // Tiêu đề
+            Paragraph title = new Paragraph("PHIẾU ĐẶT THUỐC", titleFont);
+            title.setAlignment(Element.ALIGN_CENTER);
+            document.add(title);
+            
+            // Thông tin nhà thuốc
+            Paragraph shopInfo = new Paragraph("NHÀ THUỐC PILL & CHILL\nĐịa chỉ: 12 Nguyễn Văn Bảo, P.4, Q.Gò Vấp, TP.HCM\nHotline: 0987654321", normalFont);
+            shopInfo.setAlignment(Element.ALIGN_CENTER);
+            document.add(shopInfo);
+            
+            document.add(new Paragraph("\n"));
+            
+            // Thông tin phiếu đặt
+            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+            String currentDate = dateFormat.format(new Date());
+            String deliveryDate = dateFormat.format(ngayGiao);
+            
+            Paragraph orderInfo = new Paragraph();
+            orderInfo.add(new Chunk("Mã phiếu đặt: " + maPhieuDat + "\n", headerFont));
+            orderInfo.add(new Chunk("Ngày đặt: " + currentDate + "\n", normalFont));
+            orderInfo.add(new Chunk("Ngày giao hàng: " + deliveryDate + "\n", normalFont));
+            
+            // Lấy thông tin nhân viên
+            String tenNhanVien = "Nhân viên";
+            try {
+                NhanVien nv = nhanVienDAO.getNhanVienById(maNhanVien);
+                if (nv != null) {
+                    tenNhanVien = nv.getTenNV();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            orderInfo.add(new Chunk("Nhân viên lập: " + tenNhanVien + " (" + maNhanVien + ")\n", normalFont));
+            
+            // Lấy thông tin khách hàng
+            if (maKhachHang != null && !maKhachHang.isEmpty()) {
+                try {
+                    KhachHang kh = khachHangDAO.getKhachHangById(maKhachHang);
+                    if (kh != null) {
+                        orderInfo.add(new Chunk("Khách hàng: " + kh.getTenKH() + "\n", normalFont));
+                        orderInfo.add(new Chunk("Số điện thoại: " + kh.getSoDienThoai() + "\n", normalFont));
+                        // Note: KhachHang entity doesn't have address field currently
+                        orderInfo.add(new Chunk("Điểm tích lũy: " + kh.getDiemTichLuy() + "\n", normalFont));
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            
+            document.add(orderInfo);
+            document.add(new Paragraph("\n"));
+            
+            // Bảng chi tiết sản phẩm
+            PdfPTable table = new PdfPTable(5); // 5 cột
+            table.setWidthPercentage(100);
+            table.setSpacingBefore(10f);
+            table.setSpacingAfter(10f);
+            
+            float[] columnWidths = {1f, 3f, 1f, 1.5f, 2f};
+            table.setWidths(columnWidths);
+            
+            // Header của bảng
+            addTableHeader(table, headerFont);
+            
+            // Nội dung bảng
+            DecimalFormat df = new DecimalFormat("#,###");
+            
+            for (Object[] item : dsChiTietData) {
+                String maThuoc = (String) item[0];
+                String tenThuoc = (String) item[1];
+                int soLuong = (Integer) item[2];
+                
+                // Xử lý donGia an toàn - có thể là Float hoặc Double
+                double donGia;
+                if (item[3] instanceof Float) {
+                    donGia = ((Float) item[3]).doubleValue();
+                } else if (item[3] instanceof Double) {
+                    donGia = (Double) item[3];
+                } else {
+                    donGia = Double.parseDouble(item[3].toString());
+                }
+                
+                // Xử lý thanhTien an toàn - có thể là Float hoặc Double
+                double thanhTien;
+                if (item[4] instanceof Float) {
+                    thanhTien = ((Float) item[4]).doubleValue();
+                } else if (item[4] instanceof Double) {
+                    thanhTien = (Double) item[4];
+                } else {
+                    thanhTien = Double.parseDouble(item[4].toString());
+                }
+                
+                table.addCell(new PdfPCell(new Phrase(maThuoc, normalFont)));
+                table.addCell(new PdfPCell(new Phrase(tenThuoc, normalFont)));
+                
+                PdfPCell cellSoLuong = new PdfPCell(new Phrase(String.valueOf(soLuong), normalFont));
+                cellSoLuong.setHorizontalAlignment(Element.ALIGN_CENTER);
+                table.addCell(cellSoLuong);
+                
+                PdfPCell cellDonGia = new PdfPCell(new Phrase(df.format(donGia) + " VNĐ", normalFont));
+                cellDonGia.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table.addCell(cellDonGia);
+                
+                PdfPCell cellThanhTien = new PdfPCell(new Phrase(df.format(thanhTien) + " VNĐ", normalFont));
+                cellThanhTien.setHorizontalAlignment(Element.ALIGN_RIGHT);
+                table.addCell(cellThanhTien);
+            }
+            
+            document.add(table);
+            
+            // Thông tin tổng tiền
+            Paragraph summary = new Paragraph();
+            summary.add(new Chunk("Tổng tiền: " + df.format(tongTien) + " VNĐ\n", totalFont));
+            
+            // Thêm ghi chú nếu có
+            String ghiChu = txtGhiChu.getText().trim();
+            if (!ghiChu.isEmpty()) {
+                summary.add(new Chunk("Ghi chú: " + ghiChu + "\n", normalFont));
+            }
+            
+            summary.add(new Chunk("\nLưu ý: Đây là phiếu đặt thuốc.\nGiá chưa bao gồm thuế VAT. Khách hàng vui lòng thanh toán khi nhận hàng.\n", normalFont));
+            summary.add(new Chunk("Ngày giao hàng: " + deliveryDate + "\n", normalFont));
+            
+            // Chữ ký
+            summary.add(new Chunk("\n\n"));
+            summary.add(new Chunk("Người lập phiếu\n", normalFont));
+            summary.add(new Chunk("(Ký và ghi rõ họ tên)\n\n\n", normalFont));
+            summary.add(new Chunk(tenNhanVien, normalFont));
+            
+            summary.setAlignment(Element.ALIGN_RIGHT);
+            document.add(summary);
+            
+            document.close();
+            
+            // Hiển thị thông báo thành công và hỏi có muốn mở file không
+            int openOption = JOptionPane.showConfirmDialog(this,
+                "Xuất phiếu đặt PDF thành công!\nFile được lưu tại: " + filePath + "\n\nBạn có muốn mở file không?",
+                "Thành công",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.INFORMATION_MESSAGE);
+                
+            if (openOption == JOptionPane.YES_OPTION) {
+                // Mở file PDF
+                if (Desktop.isDesktopSupported()) {
+                    Desktop.getDesktop().open(new File(filePath));
+                }
+            }
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                "Lỗi khi xuất phiếu đặt PDF: " + e.getMessage(),
+                "Lỗi",
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Thêm header cho bảng PDF
+     */
+    private void addTableHeader(PdfPTable table, com.itextpdf.text.Font font) {
+        String[] headers = {"Mã thuốc", "Tên thuốc", "Số lượng", "Đơn giá", "Thành tiền"};
+        
+        for (String header : headers) {
+            PdfPCell headerCell = new PdfPCell(new Phrase(header, font));
+            headerCell.setBackgroundColor(BaseColor.LIGHT_GRAY);
+            headerCell.setHorizontalAlignment(Element.ALIGN_CENTER);
+            headerCell.setPadding(8);
+            table.addCell(headerCell);
+        }
+    }
+    
+    /**
+     * Cập nhật số lượng tồn kho sau khi đặt thuốc thành công
+     * Trừ số lượng tồn kho vì nhà thuốc sẽ chừa ra thuốc ngay khi có phiếu đặt
+     * @param dsChiTietData danh sách chi tiết sản phẩm đã đặt
+     */
+    private void updateInventory(ArrayList<Object[]> dsChiTietData) {
+        try {
+            // Sử dụng TonKhoDAO để cập nhật số lượng tồn kho
+            // Phiếu đặt cũng trừ tồn kho vì sẽ chừa ra thuốc ngay
+            TonKhoDAO tonKhoDAO = new TonKhoDAO();
+            boolean success = tonKhoDAO.capNhatTonKhoSauKhiBan(dsChiTietData);
+            
+            if (success) {
+                // Đồng bộ lại tổng thể để đảm bảo tính nhất quán dữ liệu
+                boolean syncSuccess = tonKhoDAO.dongBoSoLuongTon(null);
+                
+                // Nếu đồng bộ tổng thể thất bại, thử đồng bộ từng thuốc cụ thể
+                if (!syncSuccess) {
+                    for (Object[] item : dsChiTietData) {
+                        String maThuoc = (String) item[0];
+                        tonKhoDAO.dongBoSoLuongTon(maThuoc);
+                    }
+                }
+                System.out.println("Đã cập nhật tồn kho sau khi đặt thuốc thành công.");
+            } else {
+                JOptionPane.showMessageDialog(this,
+                    "Không thể cập nhật số lượng tồn kho. Phiếu đặt đã được lưu nhưng tồn kho chưa được cập nhật.",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                "Lỗi cập nhật số lượng tồn kho: " + e.getMessage(),
+                "Lỗi",
+                JOptionPane.ERROR_MESSAGE);
         }
     }
     

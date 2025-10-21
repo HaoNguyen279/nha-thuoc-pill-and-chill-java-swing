@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -14,9 +18,10 @@ import app.ConnectDB.ConnectDB;
 import app.DAO.HoaDonDAO;
 import app.DAO.PhieuDatDAO;
 import app.DAO.ThuocDAO;
+import app.DAO.TonKhoDAO;
 import app.Entity.Thuoc;
 
-public class LapPhieuDatThuocPanel extends JPanel implements ActionListener {
+public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, PhieuDatCallback {
     private DefaultTableModel modelThuoc; // Model cho bảng thuốc
     private DefaultTableModel modelGioHang; // Model cho bảng giỏ hàng
     private JTable tblThuoc;
@@ -658,7 +663,7 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener {
             // Tạo mã phiếu đặt tự động theo chuỗi từ database
             String maPhieuDat = phieuDatDAO.generateNextMaPhieuDat();
             
-            // Chuẩn bị dữ liệu chi tiết phiếu đặt từ giỏ hàng
+            // Thu thập dữ liệu từ giỏ hàng với maLo
             ArrayList<Object[]> chiTietData = new ArrayList<>();
             for (int i = 0; i < modelGioHang.getRowCount(); i++) {
                 String maThuoc = modelGioHang.getValueAt(i, 0).toString();
@@ -667,7 +672,10 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener {
                 String donGiaStr = modelGioHang.getValueAt(i, 3).toString();
                 float donGia = Float.parseFloat(donGiaStr.replaceAll("[^0-9]", ""));
                 
-                Object[] data = {maThuoc, tenThuoc, soLuong, donGia, soLuong * donGia};
+                // Lấy maLo đầu tiên có sẵn cho thuốc này từ TonKhoDAO
+                String maLo = getMaLoForThuoc(maThuoc);
+                
+                Object[] data = {maThuoc, tenThuoc, soLuong, donGia, soLuong * donGia, maLo};
                 chiTietData.add(data);
             }
             
@@ -688,7 +696,19 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener {
             resetGioHang();
             updateTongTien();
 
-            // 2. Tải lại dữ liệu từ database để đảm bảo hiển thị số lượng tồn chính xác nhất
+            // 2. Cập nhật tồn kho sau khi đặt thuốc (trừ số lượng vì sẽ chừa ra ngay)
+            TonKhoDAO tonKhoDAO = new TonKhoDAO();
+            boolean updateSuccess = tonKhoDAO.capNhatTonKhoSauKhiDat(dsChiTiet);
+            
+            if (!updateSuccess) {
+                JOptionPane.showMessageDialog(this,
+                    "Cảnh báo: Có lỗi khi cập nhật tồn kho.\n" +
+                    "Phiếu đặt đã được lưu nhưng vui lòng kiểm tra lại tồn kho.",
+                    "Cảnh báo",
+                    JOptionPane.WARNING_MESSAGE);
+            }
+
+            // 3. Tải lại dữ liệu từ database để đảm bảo hiển thị số lượng tồn mới nhất
             // Lưu vị trí đang chọn và scroll position hiện tại để khôi phục sau khi load lại
             int selectedRow = tblThuoc.getSelectedRow();
 
@@ -707,14 +727,15 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener {
                     JOptionPane.showMessageDialog(this,
                             "Đã lập phiếu đặt thuốc thành công!\n" +
                                     "Mã phiếu đặt: " + maPhieuDat + "\n" +
-                                    "Số mặt hàng: " + dsChiTiet.size(),
+                                    "Số mặt hàng: " + dsChiTiet.size() + "\n" +
+                                    "Số lượng tồn kho đã được cập nhật (chừa ra).",
                             "Thành công",
                             JOptionPane.INFORMATION_MESSAGE);
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
                     JOptionPane.showMessageDialog(this,
-                            "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập hóa đơn.\n" +
+                            "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt.\n" +
                                     "Vui lòng nhấn Reset để tải lại dữ liệu.",
                             "Cảnh báo",
                             JOptionPane.WARNING_MESSAGE);
@@ -732,6 +753,36 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener {
         }
     }
     
+    /**
+     * Lấy mã lô đầu tiên có sẵn cho thuốc được chỉ định
+     * @param maThuoc mã thuốc cần lấy maLo
+     * @return mã lô đầu tiên có sẵn, hoặc "N/A" nếu không tìm thấy
+     */
+    private String getMaLoForThuoc(String maThuoc) {
+        try {
+            Connection con = ConnectDB.getConnection();
+            String sql = "SELECT TOP 1 maLo FROM ChiTietLoThuoc WHERE maThuoc = ? AND isActive = 1 AND soLuong > 0 ORDER BY ngaySanXuat";
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, maThuoc);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                String maLo = rs.getString("maLo");
+                rs.close();
+                stmt.close();
+                return maLo;
+            }
+            
+            rs.close();
+            stmt.close();
+            return "N/A"; // Không tìm thấy lô nào có sẵn
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "N/A";
+        }
+    }
+
     public void refreshData() {
         try {
             // Reset giỏ hàng

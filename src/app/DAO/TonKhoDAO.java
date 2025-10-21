@@ -345,4 +345,96 @@ public class TonKhoDAO {
             }
         }
     }
+    
+    /**
+     * Cập nhật số lượng tồn kho sau khi đặt thuốc
+     * Trừ số lượng tồn kho vì nhà thuốc sẽ chừa ra thuốc ngay khi có phiếu đặt
+     * @param dsChiTiet danh sách chi tiết thuốc [maThuoc, tenThuoc, soLuong, donGia, thanhTien, maLo]
+     * @return true nếu cập nhật thành công, false nếu có lỗi
+     */
+    public boolean capNhatTonKhoSauKhiDat(ArrayList<Object[]> dsChiTiet) {
+        Connection con = null;
+        try {
+            // Sử dụng getConnection để đảm bảo dùng cùng connection pool
+            con = ConnectDB.getConnection();
+            
+            // Bắt đầu transaction
+            con.setAutoCommit(false);
+            
+            // Sử dụng phương pháp trực tiếp hơn: Lấy tất cả chi tiết lô thuốc
+            String sqlGetChiTietLo = "SELECT maLo, maThuoc, soLuong FROM ChiTietLoThuoc WHERE maThuoc = ? AND isActive = 1 AND soLuong > 0 ORDER BY ngaySanXuat";
+            PreparedStatement stmtGetChiTietLo = con.prepareStatement(sqlGetChiTietLo);
+            
+            // Truy vấn cập nhật trực tiếp theo maLo và maThuoc (khóa chính tổng hợp)
+            String sqlCapNhatLo = "UPDATE ChiTietLoThuoc SET soLuong = ? WHERE maLo = ? AND maThuoc = ?";
+            PreparedStatement stmtCapNhatLo = con.prepareStatement(sqlCapNhatLo);
+            
+            for (Object[] item : dsChiTiet) {
+                String maThuoc = (String) item[0];
+                int soLuongDat = (Integer) item[2];
+                int soLuongCanDat = soLuongDat; // Biến theo dõi số lượng còn cần đặt
+                
+                // Lấy danh sách các lô thuốc
+                stmtGetChiTietLo.setString(1, maThuoc);
+                ResultSet rs = stmtGetChiTietLo.executeQuery();
+                
+                boolean duSoLuong = false;
+                
+                while (rs.next() && soLuongCanDat > 0) {
+                    String maLo = rs.getString("maLo");
+                    int soLuongTon = rs.getInt("soLuong");
+                    
+                    int soLuongTru = Math.min(soLuongCanDat, soLuongTon);
+                    int soLuongConLai = soLuongTon - soLuongTru;
+                    
+                    // Cập nhật số lượng trong lô
+                    stmtCapNhatLo.setInt(1, soLuongConLai);
+                    stmtCapNhatLo.setString(2, maLo);
+                    stmtCapNhatLo.setString(3, maThuoc);
+                    stmtCapNhatLo.executeUpdate();
+                    
+                    soLuongCanDat -= soLuongTru;
+                    
+                    if (soLuongCanDat == 0) {
+                        duSoLuong = true;
+                        break;
+                    }
+                }
+                
+                rs.close();
+                
+                if (!duSoLuong) {
+                    // Rollback nếu không đủ số lượng
+                    con.rollback();
+                    JOptionPane.showMessageDialog(null,
+                        "Không đủ số lượng tồn kho cho thuốc: " + maThuoc + "\n" +
+                        "Số lượng cần: " + soLuongDat + ", còn thiếu: " + soLuongCanDat,
+                        "Không đủ tồn kho",
+                        JOptionPane.ERROR_MESSAGE);
+                    return false;
+                }
+            }
+            
+            stmtGetChiTietLo.close();
+            stmtCapNhatLo.close();
+            
+            con.commit();
+            return true;
+            
+        } catch (Exception e) {
+            try {
+                if (con != null) con.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            try {
+                if (con != null) con.setAutoCommit(true);
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
 }

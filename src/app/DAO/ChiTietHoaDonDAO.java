@@ -16,7 +16,7 @@ import app.Entity.ChiTietHoaDon;
 public class ChiTietHoaDonDAO {
 
     /**
-     * Retrieves all detail lines for a specific invoice.
+     * Retrieves all active detail lines for a specific invoice.
      * @param maHoaDon The ID of the parent invoice.
      * @return An ArrayList of ChiTietHoaDon objects.
      */
@@ -44,10 +44,12 @@ public class ChiTietHoaDonDAO {
      * Retrieves a single invoice detail by its composite key.
      * @param maHoaDon The ID of the parent invoice.
      * @param maThuoc The ID of the medicine.
+     * @param maLo The ID of the batch/lot.  
      * @return A ChiTietHoaDon object if found, otherwise null.
      */
-    public ChiTietHoaDon getChiTietById(String maHoaDon, String maThuoc) {
-        String sql = "SELECT * FROM ChiTietHoaDon WHERE maHoaDon = ? AND maThuoc = ?";
+    public ChiTietHoaDon getChiTietById(String maHoaDon, String maThuoc, String maLo) {
+        // Cập nhật SQL và tham số
+        String sql = "SELECT * FROM ChiTietHoaDon WHERE maHoaDon = ? AND maThuoc = ? AND maLo = ?";
         ChiTietHoaDon cthd = null;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -55,6 +57,7 @@ public class ChiTietHoaDonDAO {
             
             stmt.setString(1, maHoaDon);
             stmt.setString(2, maThuoc);
+            stmt.setString(3, maLo);  
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -73,7 +76,8 @@ public class ChiTietHoaDonDAO {
      * @return true if the operation was successful, false otherwise.
      */
     public boolean addChiTietHoaDon(ChiTietHoaDon cthd) {
-        String sql = "INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia, isActive) VALUES (?, ?, ?, ?, ?)";
+        // Cập nhật SQL và tham số
+        String sql = "INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, maLo, soLuong, donGia, isActive) VALUES (?, ?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -81,9 +85,10 @@ public class ChiTietHoaDonDAO {
             
             stmt.setString(1, cthd.getMaHoaDon());
             stmt.setString(2, cthd.getMaThuoc());
-            stmt.setInt(3, cthd.getSoLuong());
-            stmt.setFloat(4, cthd.getDonGia());
-            stmt.setBoolean(5, cthd.isIsActive());
+            stmt.setString(3, cthd.getMaLo());  
+            stmt.setInt(4, cthd.getSoLuong());
+            stmt.setFloat(5, cthd.getDonGia());
+            stmt.setBoolean(6, cthd.isIsActive());
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -98,7 +103,8 @@ public class ChiTietHoaDonDAO {
      * @return true if the update was successful, false otherwise.
      */
     public boolean updateChiTietHoaDon(ChiTietHoaDon cthd) {
-        String sql = "UPDATE ChiTietHoaDon SET soLuong = ?, donGia = ?, isActive = ? WHERE maHoaDon = ? AND maThuoc = ?";
+        // Cập nhật SQL (WHERE clause) và tham số
+        String sql = "UPDATE ChiTietHoaDon SET soLuong = ?, donGia = ?, isActive = ? WHERE maHoaDon = ? AND maThuoc = ? AND maLo = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -109,6 +115,7 @@ public class ChiTietHoaDonDAO {
             stmt.setBoolean(3, cthd.isIsActive());
             stmt.setString(4, cthd.getMaHoaDon());
             stmt.setString(5, cthd.getMaThuoc());
+            stmt.setString(6, cthd.getMaLo());  
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -121,10 +128,12 @@ public class ChiTietHoaDonDAO {
      * Deactivates an invoice detail by setting its isActive flag to false (soft delete).
      * @param maHoaDon The ID of the parent invoice.
      * @param maThuoc The ID of the medicine.
+     * @param maLo The ID of the batch/lot.  
      * @return true if the deactivation was successful, false otherwise.
      */
-    public boolean deleteChiTietHoaDon(String maHoaDon, String maThuoc) {
-        String sql = "UPDATE ChiTietHoaDon SET isActive = 0 WHERE maHoaDon = ? AND maThuoc = ?";
+    public boolean deleteChiTietHoaDon(String maHoaDon, String maThuoc, String maLo) {
+        // Cập nhật SQL (WHERE clause) và tham số
+        String sql = "UPDATE ChiTietHoaDon SET isActive = 0 WHERE maHoaDon = ? AND maThuoc = ? AND maLo = ?";
         int n = 0;
         
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -132,6 +141,7 @@ public class ChiTietHoaDonDAO {
             
             stmt.setString(1, maHoaDon);
             stmt.setString(2, maThuoc);
+            stmt.setString(3, maLo);  
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -144,9 +154,11 @@ public class ChiTietHoaDonDAO {
      * Helper method to map a ResultSet row to a ChiTietHoaDon object.
      */
     private ChiTietHoaDon mapResultSetToChiTiet(ResultSet rs) throws SQLException {
+        // Cập nhật để đọc cả maLo
         return new ChiTietHoaDon(
             rs.getString("maHoaDon"),
             rs.getString("maThuoc"),
+            rs.getString("maLo"), 
             rs.getInt("soLuong"),
             rs.getFloat("donGia"),
             rs.getBoolean("isActive")
