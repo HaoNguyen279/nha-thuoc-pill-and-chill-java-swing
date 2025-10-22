@@ -200,7 +200,7 @@ public class DangNhapFrame extends JFrame {
     }
     
 	private void validateLogin() {
-		ConnectDB.getInstance().connect();
+		ConnectDB.connect();
 		String user = txtMaNhanVien.getText().trim();
 		String pwd = new String(txtMatKhau.getPassword());
 

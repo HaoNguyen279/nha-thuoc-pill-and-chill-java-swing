@@ -7,10 +7,12 @@ import app.ConnectDB.ConnectDB;
 import app.GUI.DangNhapFrame;
 
 public class App {
+    
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
                 ConnectDB.getInstance().connect();
+                
                 new DangNhapFrame(); 
             }catch (Exception e) {
                 e.printStackTrace();

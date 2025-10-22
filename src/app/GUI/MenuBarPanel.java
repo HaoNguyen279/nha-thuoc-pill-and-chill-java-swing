@@ -5,31 +5,17 @@ import java.awt.Color;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.io.File;
 import java.net.URL;
 
-import javax.swing.Box;
-import javax.swing.ImageIcon;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenu;
-import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
-
+import javax.swing.*;
 import app.Main.App;
 
 public class MenuBarPanel extends JPanel implements ActionListener {
     private String tenNhanVien;
     private MainFrame parentFrame;
-	private JFrame frmParent;
 	// MenuItem cho hệ thống
 	private JMenuItem mniHoTro;
 	private JMenuItem mniDangXuat;
@@ -141,10 +127,10 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniLapPhieuDatThuoc.setIcon(loadIcon("/resources/icon/order_icon.png"));  
         
         mniLapPhieuTraThuoc = new JMenuItem("Lập phiếu trả thuốc");
-        mniLapPhieuTraThuoc.setIcon(loadIcon("/resources/icon/refund_icon.png"));
+        mniLapPhieuTraThuoc.setIcon(loadIcon("/resources/icon/refund_icon.png"));  
         
         mniNhapThuoc = new JMenuItem("Nhập thuốc");
-        mniNhapThuoc.setIcon(loadIcon("/resources/icon/refund_icon.png"));
+        mniNhapThuoc.setIcon(loadIcon("/resources/icon/import_icon.png"));
         
         // MenuItem cho thống kê với icon
         mniDoanhThu = new JMenuItem("Doanh thu nhà thuốc");
@@ -153,7 +139,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniNhanVien = new JMenuItem("Doanh thu của NV");
         mniNhanVien.setIcon(loadIcon("/resources/icon/employee_revenue_icon.png"));  
         
-        mniKhachHang = new JMenuItem("Doanh thu của KH");
+        mniKhachHang = new JMenuItem("Doanh thu từ KH");
         mniKhachHang.setIcon(loadIcon("/resources/icon/customer_revenue_icon.png"));  
         
         mniHanSuDung = new JMenuItem("Hạn sử dụng");
@@ -171,7 +157,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
             mniHoTro, mniDangXuat, mniThoat,
             mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai,
             mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,
-            mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc, mniNhapThuoc,
+            mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc,mniNhapThuoc,
             mniDoanhThu, mniNhanVien, mniKhachHang, mniHanSuDung, mniThue, mniThuocDuocMuaNhieu
         }) {
             item1.setFont(itemFont);
@@ -219,6 +205,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         //Tạo khoảng cách giữa mnubar và tên nhân viên
         mnuMenuBar.add(Box.createHorizontalGlue());
         
+        
 
         mnuMenuBar.add(lblTenNhanVien);
         mnuMenuBar.add(Box.createHorizontalStrut(10));
@@ -231,13 +218,9 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	public void actionPerformed(ActionEvent e) {
 		// TODO Auto-generated method stub
 		Object o = e.getSource();
-		if(o == mniThoat) {
-			CustomJOptionPane a = new CustomJOptionPane(parentFrame, "Bạn có chắc muốn tắt ứng dụng?", true);
-			int choice = a.show();
-			if(choice == JOptionPane.YES_OPTION) System.exit(0);
-		}
+		
 		// Cập nhật
-		else if (o == mniCapNhatKhachHang) parentFrame.showCapNhatKhachHangPanel();
+		if (o == mniCapNhatKhachHang) parentFrame.showCapNhatKhachHangPanel();
 
 		else if (o == mniCapNhatNhanVien) parentFrame.showCapNhatNhanVienPanel();
 
@@ -282,6 +265,11 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 				parentFrame.dangXuatHandle();
 			}
 		}
+		else if(o == mniThoat) {
+			CustomJOptionPane a = new CustomJOptionPane(parentFrame, "Bạn có chắc muốn tắt ứng dụng?", true);
+			int choice = a.show();
+			if(choice == JOptionPane.YES_OPTION) System.exit(0);
+		}
 		else if(o == mniHoTro) {
 			try {
 				URL fileURL = App.class.getResource("/resources/pdf/HuongDanSuDung.pdf");
@@ -311,9 +299,14 @@ public class MenuBarPanel extends JPanel implements ActionListener {
             URL iconURL = getClass().getResource(path);
             if (iconURL != null) {
                 return new ImageIcon(iconURL);
+            } else {
+                iconURL = getClass().getClassLoader().getResource(path.substring(1)); // bỏ dấu / đầu
+                if (iconURL != null) {
+                    return new ImageIcon(iconURL);
+                }
             }
         } catch (Exception e) {
-            System.err.println("Không thể tải icon: " + path);
+            e.printStackTrace();
         }
         return null;
     }

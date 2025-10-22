@@ -3,17 +3,17 @@ package app.Entity;
 public class NhanVien {
     private String maNV;
     private String tenNV;
-    private String chucVu;
+    private String maChucVu;
     private String soDienThoai;
     private boolean isActive; // true = đang làm việc, false = đã nghỉ/ẩn
 
     public NhanVien() {
     }
 
-    public NhanVien(String maNV, String tenNV, String chucVu, String soDienThoai, boolean isActive) {
+    public NhanVien(String maNV, String tenNV, String maChucVu, String soDienThoai, boolean isActive) {
         this.maNV = maNV;
         this.tenNV = tenNV;
-        this.chucVu = chucVu;
+        this.maChucVu = maChucVu;
         this.soDienThoai = soDienThoai;
         this.isActive = isActive;
     }
@@ -34,12 +34,12 @@ public class NhanVien {
         this.tenNV = tenNV;
     }
 
-    public String getChucVu() {
-        return chucVu;
+    public String getmaChucVu() {
+        return maChucVu;
     }
 
-    public void setChucVu(String chucVu) {
-        this.chucVu = chucVu;
+    public void setmaChucVu(String maChucVu) {
+        this.maChucVu = maChucVu;
     }
 
     public String getSoDienThoai() {
@@ -75,7 +75,7 @@ public class NhanVien {
         return "NhanVien{" +
                 "maNV='" + maNV + '\'' +
                 ", tenNV='" + tenNV + '\'' +
-                ", chucVu='" + chucVu + '\'' +
+                ", maChucVu='" + maChucVu + '\'' +
                 ", soDienThoai='" + soDienThoai + '\'' +
                 ", isActive=" + isActive +
                 '}';

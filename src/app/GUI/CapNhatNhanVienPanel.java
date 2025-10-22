@@ -11,7 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -29,7 +32,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import app.ConnectDB.ConnectDB;
+import app.DAO.ChucVuDAO;
 import app.DAO.NhanVienDAO;
+import app.Entity.ChucVu;
 import app.Entity.NhanVien;
 
 public class CapNhatNhanVienPanel extends JPanel implements ActionListener, MouseListener{
@@ -55,8 +60,13 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
 	private JTable tblNhanVien;
 	
 	private ArrayList<NhanVien> dsNhanVien;
-
+	private ArrayList<ChucVu> dsChucVu;
+	private Map<String,String> mapChucVu;
+	private ChucVuDAO cvDAO;
 	public CapNhatNhanVienPanel() {
+		ConnectDB.getInstance().connect();
+		cvDAO = new ChucVuDAO();
+		mapChucVu = new HashMap<String, String>();
         lblTieuDe = new JLabel("Cập nhật nhân viên", SwingConstants.CENTER);
         lblTieuDe.setFont(new Font("Arial", Font.BOLD, 24));
         lblTieuDe.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
@@ -72,8 +82,7 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
         txtChucVu = new JTextField(15);
 
         cboChucVu = new JComboBox<String>();
-        cboChucVu.addItem("Nhân viên quản lý");
-        cboChucVu.addItem("Nhân viên bán hàng");
+        loadChucVuData();
         
         
         btnXoa = new JButton("Xóa");
@@ -223,7 +232,6 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
 	}
 	
 	public void loadNhanVienData() {
-		ConnectDB.getInstance().connect();
         NhanVienDAO nvDAO = new NhanVienDAO();
         dsNhanVien = nvDAO.getAllNhanVien();
 		dtm.setRowCount(0);
@@ -232,9 +240,17 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
 					nv.getMaNV(),
 					nv.getTenNV(),
 					nv.getSoDienThoai(),
-					nv.getChucVu()
+					cvDAO.getById(nv.getmaChucVu()).toString()
 			};
 		dtm.addRow(rowData);
+		}
+	}
+	public void loadChucVuData() {
+		dsChucVu = cvDAO.getAllChucVu();
+		System.out.println(dsChucVu);
+		for(ChucVu item : dsChucVu) {
+			cboChucVu.addItem(item.getTenChucVu());
+			mapChucVu.put(item.getMaChucVu(),item.getTenChucVu());
 		}
 	}
 	public void xoaTrang() {
@@ -295,8 +311,15 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
 				String tenNV = txtTenNv.getText();
 				String soDienThoai = txtSoDienThoai.getText();
 				String chucVu = cboChucVu.getSelectedItem().toString();
+				String macv = "BHA";
+				for (Map.Entry<String, String> item : mapChucVu.entrySet()) {
+					if(chucVu.equalsIgnoreCase(item.getValue())) {
+						macv = item.getKey();
+						break;
+					}
+				}
 				NhanVienDAO nvDAO = new NhanVienDAO();
-				NhanVien nvNew = new NhanVien(maNV, tenNV,chucVu, soDienThoai , true);
+				NhanVien nvNew = new NhanVien(maNV, tenNV,macv, soDienThoai , true);
 				boolean result = nvDAO.updateNhanVien(nvNew);
 				if(result) {
 					CustomJOptionPane a1 = new CustomJOptionPane(this, "Cập nhật nhân viên thành công!", false);
@@ -388,7 +411,6 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
                 txtMaNv.setEnabled(false);
             }
         }
-		
 	}
 
 	@Override

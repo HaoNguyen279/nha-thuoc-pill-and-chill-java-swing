@@ -23,7 +23,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener{
 	     
 	        
 	        setPreferredSize(getPreferredSize());
-	        ConnectDB.getInstance().connect();
+	        ConnectDB.connect();
 	        ThuocDAO thuocdao = new ThuocDAO();
 	    	dsThuoc = thuocdao.getAllThuoc();
 	        JPanel mainPanel = new JPanel(new BorderLayout());
@@ -209,13 +209,9 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener{
 					txtTim.requestFocus();
 				}
 
-				System.out.println(timString);
 			}
 			else if(o == cboTieuChi) {
-				tieuChi = cboTieuChi.getSelectedItem().toString();
-				System.out.println(tieuChi);
-			}
+			tieuChi = cboTieuChi.getSelectedItem().toString();
 		}
 	}
-
-
+}

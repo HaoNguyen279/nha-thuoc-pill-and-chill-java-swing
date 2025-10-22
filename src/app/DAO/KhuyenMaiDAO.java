@@ -25,22 +25,29 @@ public class KhuyenMaiDAO {
     public ArrayList<KhuyenMai> getKhuyenMaiHieuLuc() {
         ArrayList<KhuyenMai> dsKhuyenMai = new ArrayList<>();
         String sql = "SELECT * FROM KhuyenMai WHERE isActive = 1 AND ? >= ngayApDung AND ? <= ngayKetThuc";
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.prepareStatement(sql);
             // Get current date as java.sql.Date for DB comparison
             java.sql.Date homNay = new java.sql.Date(new Date().getTime());
             stmt.setDate(1, homNay);
             stmt.setDate(2, homNay);
+            rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    dsKhuyenMai.add(mapResultSetToKhuyenMai(rs));
-                }
+            while (rs.next()) {
+                dsKhuyenMai.add(mapResultSetToKhuyenMai(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return dsKhuyenMai;
     }
@@ -52,16 +59,26 @@ public class KhuyenMaiDAO {
     public ArrayList<KhuyenMai> getAllKhuyenMai() {
         ArrayList<KhuyenMai> dsKhuyenMai = new ArrayList<>();
         String sql = "SELECT * FROM KhuyenMai WHERE isActive = 1 ORDER BY ngayKetThuc DESC";
+        Connection con = ConnectDB.getInstance().getConnection();
+        Statement stmt = null;
+        ResultSet rs = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
 
             while (rs.next()) {
                 dsKhuyenMai.add(mapResultSetToKhuyenMai(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return dsKhuyenMai;
     }
@@ -74,19 +91,27 @@ public class KhuyenMaiDAO {
     public KhuyenMai getKhuyenMaiById(String id) {
         String sql = "SELECT * FROM KhuyenMai WHERE maKM = ?";
         KhuyenMai km = null;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, id);
+            rs = stmt.executeQuery();
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    km = mapResultSetToKhuyenMai(rs);
-                }
+            if (rs.next()) {
+                km = mapResultSetToKhuyenMai(rs);
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return km;
     }
@@ -99,15 +124,21 @@ public class KhuyenMaiDAO {
     public boolean addKhuyenMai(KhuyenMai km) {
         String sql = "INSERT INTO KhuyenMai (maKM, mucGiamGia, ngayApDung, ngayKetThuc, isActive) VALUES (?, ?, ?, ?, ?)";
         int n = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        try {
+            stmt = con.prepareStatement(sql);
             setKhuyenMaiParameters(stmt, km, false);
-
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return n > 0;
     }
@@ -120,15 +151,21 @@ public class KhuyenMaiDAO {
     public boolean updateKhuyenMai(KhuyenMai km) {
         String sql = "UPDATE KhuyenMai SET mucGiamGia = ?, ngayApDung = ?, ngayKetThuc = ?, isActive = ? WHERE maKM = ?";
         int n = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        try {
+            stmt = con.prepareStatement(sql);
             setKhuyenMaiParameters(stmt, km, true);
-
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return n > 0;
     }
@@ -141,14 +178,21 @@ public class KhuyenMaiDAO {
     public boolean deleteKhuyenMai(String id) {
         String sql = "UPDATE KhuyenMai SET isActive = 0 WHERE maKM = ?";
         int n = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, id);
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return n > 0;
     }

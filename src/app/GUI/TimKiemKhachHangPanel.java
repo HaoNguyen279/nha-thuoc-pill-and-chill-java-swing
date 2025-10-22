@@ -5,11 +5,7 @@ import javax.swing.table.DefaultTableModel;
 
 import app.ConnectDB.ConnectDB;
 import app.DAO.KhachHangDAO;
-import app.DAO.NhanVienDAO;
-import app.DAO.ThuocDAO;
 import app.Entity.KhachHang;
-import app.Entity.NhanVien;
-import app.Entity.Thuoc;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -26,7 +22,7 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
 	    
 	        
 	        setPreferredSize(getPreferredSize());
-	        ConnectDB.getInstance().connect();
+	        ConnectDB.connect();
 	        KhachHangDAO khachHangDao = new KhachHangDAO();
 	    	dsKhachHang= khachHangDao.getAllKhachHang();
 	        JPanel mainPanel = new JPanel(new BorderLayout());
@@ -218,11 +214,11 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
 					txtTim.requestFocus();
 				}
 
-				System.out.println(timString);
+
 			}
 			else if(o == cboTieuChi) {
 				tieuChi = cboTieuChi.getSelectedItem().toString();
-				System.out.println(tieuChi);
+
 			}
 		}
 	}

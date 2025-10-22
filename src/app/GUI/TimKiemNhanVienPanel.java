@@ -4,15 +4,13 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
 import app.ConnectDB.ConnectDB;
+import app.DAO.ChucVuDAO;
 import app.DAO.NhanVienDAO;
-import app.DAO.ThuocDAO;
 import app.Entity.NhanVien;
-import app.Entity.Thuoc;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 public class TimKiemNhanVienPanel extends JPanel implements ActionListener{ 
 	    private DefaultTableModel dtmTable;
@@ -21,11 +19,12 @@ public class TimKiemNhanVienPanel extends JPanel implements ActionListener{
 		private JTextField txtTim;
 		private String tieuChi = "Mã nhân viên";
 		private JComboBox<String> cboTieuChi;
-		
+		private ChucVuDAO cvDAO;
 		public TimKiemNhanVienPanel(){
 	    
 	        setPreferredSize(getPreferredSize());
-	        ConnectDB.getInstance().connect();
+	        ConnectDB.connect();
+	        cvDAO = new ChucVuDAO();
 	        NhanVienDAO nhanvienDao = new NhanVienDAO();
 	    	dsNhanVien= nhanvienDao.getAllNhanVien();
 	        JPanel mainPanel = new JPanel(new BorderLayout());
@@ -149,7 +148,7 @@ public class TimKiemNhanVienPanel extends JPanel implements ActionListener{
 	    		Object[] rowData =  {
 	    				nhanvien.getMaNV(),
 	    				nhanvien.getTenNV(),
-	    				nhanvien.getChucVu(),
+	    				cvDAO.getById(nhanvien.getmaChucVu()).toString(),
 	    				nhanvien.getSoDienThoai()
 	    		};
 	    		dtmTable.addRow(rowData);
@@ -186,7 +185,7 @@ public class TimKiemNhanVienPanel extends JPanel implements ActionListener{
 					}
 					else {
 						for(NhanVien nhanvien: dsNhanVien) {
-							if(nhanvien.getChucVu().toLowerCase().matches("^.*"+timString+".*")) {
+							if(cvDAO.getById(nhanvien.getmaChucVu()).toString().toLowerCase().matches("^.*"+timString+".*")) {
 								ketQuaTim.add(nhanvien);
 							}
 						}
@@ -203,13 +202,11 @@ public class TimKiemNhanVienPanel extends JPanel implements ActionListener{
 					txtTim.requestFocus();
 				}
 
-				System.out.println(timString);
+
 			}
 			else if(o == cboTieuChi) {
-				tieuChi = cboTieuChi.getSelectedItem().toString();
-				System.out.println(tieuChi);
-			}
+			tieuChi = cboTieuChi.getSelectedItem().toString();
+
 		}
 	}
-
-
+}

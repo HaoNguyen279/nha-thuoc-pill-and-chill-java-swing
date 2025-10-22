@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -258,7 +257,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 	}
 	
 	public void loadNhanVienData() {
-		ConnectDB.getInstance().connect();
+		ConnectDB.connect();
         ThuocDAO thuocDAO = new ThuocDAO();
         dsThuoc = thuocDAO.getAllThuoc();
 		dtm.setRowCount(0);

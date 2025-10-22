@@ -26,23 +26,35 @@ public class TaiKhoanDAO {
         String sql = "SELECT * FROM TaiKhoan WHERE maNV = ? AND matKhau = ? AND isActive = 1";
         TaiKhoan tk = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-
+        // Make sure we have a fresh connection
+        ConnectDB.connect();
+        Connection con = ConnectDB.getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setString(1, maNV);
             stmt.setString(2, matKhau);
-
-            try (ResultSet rs = stmt.executeQuery()) {
-                if (rs.next()) {
-                    tk = new TaiKhoan(
-                        rs.getString("maNV"),
-                        rs.getString("matKhau"),
-                        rs.getBoolean("isActive")
-                    );
-                }
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                tk = new TaiKhoan(
+                    rs.getString("maNV"),
+                    rs.getString("matKhau"),
+                    rs.getBoolean("isActive")
+                );
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            // Đóng ResultSet và Statement, KHÔNG đóng Connection
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return tk;
     }
@@ -56,7 +68,7 @@ public class TaiKhoanDAO {
         String sql = "SELECT * FROM TaiKhoan WHERE maNV = ?";
         TaiKhoan tk = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, maNV);
@@ -84,7 +96,7 @@ public class TaiKhoanDAO {
         ArrayList<TaiKhoan> dsTaiKhoan = new ArrayList<>();
         String sql = "SELECT * FROM TaiKhoan WHERE isActive = 1";
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -111,7 +123,7 @@ public class TaiKhoanDAO {
         String sql = "INSERT INTO TaiKhoan (maNV, matKhau, isActive) VALUES (?, ?, ?)";
         int n = 0;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, taiKhoan.getMaNV());
@@ -134,7 +146,7 @@ public class TaiKhoanDAO {
         String sql = "UPDATE TaiKhoan SET matKhau = ?, isActive = ? WHERE maNV = ?";
         int n = 0;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, taiKhoan.getMatKhau());
@@ -157,7 +169,7 @@ public class TaiKhoanDAO {
         String sql = "UPDATE TaiKhoan SET isActive = 0 WHERE maNV = ?";
         int n = 0;
         
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, maNV);

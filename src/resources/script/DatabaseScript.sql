@@ -1,21 +1,22 @@
 -- ===============================================
--- KHỞI TẠO CƠ SỞ DỮ LIỆU VÀ BẢNG (DÙNG isActive)
+-- KHỞI TẠO CƠ SỞ DỮ LIỆU VÀ BẢNG (ĐÃ CHỈNH SỬA)
 -- ===============================================
 USE master
 GO
-DROP database QuanLyNhaThuoc;
+DROP database IF EXISTS QuanLyNhaThuoc; -- Xóa database nếu tồn tại
 GO
 CREATE DATABASE QuanLyNhaThuoc;
 GO
 USE QuanLyNhaThuoc;
 GO
+
 -- Tạo bảng NhaSanXuat
 CREATE TABLE NhaSanXuat (
     maNSX VARCHAR(50) PRIMARY KEY,
     tenNSX NVARCHAR(100),
     diaChiNSX NVARCHAR(200),
     soDienThoai VARCHAR(20),
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
 );
 GO
 
@@ -23,7 +24,7 @@ GO
 CREATE TABLE LoThuoc (
     maLo VARCHAR(50) PRIMARY KEY,
     maNSX VARCHAR(50),
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
     FOREIGN KEY (maNSX) REFERENCES NhaSanXuat(maNSX)
 );
 GO
@@ -32,28 +33,31 @@ GO
 -- Tạo bảng Thuoc
 CREATE TABLE Thuoc (
     maThuoc VARCHAR(50) PRIMARY KEY,
-    maLo VARCHAR(50),
+    maLo VARCHAR(50), -- Lô mặc định (có thể không dùng)
     tenThuoc NVARCHAR(100),
-    soLuongTon INT,
+    soLuongTon INT, -- Tổng số lượng tồn (sẽ được cập nhật bằng Trigger)
     giaBan FLOAT,
     donVi NVARCHAR(50),
     soLuongToiThieu INT,
 	maNSX VARCHAR(50),
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
 	FOREIGN KEY (maNSX) REFERENCES NhaSanXuat(maNSX)
 );
 GO
--- Tạo bảng ChiTietLoThuoc
+-- Tạo bảng ChiTietLoThuoc (Chi tiết tồn kho theo lô)
 CREATE TABLE ChiTietLoThuoc (
     maLo VARCHAR(50),
     maThuoc VARCHAR(50),
     ngaySanXuat DATE,
     hanSuDung DATE,
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+    soLuong INT NOT NULL,
+    giaNhap FLOAT NOT NULL,
+    isActive BIT DEFAULT 1,
     PRIMARY KEY (maLo, maThuoc),
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo),
-
+    FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
 );
+
 GO
 -- Tạo bảng KhachHang
 CREATE TABLE KhachHang (
@@ -61,23 +65,33 @@ CREATE TABLE KhachHang (
     tenKH NVARCHAR(100),
     soDienThoai VARCHAR(20),
     diemTichLuy INT,
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
 );
 GO
--- Tạo bảng NhanVien
+
+-- TẠO BẢNG CHUCVU
+CREATE TABLE ChucVu (
+    maChucVu VARCHAR(50) PRIMARY KEY,
+    tenChucVu NVARCHAR(100) NOT NULL,
+	isActive bit DEFAULT 1,
+);
+GO
+
+-- TẠO BẢNG NHANVIEN (Sử dụng maChucVu)
 CREATE TABLE NhanVien (
     maNV VARCHAR(50) PRIMARY KEY,
     tenNV NVARCHAR(100),
-    chucVu NVARCHAR(50),
+    maChucVu VARCHAR(50), 
     soDienThoai VARCHAR(20),
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
+	FOREIGN KEY (maChucVu) REFERENCES ChucVu(maChucVu)
 );
 GO
 -- Tạo bảng TaiKhoan
 CREATE TABLE TaiKhoan(
 	maNV VARCHAR(50) PRIMARY KEY,
 	matKhau VARCHAR(50),
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
 	FOREIGN KEY (maNV)	REFERENCES NhanVien(maNV)
 );
 GO
@@ -87,19 +101,11 @@ CREATE TABLE KhuyenMai (
     mucGiamGia FLOAT,
 	ngayApDung DATE,
 	ngayKetThuc DATE,
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
 );
 GO
--- Tạo bảng Thue
-CREATE TABLE Thue (
-    maThue VARCHAR(50) PRIMARY KEY,
-	mucThue FLOAT,
-    ngayApDung DATE,
-    ngayKetThuc DATE,
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
-);
-GO
--- Tạo bảng HoaDon
+
+-- TẠO BẢNG HOADON (Sử dụng giaTriThue và tenLoaiThue)
 CREATE TABLE HoaDon (
     maHoaDon VARCHAR(50) PRIMARY KEY,
     ngayBan DATE,
@@ -107,12 +113,12 @@ CREATE TABLE HoaDon (
     maNV VARCHAR(50),
     maKH VARCHAR(50),
 	maKM VARCHAR(50),
-	maThue VARCHAR(50),
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	giaTriThue FLOAT, 
+	tenLoaiThue NVARCHAR(50), 
+	isActive bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH),
-	FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM),
-    FOREIGN KEY (maThue) REFERENCES Thue(maThue)
+	FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
 );
 GO
 -- Tạo bảng ChiTietHoaDon
@@ -121,7 +127,7 @@ CREATE TABLE ChiTietHoaDon (
     maThuoc VARCHAR(50),
     soLuong INT,
 	donGia FLOAT,
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
     PRIMARY KEY (maHoaDon, maThuoc),
     FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
@@ -133,7 +139,7 @@ CREATE TABLE PhieuDoiTra (
     ngayDoiTra DATE,
 	maNV VARCHAR(50),
 	maKH VARCHAR(50),
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
 );
@@ -146,7 +152,7 @@ CREATE TABLE ChiTietPhieuDoiTra (
     donGia FLOAT,
     maLo VARCHAR(50),
     lyDo NVARCHAR(200),
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
     PRIMARY KEY (maPhieuDoiTra, maThuoc),
     FOREIGN KEY (maPhieuDoiTra) REFERENCES PhieuDoiTra(maPhieuDoiTra),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
@@ -159,7 +165,7 @@ CREATE TABLE PhieuDat (
     maNV VARCHAR(50),
     ngayDat DATE,
     maKH VARCHAR(50),
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
 );
@@ -170,7 +176,7 @@ CREATE TABLE ChiTietPhieuDat (
     maThuoc VARCHAR(50),
     tenThuoc NVARCHAR(100),
     soLuong INT,
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
     PRIMARY KEY (maPhieuDat, maThuoc),
     FOREIGN KEY (maPhieuDat) REFERENCES PhieuDat(maPhieuDat),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
@@ -181,7 +187,7 @@ CREATE TABLE PhieuNhapThuoc (
     maPhieuNhapThuoc VARCHAR(50) PRIMARY KEY,
     maNV VARCHAR(50),
     ngayNhap DATE,
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
+	isActive bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
 );
 GO
@@ -189,23 +195,29 @@ GO
 CREATE TABLE ChiTietPhieuNhap (
     maPhieuNhapThuoc VARCHAR(50),
     maLo VARCHAR(50),
+	maThuoc VARCHAR(50),
 	soLuong INT,
 	donGia FLOAT,
-	isActive bit DEFAULT 1, -- Đã đổi từ 'show'
-    PRIMARY KEY (maPhieuNhapThuoc, maLo),
+	isActive bit DEFAULT 1,
+    PRIMARY KEY (maPhieuNhapThuoc, maLo,maThuoc),
     FOREIGN KEY (maPhieuNhapThuoc) REFERENCES PhieuNhapThuoc(maPhieuNhapThuoc),
+	FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo)
 );
 GO
 
 -- ===============================================
--- XÓA DỮ LIỆU CŨ
+-- XÓA DỮ LIỆU CŨ (Nếu có, để đảm bảo chạy lại thành công)
 -- ===============================================
 
 USE QuanLyNhaThuoc;
 GO
 
--- Xóa dữ liệu cũ nếu có (Vẫn cần thiết nếu chạy lại script)
+-- Tắt kiểm tra khóa ngoại để xóa dữ liệu dễ dàng
+EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"
+GO
+
+-- Xóa dữ liệu cũ
 DELETE FROM ChiTietPhieuNhap;
 DELETE FROM PhieuNhapThuoc;
 DELETE FROM ChiTietPhieuDat;
@@ -218,15 +230,19 @@ DELETE FROM TaiKhoan;
 DELETE FROM ChiTietLoThuoc;
 DELETE FROM Thuoc;
 DELETE FROM LoThuoc;
-DELETE FROM Thue;
 DELETE FROM KhuyenMai;
 DELETE FROM NhanVien;
+DELETE FROM ChucVu;
 DELETE FROM KhachHang;
 DELETE FROM NhaSanXuat;
 GO
 
+-- Bật lại kiểm tra khóa ngoại
+EXEC sp_MSforeachtable "ALTER TABLE ? CHECK CONSTRAINT all"
+GO
+
 -- ===============================================
--- CHÈN DỮ LIỆU CƠ BẢN
+-- CHÈN DỮ LIỆU MỚI (Đã cập nhật)
 -- ===============================================
 
 use QuanLyNhaThuoc
@@ -284,18 +300,26 @@ INSERT INTO KhachHang (maKH, tenKH, soDienThoai, diemTichLuy) VALUES
 ('KH035', N'Diệp Văn Xuân', '0945678904', 80);
 GO
 
--- Chèn dữ liệu vào bảng NhanVien
-INSERT INTO NhanVien (maNV, tenNV, chucVu, soDienThoai) VALUES
-('NV001', N'Trương Minh Hùng', N'Nhân viên quản lý', '0901111345'),
-('NV002', N'Nguyễn Thị Lan Anh', N'Nhân viên bán hàng', '0902222123'),
-('NV003', N'Phạm Văn Bình', N'Nhân viên quản lý', '0903333333'),
-('NV004', N'Lê Thị Cẩm Tú', N'Nhân viên bán hàng', '0904444678'),
-('NV005', N'Võ Đình Danh', N'Nhân viên quản lý', '0904555555'),
-('NV006', N'Hoàng Thị Hồng', N'Nhân viên bán hàng', '0905666666'),
-('NV007', N'Đặng Minh Khôi', N'Nhân viên quản lý', '0907777777'),
-('NV008', N'Bùi Thị Ngọc Mai', N'Nhân viên bán hàng', '0907888888'),
-('NV009', N'Trần Quốc Thái', N'Nhân viên quản lý', '0909999999'),
-('NV010', N'Ngô Phương Thảo', N'Nhân viên bán hàng', '0900012200');
+-- Chèn dữ liệu vào bảng ChucVu (Bảng mới)
+INSERT INTO ChucVu (maChucVu, tenChucVu) VALUES
+('QLY', N'Quản Lý'),
+('BHA', N'Nhân Viên Bán Hàng'),
+('KHO', N'Nhân Viên Kho'),
+('KTO', N'Kế Toán');
+GO
+
+-- Chèn dữ liệu vào bảng NhanVien (Đã thay đổi cột chucVu thành maChucVu)
+INSERT INTO NhanVien (maNV, tenNV, maChucVu, soDienThoai) VALUES
+('NV001', N'Trương Minh Hùng', 'QLY', '0901111345'),
+('NV002', N'Nguyễn Thị Lan Anh', 'BHA', '0902222123'),
+('NV003', N'Phạm Văn Bình', 'QLY', '0903333333'),
+('NV004', N'Lê Thị Cẩm Tú', 'BHA', '0904444678'),
+('NV005', N'Võ Đình Danh', 'QLY', '0904555555'),
+('NV006', N'Hoàng Thị Hồng', 'BHA', '0905666666'),
+('NV007', N'Đặng Minh Khôi', 'QLY', '0907777777'),
+('NV008', N'Bùi Thị Ngọc Mai', 'BHA', '0907888888'),
+('NV009', N'Trần Quốc Thái', 'QLY', '0909999999'),
+('NV010', N'Ngô Phương Thảo', 'BHA', '0900012200');
 GO
 
 -- Chèn dữ liệu vào bảng TaiKhoan
@@ -326,13 +350,6 @@ INSERT INTO KhuyenMai (maKM, mucGiamGia, ngayApDung, ngayKetThuc) VALUES
 ('KM010', 0.20, '2025-09-16', '2025-09-30');
 GO
 
--- Chèn dữ liệu vào bảng Thue
-INSERT INTO Thue (maThue, mucThue, ngayApDung, ngayKetThuc) VALUES
-('THUE01', 0.05, '2025-01-01', '2025-12-31'),
-('THUE02', 0.08, '2025-01-01', '2025-12-31'),
-('THUE03', 0.10, '2025-01-01', '2025-12-31');
-GO
-
 -- Chèn dữ liệu vào bảng LoThuoc
 INSERT INTO LoThuoc (maLo, maNSX) VALUES
 ('LO001', 'NSX001'),
@@ -359,438 +376,449 @@ INSERT INTO LoThuoc (maLo, maNSX) VALUES
 ('LO022', 'NSX002'),
 ('LO023', 'NSX003'),
 ('LO024', 'NSX004'),
-('LO025', 'NSX005');
+('LO025', 'NSX005'),
+-- Lô nhập bổ sung
+('LO999', 'NSX001'); 
 GO
 
 -- ===============================================
--- CHÈN DỮ LIỆU BẢNG THUOC (ĐÃ CHUYỂN ĐỔI donVi)
+-- CHÈN DỮ LIỆU BẢNG THUOC
 -- ===============================================
--- Dựa trên việc chuyển đổi: Hộp/Lọ/Chai/Bình -> Viên/Chai/Gói/Viên/Tuýp
 INSERT INTO Thuoc (maThuoc, maLo, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX) VALUES
+-- Lưu ý: soLuongTon sẽ được đặt lại bằng Trigger sau khi ChiTietLoThuoc được chèn.
 -- Nhóm thuốc giảm đau, hạ sốt
-('T001', 'LO001', N'Paracetamol 500mg', 1000, 5000, N'Viên', 100, 'NSX001'), -- Hộp -> Viên
-('T002', 'LO001', N'Efferalgan 500mg', 800, 7500, N'Viên', 80, 'NSX001'),
-('T003', 'LO002', N'Ibuprofen 400mg', 600, 8000, N'Viên', 60, 'NSX002'), -- Hộp -> Viên
-('T004', 'LO002', N'Aspirin 100mg', 900, 6500, N'Viên', 90, 'NSX002'), -- Lọ -> Viên
-('T005', 'LO003', N'Mobic 7.5mg', 500, 12000, N'Viên', 50, 'NSX003'), -- Hộp -> Viên
-
+('T001', 'LO001', N'Paracetamol 500mg', 0, 5000, N'Viên', 100, 'NSX001'),
+('T002', 'LO001', N'Efferalgan 500mg', 0, 7500, N'Viên', 80, 'NSX001'),
+('T003', 'LO002', N'Ibuprofen 400mg', 0, 8000, N'Viên', 60, 'NSX002'),
+('T004', 'LO002', N'Aspirin 100mg', 0, 6500, N'Viên', 90, 'NSX002'),
+('T005', 'LO003', N'Mobic 7.5mg', 0, 12000, N'Viên', 50, 'NSX003'),
 -- Nhóm kháng sinh
-('T006', 'LO003', N'Amoxicillin 500mg', 700, 15000, N'Viên', 70, 'NSX003'), -- Hộp -> Viên
-('T007', 'LO004', N'Augmentin 625mg', 400, 25000, N'Viên', 40, 'NSX004'),
-('T008', 'LO004', N'Cefuroxime 500mg', 350, 22000, N'Viên', 35, 'NSX004'), -- Hộp -> Viên
-('T009', 'LO005', N'Azithromycin 250mg', 450, 18000, N'Viên', 45, 'NSX005'), -- Lọ -> Viên
-('T010', 'LO005', N'Ciprofloxacin 500mg', 550, 16000, N'Viên', 55, 'NSX005'), -- Hộp -> Viên
-
+('T006', 'LO003', N'Amoxicillin 500mg', 0, 15000, N'Viên', 70, 'NSX003'),
+('T007', 'LO004', N'Augmentin 625mg', 0, 25000, N'Viên', 40, 'NSX004'),
+('T008', 'LO004', N'Cefuroxime 500mg', 0, 22000, N'Viên', 35, 'NSX004'),
+('T009', 'LO005', N'Azithromycin 250mg', 0, 18000, N'Viên', 45, 'NSX005'),
+('T010', 'LO005', N'Ciprofloxacin 500mg', 0, 16000, N'Viên', 55, 'NSX005'),
 -- Nhóm thuốc đau dạ dày
-('T011', 'LO006', N'Omeprazole 20mg', 600, 14000, N'Viên', 60, 'NSX006'),
-('T012', 'LO006', N'Nexium 40mg', 400, 32000, N'Viên', 40, 'NSX006'), -- Hộp -> Viên
-('T013', 'LO007', N'Pantoprazole 40mg', 450, 28000, N'Viên', 45, 'NSX007'), -- Lọ -> Viên
-('T014', 'LO007', N'Maalox', 800, 8500, N'Chai', 80, 'NSX007'),
-('T015', 'LO008', N'Phosphalugel', 700, 9500, N'Gói', 70, 'NSX008'),
-
+('T011', 'LO006', N'Omeprazole 20mg', 0, 14000, N'Viên', 60, 'NSX006'),
+('T012', 'LO006', N'Nexium 40mg', 0, 32000, N'Viên', 40, 'NSX006'),
+('T013', 'LO007', N'Pantoprazole 40mg', 0, 28000, N'Viên', 45, 'NSX007'),
+('T014', 'LO007', N'Maalox', 0, 8500, N'Chai', 80, 'NSX007'),
+('T015', 'LO008', N'Phosphalugel', 0, 9500, N'Gói', 70, 'NSX008'),
 -- Nhóm thuốc trị tiêu chảy
-('T016', 'LO008', N'Smecta', 900, 7000, N'Gói', 90, 'NSX008'),
-('T017', 'LO009', N'Imodium 2mg', 600, 12500, N'Viên', 60, 'NSX009'),
-('T018', 'LO009', N'Bioflora', 500, 11000, N'Gói', 50, 'NSX009'), -- Hộp -> Gói
-('T019', 'LO010', N'Lacteol Fort', 700, 9000, N'Gói', 70, 'NSX010'), -- Hộp -> Gói
-('T020', 'LO010', N'Enterogermina', 650, 10500, N'Ống', 65, 'NSX010'), -- Hộp -> Ống
-
+('T016', 'LO008', N'Smecta', 0, 7000, N'Gói', 90, 'NSX008'),
+('T017', 'LO009', N'Imodium 2mg', 0, 12500, N'Viên', 60, 'NSX009'),
+('T018', 'LO009', N'Bioflora', 0, 11000, N'Gói', 50, 'NSX009'),
+('T019', 'LO010', N'Lacteol Fort', 0, 9000, N'Gói', 70, 'NSX010'),
+('T020', 'LO010', N'Enterogermina', 0, 10500, N'Ống', 65, 'NSX010'),
 -- Nhóm vitamin và khoáng chất
-('T021', 'LO011', N'Vitamin C 500mg', 1200, 8000, N'Viên', 120, 'NSX001'), -- Hộp -> Viên
-('T022', 'LO011', N'Vitamin E 400UI', 950, 12000, N'Viên', 95, 'NSX001'), -- Lọ -> Viên
-('T023', 'LO012', N'Multivitamin', 800, 15000, N'Viên', 80, 'NSX002'), -- Hộp -> Viên
-('T024', 'LO012', N'Canxi D3', 1000, 13500, N'Viên', 100, 'NSX002'), -- Chai -> Viên
-('T025', 'LO013', N'Zinc 20mg', 750, 9500, N'Viên', 75, 'NSX003'),
-
+('T021', 'LO011', N'Vitamin C 500mg', 0, 8000, N'Viên', 120, 'NSX001'),
+('T022', 'LO011', N'Vitamin E 400UI', 0, 12000, N'Viên', 95, 'NSX001'),
+('T023', 'LO012', N'Multivitamin', 0, 15000, N'Viên', 80, 'NSX002'),
+('T024', 'LO012', N'Canxi D3', 0, 13500, N'Viên', 100, 'NSX002'),
+('T025', 'LO013', N'Zinc 20mg', 0, 9500, N'Viên', 75, 'NSX003'),
 -- Nhóm thuốc chống dị ứng
-('T026', 'LO013', N'Loratadine 10mg', 850, 7500, N'Viên', 85, 'NSX003'), -- Hộp -> Viên
-('T027', 'LO014', N'Cetirizine 10mg', 900, 8000, N'Viên', 90, 'NSX004'),
-('T028', 'LO014', N'Fexofenadine 60mg', 700, 12500, N'Viên', 70, 'NSX004'), -- Hộp -> Viên
-('T029', 'LO015', N'Claritine', 600, 14000, N'Viên', 60, 'NSX005'), -- Hộp -> Viên
-('T030', 'LO015', N'Telfast 180mg', 500, 18000, N'Viên', 50, 'NSX005'),
-
+('T026', 'LO013', N'Loratadine 10mg', 0, 7500, N'Viên', 85, 'NSX003'),
+('T027', 'LO014', N'Cetirizine 10mg', 0, 8000, N'Viên', 90, 'NSX004'),
+('T028', 'LO014', N'Fexofenadine 60mg', 0, 12500, N'Viên', 70, 'NSX004'),
+('T029', 'LO015', N'Claritine', 0, 14000, N'Viên', 60, 'NSX005'),
+('T030', 'LO015', N'Telfast 180mg', 0, 18000, N'Viên', 50, 'NSX005'),
 -- Nhóm thuốc huyết áp
-('T031', 'LO016', N'Amlodipine 5mg', 450, 8500, N'Viên', 45, 'NSX006'), -- Hộp -> Viên
-('T032', 'LO016', N'Amlodipine 10mg', 400, 10500, N'Viên', 40, 'NSX006'),
-('T033', 'LO017', N'Bisoprolol 2.5mg', 350, 12000, N'Viên', 35, 'NSX007'), -- Hộp -> Viên
-('T034', 'LO017', N'Enalapril 5mg', 380, 9500, N'Viên', 38, 'NSX007'),
-('T035', 'LO018', N'Losartan 50mg', 420, 11000, N'Viên', 42, 'NSX008'), -- Hộp -> Viên
-
+('T031', 'LO016', N'Amlodipine 5mg', 0, 8500, N'Viên', 45, 'NSX006'),
+('T032', 'LO016', N'Amlodipine 10mg', 0, 10500, N'Viên', 40, 'NSX006'),
+('T033', 'LO017', N'Bisoprolol 2.5mg', 0, 12000, N'Viên', 35, 'NSX007'),
+('T034', 'LO017', N'Enalapril 5mg', 0, 9500, N'Viên', 38, 'NSX007'),
+('T035', 'LO018', N'Losartan 50mg', 0, 11000, N'Viên', 42, 'NSX008'),
 -- Nhóm thuốc tiểu đường
-('T036', 'LO018', N'Metformin 500mg', 480, 7000, N'Viên', 48, 'NSX008'), -- Hộp -> Viên
-('T037', 'LO019', N'Metformin 850mg', 450, 8500, N'Viên', 45, 'NSX009'),
-('T038', 'LO019', N'Glibenclamide 5mg', 400, 6500, N'Viên', 40, 'NSX009'), -- Hộp -> Viên
-('T039', 'LO020', N'Acarbose 50mg', 350, 13000, N'Viên', 35, 'NSX010'),
-('T040', 'LO020', N'Januvia 100mg', 300, 28000, N'Viên', 30, 'NSX010'), -- Hộp -> Viên
-
+('T036', 'LO018', N'Metformin 500mg', 0, 7000, N'Viên', 48, 'NSX008'),
+('T037', 'LO019', N'Metformin 850mg', 0, 8500, N'Viên', 45, 'NSX009'),
+('T038', 'LO019', N'Glibenclamide 5mg', 0, 6500, N'Viên', 40, 'NSX009'),
+('T039', 'LO020', N'Acarbose 50mg', 0, 13000, N'Viên', 35, 'NSX010'),
+('T040', 'LO020', N'Januvia 100mg', 0, 28000, N'Viên', 30, 'NSX010'),
 -- Nhóm thuốc giảm mỡ máu
-('T041', 'LO021', N'Atorvastatin 10mg', 480, 15000, N'Viên', 48, 'NSX001'), -- Hộp -> Viên
-('T042', 'LO021', N'Atorvastatin 20mg', 450, 19000, N'Viên', 45, 'NSX001'),
-('T043', 'LO022', N'Rosuvastatin 10mg', 420, 22000, N'Viên', 42, 'NSX002'), -- Hộp -> Viên
-('T044', 'LO022', N'Simvastatin 20mg', 400, 14000, N'Viên', 40, 'NSX002'),
-('T045', 'LO023', N'Lipitor 10mg', 380, 26000, N'Viên', 38, 'NSX003'), -- Hộp -> Viên
-
+('T041', 'LO021', N'Atorvastatin 10mg', 0, 15000, N'Viên', 48, 'NSX001'),
+('T042', 'LO021', N'Atorvastatin 20mg', 0, 19000, N'Viên', 45, 'NSX001'),
+('T043', 'LO022', N'Rosuvastatin 10mg', 0, 22000, N'Viên', 42, 'NSX002'),
+('T044', 'LO022', N'Simvastatin 20mg', 0, 14000, N'Viên', 40, 'NSX002'),
+('T045', 'LO023', N'Lipitor 10mg', 0, 26000, N'Viên', 38, 'NSX003'),
 -- Nhóm thuốc chống viêm
-('T046', 'LO023', N'Meloxicam 7.5mg', 500, 11000, N'Viên', 50, 'NSX003'), -- Hộp -> Viên
-('T047', 'LO024', N'Diclofenac 50mg', 550, 8500, N'Viên', 55, 'NSX004'),
-('T048', 'LO024', N'Celecoxib 200mg', 450, 16000, N'Viên', 45, 'NSX004'), -- Hộp -> Viên
-('T049', 'LO025', N'Methylprednisolone 16mg', 400, 18000, N'Viên', 40, 'NSX005'),
-('T050', 'LO025', N'Prednisone 5mg', 500, 9500, N'Viên', 50, 'NSX005'), -- Hộp -> Viên
-
--- Các thuốc khác (đã chuyển đổi)
-('T051', 'LO001', N'Salbutamol 2mg', 600, 7500, N'Viên', 60, 'NSX001'),
-('T052', 'LO001', N'Ventolin inhaler', 350, 85000, N'Bình', 35, 'NSX001'), -- Chai -> Bình xịt
-('T053', 'LO002', N'Seretide 250mcg', 300, 145000, N'Bình', 30, 'NSX002'),
-('T054', 'LO002', N'Combivent', 320, 120000, N'Bình', 32, 'NSX002'), -- Chai -> Bình xịt
-('T055', 'LO003', N'Bromhexine 8mg', 700, 6500, N'Viên', 70, 'NSX003'),
-('T056', 'LO003', N'Ambroxol 30mg', 750, 7000, N'Viên', 75, 'NSX003'), -- Hộp -> Viên
-('T057', 'LO004', N'N-acetylcysteine 200mg', 600, 12000, N'Viên', 60, 'NSX004'),
-('T058', 'LO004', N'Bisolvon', 650, 9500, N'Chai', 65, 'NSX004'),
-('T059', 'LO005', N'Fluconazole 150mg', 400, 18000, N'Viên', 40, 'NSX005'),
-('T060', 'LO005', N'Ketoconazole 200mg', 450, 16000, N'Viên', 45, 'NSX005'), -- Hộp -> Viên
-('T061', 'LO006', N'Metronidazole 250mg', 800, 5500, N'Viên', 80, 'NSX006'),
-('T062', 'LO006', N'Albendazole 400mg', 600, 7500, N'Viên', 60, 'NSX006'),
-('T063', 'LO007', N'Mebendazole 500mg', 550, 8000, N'Viên', 55, 'NSX007'), -- Hộp -> Viên
-('T064', 'LO007', N'Domperidone 10mg', 650, 9500, N'Viên', 65, 'NSX007'),
-('T065', 'LO008', N'Metoclopramide 10mg', 700, 6000, N'Viên', 70, 'NSX008'), -- Hộp -> Viên
-('T066', 'LO008', N'Ondansetron 8mg', 500, 14000, N'Viên', 50, 'NSX008'),
-('T067', 'LO009', N'Dexamethasone 0.5mg', 450, 7500, N'Viên', 45, 'NSX009'), -- Hộp -> Viên
-('T068', 'LO009', N'Betamethasone 0.5mg', 400, 8500, N'Viên', 40, 'NSX009'),
-('T069', 'LO010', N'Hydrocortisone 10mg', 350, 9500, N'Tuýp', 35, 'NSX010'),
-('T070', 'LO010', N'Triamcinolone 4mg', 300, 12000, N'Viên', 30, 'NSX010'), -- Hộp -> Viên
-('T071', 'LO011', N'Furosemide 40mg', 450, 6500, N'Viên', 45, 'NSX001'),
-('T072', 'LO011', N'Spironolactone 25mg', 400, 9500, N'Viên', 40, 'NSX001'), -- Hộp -> Viên
-('T073', 'LO012', N'Indapamide 1.5mg', 350, 11000, N'Viên', 35, 'NSX002'),
-('T074', 'LO012', N'Hydrochlorothiazide 25mg', 400, 7500, N'Viên', 40, 'NSX002'), -- Hộp -> Viên
-('T075', 'LO013', N'Isosorbide dinitrate 10mg', 350, 10500, N'Viên', 35, 'NSX003'),
-('T076', 'LO013', N'Nitroglycerin 0.5mg', 300, 12500, N'Viên', 30, 'NSX003'), -- Hộp -> Viên
-('T077', 'LO014', N'Digoxin 0.25mg', 250, 8500, N'Viên', 25, 'NSX004'),
-('T078', 'LO014', N'Verapamil 40mg', 300, 11000, N'Viên', 30, 'NSX004'), -- Hộp -> Viên
-('T079', 'LO015', N'Diltiazem 60mg', 280, 12500, N'Viên', 28, 'NSX005'),
-('T080', 'LO015', N'Atenolol 50mg', 320, 9500, N'Viên', 32, 'NSX005'), -- Hộp -> Viên
-('T081', 'LO016', N'Propranolol 40mg', 350, 7500, N'Viên', 35, 'NSX006'),
-('T082', 'LO016', N'Carvedilol 6.25mg', 300, 13500, N'Viên', 30, 'NSX006'), -- Hộp -> Viên
-('T083', 'LO017', N'Tamsulosin 0.4mg', 250, 16000, N'Viên', 25, 'NSX007'),
-('T084', 'LO017', N'Sildenafil 50mg', 200, 25000, N'Viên', 20, 'NSX007'), -- Hộp -> Viên
-('T085', 'LO018', N'Tadalafil 10mg', 180, 28000, N'Viên', 18, 'NSX008'),
-('T086', 'LO018', N'Finasteride 5mg', 220, 18000, N'Viên', 22, 'NSX008'), -- Hộp -> Viên
-('T087', 'LO019', N'Ethinylestradiol 35mcg', 300, 12000, N'Viên', 30, 'NSX009'),
-('T088', 'LO019', N'Medroxyprogesterone 5mg', 280, 14000, N'Viên', 28, 'NSX009'), -- Hộp -> Viên
-('T089', 'LO020', N'Clomiphene citrate 50mg', 220, 22000, N'Viên', 22, 'NSX010'),
-('T090', 'LO020', N'Levothyroxine 50mcg', 350, 9500, N'Viên', 35, 'NSX010'), -- Hộp -> Viên
-('T091', 'LO021', N'Levothyroxine 100mcg', 320, 11000, N'Viên', 32, 'NSX001'),
-('T092', 'LO021', N'Methimazole 5mg', 280, 13500, N'Viên', 28, 'NSX001'), -- Hộp -> Viên
-('T093', 'LO022', N'Gliclazide 30mg', 350, 15000, N'Viên', 35, 'NSX002'),
-('T094', 'LO022', N'Pioglitazone 15mg', 300, 18000, N'Viên', 30, 'NSX002'), -- Hộp -> Viên
-('T095', 'LO023', N'Gabapentin 300mg', 250, 16000, N'Viên', 25, 'NSX003'),
-('T096', 'LO023', N'Pregabalin 75mg', 220, 22000, N'Viên', 22, 'NSX003'), -- Hộp -> Viên
-('T097', 'LO024', N'Alprazolam 0.5mg', 300, 8500, N'Viên', 30, 'NSX004'),
-('T098', 'LO024', N'Diazepam 5mg', 250, 7000, N'Viên', 25, 'NSX004'), -- Hộp -> Viên
-('T099', 'LO025', N'Fluoxetine 20mg', 280, 12500, N'Viên', 28, 'NSX005'),
-('T100', 'LO025', N'Sertraline 50mg', 260, 14000, N'Viên', 26, 'NSX005'), -- Hộp -> Viên
-('T101', 'LO001', N'Esomeprazole 20mg', 320, 16500, N'Viên', 32, 'NSX001'),
-('T102', 'LO002', N'Lansoprazole 30mg', 290, 15500, N'Viên', 29, 'NSX002'), -- Hộp -> Viên
-('T103', 'LO003', N'Rabeprazole 20mg', 270, 17500, N'Viên', 27, 'NSX003'),
-('T104', 'LO004', N'Famotidine 40mg', 310, 9500, N'Viên', 31, 'NSX004'), -- Hộp -> Viên
-('T105', 'LO005', N'Ranitidine 150mg', 350, 8500, N'Viên', 35, 'NSX005');
+('T046', 'LO023', N'Meloxicam 7.5mg', 0, 11000, N'Viên', 50, 'NSX003'),
+('T047', 'LO024', N'Diclofenac 50mg', 0, 8500, N'Viên', 55, 'NSX004'),
+('T048', 'LO024', N'Celecoxib 200mg', 0, 16000, N'Viên', 45, 'NSX004'),
+('T049', 'LO025', N'Methylprednisolone 16mg', 0, 18000, N'Viên', 40, 'NSX005'),
+('T050', 'LO025', N'Prednisone 5mg', 0, 9500, N'Viên', 50, 'NSX005'),
+-- Các thuốc khác
+('T051', 'LO001', N'Salbutamol 2mg', 0, 7500, N'Viên', 60, 'NSX001'),
+('T052', 'LO001', N'Ventolin inhaler', 0, 85000, N'Bình', 35, 'NSX001'),
+('T053', 'LO002', N'Seretide 250mcg', 0, 145000, N'Bình', 30, 'NSX002'),
+('T054', 'LO002', N'Combivent', 0, 120000, N'Bình', 32, 'NSX002'),
+('T055', 'LO003', N'Bromhexine 8mg', 0, 6500, N'Viên', 70, 'NSX003'),
+('T056', 'LO003', N'Ambroxol 30mg', 0, 7000, N'Viên', 75, 'NSX003'),
+('T057', 'LO004', N'N-acetylcysteine 200mg', 0, 12000, N'Viên', 60, 'NSX004'),
+('T058', 'LO004', N'Bisolvon', 0, 9500, N'Chai', 65, 'NSX004'),
+('T059', 'LO005', N'Fluconazole 150mg', 0, 18000, N'Viên', 40, 'NSX005'),
+('T060', 'LO005', N'Ketoconazole 200mg', 0, 16000, N'Viên', 45, 'NSX005'),
+('T061', 'LO006', N'Metronidazole 250mg', 0, 5500, N'Viên', 80, 'NSX006'),
+('T062', 'LO006', N'Albendazole 400mg', 0, 7500, N'Viên', 60, 'NSX006'),
+('T063', 'LO007', N'Mebendazole 500mg', 0, 8000, N'Viên', 55, 'NSX007'),
+('T064', 'LO007', N'Domperidone 10mg', 0, 9500, N'Viên', 65, 'NSX007'),
+('T065', 'LO008', N'Metoclopramide 10mg', 0, 6000, N'Viên', 70, 'NSX008'),
+('T066', 'LO008', N'Ondansetron 8mg', 0, 14000, N'Viên', 50, 'NSX008'),
+('T067', 'LO009', N'Dexamethasone 0.5mg', 0, 7500, N'Viên', 45, 'NSX009'),
+('T068', 'LO009', N'Betamethasone 0.5mg', 0, 8500, N'Viên', 40, 'NSX009'),
+('T069', 'LO010', N'Hydrocortisone 10mg', 0, 9500, N'Tuýp', 35, 'NSX010'),
+('T070', 'LO010', N'Triamcinolone 4mg', 0, 12000, N'Viên', 30, 'NSX010'),
+('T071', 'LO011', N'Furosemide 40mg', 0, 6500, N'Viên', 45, 'NSX001'),
+('T072', 'LO011', N'Spironolactone 25mg', 0, 9500, N'Viên', 40, 'NSX001'),
+('T073', 'LO012', N'Indapamide 1.5mg', 0, 11000, N'Viên', 35, 'NSX002'),
+('T074', 'LO012', N'Hydrochlorothiazide 25mg', 0, 7500, N'Viên', 40, 'NSX002'),
+('T075', 'LO013', N'Isosorbide dinitrate 10mg', 0, 10500, N'Viên', 35, 'NSX003'),
+('T076', 'LO013', N'Nitroglycerin 0.5mg', 0, 12500, N'Viên', 30, 'NSX003'),
+('T077', 'LO014', N'Digoxin 0.25mg', 0, 8500, N'Viên', 25, 'NSX004'),
+('T078', 'LO014', N'Verapamil 40mg', 0, 11000, N'Viên', 30, 'NSX004'),
+('T079', 'LO015', N'Diltiazem 60mg', 0, 12500, N'Viên', 28, 'NSX005'),
+('T080', 'LO015', N'Atenolol 50mg', 0, 9500, N'Viên', 32, 'NSX005'),
+('T081', 'LO016', N'Propranolol 40mg', 0, 7500, N'Viên', 35, 'NSX006'),
+('T082', 'LO016', N'Carvedilol 6.25mg', 0, 13500, N'Viên', 30, 'NSX006'),
+('T083', 'LO017', N'Tamsulosin 0.4mg', 0, 16000, N'Viên', 25, 'NSX007'),
+('T084', 'LO017', N'Sildenafil 50mg', 0, 25000, N'Viên', 20, 'NSX007'),
+('T085', 'LO018', N'Tadalafil 10mg', 0, 28000, N'Viên', 18, 'NSX008'),
+('T086', 'LO018', N'Finasteride 5mg', 0, 18000, N'Viên', 22, 'NSX008'),
+('T087', 'LO019', N'Ethinylestradiol 35mcg', 0, 12000, N'Viên', 30, 'NSX009'),
+('T088', 'LO019', N'Medroxyprogesterone 5mg', 0, 14000, N'Viên', 28, 'NSX009'),
+('T089', 'LO020', N'Clomiphene citrate 50mg', 0, 22000, N'Viên', 22, 'NSX010'),
+('T090', 'LO020', N'Levothyroxine 50mcg', 0, 9500, N'Viên', 35, 'NSX010'),
+('T091', 'LO021', N'Levothyroxine 100mcg', 0, 11000, N'Viên', 32, 'NSX001'),
+('T092', 'LO021', N'Methimazole 5mg', 0, 13500, N'Viên', 28, 'NSX001'),
+('T093', 'LO022', N'Gliclazide 30mg', 0, 15000, N'Viên', 35, 'NSX002'),
+('T094', 'LO022', N'Pioglitazone 15mg', 0, 18000, N'Viên', 30, 'NSX002'),
+('T095', 'LO023', N'Gabapentin 300mg', 0, 16000, N'Viên', 25, 'NSX003'),
+('T096', 'LO023', N'Pregabalin 75mg', 0, 22000, N'Viên', 22, 'NSX003'),
+('T097', 'LO024', N'Alprazolam 0.5mg', 0, 8500, N'Viên', 30, 'NSX004'),
+('T098', 'LO024', N'Diazepam 5mg', 0, 7000, N'Viên', 25, 'NSX004'),
+('T099', 'LO025', N'Fluoxetine 20mg', 0, 12500, N'Viên', 28, 'NSX005'),
+('T100', 'LO025', N'Sertraline 50mg', 0, 14000, N'Viên', 26, 'NSX005'),
+('T101', 'LO001', N'Esomeprazole 20mg', 0, 16500, N'Viên', 32, 'NSX001'),
+('T102', 'LO002', N'Lansoprazole 30mg', 0, 15500, N'Viên', 29, 'NSX002'),
+('T103', 'LO003', N'Rabeprazole 20mg', 0, 17500, N'Viên', 27, 'NSX003'),
+('T104', 'LO004', N'Famotidine 40mg', 0, 9500, N'Viên', 31, 'NSX004'),
+('T105', 'LO005', N'Ranitidine 150mg', 0, 8500, N'Viên', 35, 'NSX005');
 GO
 
 -- Chèn dữ liệu vào bảng ChiTietLoThuoc
-INSERT INTO ChiTietLoThuoc (maLo, maThuoc, ngaySanXuat, hanSuDung) VALUES
-('LO001', 'T001', '2025-01-10', '2027-01-10'),
-('LO001', 'T002', '2025-01-15', '2027-01-15'),
-('LO001', 'T051', '2025-01-20', '2027-01-20'),
-('LO001', 'T052', '2025-01-25', '2027-01-25'),
-('LO001', 'T101', '2025-02-01', '2027-02-01'),
-('LO002', 'T003', '2025-01-12', '2027-01-12'),
-('LO002', 'T004', '2025-01-17', '2027-01-17'),
-('LO002', 'T053', '2025-01-22', '2027-01-22'),
-('LO002', 'T054', '2025-01-27', '2027-01-27'),
-('LO002', 'T102', '2025-02-02', '2027-02-02'),
-('LO003', 'T005', '2025-01-05', '2027-01-05'),
-('LO003', 'T006', '2025-01-07', '2027-01-07'),
-('LO003', 'T055', '2025-01-09', '2027-01-09'),
-('LO003', 'T056', '2025-01-11', '2027-01-11'),
-('LO003', 'T103', '2025-01-13', '2027-01-13'),
+INSERT INTO ChiTietLoThuoc (maLo, maThuoc, ngaySanXuat, hanSuDung, soLuong, giaNhap)
+VALUES
+('LO001', 'T001', '2025-01-10', '2027-01-10', 100, 5000),
+('LO001', 'T002', '2025-01-15', '2027-01-15', 120, 4500),
+('LO001', 'T051', '2025-01-20', '2027-01-20', 80, 6000),
+('LO001', 'T052', '2025-01-25', '2027-01-25', 200, 5200),
+('LO001', 'T101', '2025-02-01', '2027-02-01', 150, 5500),
 
--- Tiếp tục với các lô và thuốc khác
-('LO004', 'T007', '2025-02-01', '2027-02-01'),
-('LO004', 'T008', '2025-02-03', '2027-02-03'),
-('LO005', 'T009', '2025-02-05', '2027-02-05'),
-('LO005', 'T010', '2025-02-07', '2027-02-07'),
-('LO006', 'T011', '2025-02-09', '2027-02-09'),
-('LO006', 'T012', '2025-02-11', '2027-02-11'),
-('LO007', 'T013', '2025-02-13', '2027-02-13'),
-('LO007', 'T014', '2025-02-15', '2027-02-15'),
-('LO008', 'T015', '2025-02-17', '2027-02-17'),
-('LO008', 'T016', '2025-02-19', '2027-02-19'),
-('LO009', 'T017', '2025-02-21', '2027-02-21'),
-('LO009', 'T018', '2025-02-23', '2027-02-23'),
-('LO010', 'T019', '2025-02-25', '2027-02-25'),
-('LO010', 'T020', '2025-02-27', '2027-02-27'),
+('LO002', 'T003', '2025-01-12', '2027-01-12', 90, 4700),
+('LO002', 'T004', '2025-01-17', '2027-01-17', 100, 4900),
+('LO002', 'T053', '2025-01-22', '2027-01-22', 110, 5100),
+('LO002', 'T054', '2025-01-27', '2027-01-27', 130, 5300),
+('LO002', 'T102', '2025-02-02', '2027-02-02', 70, 5000),
 
--- Thêm các chi tiết lô thuốc khác
-('LO011', 'T021', '2025-03-01', '2027-03-01'),
-('LO011', 'T022', '2025-03-03', '2027-03-03'),
-('LO012', 'T023', '2025-03-05', '2027-03-05'),
-('LO012', 'T024', '2025-03-07', '2027-03-07'),
-('LO013', 'T025', '2025-03-09', '2027-03-09'),
-('LO013', 'T026', '2025-03-11', '2027-03-11'),
-('LO014', 'T027', '2025-03-13', '2027-03-13'),
-('LO014', 'T028', '2025-03-15', '2027-03-15'),
-('LO015', 'T029', '2025-03-17', '2027-03-17'),
-('LO015', 'T030', '2025-03-19', '2027-03-19'),
-('LO016', 'T031', '2025-03-21', '2027-03-21'),
-('LO016', 'T032', '2025-03-23', '2027-03-23'),
-('LO017', 'T033', '2025-03-25', '2027-03-25'),
-('LO017', 'T034', '2025-03-27', '2027-03-27'),
-('LO018', 'T035', '2025-03-29', '2027-03-29'),
-('LO018', 'T036', '2025-03-31', '2027-03-31'),
-('LO019', 'T037', '2025-04-02', '2027-04-02'),
-('LO019', 'T038', '2025-04-04', '2027-04-04'),
-('LO020', 'T039', '2025-04-06', '2027-04-06'),
-('LO020', 'T040', '2025-04-08', '2027-04-08'),
-('LO021', 'T041', '2025-04-10', '2027-04-10'),
-('LO021', 'T042', '2025-04-12', '2027-04-12'),
-('LO022', 'T043', '2025-04-14', '2027-04-14'),
-('LO022', 'T044', '2025-04-16', '2027-04-16'),
-('LO023', 'T045', '2025-04-18', '2027-04-18'),
-('LO023', 'T046', '2025-04-20', '2027-04-20'),
-('LO024', 'T047', '2025-04-22', '2027-04-22'),
-('LO024', 'T048', '2025-04-24', '2027-04-24'),
-('LO025', 'T049', '2025-04-26', '2027-04-26'),
-('LO025', 'T050', '2025-04-28', '2027-04-28');
+('LO003', 'T005', '2025-01-05', '2027-01-05', 80, 4600),
+('LO003', 'T006', '2025-01-07', '2027-01-07', 120, 4800),
+('LO003', 'T055', '2025-01-09', '2027-01-09', 150, 5100),
+('LO003', 'T056', '2025-01-11', '2027-01-11', 130, 4900),
+('LO003', 'T103', '2025-01-13', '2027-01-13', 160, 5200),
+
+('LO004', 'T007', '2025-02-01', '2027-02-01', 100, 5000),
+('LO004', 'T008', '2025-02-03', '2027-02-03', 120, 4800),
+('LO005', 'T009', '2025-02-05', '2027-02-05', 150, 4700),
+('LO005', 'T010', '2025-02-07', '2027-02-07', 140, 4600),
+('LO006', 'T011', '2025-02-09', '2027-02-09', 130, 4900),
+('LO006', 'T012', '2025-02-11', '2027-02-11', 110, 5000),
+('LO007', 'T013', '2025-02-13', '2027-02-13', 100, 5200),
+('LO007', 'T014', '2025-02-15', '2027-02-15', 120, 5100),
+('LO008', 'T015', '2025-02-17', '2027-02-17', 150, 5300),
+('LO008', 'T016', '2025-02-19', '2027-02-19', 160, 5400),
+('LO009', 'T017', '2025-02-21', '2027-02-21', 140, 5500),
+('LO009', 'T018', '2025-02-23', '2027-02-23', 130, 5600),
+('LO010', 'T019', '2025-02-25', '2027-02-25', 110, 5800),
+('LO010', 'T020', '2025-02-27', '2027-02-27', 90, 6000),
+
+('LO011', 'T021', '2025-03-01', '2027-03-01', 120, 5000),
+('LO011', 'T022', '2025-03-05', '2027-03-05', 95, 5200),
+('LO012', 'T023', '2025-03-08', '2027-03-08', 80, 5400),
+('LO012', 'T024', '2025-03-12', '2027-03-12', 100, 5600),
+('LO013', 'T025', '2025-03-15', '2027-03-15', 75, 5800),
+('LO013', 'T026', '2025-03-18', '2027-03-18', 85, 6000),
+('LO014', 'T027', '2025-03-21', '2027-03-21', 90, 6200),
+('LO014', 'T028', '2025-03-24', '2027-03-24', 70, 6400),
+('LO015', 'T029', '2025-03-27', '2027-03-27', 60, 6600),
+('LO015', 'T030', '2025-03-30', '2027-03-30', 50, 6800),
+('LO016', 'T031', '2025-04-01', '2027-04-01', 45, 7000),
+('LO016', 'T032', '2025-04-04', '2027-04-04', 40, 7200),
+('LO017', 'T033', '2025-04-07', '2027-04-07', 35, 7400),
+('LO017', 'T034', '2025-04-10', '2027-04-10', 38, 7600),
+('LO018', 'T035', '2025-04-13', '2027-04-13', 42, 7800),
+('LO018', 'T036', '2025-04-16', '2027-04-16', 48, 8000),
+('LO019', 'T037', '2025-04-19', '2027-04-19', 45, 8200),
+('LO019', 'T038', '2025-04-22', '2027-04-22', 40, 8400),
+('LO020', 'T039', '2025-04-25', '2027-04-25', 35, 8600),
+('LO020', 'T040', '2025-04-28', '2027-04-28', 30, 8800),
+('LO021', 'T041', '2025-05-01', '2027-05-01', 48, 9000),
+('LO021', 'T042', '2025-05-04', '2027-05-04', 45, 9200),
+('LO022', 'T043', '2025-05-07', '2027-05-07', 42, 9400),
+('LO022', 'T044', '2025-05-10', '2027-05-10', 40, 9600),
+('LO023', 'T045', '2025-05-13', '2027-05-13', 38, 9800),
+('LO023', 'T046', '2025-05-16', '2027-05-16', 50, 10000),
+('LO024', 'T047', '2025-05-19', '2027-05-19', 55, 10200),
+('LO024', 'T048', '2025-05-22', '2027-05-22', 45, 10400),
+('LO025', 'T049', '2025-05-25', '2027-05-25', 40, 10600),
+('LO025', 'T050', '2025-05-28', '2027-05-28', 50, 10800),
+
+-- Dữ liệu bổ sung cho các thuốc khác (Đã loại bỏ các cặp (maLo, maThuoc) trùng lặp)
+-- ('LO001', 'T051', '2025-06-01', '2027-06-01', 60, 4000), -- [ĐÃ XÓA] Bị trùng với Lô001, T051 ở trên
+-- ('LO001', 'T052', '2025-06-05', '2027-06-05', 35, 75000), -- [ĐÃ XÓA] Bị trùng với Lô001, T052 ở trên
+-- ('LO002', 'T053', '2025-06-08', '2027-06-08', 30, 130000), -- [ĐÃ XÓA]
+-- ('LO002', 'T054', '2025-06-12', '2027-06-12', 32, 110000), -- [ĐÃ XÓA]
+-- ('LO003', 'T055', '2025-06-15', '2027-06-15', 70, 5000), -- [ĐÃ XÓA]
+-- ('LO003', 'T056', '2025-06-18', '2027-06-18', 75, 5500), -- [ĐÃ XÓA]
+('LO004', 'T057', '2025-06-21', '2027-06-21', 60, 9000),
+('LO004', 'T058', '2025-06-24', '2027-06-24', 65, 7500),
+('LO005', 'T059', '2025-06-27', '2027-06-27', 40, 15000),
+('LO005', 'T060', '2025-06-30', '2027-06-30', 45, 13000),
+('LO006', 'T061', '2025-07-01', '2027-07-01', 80, 4000),
+('LO006', 'T062', '2025-07-04', '2027-07-04', 60, 6000),
+('LO007', 'T063', '2025-07-07', '2027-07-07', 55, 6500),
+('LO007', 'T064', '2025-07-10', '2027-07-10', 65, 7000),
+('LO008', 'T065', '2025-07-13', '2027-07-13', 70, 4500),
+('LO008', 'T066', '2025-07-16', '2027-07-16', 50, 11000),
+('LO009', 'T067', '2025-07-19', '2027-07-19', 45, 5500),
+('LO009', 'T068', '2025-07-22', '2027-07-22', 40, 6500),
+('LO010', 'T069', '2025-07-25', '2027-07-25', 35, 7500),
+('LO010', 'T070', '2025-07-28', '2027-07-28', 30, 9000),
+('LO011', 'T071', '2025-08-01', '2027-08-01', 45, 5000),
+('LO011', 'T072', '2025-08-04', '2027-08-04', 40, 7500),
+('LO012', 'T073', '2025-08-07', '2027-08-07', 35, 8500),
+('LO012', 'T074', '2025-08-10', '2027-08-10', 40, 6000),
+('LO013', 'T075', '2025-08-13', '2027-08-13', 35, 9000),
+('LO013', 'T076', '2025-08-16', '2027-08-16', 30, 10500),
+('LO014', 'T077', '2025-08-19', '2027-08-19', 25, 6500),
+('LO014', 'T078', '2025-08-22', '2027-08-22', 30, 9000),
+('LO015', 'T079', '2025-08-25', '2027-08-25', 28, 10000),
+('LO015', 'T080', '2025-08-28', '2027-08-28', 32, 7500),
+('LO016', 'T081', '2025-09-01', '2027-09-01', 35, 6000),
+('LO016', 'T082', '2025-09-04', '2027-09-04', 30, 11000),
+('LO017', 'T083', '2025-09-07', '2027-09-07', 25, 12000),
+('LO017', 'T084', '2025-09-10', '2027-09-10', 20, 20000),
+('LO018', 'T085', '2025-09-13', '2027-09-13', 18, 22000),
+('LO018', 'T086', '2025-09-16', '2027-09-16', 22, 14000),
+('LO019', 'T087', '2025-09-19', '2027-09-19', 30, 9500),
+('LO019', 'T088', '2025-09-22', '2027-09-22', 28, 11000),
+('LO020', 'T089', '2025-09-25', '2027-09-25', 22, 18000),
+('LO020', 'T090', '2025-09-28', '2027-09-28', 35, 7500),
+('LO021', 'T091', '2025-10-01', '2027-10-01', 32, 9000),
+('LO021', 'T092', '2025-10-04', '2027-10-04', 28, 10500),
+('LO022', 'T093', '2025-10-07', '2027-10-07', 35, 12000),
+('LO022', 'T094', '2025-10-10', '2027-10-10', 30, 14000),
+('LO023', 'T095', '2025-10-13', '2027-10-13', 25, 13000),
+('LO023', 'T096', '2025-10-16', '2027-10-16', 22, 18000),
+('LO024', 'T097', '2025-10-19', '2027-10-19', 30, 6500),
+('LO024', 'T098', '2025-10-22', '2027-10-22', 25, 5000),
+('LO025', 'T099', '2025-10-25', '2027-10-25', 28, 10000),
+('LO025', 'T100', '2025-10-28', '2027-10-28', 26, 11500),
+-- ('LO001', 'T101', '2025-11-01', '2027-11-01', 32, 13500), -- [ĐÃ XÓA]
+-- ('LO002', 'T102', '2025-11-04', '2027-11-04', 29, 12500), -- [ĐÃ XÓA]
+-- ('LO003', 'T103', '2025-11-07', '2027-11-07', 27, 14500), -- [ĐÃ XÓA]
+('LO004', 'T104', '2025-11-10', '2027-11-10', 31, 7500), -- [ĐÃ XÓA] -- This one is not a duplicate, so I'm keeping it.
+('LO005', 'T105', '2025-11-13', '2027-11-13', 35, 6500), -- [ĐÃ XÓA] -- This one is not a duplicate, so I'm keeping it.
+
+-- DỮ LIỆU BỔ SUNG ĐỂ KIỂM TRA ĐỒNG BỘ TỒN KHO
+('LO999', 'T001', '2025-10-15', '2027-10-15', 2000, 4800), -- Thêm 2000 viên Paracetamol
+('LO999', 'T007', '2025-10-15', '2027-10-15', 500, 20000); 
 GO
 
--- Chèn dữ liệu vào bảng HoaDon
-INSERT INTO HoaDon (maHoaDon, ngayBan, ghiChu, maNV, maKH, maKM, maThue) VALUES
-('HD001', '2025-05-02', N'Khách hàng mua thuốc cho gia đình', 'NV004', 'KH001', 'KM001', 'THUE01'),
-('HD002', '2025-05-05', N'Khách hàng mua thuốc theo toa bác sĩ', 'NV009', 'KH005', 'KM001', 'THUE01'),
-('HD003', '2025-05-08', N'Khách hàng mua thuốc định kỳ hàng tháng', 'NV002', 'KH010', 'KM001', 'THUE01'),
-('HD004', '2025-05-12', N'Khách hàng mua thuốc cho người thân', 'NV004', 'KH015', 'KM001', 'THUE01'),
-('HD005', '2025-05-15', N'Khách hàng mua thuốc cho bệnh mãn tính', 'NV009', 'KH020', 'KM001', 'THUE02'),
-('HD006', '2025-05-18', N'Khách hàng mua thuốc theo đơn', 'NV003', 'KH025', 'KM006', 'THUE01'),
-('HD007', '2025-05-22', N'Khách hàng mua thuốc không theo đơn', 'NV005', 'KH030', 'KM006', 'THUE01'),
-('HD008', '2025-05-25', N'Khách hàng mua vitamin tăng sức đề kháng', 'NV002', 'KH002', 'KM006', 'THUE01'),
-('HD009', '2025-05-28', N'Khách hàng mua thuốc chữa cảm cúm', 'NV010', 'KH007', 'KM006', 'THUE01'),
-('HD010', '2025-05-31', N'Khách hàng mua thuốc kháng sinh', 'NV008', 'KH012', 'KM006', 'THUE02'),
+-- Chèn dữ liệu vào bảng HoaDon (Đã chỉnh sửa để dùng giaTriThue)
+INSERT INTO HoaDon (maHoaDon, ngayBan, ghiChu, maNV, maKH, maKM, giaTriThue, tenLoaiThue) VALUES
+('HD001', '2025-05-02', N'Khách hàng mua thuốc cho gia đình', 'NV004', 'KH001', 'KM001', 0.05, N'VAT 5%'),
+('HD002', '2025-05-05', N'Khách hàng mua thuốc theo toa bác sĩ', 'NV009', 'KH005', 'KM001', 0.05, N'VAT 5%'),
+('HD003', '2025-05-08', N'Khách hàng mua thuốc định kỳ hàng tháng', 'NV002', 'KH010', 'KM001', 0.05, N'VAT 5%'),
+('HD004', '2025-05-12', N'Khách hàng mua thuốc cho người thân', 'NV004', 'KH015', 'KM001', 0.05, N'VAT 5%'),
+('HD005', '2025-05-15', N'Khách hàng mua thuốc cho bệnh mãn tính', 'NV009', 'KH020', 'KM001', 0.08, N'VAT 8%'),
+('HD006', '2025-05-18', N'Khách hàng mua thuốc theo đơn', 'NV003', 'KH025', 'KM006', 0.05, N'VAT 5%'),
+('HD007', '2025-05-22', N'Khách hàng mua thuốc không theo đơn', 'NV005', 'KH030', 'KM006', 0.05, N'VAT 5%'),
+('HD008', '2025-05-25', N'Khách hàng mua vitamin tăng sức đề kháng', 'NV002', 'KH002', 'KM006', 0.05, N'VAT 5%'),
+('HD009', '2025-05-28', N'Khách hàng mua thuốc chữa cảm cúm', 'NV010', 'KH007', 'KM006', 0.05, N'VAT 5%'),
+('HD010', '2025-05-31', N'Khách hàng mua thuốc kháng sinh', 'NV008', 'KH012', 'KM006', 0.08, N'VAT 8%'),
 
-('HD011', '2025-06-03', N'Khách hàng mua thuốc hạ sốt', 'NV005', 'KH017', 'KM002', 'THUE01'),
-('HD012', '2025-06-06', N'Khách hàng mua thuốc điều trị dị ứng', 'NV003', 'KH022', 'KM002', 'THUE01'),
-('HD013', '2025-06-09', N'Khách hàng mua thuốc đau dạ dày', 'NV010', 'KH027', 'KM002', 'THUE01'),
-('HD014', '2025-06-12', N'Khách hàng mua thuốc trị táo bón', 'NV002', 'KH032', 'KM002', 'THUE01'),
-('HD015', '2025-06-15', N'Khách hàng mua thuốc theo toa bác sĩ', 'NV004', 'KH003', 'KM002', 'THUE02'),
-('HD016', '2025-06-18', N'Khách hàng mua thuốc chữa viêm họng', 'NV009', 'KH008', 'KM007', 'THUE01'),
-('HD017', '2025-06-21', N'Khách hàng mua thuốc giảm đau', 'NV008', 'KH013', 'KM007', 'THUE01'),
-('HD018', '2025-06-24', N'Khách hàng mua thuốc hạ huyết áp', 'NV005', 'KH018', 'KM007', 'THUE01'),
-('HD019', '2025-06-27', N'Khách hàng mua thuốc tiểu đường', 'NV003', 'KH023', 'KM007', 'THUE01'),
-('HD020', '2025-06-30', N'Khách hàng mua thuốc giảm mỡ máu', 'NV010', 'KH028', 'KM007', 'THUE02'),
+('HD011', '2025-06-03', N'Khách hàng mua thuốc hạ sốt', 'NV005', 'KH017', 'KM002', 0.05, N'VAT 5%'),
+('HD012', '2025-06-06', N'Khách hàng mua thuốc điều trị dị ứng', 'NV003', 'KH022', 'KM002', 0.05, N'VAT 5%'),
+('HD013', '2025-06-09', N'Khách hàng mua thuốc đau dạ dày', 'NV010', 'KH027', 'KM002', 0.05, N'VAT 5%'),
+('HD014', '2025-06-12', N'Khách hàng mua thuốc trị táo bón', 'NV002', 'KH032', 'KM002', 0.05, N'VAT 5%'),
+('HD015', '2025-06-15', N'Khách hàng mua thuốc theo toa bác sĩ', 'NV004', 'KH003', 'KM002', 0.08, N'VAT 8%'),
+('HD016', '2025-06-18', N'Khách hàng mua thuốc chữa viêm họng', 'NV009', 'KH008', 'KM007', 0.05, N'VAT 5%'),
+('HD017', '2025-06-21', N'Khách hàng mua thuốc giảm đau', 'NV008', 'KH013', 'KM007', 0.05, N'VAT 5%'),
+('HD018', '2025-06-24', N'Khách hàng mua thuốc hạ huyết áp', 'NV005', 'KH018', 'KM007', 0.05, N'VAT 5%'),
+('HD019', '2025-06-27', N'Khách hàng mua thuốc tiểu đường', 'NV003', 'KH023', 'KM007', 0.05, N'VAT 5%'),
+('HD020', '2025-06-30', N'Khách hàng mua thuốc giảm mỡ máu', 'NV010', 'KH028', 'KM007', 0.08, N'VAT 8%'),
 
-('HD021', '2025-07-03', N'Khách hàng mua thuốc chống dị ứng', 'NV002', 'KH033', 'KM003', 'THUE01'),
-('HD022', '2025-07-06', N'Khách hàng mua thuốc giảm đau khớp', 'NV004', 'KH004', 'KM003', 'THUE01'),
-('HD023', '2025-07-09', N'Khách hàng mua thuốc trị viêm xoang', 'NV009', 'KH009', 'KM003', 'THUE01'),
-('HD024', '2025-07-12', N'Khách hàng mua thuốc chữa đau răng', 'NV008', 'KH014', 'KM003', 'THUE01'),
-('HD025', '2025-07-15', N'Khách hàng mua vitamin tổng hợp', 'NV005', 'KH019', 'KM003', 'THUE02'),
-('HD026', '2025-07-18', N'Khách hàng mua thuốc ho', 'NV003', 'KH024', 'KM008', 'THUE01'),
-('HD027', '2025-07-21', N'Khách hàng mua thuốc mũi', 'NV010', 'KH029', 'KM008', 'THUE01'),
-('HD028', '2025-07-24', N'Khách hàng mua thuốc theo đơn', 'NV002', 'KH034', 'KM008', 'THUE01'),
-('HD029', '2025-07-27', N'Khách hàng mua thuốc trị nấm', 'NV004', 'KH001', 'KM008', 'THUE01'),
-('HD030', '2025-07-30', N'Khách hàng mua thuốc kháng sinh', 'NV009', 'KH005', 'KM008', 'THUE02'),
+('HD021', '2025-07-03', N'Khách hàng mua thuốc chống dị ứng', 'NV002', 'KH033', 'KM003', 0.05, N'VAT 5%'),
+('HD022', '2025-07-06', N'Khách hàng mua thuốc giảm đau khớp', 'NV004', 'KH004', 'KM003', 0.05, N'VAT 5%'),
+('HD023', '2025-07-09', N'Khách hàng mua thuốc trị viêm xoang', 'NV009', 'KH009', 'KM003', 0.05, N'VAT 5%'),
+('HD024', '2025-07-12', N'Khách hàng mua thuốc chữa đau răng', 'NV008', 'KH014', 'KM003', 0.05, N'VAT 5%'),
+('HD025', '2025-07-15', N'Khách hàng mua vitamin tổng hợp', 'NV005', 'KH019', 'KM003', 0.08, N'VAT 8%'),
+('HD026', '2025-07-18', N'Khách hàng mua thuốc ho', 'NV003', 'KH024', 'KM008', 0.05, N'VAT 5%'),
+('HD027', '2025-07-21', N'Khách hàng mua thuốc mũi', 'NV010', 'KH029', 'KM008', 0.05, N'VAT 5%'),
+('HD028', '2025-07-24', N'Khách hàng mua thuốc theo đơn', 'NV002', 'KH034', 'KM008', 0.05, N'VAT 5%'),
+('HD029', '2025-07-27', N'Khách hàng mua thuốc trị nấm', 'NV004', 'KH001', 'KM008', 0.05, N'VAT 5%'),
+('HD030', '2025-07-30', N'Khách hàng mua thuốc kháng sinh', 'NV009', 'KH005', 'KM008', 0.08, N'VAT 8%'),
 
-('HD031', '2025-08-02', N'Khách hàng mua thuốc chữa đau bụng', 'NV008', 'KH010', 'KM004', 'THUE01'),
-('HD032', '2025-08-05', N'Khách hàng mua thuốc trị tiêu chảy', 'NV005', 'KH015', 'KM004', 'THUE01'),
-('HD033', '2025-08-08', N'Khách hàng mua thuốc theo toa bác sĩ', 'NV003', 'KH020', 'KM004', 'THUE01'),
-('HD034', '2025-08-11', N'Khách hàng mua thuốc tim mạch', 'NV010', 'KH025', 'KM004', 'THUE01'),
-('HD035', '2025-08-14', N'Khách hàng mua thuốc mua định kỳ', 'NV002', 'KH030', 'KM004', 'THUE02'),
-('HD036', '2025-08-17', N'Khách hàng mua thuốc giảm mỡ máu', 'NV004', 'KH002', 'KM009', 'THUE01'),
-('HD037', '2025-08-20', N'Khách hàng mua thuốc kháng viêm', 'NV009', 'KH007', 'KM009', 'THUE01'),
-('HD038', '2025-08-23', N'Khách hàng mua thuốc đường tiêu hóa', 'NV008', 'KH012', 'KM009', 'THUE01'),
-('HD039', '2025-08-26', N'Khách hàng mua thuốc kháng histamine', 'NV005', 'KH017', 'KM009', 'THUE01'),
-('HD040', '2025-08-29', N'Khách hàng mua thuốc chống buồn nôn', 'NV003', 'KH022', 'KM009', 'THUE02'),
+('HD031', '2025-08-02', N'Khách hàng mua thuốc chữa đau bụng', 'NV008', 'KH010', 'KM004', 0.05, N'VAT 5%'),
+('HD032', '2025-08-05', N'Khách hàng mua thuốc trị tiêu chảy', 'NV005', 'KH015', 'KM004', 0.05, N'VAT 5%'),
+('HD033', '2025-08-08', N'Khách hàng mua thuốc theo toa bác sĩ', 'NV003', 'KH020', 'KM004', 0.05, N'VAT 5%'),
+('HD034', '2025-08-11', N'Khách hàng mua thuốc tim mạch', 'NV010', 'KH025', 'KM004', 0.05, N'VAT 5%'),
+('HD035', '2025-08-14', N'Khách hàng mua thuốc mua định kỳ', 'NV002', 'KH030', 'KM004', 0.08, N'VAT 8%'),
+('HD036', '2025-08-17', N'Khách hàng mua thuốc giảm mỡ máu', 'NV004', 'KH002', 'KM009', 0.05, N'VAT 5%'),
+('HD037', '2025-08-20', N'Khách hàng mua thuốc kháng viêm', 'NV009', 'KH007', 'KM009', 0.05, N'VAT 5%'),
+('HD038', '2025-08-23', N'Khách hàng mua thuốc đường tiêu hóa', 'NV008', 'KH012', 'KM009', 0.05, N'VAT 5%'),
+('HD039', '2025-08-26', N'Khách hàng mua thuốc kháng histamine', 'NV005', 'KH017', 'KM009', 0.05, N'VAT 5%'),
+('HD040', '2025-08-29', N'Khách hàng mua thuốc chống buồn nôn', 'NV003', 'KH022', 'KM009', 0.08, N'VAT 8%'),
 
-('HD041', '2025-09-01', N'Khách hàng mua thuốc giảm đau', 'NV010', 'KH027', 'KM005', 'THUE01'),
-('HD042', '2025-09-04', N'Khách hàng mua thuốc kháng sinh', 'NV002', 'KH032', 'KM005', 'THUE01'),
-('HD043', '2025-09-07', N'Khách hàng mua thuốc chữa dị ứng', 'NV004', 'KH003', 'KM005', 'THUE01'),
-('HD044', '2025-09-10', N'Khách hàng mua thuốc hạ sốt', 'NV009', 'KH008', 'KM005', 'THUE01'),
-('HD045', '2025-09-13', N'Khách hàng mua thuốc theo đơn', 'NV008', 'KH013', 'KM005', 'THUE02'),
-('HD046', '2025-09-16', N'Khách hàng mua thuốc trị đau đầu', 'NV005', 'KH018', 'KM010', 'THUE01'),
-('HD047', '2025-09-19', N'Khách hàng mua thuốc mua định kỳ', 'NV003', 'KH023', 'KM010', 'THUE01'),
-('HD048', '2025-09-22', N'Khách hàng mua thuốc điều trị đau khớp', 'NV010', 'KH028', 'KM010', 'THUE01'),
-('HD049', '2025-09-25', N'Khách hàng mua thuốc giảm mỡ máu', 'NV002', 'KH033', 'KM010', 'THUE01'),
-('HD050', '2025-09-28', N'Khách hàng mua thuốc theo toa bác sĩ', 'NV004', 'KH004', 'KM010', 'THUE02');
+('HD041', '2025-09-01', N'Khách hàng mua thuốc giảm đau', 'NV010', 'KH027', 'KM005', 0.05, N'VAT 5%'),
+('HD042', '2025-09-04', N'Khách hàng mua thuốc kháng sinh', 'NV002', 'KH032', 'KM005', 0.05, N'VAT 5%'),
+('HD043', '2025-09-07', N'Khách hàng mua thuốc chữa dị ứng', 'NV004', 'KH003', 'KM005', 0.05, N'VAT 5%'),
+('HD044', '2025-09-10', N'Khách hàng mua thuốc hạ sốt', 'NV009', 'KH008', 'KM005', 0.05, N'VAT 5%'),
+('HD045', '2025-09-13', N'Khách hàng mua thuốc theo đơn', 'NV008', 'KH013', 'KM005', 0.08, N'VAT 8%'),
+('HD046', '2025-09-16', N'Khách hàng mua thuốc trị đau đầu', 'NV005', 'KH018', 'KM010', 0.05, N'VAT 5%'),
+('HD047', '2025-09-19', N'Khách hàng mua thuốc mua định kỳ', 'NV003', 'KH023', 'KM010', 0.05, N'VAT 5%'),
+('HD048', '2025-09-22', N'Khách hàng mua thuốc điều trị đau khớp', 'NV010', 'KH028', 'KM010', 0.05, N'VAT 5%'),
+('HD049', '2025-09-25', N'Khách hàng mua thuốc giảm mỡ máu', 'NV002', 'KH033', 'KM010', 0.05, N'VAT 5%'),
+('HD050', '2025-09-28', N'Khách hàng mua thuốc theo toa bác sĩ', 'NV004', 'KH004', 'KM010', 0.08, N'VAT 8%');
 GO
 
--- Chèn dữ liệu vào bảng ChiTietHoaDon
+-- Chèn dữ liệu vào bảng ChiTietHoaDon (Giữ nguyên)
 INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia) VALUES
 -- Hóa đơn 1
 ('HD001', 'T001', 2, 5000),
 ('HD001', 'T021', 1, 8000),
 ('HD001', 'T026', 1, 7500),
-
 -- Hóa đơn 2
 ('HD002', 'T006', 1, 15000),
 ('HD002', 'T011', 2, 14000),
-
 -- Hóa đơn 3
 ('HD003', 'T031', 2, 8500),
 ('HD003', 'T036', 1, 7000),
 ('HD003', 'T041', 1, 15000),
-
 -- Hóa đơn 4
 ('HD004', 'T002', 1, 7500),
 ('HD004', 'T014', 1, 8500),
 ('HD004', 'T022', 2, 12000),
-
 -- Hóa đơn 5
 ('HD005', 'T007', 1, 25000),
 ('HD005', 'T029', 2, 14000),
-
 -- Thêm các chi tiết hóa đơn khác
 ('HD006', 'T003', 2, 8000),
 ('HD006', 'T016', 3, 7000),
-
 ('HD007', 'T009', 1, 18000),
 ('HD007', 'T020', 1, 10500),
 ('HD007', 'T023', 1, 15000),
-
 ('HD008', 'T021', 3, 8000),
 ('HD008', 'T022', 2, 12000),
 ('HD008', 'T024', 1, 13500),
-
 ('HD009', 'T001', 2, 5000),
 ('HD009', 'T006', 1, 15000),
 ('HD009', 'T056', 1, 7000),
-
 ('HD010', 'T007', 1, 25000),
 ('HD010', 'T008', 1, 22000),
 ('HD010', 'T010', 1, 16000),
-
 ('HD011', 'T001', 2, 5000),
 ('HD011', 'T002', 1, 7500),
 ('HD011', 'T004', 1, 6500),
-
 ('HD012', 'T026', 1, 7500),
 ('HD012', 'T027', 1, 8000),
 ('HD012', 'T030', 1, 18000),
-
 ('HD013', 'T011', 1, 14000),
 ('HD013', 'T012', 1, 32000),
 ('HD013', 'T014', 1, 8500),
-
 ('HD014', 'T016', 2, 7000),
 ('HD014', 'T018', 1, 11000),
 ('HD014', 'T020', 1, 10500),
-
 ('HD015', 'T031', 2, 8500),
 ('HD015', 'T033', 1, 12000),
 ('HD015', 'T035', 1, 11000),
-
 ('HD016', 'T006', 1, 15000),
 ('HD016', 'T056', 1, 7000),
 ('HD016', 'T055', 2, 6500),
-
 ('HD017', 'T046', 1, 11000),
 ('HD017', 'T047', 2, 8500),
 ('HD017', 'T003', 1, 8000),
-
 ('HD018', 'T031', 2, 8500),
 ('HD018', 'T032', 1, 10500),
 ('HD018', 'T034', 1, 9500),
-
 ('HD019', 'T036', 2, 7000),
 ('HD019', 'T037', 1, 8500),
 ('HD019', 'T040', 1, 28000),
-
 ('HD020', 'T041', 1, 15000),
 ('HD020', 'T043', 1, 22000),
 ('HD020', 'T045', 1, 26000),
-
 ('HD021', 'T026', 1, 7500),
 ('HD021', 'T028', 1, 12500),
 ('HD021', 'T029', 1, 14000),
-
 ('HD022', 'T046', 2, 11000),
 ('HD022', 'T048', 1, 16000),
 ('HD022', 'T050', 1, 9500),
-
 ('HD023', 'T055', 2, 6500),
 ('HD023', 'T056', 1, 7000),
 ('HD023', 'T057', 1, 12000),
-
 ('HD024', 'T001', 1, 5000),
 ('HD024', 'T047', 1, 8500),
 ('HD024', 'T049', 1, 18000),
-
 ('HD025', 'T021', 2, 8000),
 ('HD025', 'T023', 1, 15000),
 ('HD025', 'T025', 1, 9500),
-
 ('HD026', 'T055', 2, 6500),
 ('HD026', 'T056', 1, 7000),
 ('HD026', 'T058', 1, 9500),
-
 ('HD027', 'T057', 1, 12000),
 ('HD027', 'T058', 1, 9500),
 ('HD027', 'T055', 1, 6500),
-
 ('HD028', 'T031', 1, 8500),
 ('HD028', 'T036', 1, 7000),
 ('HD028', 'T041', 1, 15000),
 ('HD028', 'T046', 1, 11000),
-
 ('HD029', 'T059', 1, 18000),
 ('HD029', 'T060', 1, 16000),
-
 ('HD030', 'T006', 1, 15000),
 ('HD030', 'T008', 1, 22000),
 ('HD030', 'T009', 1, 18000),
-
 ('HD031', 'T011', 2, 14000),
 ('HD031', 'T013', 1, 28000),
 ('HD031', 'T014', 1, 8500),
-
 ('HD032', 'T016', 2, 7000),
 ('HD032', 'T017', 1, 12500),
 ('HD032', 'T019', 1, 9000),
-
 ('HD033', 'T036', 1, 7000),
 ('HD033', 'T039', 1, 13000),
 ('HD033', 'T042', 1, 19000),
-
 ('HD034', 'T031', 1, 8500),
 ('HD034', 'T033', 1, 12000),
 ('HD034', 'T076', 1, 12500),
 ('HD034', 'T078', 1, 11000),
-
 ('HD035', 'T041', 1, 15000),
 ('HD035', 'T044', 1, 14000),
 ('HD035', 'T036', 1, 7000),
 ('HD035', 'T038', 1, 6500),
-
 ('HD036', 'T043', 1, 22000),
 ('HD036', 'T044', 1, 14000),
 ('HD036', 'T045', 1, 26000),
-
 ('HD037', 'T046', 2, 11000),
 ('HD037', 'T047', 1, 8500),
 ('HD037', 'T048', 1, 16000),
-
 ('HD038', 'T011', 1, 14000),
 ('HD038', 'T016', 1, 7000),
 ('HD038', 'T020', 1, 10500),
-
 ('HD039', 'T026', 2, 7500),
 ('HD039', 'T027', 1, 8000),
 ('HD039', 'T029', 1, 14000),
-
 ('HD040', 'T064', 1, 9500),
 ('HD040', 'T065', 1, 6000),
-('HD040', 'T066', 1, 14000);
-
-GO
+('HD040', 'T066', 1, 14000),
 -- Thêm chi tiết hóa đơn cho hóa đơn HD041 - HD050
-INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia) VALUES
--- HD041 (8 sản phẩm)
 ('HD041', 'T023', 2, 35000),
 ('HD041', 'T045', 1, 72500),
 ('HD041', 'T012', 3, 12000),
@@ -799,16 +827,12 @@ INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia) VALUES
 ('HD041', 'T089', 1, 125000),
 ('HD041', 'T034', 1, 65000),
 ('HD041', 'T067', 2, 28000),
-
--- HD042 (6 sản phẩm)
 ('HD042', 'T015', 2, 42000),
 ('HD042', 'T032', 1, 85000),
 ('HD042', 'T058', 3, 18000),
 ('HD042', 'T091', 1, 135000),
 ('HD042', 'T007', 2, 26000),
 ('HD042', 'T063', 1, 75000),
-
--- HD043 (9 sản phẩm)
 ('HD043', 'T019', 1, 58000),
 ('HD043', 'T037', 2, 32000),
 ('HD043', 'T052', 1, 145000),
@@ -818,15 +842,11 @@ INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia) VALUES
 ('HD043', 'T073', 1, 105000),
 ('HD043', 'T095', 1, 78000),
 ('HD043', 'T005', 2, 22000),
-
--- HD044 (5 sản phẩm)
 ('HD044', 'T042', 1, 62000),
 ('HD044', 'T081', 2, 38000),
 ('HD044', 'T027', 1, 115000),
 ('HD044', 'T069', 3, 25000),
 ('HD044', 'T053', 1, 95000),
-
--- HD045 (7 sản phẩm)
 ('HD045', 'T011', 2, 32000),
 ('HD045', 'T038', 1, 85000),
 ('HD045', 'T074', 1, 118000),
@@ -834,8 +854,6 @@ INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia) VALUES
 ('HD045', 'T047', 1, 75000),
 ('HD045', 'T062', 2, 42000),
 ('HD045', 'T093', 1, 155000),
-
--- HD046 (10 sản phẩm)
 ('HD046', 'T003', 2, 18000),
 ('HD046', 'T024', 1, 65000),
 ('HD046', 'T041', 1, 95000),
@@ -846,16 +864,12 @@ INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia) VALUES
 ('HD046', 'T064', 1, 48000),
 ('HD046', 'T099', 2, 32000),
 ('HD046', 'T076', 1, 125000),
-
--- HD047 (6 sản phẩm)
 ('HD047', 'T008', 2, 25000),
 ('HD047', 'T031', 1, 78000),
 ('HD047', 'T059', 3, 19000),
 ('HD047', 'T086', 1, 95000),
 ('HD047', 'T046', 2, 45000),
 ('HD047', 'T071', 1, 88000),
-
--- HD048 (8 sản phẩm)
 ('HD048', 'T013', 1, 35000),
 ('HD048', 'T028', 2, 42000),
 ('HD048', 'T055', 1, 68000),
@@ -864,8 +878,6 @@ INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia) VALUES
 ('HD048', 'T039', 1, 75000),
 ('HD048', 'T072', 2, 58000),
 ('HD048', 'T097', 1, 135000),
-
--- HD049 (7 sản phẩm)
 ('HD049', 'T017', 2, 28000),
 ('HD049', 'T043', 1, 95000),
 ('HD049', 'T068', 1, 48000),
@@ -873,8 +885,6 @@ INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia) VALUES
 ('HD049', 'T025', 3, 22000),
 ('HD049', 'T051', 2, 65000),
 ('HD049', 'T087', 1, 118000),
-
--- HD050 (9 sản phẩm)
 ('HD050', 'T006', 2, 19000),
 ('HD050', 'T033', 1, 85000),
 ('HD050', 'T054', 1, 78000),
@@ -904,9 +914,6 @@ INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH) VALUES
 ('PD019', 'NV009', '2025-09-28', 'KH009'),
 ('PD020', 'NV010', '2025-09-29', 'KH016');
 GO
-
-
-
 
 -- Insert dữ liệu vào bảng ChiTietPhieuDat
 -- Phiếu đặt 1: Thuốc giảm đau và vitamin
@@ -1053,7 +1060,7 @@ INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
 
 GO
 
--- Insert dữ liệu vào bảng PhieuNhapThuoc
+-- Insert dữ liệu vào bảng PhieuNhapThuoc (Không thay đổi)
 INSERT INTO PhieuNhapThuoc (maPhieuNhapThuoc, maNV, ngayNhap) VALUES
 ('PNT001', 'NV006', '2025-08-01'),
 ('PNT002', 'NV003', '2025-08-05'),
@@ -1072,107 +1079,51 @@ INSERT INTO PhieuNhapThuoc (maPhieuNhapThuoc, maNV, ngayNhap) VALUES
 ('PNT015', 'NV001', '2025-09-26');
 GO
 
--- Insert dữ liệu vào bảng ChiTietPhieuNhap
--- Phiếu nhập 1: Nhập lô thuốc giảm đau và vitamin
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT001', 'LO001', 500, 3500),
-('PNT001', 'LO011', 600, 5500);
-GO
-
--- Phiếu nhập 2: Nhập lô kháng sinh
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT002', 'LO003', 300, 10000),
-('PNT002', 'LO004', 250, 17000),
-('PNT002', 'LO005', 200, 12000);
-GO
-
--- Phiếu nhập 3: Nhập lô thuốc dạ dày
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT003', 'LO006', 400, 9000),
-('PNT003', 'LO007', 300, 6000);
-GO
-
--- Phiếu nhập 4: Nhập lô thuốc tiêu chảy và men vi sinh
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT004', 'LO008', 500, 5000),
-('PNT004', 'LO009', 350, 8000),
-('PNT004', 'LO010', 400, 6500);
-GO
-
--- Phiếu nhập 5: Nhập lô vitamin và khoáng chất
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT005', 'LO011', 700, 5500),
-('PNT005', 'LO012', 500, 10000),
-('PNT005', 'LO013', 450, 6500);
-GO
-
--- Phiếu nhập 6: Nhập lô thuốc chống dị ứng
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT006', 'LO013', 400, 5000),
-('PNT006', 'LO014', 350, 9000),
-('PNT006', 'LO015', 300, 12000);
-GO
-
--- Phiếu nhập 7: Nhập lô thuốc huyết áp
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT007', 'LO016', 300, 6000),
-('PNT007', 'LO017', 250, 8000),
-('PNT007', 'LO018', 280, 7500);
-GO
-
--- Phiếu nhập 8: Nhập lô thuốc tiểu đường
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT008', 'LO018', 320, 5000),
-('PNT008', 'LO019', 280, 9500),
-('PNT008', 'LO020', 220, 20000);
-GO
-
--- Phiếu nhập 9: Nhập lô thuốc giảm mỡ máu
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT009', 'LO021', 300, 11000),
-('PNT009', 'LO022', 280, 16000),
-('PNT009', 'LO023', 250, 18000);
-GO
-
--- Phiếu nhập 10: Nhập lô thuốc chống viêm
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT010', 'LO023', 350, 8000),
-('PNT010', 'LO024', 300, 11000),
-('PNT010', 'LO025', 280, 13000);
-GO
-
--- Phiếu nhập 11: Nhập bổ sung lô giảm đau phổ biến
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT011', 'LO001', 800, 3500),
-('PNT011', 'LO002', 600, 5500);
-GO
-
--- Phiếu nhập 12: Nhập bổ sung lô kháng sinh
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT012', 'LO003', 400, 10000),
-('PNT012', 'LO004', 300, 17000);
-GO
-
--- Phiếu nhập 13: Nhập bổ sung lô thuốc dạ dày cao cấp
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT013', 'LO006', 500, 9000),
-('PNT013', 'LO007', 400, 6000);
-GO
-
--- Phiếu nhập 14: Nhập lô thuốc ho và đường hô hấp
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT014', 'LO001', 400, 3500),
-('PNT014', 'LO002', 350, 5500),
-('PNT014', 'LO003', 300, 10000),
-('PNT014', 'LO004', 200, 17000);
-GO
-
--- Phiếu nhập 15: Nhập bổ sung nhiều lô khác nhau
-INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia) VALUES
-('PNT015', 'LO005', 300, 12000),
-('PNT015', 'LO010', 350, 6500),
-('PNT015', 'LO015', 250, 12000),
-('PNT015', 'LO020', 180, 20000);
+-- Insert dữ liệu vào bảng ChiTietPhieuNhap (Sử dụng lại dữ liệu ban đầu, nhưng thêm maThuoc)
+-- Lưu ý: Dữ liệu này giả định rằng mỗi lô nhập có thể có nhiều loại thuốc, tương ứng với dữ liệu trong ChiTietLoThuoc
+INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, maThuoc, soLuong, donGia) VALUES
+('PNT001', 'LO001', 'T001', 500, 3500),
+('PNT001', 'LO011', 'T021', 600, 5500),
+('PNT002', 'LO003', 'T006', 300, 10000),
+('PNT002', 'LO004', 'T007', 250, 17000),
+('PNT002', 'LO005', 'T009', 200, 12000),
+('PNT003', 'LO006', 'T011', 400, 9000),
+('PNT003', 'LO007', 'T013', 300, 6000),
+('PNT004', 'LO008', 'T016', 500, 5000),
+('PNT004', 'LO009', 'T017', 350, 8000),
+('PNT004', 'LO010', 'T020', 400, 6500),
+('PNT005', 'LO011', 'T022', 700, 5500),
+('PNT005', 'LO012', 'T023', 500, 10000),
+('PNT005', 'LO013', 'T025', 450, 6500),
+('PNT006', 'LO013', 'T026', 400, 5000),
+('PNT006', 'LO014', 'T027', 350, 9000),
+('PNT006', 'LO015', 'T029', 300, 12000),
+('PNT007', 'LO016', 'T031', 300, 6000),
+('PNT007', 'LO017', 'T033', 250, 8000),
+('PNT007', 'LO018', 'T035', 280, 7500),
+('PNT008', 'LO018', 'T036', 320, 5000),
+('PNT008', 'LO019', 'T037', 280, 9500),
+('PNT008', 'LO020', 'T040', 220, 20000),
+('PNT009', 'LO021', 'T041', 300, 11000),
+('PNT009', 'LO022', 'T043', 280, 16000),
+('PNT009', 'LO023', 'T045', 250, 18000),
+('PNT010', 'LO023', 'T046', 350, 8000),
+('PNT010', 'LO024', 'T047', 300, 11000),
+('PNT010', 'LO025', 'T049', 280, 13000),
+('PNT011', 'LO001', 'T002', 800, 3500),
+('PNT011', 'LO002', 'T003', 600, 5500),
+('PNT012', 'LO003', 'T055', 400, 10000),
+('PNT012', 'LO004', 'T057', 300, 17000),
+('PNT013', 'LO006', 'T062', 500, 9000),
+('PNT013', 'LO007', 'T064', 400, 6000),
+('PNT014', 'LO001', 'T051', 400, 3500),
+('PNT014', 'LO002', 'T053', 350, 5500),
+('PNT014', 'LO003', 'T056', 300, 10000),
+('PNT014', 'LO004', 'T058', 200, 17000),
+('PNT015', 'LO005', 'T060', 300, 12000),
+('PNT015', 'LO010', 'T069', 350, 6500),
+('PNT015', 'LO015', 'T080', 250, 12000),
+('PNT015', 'LO020', 'T090', 180, 20000);
 GO
 
 
@@ -1283,3 +1234,69 @@ INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, l
 ('PDT015', 'T026', 3, 7500, 'LO013', N'Khách hàng khỏi bệnh, còn thừa thuốc'),
 ('PDT015', 'T022', 1, 12000, 'LO011', N'Mua thừa, chưa mở hộp');
 GO
+
+-- ===============================================
+-- TRIGGER: ĐỒNG BỘ SỐ LƯỢNG TỒN GIỮA ChiTietLoThuoc VÀ Thuoc
+-- ===============================================
+IF OBJECT_ID('tr_CapNhatSoLuongTon', 'TR') IS NOT NULL
+BEGIN
+    DROP TRIGGER tr_CapNhatSoLuongTon;
+END
+GO
+
+CREATE TRIGGER tr_CapNhatSoLuongTon
+ON ChiTietLoThuoc
+AFTER INSERT, UPDATE, DELETE
+AS
+BEGIN
+    -- 1. Xác định các mã thuốc bị ảnh hưởng (từ cả INSERTED và DELETED)
+    DECLARE @AffectedMaThuoc TABLE (maThuoc VARCHAR(50) PRIMARY KEY);
+    
+    INSERT INTO @AffectedMaThuoc (maThuoc)
+    SELECT DISTINCT maThuoc FROM INSERTED
+    UNION
+    SELECT DISTINCT maThuoc FROM DELETED;
+
+    -- 2. Tính toán tổng số lượng tồn mới cho các thuốc bị ảnh hưởng
+    -- Chỉ tính các lô có isActive = 1
+    UPDATE T
+    SET T.soLuongTon = ISNULL(Sub.TotalQuantity, 0)
+    FROM Thuoc T
+    INNER JOIN @AffectedMaThuoc AMT ON T.maThuoc = AMT.maThuoc
+    LEFT JOIN (
+        SELECT 
+            maThuoc,
+            SUM(soLuong) AS TotalQuantity
+        FROM ChiTietLoThuoc
+        WHERE isActive = 1
+        GROUP BY maThuoc
+    ) AS Sub ON T.maThuoc = Sub.maThuoc;
+    
+    -- Xử lý trường hợp có thể có UPDATE/DELETE/INSERT không hợp lệ
+    -- Giả sử không có vấn đề gì về tham chiếu khóa ngoại.
+
+END
+GO
+
+-- ===============================================
+-- CHẠY THỦ TỤC THỦ CÔNG ĐỂ TÍNH TỔNG LẦN ĐẦU
+-- (Cần thiết vì Trigger chỉ chạy TỰ ĐỘNG sau khi được tạo)
+-- ===============================================
+-- Lần chạy script đầu tiên, do trigger được tạo SAU khi dữ liệu ChiTietLoThuoc được insert,
+-- nên ta cần chạy lệnh UPDATE thủ công 1 lần để tính tổng ban đầu.
+UPDATE T
+SET T.soLuongTon = ISNULL(Sub.TotalQuantity, 0)
+FROM Thuoc T
+LEFT JOIN (
+    SELECT 
+        maThuoc,
+        SUM(soLuong) AS TotalQuantity
+    FROM ChiTietLoThuoc
+    WHERE isActive = 1
+    GROUP BY maThuoc
+) AS Sub ON T.maThuoc = Sub.maThuoc;
+
+GO
+
+-- Kiểm tra kết quả (OPTIONAL):
+-- SELECT maThuoc, soLuongTon FROM Thuoc WHERE soLuongTon > 0 ORDER BY maThuoc;

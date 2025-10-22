@@ -24,12 +24,19 @@ public class ThuocDAO {
      */
     public ArrayList<Thuoc> getAllThuoc() {
         ArrayList<Thuoc> dsThuoc = new ArrayList<>();
-        String sql = "SELECT * FROM Thuoc WHERE isActive = 1"; // Only fetch active drugs
+        String sql = "SELECT * FROM Thuoc WHERE isActive = 1";
+        
+        Connection con = ConnectDB.getConnection();
+        if (con == null) {
+            return dsThuoc;
+        }
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
-
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            
             while (rs.next()) {
                 String maThuoc = rs.getString("maThuoc");
                 String maLo = rs.getString("maLo");
@@ -46,6 +53,14 @@ public class ThuocDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            // Đóng ResultSet và Statement, KHÔNG đóng Connection vì nó là singleton
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return dsThuoc;
     }
@@ -59,7 +74,7 @@ public class ThuocDAO {
         String sql = "SELECT * FROM Thuoc WHERE maThuoc = ?";
         Thuoc thuoc = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, id);
@@ -94,7 +109,7 @@ public class ThuocDAO {
         String sql = "INSERT INTO Thuoc (maThuoc, maLo, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int n = 0;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, thuoc.getMaThuoc());
@@ -185,7 +200,7 @@ public class ThuocDAO {
         String sql = "UPDATE Thuoc SET maLo = ?, tenThuoc = ?, soLuongTon = ?, giaBan = ?, donVi = ?, soLuongToiThieu = ?, maNSX = ?, isActive = ? WHERE maThuoc = ?";
         int n = 0;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, thuoc.getMaLo());
@@ -214,7 +229,7 @@ public class ThuocDAO {
         String sql = "UPDATE Thuoc SET isActive = 0 WHERE maThuoc = ?";
         int n = 0;
         
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, id);

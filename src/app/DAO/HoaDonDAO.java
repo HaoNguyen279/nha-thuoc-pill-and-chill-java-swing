@@ -98,7 +98,8 @@ public class HoaDonDAO {
      * @return true if the operation was successful, false otherwise.
      */
     public boolean addHoaDon(HoaDon hd) {
-        String sql = "INSERT INTO HoaDon (maHoaDon, ngayBan, ghiChu, maNV, maKH, maKM, maThue, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        // Cập nhật SQL: Xóa maThue, thêm giaTriThue và tenLoaiThue
+        String sql = "INSERT INTO HoaDon (maHoaDon, ngayBan, ghiChu, maNV, maKH, maKM, giaTriThue, tenLoaiThue, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -119,7 +120,8 @@ public class HoaDonDAO {
      * @return true if the update was successful, false otherwise.
      */
     public boolean updateHoaDon(HoaDon hd) {
-        String sql = "UPDATE HoaDon SET ngayBan = ?, ghiChu = ?, maNV = ?, maKH = ?, maKM = ?, maThue = ?, isActive = ? WHERE maHoaDon = ?";
+        // Cập nhật SQL: Xóa maThue, thêm giaTriThue và tenLoaiThue
+        String sql = "UPDATE HoaDon SET ngayBan = ?, ghiChu = ?, maNV = ?, maKH = ?, maKM = ?, giaTriThue = ?, tenLoaiThue = ?, isActive = ? WHERE maHoaDon = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -157,6 +159,9 @@ public class HoaDonDAO {
 
     // --- Helper Methods ---
 
+    /**
+     * Map ResultSet to HoaDon entity. Đã cập nhật để đọc giaTriThue và tenLoaiThue.
+     */
     private HoaDon mapResultSetToHoaDon(ResultSet rs) throws SQLException {
         return new HoaDon(
             rs.getString("maHoaDon"),
@@ -165,11 +170,15 @@ public class HoaDonDAO {
             rs.getString("maNV"),
             rs.getString("maKH"),
             rs.getString("maKM"),
-            rs.getString("maThue"),
+            rs.getDouble("giaTriThue"), // Đã cập nhật
+            rs.getString("tenLoaiThue"), // Đã cập nhật
             rs.getBoolean("isActive")
         );
     }
 
+    /**
+     * Sets parameters for PreparedStatement (used for INSERT and UPDATE). Đã cập nhật để set giaTriThue và tenLoaiThue.
+     */
     private void setHoaDonParameters(PreparedStatement stmt, HoaDon hd, boolean isUpdate) throws SQLException {
         int paramIndex = 1;
         if (isUpdate) {
@@ -183,7 +192,11 @@ public class HoaDonDAO {
             stmt.setString(paramIndex++, hd.getMaNV());
             stmt.setString(paramIndex++, hd.getMaKH());
             stmt.setString(paramIndex++, hd.getMaKM());
-            stmt.setString(paramIndex++, hd.getMaThue());
+            
+            // Tham số mới
+            stmt.setDouble(paramIndex++, hd.getGiaTriThue()); 
+            stmt.setString(paramIndex++, hd.getTenLoaiThue());
+            
             stmt.setBoolean(paramIndex++, hd.isIsActive());
             stmt.setString(paramIndex++, hd.getMaHoaDon()); // WHERE clause
         } else {
@@ -198,8 +211,145 @@ public class HoaDonDAO {
             stmt.setString(paramIndex++, hd.getMaNV());
             stmt.setString(paramIndex++, hd.getMaKH());
             stmt.setString(paramIndex++, hd.getMaKM());
-            stmt.setString(paramIndex++, hd.getMaThue());
+            
+            // Tham số mới
+            stmt.setDouble(paramIndex++, hd.getGiaTriThue()); 
+            stmt.setString(paramIndex++, hd.getTenLoaiThue()); 
+
             stmt.setBoolean(paramIndex++, hd.isIsActive());
         }
+    }
+    
+    /**
+     * Tạo mã hóa đơn tự động theo format HDXXX
+     * @return Mã hóa đơn mới (ví dụ: HD051)
+     */
+    public String generateMaHoaDon() {
+        String sql = "SELECT TOP 1 maHoaDon FROM HoaDon ORDER BY maHoaDon DESC";
+        String newMaHD = "HD001"; // Mã mặc định nếu chưa có hóa đơn nào
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            if (rs.next()) {
+                String lastMaHD = rs.getString("maHoaDon");
+                // Lấy phần số từ mã cuối (ví dụ: HD050 -> 050)
+                String numberPart = lastMaHD.substring(2);
+                int number = Integer.parseInt(numberPart);
+                // Tăng lên 1 và format lại
+                newMaHD = String.format("HD%03d", number + 1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return newMaHD;
+    }
+    
+    /**
+     * Lưu hóa đơn và chi tiết hóa đơn vào database
+     * @param chiTietData Danh sách chi tiết hóa đơn (maThuoc, tenThuoc, soLuong, donGia)
+     * @param tongTien Tổng tiền hóa đơn (Không dùng trong phương thức này nhưng giữ để tương thích)
+     * @param maHoaDon Mã hóa đơn
+     * @param maNhanVien Mã nhân viên lập hóa đơn
+     * @param maKhachHang Mã khách hàng (có thể null)
+     * @param maKhuyenMai Mã khuyến mãi (có thể null)
+     * @param ghiChu Ghi chú hóa đơn (có thể null)
+     * @return true nếu lưu thành công, false nếu thất bại
+     */
+    public boolean saveHoaDon(ArrayList<Object[]> chiTietData, double tongTien, String maHoaDon, String maNhanVien, 
+    						 String maKhachHang, String maKhuyenMai, String ghiChu) {
+        Connection con = null;
+        boolean success = false;
+        
+        try {
+            // Lấy connection và set auto commit = false để thực hiện transaction
+            con = ConnectDB.getInstance().getConnection(); // Sử dụng getConnection() để lấy connection
+            con.setAutoCommit(false);
+            
+            // 1. Lưu thông tin hóa đơn
+            // Sử dụng thuế VAT 10% là mức thuế mặc định theo yêu cầu
+            double giaTriThue = 0.10; // Mặc định 10%
+            String tenLoaiThue = "VAT 10%";
+            
+            HoaDon hoaDon = new HoaDon(
+                maHoaDon,
+                new java.util.Date(), 
+                ghiChu != null ? ghiChu : "", 
+                maNhanVien,
+                maKhachHang,
+                maKhuyenMai,
+                giaTriThue, // Sử dụng giá trị thuế đã tính
+                tenLoaiThue, // Sử dụng tên loại thuế đã xác định
+                true 
+            );
+            
+            // Cập nhật SQL: Xóa maThue, thêm giaTriThue và tenLoaiThue
+            String sqlHoaDon = "INSERT INTO HoaDon (maHoaDon, ngayBan, ghiChu, maNV, maKH, maKM, giaTriThue, tenLoaiThue, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = con.prepareStatement(sqlHoaDon)) {
+                setHoaDonParameters(stmt, hoaDon, false);
+                stmt.executeUpdate();
+            }
+            
+            // 2. Lưu chi tiết hóa đơn
+            String sqlChiTiet = "INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia, isActive) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement stmt = con.prepareStatement(sqlChiTiet)) {
+                for (Object[] item : chiTietData) {
+                    String maThuoc = (String) item[0];
+                    // Tên thuốc (item[1]) không cần thiết trong ChiTietHoaDon
+                    int soLuong = (Integer) item[2];
+                    // donGia trong chiTietData là float, nhưng cột trong DB là FLOAT/Double. Sử dụng setDouble/setFloat.
+                    float donGia = (Float) item[3];
+                    
+                    stmt.setString(1, maHoaDon);
+                    stmt.setString(2, maThuoc);
+                    stmt.setInt(3, soLuong);
+                    stmt.setDouble(4, donGia); // Dùng setDouble hoặc setFloat
+                    stmt.setBoolean(5, true);
+                    
+                    stmt.executeUpdate();
+                }
+            }
+            
+            // Commit transaction
+            con.commit();
+            success = true;
+        } catch (SQLException e) {
+            // Rollback nếu có lỗi
+            try {
+                if (con != null) {
+                    System.err.println("Transaction rolled back: " + e.getMessage());
+                    con.rollback();
+                }
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            // Reset auto commit
+            try {
+                if (con != null) {
+                    con.setAutoCommit(true);
+                    con.close();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        
+        return success;
+    }
+    
+    /**
+     * Phương thức đơn giản hơn để lưu hóa đơn, không yêu cầu các tham số bổ sung
+     * @param chiTietData Danh sách chi tiết hóa đơn
+     * @param tongTien Tổng tiền hóa đơn
+     * @param maHoaDon Mã hóa đơn
+     * @param maNhanVien Mã nhân viên lập hóa đơn
+     * @return true nếu lưu thành công, false nếu thất bại
+     */
+    public boolean saveHoaDon(ArrayList<Object[]> chiTietData, double tongTien, String maHoaDon, String maNhanVien) {
+        return saveHoaDon(chiTietData, tongTien, maHoaDon, maNhanVien, null, null, null);
     }
 }

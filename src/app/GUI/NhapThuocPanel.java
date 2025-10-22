@@ -66,7 +66,7 @@ public class NhapThuocPanel extends JPanel {
 //                    "Đọc thành công " + dsThuoc.size() + " thuốc!",
 //                    "Thông báo",
 //                    JOptionPane.INFORMATION_MESSAGE);
-            System.out.println("📋 Danh sách thuốc:");
+
             dsThuoc.forEach(System.out::println);
             dsCTLT.forEach(System.out::println);
             if(nhapThuocPanel == null) {
