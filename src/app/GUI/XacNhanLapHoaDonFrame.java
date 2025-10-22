@@ -9,6 +9,7 @@ import app.DAO.NhanVienDAO;
 import app.DAO.TonKhoDAO;
 import app.Entity.KhachHang;
 import app.Entity.NhanVien;
+import app.ConnectDB.ConnectDB;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -29,6 +30,10 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 // Import all iTextPDF classes
 import com.itextpdf.text.*;
@@ -525,7 +530,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             if (kh != null) {
                 txtTenKhachHang.setText(kh.getTenKH());
             } else {
-                
+                txtTenKhachHang.setText("");
                 if (JOptionPane.showConfirmDialog(this,
                     "Không tìm thấy khách hàng với số điện thoại đã nhập. Bạn có muốn thêm khách hàng mới?",
                     "Xác nhận",
@@ -655,9 +660,12 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     return;
                 }
                 
+                // Cập nhật dữ liệu để bao gồm maLo trước khi lưu
+                ArrayList<Object[]> dataWithMaLo = addMaLoToData(dsChiTietData);
+                
                 // Sử dụng class DAO để lưu hóa đơn và chi tiết
                 HoaDonDAO hoaDonDAO = new HoaDonDAO();
-                success = hoaDonDAO.saveHoaDon(dsChiTietData, tongTien, maHoaDon, maNhanVienLap,
+                success = hoaDonDAO.saveHoaDonWithMaLo(dataWithMaLo, tongTien, maHoaDon, maNhanVienLap,
                                                      maKhachHang, maKhuyenMai, ghiChu);
                 
                 if (success) {
@@ -695,6 +703,61 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         }
     }
     
+    /**
+     * Lấy mã lô đầu tiên có sẵn cho thuốc được chỉ định
+     * @param maThuoc mã thuốc cần lấy maLo
+     * @return mã lô đầu tiên có sẵn, hoặc "N/A" nếu không tìm thấy
+     */
+    private String getMaLoForThuoc(String maThuoc) {
+        try {
+            Connection con = app.ConnectDB.ConnectDB.getConnection();
+            String sql = "SELECT TOP 1 maLo FROM ChiTietLoThuoc WHERE maThuoc = ? AND isActive = 1 AND soLuong > 0 ORDER BY ngaySanXuat";
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, maThuoc);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                String maLo = rs.getString("maLo");
+                rs.close();
+                stmt.close();
+                return maLo;
+            }
+            
+            rs.close();
+            stmt.close();
+            return "N/A"; // Không tìm thấy lô nào có sẵn
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "N/A";
+        }
+    }
+    
+    /**
+     * Cập nhật danh sách chi tiết để bao gồm maLo
+     * @param originalData dữ liệu gốc [maThuoc, tenThuoc, soLuong, donGia]
+     * @return dữ liệu đã cập nhật [maThuoc, tenThuoc, soLuong, donGia, thanhTien, maLo]
+     */
+    private ArrayList<Object[]> addMaLoToData(ArrayList<Object[]> originalData) {
+        ArrayList<Object[]> updatedData = new ArrayList<>();
+        
+        for (Object[] item : originalData) {
+            String maThuoc = (String) item[0];
+            String tenThuoc = (String) item[1];
+            int soLuong = (Integer) item[2];
+            float donGia = (Float) item[3];
+            double thanhTien = soLuong * donGia;
+            
+            // Lấy maLo cho thuốc này
+            String maLo = getMaLoForThuoc(maThuoc);
+            
+            Object[] newItem = {maThuoc, tenThuoc, soLuong, donGia, thanhTien, maLo};
+            updatedData.add(newItem);
+        }
+        
+        return updatedData;
+    }
+
     /**
      * Cập nhật số lượng trong kho sau khi bán
      * @param dsChiTietData danh sách chi tiết sản phẩm đã bán

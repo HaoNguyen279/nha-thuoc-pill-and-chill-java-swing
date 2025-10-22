@@ -35,6 +35,7 @@ public class ChiTietPhieuDatDAO {
                     ChiTietPhieuDat ct = new ChiTietPhieuDat(
                         rs.getString("maPhieuDat"),
                         rs.getString("maThuoc"),
+                        rs.getString("maLo"), 
                         rs.getString("tenThuoc"),
                         rs.getInt("soLuong"),
                         rs.getBoolean("isActive")
@@ -52,10 +53,12 @@ public class ChiTietPhieuDatDAO {
      * Lấy một chi tiết phiếu đặt cụ thể dựa trên khóa chính tổng hợp.
      * @param maPhieuDat Mã phiếu đặt.
      * @param maThuoc Mã thuốc.
+     * @param maLo Mã lô.  
      * @return Đối tượng ChiTietPhieuDat nếu tìm thấy, ngược lại trả về null.
      */
-    public ChiTietPhieuDat getChiTietById(String maPhieuDat, String maThuoc) {
-        String sql = "SELECT * FROM ChiTietPhieuDat WHERE maPhieuDat = ? AND maThuoc = ?";
+    public ChiTietPhieuDat getChiTietById(String maPhieuDat, String maThuoc, String maLo) {
+        // Cập nhật SQL và tham số
+        String sql = "SELECT * FROM ChiTietPhieuDat WHERE maPhieuDat = ? AND maThuoc = ? AND maLo = ?";
         ChiTietPhieuDat chiTiet = null;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -63,12 +66,14 @@ public class ChiTietPhieuDatDAO {
             
             stmt.setString(1, maPhieuDat);
             stmt.setString(2, maThuoc);
+            stmt.setString(3, maLo); 
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     chiTiet = new ChiTietPhieuDat(
                         rs.getString("maPhieuDat"),
                         rs.getString("maThuoc"),
+                        rs.getString("maLo"), 
                         rs.getString("tenThuoc"),
                         rs.getInt("soLuong"),
                         rs.getBoolean("isActive")
@@ -87,7 +92,8 @@ public class ChiTietPhieuDatDAO {
      * @return true nếu thêm thành công, false nếu thất bại.
      */
     public boolean create(ChiTietPhieuDat chiTiet) {
-        String sql = "INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong, isActive) VALUES (?, ?, ?, ?, ?)";
+        // Cập nhật SQL và tham số
+        String sql = "INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong, isActive) VALUES (?, ?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -95,9 +101,10 @@ public class ChiTietPhieuDatDAO {
 
             stmt.setString(1, chiTiet.getMaPhieuDat());
             stmt.setString(2, chiTiet.getMaThuoc());
-            stmt.setString(3, chiTiet.getTenThuoc());
-            stmt.setInt(4, chiTiet.getSoLuong());
-            stmt.setBoolean(5, chiTiet.isIsActive());
+            stmt.setString(3, chiTiet.getMaLo());
+            stmt.setString(4, chiTiet.getTenThuoc());
+            stmt.setInt(5, chiTiet.getSoLuong());
+            stmt.setBoolean(6, chiTiet.isIsActive());
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -112,7 +119,8 @@ public class ChiTietPhieuDatDAO {
      * @return true nếu cập nhật thành công, false nếu thất bại.
      */
     public boolean update(ChiTietPhieuDat chiTiet) {
-        String sql = "UPDATE ChiTietPhieuDat SET tenThuoc = ?, soLuong = ?, isActive = ? WHERE maPhieuDat = ? AND maThuoc = ?";
+        // Cập nhật SQL (WHERE clause) và tham số
+        String sql = "UPDATE ChiTietPhieuDat SET tenThuoc = ?, soLuong = ?, isActive = ? WHERE maPhieuDat = ? AND maThuoc = ? AND maLo = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -123,6 +131,7 @@ public class ChiTietPhieuDatDAO {
             stmt.setBoolean(3, chiTiet.isIsActive());
             stmt.setString(4, chiTiet.getMaPhieuDat());
             stmt.setString(5, chiTiet.getMaThuoc());
+            stmt.setString(6, chiTiet.getMaLo());  
 
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -135,10 +144,12 @@ public class ChiTietPhieuDatDAO {
      * Xóa mềm một chi tiết phiếu đặt bằng cách đặt isActive = 0.
      * @param maPhieuDat Mã phiếu đặt của chi tiết cần xóa.
      * @param maThuoc Mã thuốc của chi tiết cần xóa.
+     * @param maLo Mã lô của chi tiết cần xóa.  
      * @return true nếu thành công, false nếu thất bại.
      */
-    public boolean softDelete(String maPhieuDat, String maThuoc) {
-        String sql = "UPDATE ChiTietPhieuDat SET isActive = 0 WHERE maPhieuDat = ? AND maThuoc = ?";
+    public boolean softDelete(String maPhieuDat, String maThuoc, String maLo) {
+        // Cập nhật SQL (WHERE clause) và tham số
+        String sql = "UPDATE ChiTietPhieuDat SET isActive = 0 WHERE maPhieuDat = ? AND maThuoc = ? AND maLo = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -146,6 +157,7 @@ public class ChiTietPhieuDatDAO {
             
             stmt.setString(1, maPhieuDat);
             stmt.setString(2, maThuoc);
+            stmt.setString(3, maLo);  
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -161,6 +173,7 @@ public class ChiTietPhieuDatDAO {
      */
     public int getTongSoLuongTrongPhieu(String maPhieuDat) {
         int tongSoLuong = 0;
+        // Câu lệnh này không cần thay đổi
         String sql = "SELECT SUM(soLuong) FROM ChiTietPhieuDat WHERE maPhieuDat = ? AND isActive = 1";
         
         try (Connection con = ConnectDB.getInstance().getConnection();

@@ -6,16 +6,19 @@ public class PhieuDat {
     private String maNV;
     private Date ngayDat;
     private String maKH;
+    private String ghiChu; 
     private boolean isActive; // true = đơn đặt hàng đang có hiệu lực, false = đã hủy/ẩn
 
     public PhieuDat() {
     }
 
-    public PhieuDat(String maPhieuDat, String maNV, Date ngayDat, String maKH, boolean isActive) {
+    // Constructor đã được cập nhật
+    public PhieuDat(String maPhieuDat, String maNV, Date ngayDat, String maKH, String ghiChu, boolean isActive) {
         this.maPhieuDat = maPhieuDat;
         this.maNV = maNV;
         this.ngayDat = ngayDat;
         this.maKH = maKH;
+        this.ghiChu = ghiChu; 
         this.isActive = isActive;
     }
 
@@ -51,6 +54,16 @@ public class PhieuDat {
         this.maKH = maKH;
     }
 
+    // --- Getter/Setter cho ghiChu ---
+    public String getGhiChu() {
+        return ghiChu;
+    }
+
+    public void setGhiChu(String ghiChu) {
+        this.ghiChu = ghiChu;
+    }
+    // -------------------------------
+
     public boolean isIsActive() {
         return isActive;
     }
@@ -71,7 +84,7 @@ public class PhieuDat {
         this.isActive = false;
     }
 
-
+    // toString() đã được cập nhật
     @Override
     public String toString() {
         return "PhieuDat{" +
@@ -79,6 +92,7 @@ public class PhieuDat {
                 ", maNV='" + maNV + '\'' +
                 ", ngayDat=" + ngayDat +
                 ", maKH='" + maKH + '\'' +
+                ", ghiChu='" + ghiChu + '\'' + 
                 ", isActive=" + isActive +
                 '}';
     }

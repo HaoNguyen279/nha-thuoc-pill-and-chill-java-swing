@@ -121,16 +121,18 @@ CREATE TABLE HoaDon (
 	FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
 );
 GO
--- Tạo bảng ChiTietHoaDon
+-- Tạo bảng ChiTietHoaDon (ĐÃ CẬP NHẬT)
 CREATE TABLE ChiTietHoaDon (
     maHoaDon VARCHAR(50),
     maThuoc VARCHAR(50),
+    maLo VARCHAR(50), -- Thêm mã lô
     soLuong INT,
 	donGia FLOAT,
 	isActive bit DEFAULT 1,
-    PRIMARY KEY (maHoaDon, maThuoc),
+    PRIMARY KEY (maHoaDon, maThuoc, maLo), -- Thay đổi khóa chính
     FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
-    FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
+    FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
+	FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo) -- Thêm khóa ngoại cho mã lô
 );
 GO
 -- Tạo bảng PhieuDoiTra
@@ -144,7 +146,7 @@ CREATE TABLE PhieuDoiTra (
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
 );
 GO
--- Tạo bảng ChiTietPhieuDoiTra
+-- Tạo bảng ChiTietPhieuDoiTra (ĐÃ CẬP NHẬT KHÓA CHÍNH)
 CREATE TABLE ChiTietPhieuDoiTra (
     maPhieuDoiTra VARCHAR(50),
     maThuoc VARCHAR(50),
@@ -153,33 +155,36 @@ CREATE TABLE ChiTietPhieuDoiTra (
     maLo VARCHAR(50),
     lyDo NVARCHAR(200),
 	isActive bit DEFAULT 1,
-    PRIMARY KEY (maPhieuDoiTra, maThuoc),
+    PRIMARY KEY (maPhieuDoiTra, maThuoc, maLo), -- Sửa khóa chính
     FOREIGN KEY (maPhieuDoiTra) REFERENCES PhieuDoiTra(maPhieuDoiTra),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo)
 );
 GO
--- Tạo bảng PhieuDat
+-- Tạo bảng PhieuDat (ĐÃ CẬP NHẬT)
 CREATE TABLE PhieuDat (
     maPhieuDat VARCHAR(50) PRIMARY KEY,
     maNV VARCHAR(50),
     ngayDat DATE,
     maKH VARCHAR(50),
+	ghiChu NVARCHAR(200), -- <-- ĐÃ THÊM
 	isActive bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
 );
 GO
--- Tạo bảng ChiTietPhieuDat
+-- Tạo bảng ChiTietPhieuDat (ĐÃ CẬP NHẬT)
 CREATE TABLE ChiTietPhieuDat (
     maPhieuDat VARCHAR(50),
     maThuoc VARCHAR(50),
+    maLo VARCHAR(50), -- Thêm mã lô
     tenThuoc NVARCHAR(100),
     soLuong INT,
 	isActive bit DEFAULT 1,
-    PRIMARY KEY (maPhieuDat, maThuoc),
+    PRIMARY KEY (maPhieuDat, maThuoc, maLo), -- Thay đổi khóa chính
     FOREIGN KEY (maPhieuDat) REFERENCES PhieuDat(maPhieuDat),
-    FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
+    FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
+	FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo) -- Thêm khóa ngoại cho mã lô
 );
 GO
 -- Tạo bảng PhieuNhapThuoc
@@ -571,13 +576,7 @@ VALUES
 ('LO025', 'T049', '2025-05-25', '2027-05-25', 40, 10600),
 ('LO025', 'T050', '2025-05-28', '2027-05-28', 50, 10800),
 
--- Dữ liệu bổ sung cho các thuốc khác (Đã loại bỏ các cặp (maLo, maThuoc) trùng lặp)
--- ('LO001', 'T051', '2025-06-01', '2027-06-01', 60, 4000), -- [ĐÃ XÓA] Bị trùng với Lô001, T051 ở trên
--- ('LO001', 'T052', '2025-06-05', '2027-06-05', 35, 75000), -- [ĐÃ XÓA] Bị trùng với Lô001, T052 ở trên
--- ('LO002', 'T053', '2025-06-08', '2027-06-08', 30, 130000), -- [ĐÃ XÓA]
--- ('LO002', 'T054', '2025-06-12', '2027-06-12', 32, 110000), -- [ĐÃ XÓA]
--- ('LO003', 'T055', '2025-06-15', '2027-06-15', 70, 5000), -- [ĐÃ XÓA]
--- ('LO003', 'T056', '2025-06-18', '2027-06-18', 75, 5500), -- [ĐÃ XÓA]
+-- Dữ liệu bổ sung cho các thuốc khác
 ('LO004', 'T057', '2025-06-21', '2027-06-21', 60, 9000),
 ('LO004', 'T058', '2025-06-24', '2027-06-24', 65, 7500),
 ('LO005', 'T059', '2025-06-27', '2027-06-27', 40, 15000),
@@ -622,11 +621,8 @@ VALUES
 ('LO024', 'T098', '2025-10-22', '2027-10-22', 25, 5000),
 ('LO025', 'T099', '2025-10-25', '2027-10-25', 28, 10000),
 ('LO025', 'T100', '2025-10-28', '2027-10-28', 26, 11500),
--- ('LO001', 'T101', '2025-11-01', '2027-11-01', 32, 13500), -- [ĐÃ XÓA]
--- ('LO002', 'T102', '2025-11-04', '2027-11-04', 29, 12500), -- [ĐÃ XÓA]
--- ('LO003', 'T103', '2025-11-07', '2027-11-07', 27, 14500), -- [ĐÃ XÓA]
-('LO004', 'T104', '2025-11-10', '2027-11-10', 31, 7500), -- [ĐÃ XÓA] -- This one is not a duplicate, so I'm keeping it.
-('LO005', 'T105', '2025-11-13', '2027-11-13', 35, 6500), -- [ĐÃ XÓA] -- This one is not a duplicate, so I'm keeping it.
+('LO004', 'T104', '2025-11-10', '2027-11-10', 31, 7500), 
+('LO005', 'T105', '2025-11-13', '2027-11-13', 35, 6500), 
 
 -- DỮ LIỆU BỔ SUNG ĐỂ KIỂM TRA ĐỒNG BỘ TỒN KHO
 ('LO999', 'T001', '2025-10-15', '2027-10-15', 2000, 4800), -- Thêm 2000 viên Paracetamol
@@ -691,371 +687,371 @@ INSERT INTO HoaDon (maHoaDon, ngayBan, ghiChu, maNV, maKH, maKM, giaTriThue, ten
 ('HD050', '2025-09-28', N'Khách hàng mua thuốc theo toa bác sĩ', 'NV004', 'KH004', 'KM010', 0.08, N'VAT 8%');
 GO
 
--- Chèn dữ liệu vào bảng ChiTietHoaDon (Giữ nguyên)
-INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, soLuong, donGia) VALUES
+-- Chèn dữ liệu vào bảng ChiTietHoaDon (ĐÃ CẬP NHẬT với maLo)
+INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, maLo, soLuong, donGia) VALUES
 -- Hóa đơn 1
-('HD001', 'T001', 2, 5000),
-('HD001', 'T021', 1, 8000),
-('HD001', 'T026', 1, 7500),
+('HD001', 'T001', 'LO001', 2, 5000),
+('HD001', 'T021', 'LO011', 1, 8000),
+('HD001', 'T026', 'LO013', 1, 7500),
 -- Hóa đơn 2
-('HD002', 'T006', 1, 15000),
-('HD002', 'T011', 2, 14000),
+('HD002', 'T006', 'LO003', 1, 15000),
+('HD002', 'T011', 'LO006', 2, 14000),
 -- Hóa đơn 3
-('HD003', 'T031', 2, 8500),
-('HD003', 'T036', 1, 7000),
-('HD003', 'T041', 1, 15000),
+('HD003', 'T031', 'LO016', 2, 8500),
+('HD003', 'T036', 'LO018', 1, 7000),
+('HD003', 'T041', 'LO021', 1, 15000),
 -- Hóa đơn 4
-('HD004', 'T002', 1, 7500),
-('HD004', 'T014', 1, 8500),
-('HD004', 'T022', 2, 12000),
+('HD004', 'T002', 'LO001', 1, 7500),
+('HD004', 'T014', 'LO007', 1, 8500),
+('HD004', 'T022', 'LO011', 2, 12000),
 -- Hóa đơn 5
-('HD005', 'T007', 1, 25000),
-('HD005', 'T029', 2, 14000),
+('HD005', 'T007', 'LO004', 1, 25000),
+('HD005', 'T029', 'LO015', 2, 14000),
 -- Thêm các chi tiết hóa đơn khác
-('HD006', 'T003', 2, 8000),
-('HD006', 'T016', 3, 7000),
-('HD007', 'T009', 1, 18000),
-('HD007', 'T020', 1, 10500),
-('HD007', 'T023', 1, 15000),
-('HD008', 'T021', 3, 8000),
-('HD008', 'T022', 2, 12000),
-('HD008', 'T024', 1, 13500),
-('HD009', 'T001', 2, 5000),
-('HD009', 'T006', 1, 15000),
-('HD009', 'T056', 1, 7000),
-('HD010', 'T007', 1, 25000),
-('HD010', 'T008', 1, 22000),
-('HD010', 'T010', 1, 16000),
-('HD011', 'T001', 2, 5000),
-('HD011', 'T002', 1, 7500),
-('HD011', 'T004', 1, 6500),
-('HD012', 'T026', 1, 7500),
-('HD012', 'T027', 1, 8000),
-('HD012', 'T030', 1, 18000),
-('HD013', 'T011', 1, 14000),
-('HD013', 'T012', 1, 32000),
-('HD013', 'T014', 1, 8500),
-('HD014', 'T016', 2, 7000),
-('HD014', 'T018', 1, 11000),
-('HD014', 'T020', 1, 10500),
-('HD015', 'T031', 2, 8500),
-('HD015', 'T033', 1, 12000),
-('HD015', 'T035', 1, 11000),
-('HD016', 'T006', 1, 15000),
-('HD016', 'T056', 1, 7000),
-('HD016', 'T055', 2, 6500),
-('HD017', 'T046', 1, 11000),
-('HD017', 'T047', 2, 8500),
-('HD017', 'T003', 1, 8000),
-('HD018', 'T031', 2, 8500),
-('HD018', 'T032', 1, 10500),
-('HD018', 'T034', 1, 9500),
-('HD019', 'T036', 2, 7000),
-('HD019', 'T037', 1, 8500),
-('HD019', 'T040', 1, 28000),
-('HD020', 'T041', 1, 15000),
-('HD020', 'T043', 1, 22000),
-('HD020', 'T045', 1, 26000),
-('HD021', 'T026', 1, 7500),
-('HD021', 'T028', 1, 12500),
-('HD021', 'T029', 1, 14000),
-('HD022', 'T046', 2, 11000),
-('HD022', 'T048', 1, 16000),
-('HD022', 'T050', 1, 9500),
-('HD023', 'T055', 2, 6500),
-('HD023', 'T056', 1, 7000),
-('HD023', 'T057', 1, 12000),
-('HD024', 'T001', 1, 5000),
-('HD024', 'T047', 1, 8500),
-('HD024', 'T049', 1, 18000),
-('HD025', 'T021', 2, 8000),
-('HD025', 'T023', 1, 15000),
-('HD025', 'T025', 1, 9500),
-('HD026', 'T055', 2, 6500),
-('HD026', 'T056', 1, 7000),
-('HD026', 'T058', 1, 9500),
-('HD027', 'T057', 1, 12000),
-('HD027', 'T058', 1, 9500),
-('HD027', 'T055', 1, 6500),
-('HD028', 'T031', 1, 8500),
-('HD028', 'T036', 1, 7000),
-('HD028', 'T041', 1, 15000),
-('HD028', 'T046', 1, 11000),
-('HD029', 'T059', 1, 18000),
-('HD029', 'T060', 1, 16000),
-('HD030', 'T006', 1, 15000),
-('HD030', 'T008', 1, 22000),
-('HD030', 'T009', 1, 18000),
-('HD031', 'T011', 2, 14000),
-('HD031', 'T013', 1, 28000),
-('HD031', 'T014', 1, 8500),
-('HD032', 'T016', 2, 7000),
-('HD032', 'T017', 1, 12500),
-('HD032', 'T019', 1, 9000),
-('HD033', 'T036', 1, 7000),
-('HD033', 'T039', 1, 13000),
-('HD033', 'T042', 1, 19000),
-('HD034', 'T031', 1, 8500),
-('HD034', 'T033', 1, 12000),
-('HD034', 'T076', 1, 12500),
-('HD034', 'T078', 1, 11000),
-('HD035', 'T041', 1, 15000),
-('HD035', 'T044', 1, 14000),
-('HD035', 'T036', 1, 7000),
-('HD035', 'T038', 1, 6500),
-('HD036', 'T043', 1, 22000),
-('HD036', 'T044', 1, 14000),
-('HD036', 'T045', 1, 26000),
-('HD037', 'T046', 2, 11000),
-('HD037', 'T047', 1, 8500),
-('HD037', 'T048', 1, 16000),
-('HD038', 'T011', 1, 14000),
-('HD038', 'T016', 1, 7000),
-('HD038', 'T020', 1, 10500),
-('HD039', 'T026', 2, 7500),
-('HD039', 'T027', 1, 8000),
-('HD039', 'T029', 1, 14000),
-('HD040', 'T064', 1, 9500),
-('HD040', 'T065', 1, 6000),
-('HD040', 'T066', 1, 14000),
+('HD006', 'T003', 'LO002', 2, 8000),
+('HD006', 'T016', 'LO008', 3, 7000),
+('HD007', 'T009', 'LO005', 1, 18000),
+('HD007', 'T020', 'LO010', 1, 10500),
+('HD007', 'T023', 'LO012', 1, 15000),
+('HD008', 'T021', 'LO011', 3, 8000),
+('HD008', 'T022', 'LO011', 2, 12000),
+('HD008', 'T024', 'LO012', 1, 13500),
+('HD009', 'T001', 'LO001', 2, 5000),
+('HD009', 'T006', 'LO003', 1, 15000),
+('HD009', 'T056', 'LO003', 1, 7000),
+('HD010', 'T007', 'LO004', 1, 25000),
+('HD010', 'T008', 'LO004', 1, 22000),
+('HD010', 'T010', 'LO005', 1, 16000),
+('HD011', 'T001', 'LO001', 2, 5000),
+('HD011', 'T002', 'LO001', 1, 7500),
+('HD011', 'T004', 'LO002', 1, 6500),
+('HD012', 'T026', 'LO013', 1, 7500),
+('HD012', 'T027', 'LO014', 1, 8000),
+('HD012', 'T030', 'LO015', 1, 18000),
+('HD013', 'T011', 'LO006', 1, 14000),
+('HD013', 'T012', 'LO006', 1, 32000),
+('HD013', 'T014', 'LO007', 1, 8500),
+('HD014', 'T016', 'LO008', 2, 7000),
+('HD014', 'T018', 'LO009', 1, 11000),
+('HD014', 'T020', 'LO010', 1, 10500),
+('HD015', 'T031', 'LO016', 2, 8500),
+('HD015', 'T033', 'LO017', 1, 12000),
+('HD015', 'T035', 'LO018', 1, 11000),
+('HD016', 'T006', 'LO003', 1, 15000),
+('HD016', 'T056', 'LO003', 1, 7000),
+('HD016', 'T055', 'LO003', 2, 6500),
+('HD017', 'T046', 'LO023', 1, 11000),
+('HD017', 'T047', 'LO024', 2, 8500),
+('HD017', 'T003', 'LO002', 1, 8000),
+('HD018', 'T031', 'LO016', 2, 8500),
+('HD018', 'T032', 'LO016', 1, 10500),
+('HD018', 'T034', 'LO017', 1, 9500),
+('HD019', 'T036', 'LO018', 2, 7000),
+('HD019', 'T037', 'LO019', 1, 8500),
+('HD019', 'T040', 'LO020', 1, 28000),
+('HD020', 'T041', 'LO021', 1, 15000),
+('HD020', 'T043', 'LO022', 1, 22000),
+('HD020', 'T045', 'LO023', 1, 26000),
+('HD021', 'T026', 'LO013', 1, 7500),
+('HD021', 'T028', 'LO014', 1, 12500),
+('HD021', 'T029', 'LO015', 1, 14000),
+('HD022', 'T046', 'LO023', 2, 11000),
+('HD022', 'T048', 'LO024', 1, 16000),
+('HD022', 'T050', 'LO025', 1, 9500),
+('HD023', 'T055', 'LO003', 2, 6500),
+('HD023', 'T056', 'LO003', 1, 7000),
+('HD023', 'T057', 'LO004', 1, 12000),
+('HD024', 'T001', 'LO001', 1, 5000),
+('HD024', 'T047', 'LO024', 1, 8500),
+('HD024', 'T049', 'LO025', 1, 18000),
+('HD025', 'T021', 'LO011', 2, 8000),
+('HD025', 'T023', 'LO012', 1, 15000),
+('HD025', 'T025', 'LO013', 1, 9500),
+('HD026', 'T055', 'LO003', 2, 6500),
+('HD026', 'T056', 'LO003', 1, 7000),
+('HD026', 'T058', 'LO004', 1, 9500),
+('HD027', 'T057', 'LO004', 1, 12000),
+('HD027', 'T058', 'LO004', 1, 9500),
+('HD027', 'T055', 'LO003', 1, 6500),
+('HD028', 'T031', 'LO016', 1, 8500),
+('HD028', 'T036', 'LO018', 1, 7000),
+('HD028', 'T041', 'LO021', 1, 15000),
+('HD028', 'T046', 'LO023', 1, 11000),
+('HD029', 'T059', 'LO005', 1, 18000),
+('HD029', 'T060', 'LO005', 1, 16000),
+('HD030', 'T006', 'LO003', 1, 15000),
+('HD030', 'T008', 'LO004', 1, 22000),
+('HD030', 'T009', 'LO005', 1, 18000),
+('HD031', 'T011', 'LO006', 2, 14000),
+('HD031', 'T013', 'LO007', 1, 28000),
+('HD031', 'T014', 'LO007', 1, 8500),
+('HD032', 'T016', 'LO008', 2, 7000),
+('HD032', 'T017', 'LO009', 1, 12500),
+('HD032', 'T019', 'LO010', 1, 9000),
+('HD033', 'T036', 'LO018', 1, 7000),
+('HD033', 'T039', 'LO020', 1, 13000),
+('HD033', 'T042', 'LO021', 1, 19000),
+('HD034', 'T031', 'LO016', 1, 8500),
+('HD034', 'T033', 'LO017', 1, 12000),
+('HD034', 'T076', 'LO013', 1, 12500),
+('HD034', 'T078', 'LO014', 1, 11000),
+('HD035', 'T041', 'LO021', 1, 15000),
+('HD035', 'T044', 'LO022', 1, 14000),
+('HD035', 'T036', 'LO018', 1, 7000),
+('HD035', 'T038', 'LO019', 1, 6500),
+('HD036', 'T043', 'LO022', 1, 22000),
+('HD036', 'T044', 'LO022', 1, 14000),
+('HD036', 'T045', 'LO023', 1, 26000),
+('HD037', 'T046', 'LO023', 2, 11000),
+('HD037', 'T047', 'LO024', 1, 8500),
+('HD037', 'T048', 'LO024', 1, 16000),
+('HD038', 'T011', 'LO006', 1, 14000),
+('HD038', 'T016', 'LO008', 1, 7000),
+('HD038', 'T020', 'LO010', 1, 10500),
+('HD039', 'T026', 'LO013', 2, 7500),
+('HD039', 'T027', 'LO014', 1, 8000),
+('HD039', 'T029', 'LO015', 1, 14000),
+('HD040', 'T064', 'LO007', 1, 9500),
+('HD040', 'T065', 'LO008', 1, 6000),
+('HD040', 'T066', 'LO008', 1, 14000),
 -- Thêm chi tiết hóa đơn cho hóa đơn HD041 - HD050
-('HD041', 'T023', 2, 35000),
-('HD041', 'T045', 1, 72500),
-('HD041', 'T012', 3, 12000),
-('HD041', 'T078', 1, 98000),
-('HD041', 'T056', 2, 45000),
-('HD041', 'T089', 1, 125000),
-('HD041', 'T034', 1, 65000),
-('HD041', 'T067', 2, 28000),
-('HD042', 'T015', 2, 42000),
-('HD042', 'T032', 1, 85000),
-('HD042', 'T058', 3, 18000),
-('HD042', 'T091', 1, 135000),
-('HD042', 'T007', 2, 26000),
-('HD042', 'T063', 1, 75000),
-('HD043', 'T019', 1, 58000),
-('HD043', 'T037', 2, 32000),
-('HD043', 'T052', 1, 145000),
-('HD043', 'T084', 1, 92000),
-('HD043', 'T021', 3, 15000),
-('HD043', 'T048', 2, 48000),
-('HD043', 'T073', 1, 105000),
-('HD043', 'T095', 1, 78000),
-('HD043', 'T005', 2, 22000),
-('HD044', 'T042', 1, 62000),
-('HD044', 'T081', 2, 38000),
-('HD044', 'T027', 1, 115000),
-('HD044', 'T069', 3, 25000),
-('HD044', 'T053', 1, 95000),
-('HD045', 'T011', 2, 32000),
-('HD045', 'T038', 1, 85000),
-('HD045', 'T074', 1, 118000),
-('HD045', 'T029', 3, 28000),
-('HD045', 'T047', 1, 75000),
-('HD045', 'T062', 2, 42000),
-('HD045', 'T093', 1, 155000),
-('HD046', 'T003', 2, 18000),
-('HD046', 'T024', 1, 65000),
-('HD046', 'T041', 1, 95000),
-('HD046', 'T057', 3, 22000),
-('HD046', 'T082', 1, 112000),
-('HD046', 'T018', 2, 28000),
-('HD046', 'T035', 1, 78000),
-('HD046', 'T064', 1, 48000),
-('HD046', 'T099', 2, 32000),
-('HD046', 'T076', 1, 125000),
-('HD047', 'T008', 2, 25000),
-('HD047', 'T031', 1, 78000),
-('HD047', 'T059', 3, 19000),
-('HD047', 'T086', 1, 95000),
-('HD047', 'T046', 2, 45000),
-('HD047', 'T071', 1, 88000),
-('HD048', 'T013', 1, 35000),
-('HD048', 'T028', 2, 42000),
-('HD048', 'T055', 1, 68000),
-('HD048', 'T079', 1, 115000),
-('HD048', 'T004', 3, 15000),
-('HD048', 'T039', 1, 75000),
-('HD048', 'T072', 2, 58000),
-('HD048', 'T097', 1, 135000),
-('HD049', 'T017', 2, 28000),
-('HD049', 'T043', 1, 95000),
-('HD049', 'T068', 1, 48000),
-('HD049', 'T092', 1, 145000),
-('HD049', 'T025', 3, 22000),
-('HD049', 'T051', 2, 65000),
-('HD049', 'T087', 1, 118000),
-('HD050', 'T006', 2, 19000),
-('HD050', 'T033', 1, 85000),
-('HD050', 'T054', 1, 78000),
-('HD050', 'T017', 2, 28000);
+('HD041', 'T023', 'LO012', 2, 35000),
+('HD041', 'T045', 'LO023', 1, 72500),
+('HD041', 'T012', 'LO006', 3, 12000),
+('HD041', 'T078', 'LO014', 1, 98000),
+('HD041', 'T056', 'LO003', 2, 45000),
+('HD041', 'T089', 'LO020', 1, 125000),
+('HD041', 'T034', 'LO017', 1, 65000),
+('HD041', 'T067', 'LO009', 2, 28000),
+('HD042', 'T015', 'LO008', 2, 42000),
+('HD042', 'T032', 'LO016', 1, 85000),
+('HD042', 'T058', 'LO004', 3, 18000),
+('HD042', 'T091', 'LO021', 1, 135000),
+('HD042', 'T007', 'LO004', 2, 26000),
+('HD042', 'T063', 'LO007', 1, 75000),
+('HD043', 'T019', 'LO010', 1, 58000),
+('HD043', 'T037', 'LO019', 2, 32000),
+('HD043', 'T052', 'LO001', 1, 145000),
+('HD043', 'T084', 'LO017', 1, 92000),
+('HD043', 'T021', 'LO011', 3, 15000),
+('HD043', 'T048', 'LO024', 2, 48000),
+('HD043', 'T073', 'LO012', 1, 105000),
+('HD043', 'T095', 'LO023', 1, 78000),
+('HD043', 'T005', 'LO003', 2, 22000),
+('HD044', 'T042', 'LO021', 1, 62000),
+('HD044', 'T081', 'LO016', 2, 38000),
+('HD044', 'T027', 'LO014', 1, 115000),
+('HD044', 'T069', 'LO010', 3, 25000),
+('HD044', 'T053', 'LO002', 1, 95000),
+('HD045', 'T011', 'LO006', 2, 32000),
+('HD045', 'T038', 'LO019', 1, 85000),
+('HD045', 'T074', 'LO012', 1, 118000),
+('HD045', 'T029', 'LO015', 3, 28000),
+('HD045', 'T047', 'LO024', 1, 75000),
+('HD045', 'T062', 'LO006', 2, 42000),
+('HD045', 'T093', 'LO022', 1, 155000),
+('HD046', 'T003', 'LO002', 2, 18000),
+('HD046', 'T024', 'LO012', 1, 65000),
+('HD046', 'T041', 'LO021', 1, 95000),
+('HD046', 'T057', 'LO004', 3, 22000),
+('HD046', 'T082', 'LO016', 1, 112000),
+('HD046', 'T018', 'LO009', 2, 28000),
+('HD046', 'T035', 'LO018', 1, 78000),
+('HD046', 'T064', 'LO007', 1, 48000),
+('HD046', 'T099', 'LO025', 2, 32000),
+('HD046', 'T076', 'LO013', 1, 125000),
+('HD047', 'T008', 'LO004', 2, 25000),
+('HD047', 'T031', 'LO016', 1, 78000),
+('HD047', 'T059', 'LO005', 3, 19000),
+('HD047', 'T086', 'LO018', 1, 95000),
+('HD047', 'T046', 'LO023', 2, 45000),
+('HD047', 'T071', 'LO011', 1, 88000),
+('HD048', 'T013', 'LO007', 1, 35000),
+('HD048', 'T028', 'LO014', 2, 42000),
+('HD048', 'T055', 'LO003', 1, 68000),
+('HD048', 'T079', 'LO015', 1, 115000),
+('HD048', 'T004', 'LO002', 3, 15000),
+('HD048', 'T039', 'LO020', 1, 75000),
+('HD048', 'T072', 'LO011', 2, 58000),
+('HD048', 'T097', 'LO024', 1, 135000),
+('HD049', 'T017', 'LO009', 2, 28000),
+('HD049', 'T043', 'LO022', 1, 95000),
+('HD049', 'T068', 'LO009', 1, 48000),
+('HD049', 'T092', 'LO021', 1, 145000),
+('HD049', 'T025', 'LO013', 3, 22000),
+('HD049', 'T051', 'LO001', 2, 65000),
+('HD049', 'T087', 'LO019', 1, 118000),
+('HD050', 'T006', 'LO003', 2, 19000),
+('HD050', 'T033', 'LO017', 1, 85000),
+('HD050', 'T054', 'LO002', 1, 78000),
+('HD050', 'T017', 'LO009', 2, 28000);
 
 GO
--- Insert dữ liệu vào bảng PhieuDat
-INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH) VALUES
-('PD001', 'NV004', '2025-09-01', 'KH001'),
-('PD002', 'NV005', '2025-09-02', 'KH004'),
-('PD003', 'NV009', '2025-09-03', 'KH007'),
-('PD004', 'NV010', '2025-09-05', 'KH012'),
-('PD005', 'NV004', '2025-09-06', 'KH015'),
-('PD006', 'NV005', '2025-09-08', 'KH019'),
-('PD007', 'NV009', '2025-09-10', 'KH024'),
-('PD008', 'NV010', '2025-09-11', 'KH028'),
-('PD009', 'NV004', '2025-09-13', 'KH002'),
-('PD010', 'NV005', '2025-09-14', 'KH006'),
-('PD011', 'NV009', '2025-09-16', 'KH010'),
-('PD012', 'NV010', '2025-09-17', 'KH014'),
-('PD013', 'NV004', '2025-09-19', 'KH018'),
-('PD014', 'NV005', '2025-09-20', 'KH022'),
-('PD015', 'NV009', '2025-09-22', 'KH026'),
-('PD016', 'NV010', '2025-09-23', 'KH030'),
-('PD017', 'NV004', '2025-09-25', 'KH034'),
-('PD018', 'NV005', '2025-09-26', 'KH003'),
-('PD019', 'NV009', '2025-09-28', 'KH009'),
-('PD020', 'NV010', '2025-09-29', 'KH016');
+-- Insert dữ liệu vào bảng PhieuDat (ĐÃ CẬP NHẬT)
+INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH, ghiChu) VALUES
+('PD001', 'NV004', '2025-09-01', 'KH001', N'Khách hẹn lấy sau 5h chiều'),
+('PD002', 'NV005', '2025-09-02', 'KH004', N'Gọi điện trước khi giao'),
+('PD003', 'NV009', '2025-09-03', 'KH007', N'Khách quen, giảm giá nếu có thể'),
+('PD004', 'NV010', '2025-09-05', 'KH012', NULL),
+('PD005', 'NV004', '2025-09-06', 'KH015', N'Đơn thuốc bác sĩ A'),
+('PD006', 'NV005', '2025-09-08', 'KH019', N'Lấy thuốc cho mẹ'),
+('PD007', 'NV009', '2025-09-10', 'KH024', NULL),
+('PD008', 'NV010', '2025-09-11', 'KH028', N'Giao hàng nhanh'),
+('PD009', 'NV004', '2025-09-13', 'KH002', NULL),
+('PD010', 'NV005', '2025-09-14', 'KH006', N'Kiểm tra lại thuốc dạ dày'),
+('PD011', 'NV009', '2025-09-16', 'KH010', N'Đơn đặt hàng tháng'),
+('PD012', 'NV010', '2025-09-17', 'KH014', NULL),
+('PD013', 'NV004', '2025-09-19', 'KH018', N'Khách hàng cần tư vấn thêm'),
+('PD014', 'NV005', '2025-09-20', 'KH022', NULL),
+('PD015', 'NV009', '2025-09-22', 'KH026', N'Giao cho người nhà tên B'),
+('PD016', 'NV010', '2025-09-23', 'KH030', NULL),
+('PD017', 'NV004', '2025-09-25', 'KH034', N'Thuốc tiểu đường, kiểm tra kỹ'),
+('PD018', 'NV005', '2025-09-26', 'KH003', N'Đơn thuốc hen'),
+('PD019', 'NV009', '2025-09-28', 'KH009', NULL),
+('PD020', 'NV010', '2025-09-29', 'KH016', N'Khách hàng VIP');
 GO
 
--- Insert dữ liệu vào bảng ChiTietPhieuDat
+-- Insert dữ liệu vào bảng ChiTietPhieuDat (ĐÃ CẬP NHẬT với maLo)
 -- Phiếu đặt 1: Thuốc giảm đau và vitamin
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD001', 'T001', N'Paracetamol 500mg', 5),
-('PD001', 'T021', N'Vitamin C 500mg', 3),
-('PD001', 'T026', N'Loratadine 10mg', 2);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD001', 'T001', 'LO001', N'Paracetamol 500mg', 5),
+('PD001', 'T021', 'LO011', N'Vitamin C 500mg', 3),
+('PD001', 'T026', 'LO013', N'Loratadine 10mg', 2);
 GO
 
 -- Phiếu đặt 2: Kháng sinh và thuốc dạ dày
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD002', 'T006', N'Amoxicillin 500mg', 4),
-('PD002', 'T011', N'Omeprazole 20mg', 3),
-('PD002', 'T014', N'Maalox', 2);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD002', 'T006', 'LO003', N'Amoxicillin 500mg', 4),
+('PD002', 'T011', 'LO006', N'Omeprazole 20mg', 3),
+('PD002', 'T014', 'LO007', N'Maalox', 2);
 GO
 
 -- Phiếu đặt 3: Thuốc tiêu chảy
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD003', 'T016', N'Smecta', 6),
-('PD003', 'T017', N'Imodium 2mg', 2),
-('PD003', 'T019', N'Lacteol Fort', 3);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD003', 'T016', 'LO008', N'Smecta', 6),
+('PD003', 'T017', 'LO009', N'Imodium 2mg', 2),
+('PD003', 'T019', 'LO010', N'Lacteol Fort', 3);
 GO
 
 -- Phiếu đặt 4: Thuốc huyết áp và tim mạch
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD004', 'T031', N'Amlodipine 5mg', 3),
-('PD004', 'T033', N'Bisoprolol 2.5mg', 2),
-('PD004', 'T041', N'Atorvastatin 10mg', 2);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD004', 'T031', 'LO016', N'Amlodipine 5mg', 3),
+('PD004', 'T033', 'LO017', N'Bisoprolol 2.5mg', 2),
+('PD004', 'T041', 'LO021', N'Atorvastatin 10mg', 2);
 GO
 
 -- Phiếu đặt 5: Thuốc tiểu đường
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD005', 'T036', N'Metformin 500mg', 5),
-('PD005', 'T038', N'Glibenclamide 5mg', 3),
-('PD005', 'T024', N'Canxi D3', 2);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD005', 'T036', 'LO018', N'Metformin 500mg', 5),
+('PD005', 'T038', 'LO019', N'Glibenclamide 5mg', 3),
+('PD005', 'T024', 'LO012', N'Canxi D3', 2);
 GO
 
 -- Phiếu đặt 6: Thuốc chống dị ứng và vitamin
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD006', 'T027', N'Cetirizine 10mg', 4),
-('PD006', 'T029', N'Claritine', 2),
-('PD006', 'T022', N'Vitamin E 400UI', 3);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD006', 'T027', 'LO014', N'Cetirizine 10mg', 4),
+('PD006', 'T029', 'LO015', N'Claritine', 2),
+('PD006', 'T022', 'LO011', N'Vitamin E 400UI', 3);
 GO
 
 -- Phiếu đặt 7: Kháng sinh cao cấp
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD007', 'T007', N'Augmentin 625mg', 3),
-('PD007', 'T009', N'Azithromycin 250mg', 2),
-('PD007', 'T012', N'Nexium 40mg', 2);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD007', 'T007', 'LO004', N'Augmentin 625mg', 3),
+('PD007', 'T009', 'LO005', N'Azithromycin 250mg', 2),
+('PD007', 'T012', 'LO006', N'Nexium 40mg', 2);
 GO
 
 -- Phiếu đặt 8: Thuốc ho và đường hô hấp
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD008', 'T055', N'Bromhexine 8mg', 4),
-('PD008', 'T056', N'Ambroxol 30mg', 3),
-('PD008', 'T051', N'Salbutamol 2mg', 2),
-('PD008', 'T052', N'Ventolin inhaler', 1);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD008', 'T055', 'LO003', N'Bromhexine 8mg', 4),
+('PD008', 'T056', 'LO003', N'Ambroxol 30mg', 3),
+('PD008', 'T051', 'LO001', N'Salbutamol 2mg', 2),
+('PD008', 'T052', 'LO001', N'Ventolin inhaler', 1);
 GO
 
 -- Phiếu đặt 9: Thuốc giảm đau và chống viêm
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD009', 'T003', N'Ibuprofen 400mg', 3),
-('PD009', 'T046', N'Meloxicam 7.5mg', 2),
-('PD009', 'T047', N'Diclofenac 50mg', 3);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD009', 'T003', 'LO002', N'Ibuprofen 400mg', 3),
+('PD009', 'T046', 'LO023', N'Meloxicam 7.5mg', 2),
+('PD009', 'T047', 'LO024', N'Diclofenac 50mg', 3);
 GO
 
 -- Phiếu đặt 10: Thuốc dạ dày cao cấp
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD010', 'T012', N'Nexium 40mg', 2),
-('PD010', 'T013', N'Pantoprazole 40mg', 2),
-('PD010', 'T101', N'Esomeprazole 20mg', 3);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD010', 'T012', 'LO006', N'Nexium 40mg', 2),
+('PD010', 'T013', 'LO007', N'Pantoprazole 40mg', 2),
+('PD010', 'T101', 'LO001', N'Esomeprazole 20mg', 3);
 GO
 
 -- Phiếu đặt 11: Vitamin tổng hợp
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD011', 'T023', N'Multivitamin', 5),
-('PD011', 'T024', N'Canxi D3', 4),
-('PD011', 'T025', N'Zinc 20mg', 3);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD011', 'T023', 'LO012', N'Multivitamin', 5),
+('PD011', 'T024', 'LO012', N'Canxi D3', 4),
+('PD011', 'T025', 'LO013', N'Zinc 20mg', 3);
 GO
 
 -- Phiếu đặt 12: Thuốc giảm mỡ máu
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD012', 'T042', N'Atorvastatin 20mg', 3),
-('PD012', 'T043', N'Rosuvastatin 10mg', 2),
-('PD012', 'T044', N'Simvastatin 20mg', 2);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD012', 'T042', 'LO021', N'Atorvastatin 20mg', 3),
+('PD012', 'T043', 'LO022', N'Rosuvastatin 10mg', 2),
+('PD012', 'T044', 'LO022', N'Simvastatin 20mg', 2);
 GO
 
 -- Phiếu đặt 13: Thuốc nấm và ký sinh trùng
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD013', 'T059', N'Fluconazole 150mg', 2),
-('PD013', 'T062', N'Albendazole 400mg', 4),
-('PD013', 'T063', N'Mebendazole 500mg', 3);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD013', 'T059', 'LO005', N'Fluconazole 150mg', 2),
+('PD013', 'T062', 'LO006', N'Albendazole 400mg', 4),
+('PD013', 'T063', 'LO007', N'Mebendazole 500mg', 3);
 GO
 
 -- Phiếu đặt 14: Thuốc giảm đau hạ sốt
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD014', 'T001', N'Paracetamol 500mg', 8),
-('PD014', 'T002', N'Efferalgan 500mg', 5),
-('PD014', 'T004', N'Aspirin 100mg', 3);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD014', 'T001', 'LO001', N'Paracetamol 500mg', 8),
+('PD014', 'T002', 'LO001', N'Efferalgan 500mg', 5),
+('PD014', 'T004', 'LO002', N'Aspirin 100mg', 3);
 GO
 
 -- Phiếu đặt 15: Thuốc lợi tiểu và tim mạch
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD015', 'T071', N'Furosemide 40mg', 3),
-('PD015', 'T072', N'Spironolactone 25mg', 2),
-('PD015', 'T080', N'Atenolol 50mg', 2);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD015', 'T071', 'LO011', N'Furosemide 40mg', 3),
+('PD015', 'T072', 'LO011', N'Spironolactone 25mg', 2),
+('PD015', 'T080', 'LO015', N'Atenolol 50mg', 2);
 GO
 
 -- Phiếu đặt 16: Thuốc chống nôn
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD016', 'T064', N'Domperidone 10mg', 4),
-('PD016', 'T065', N'Metoclopramide 10mg', 3),
-('PD016', 'T066', N'Ondansetron 8mg', 2);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD016', 'T064', 'LO007', N'Domperidone 10mg', 4),
+('PD016', 'T065', 'LO008', N'Metoclopramide 10mg', 3),
+('PD016', 'T066', 'LO008', N'Ondansetron 8mg', 2);
 GO
 
 -- Phiếu đặt 17: Thuốc tiểu đường combo
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD017', 'T037', N'Metformin 850mg', 4),
-('PD017', 'T039', N'Acarbose 50mg', 2),
-('PD017', 'T093', N'Gliclazide 30mg', 2);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD017', 'T037', 'LO019', N'Metformin 850mg', 4),
+('PD017', 'T039', 'LO020', N'Acarbose 50mg', 2),
+('PD017', 'T093', 'LO022', N'Gliclazide 30mg', 2);
 GO
 
 -- Phiếu đặt 18: Thuốc hen suyễn
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD018', 'T052', N'Ventolin inhaler', 2),
-('PD018', 'T053', N'Seretide 250mcg', 1),
-('PD018', 'T054', N'Combivent', 1);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD018', 'T052', 'LO001', N'Ventolin inhaler', 2),
+('PD018', 'T053', 'LO002', N'Seretide 250mcg', 1),
+('PD018', 'T054', 'LO002', N'Combivent', 1);
 GO
 
 -- Phiếu đặt 19: Thuốc tiêu chảy và men vi sinh
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD019', 'T016', N'Smecta', 8),
-('PD019', 'T018', N'Bioflora', 4),
-('PD019', 'T020', N'Enterogermina', 3);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD019', 'T016', 'LO008', N'Smecta', 8),
+('PD019', 'T018', 'LO009', N'Bioflora', 4),
+('PD019', 'T020', 'LO010', N'Enterogermina', 3);
 GO
 
 -- Phiếu đặt 20: Thuốc huyết áp combo
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, tenThuoc, soLuong) VALUES
-('PD020', 'T032', N'Amlodipine 10mg', 3),
-('PD020', 'T034', N'Enalapril 5mg', 2),
-('PD020', 'T035', N'Losartan 50mg', 2),
-('PD020', 'T041', N'Atorvastatin 10mg', 2);
+INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD020', 'T032', 'LO016', N'Amlodipine 10mg', 3),
+('PD020', 'T034', 'LO017', N'Enalapril 5mg', 2),
+('PD020', 'T035', 'LO018', N'Losartan 50mg', 2),
+('PD020', 'T041', 'LO021', N'Atorvastatin 10mg', 2);
 
 
 GO
@@ -1146,7 +1142,7 @@ INSERT INTO PhieuDoiTra (maPhieuDoiTra, ngayDoiTra, maNV, maKH) VALUES
 ('PDT015', '2025-09-30', 'NV008', 'KH026');
 GO
 
--- Insert dữ liệu vào bảng ChiTietPhieuDoiTra
+-- Insert dữ liệu vào bảng ChiTietPhieuDoiTra (Dữ liệu gốc đã có maLo, không cần sửa)
 -- Phiếu đổi trả 1: Thuốc hết hạn
 INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
 ('PDT001', 'T001', 2, 5000, 'LO001', N'Thuốc sắp hết hạn sử dụng'),

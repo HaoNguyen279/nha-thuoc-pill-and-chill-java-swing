@@ -172,8 +172,10 @@ public class MainFrame extends JFrame {
     
     public void showLapPhieuDatThuocPanel() {
         if (lapPhieuDatThuocPanel == null) {
-            lapPhieuDatThuocPanel = new LapPhieuDatThuocPanel();
+            lapPhieuDatThuocPanel = new LapPhieuDatThuocPanel(tenNhanVien);
         }
+        // Luôn làm mới dữ liệu khi hiển thị panel này, bất kể là mới tạo hay đã tồn tại
+        lapPhieuDatThuocPanel.reloadDataFromDatabase();
         showPanel(lapPhieuDatThuocPanel);
     }
     

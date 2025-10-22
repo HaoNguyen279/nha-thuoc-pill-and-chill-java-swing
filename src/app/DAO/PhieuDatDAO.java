@@ -8,22 +8,37 @@ import java.sql.Statement;
 import java.sql.Types;
 import java.util.ArrayList;
 
-
 import app.ConnectDB.ConnectDB;
 import app.Entity.PhieuDat;
 
 /**
  * DAO (Data Access Object) for the PhieuDat entity.
  * Handles all database operations related to order notes.
+ * (Đã cập nhật để bao gồm 'ghiChu')
  */
 public class PhieuDatDAO {
 
     /**
-     * Retrieves a list of all active order notes, ordered by the most recent.
+     * Phương thức nội bộ để ánh xạ một hàng ResultSet thành đối tượng PhieuDat.
+     */
+    private PhieuDat mapResultSetToPhieuDat(ResultSet rs) throws SQLException {
+        return new PhieuDat(
+            rs.getString("maPhieuDat"),
+            rs.getString("maNV"),
+            rs.getDate("ngayDat"),
+            rs.getString("maKH"),
+            rs.getString("ghiChu"), 
+            rs.getBoolean("isActive")
+        );
+    }
+
+    /**
+     * Lấy tất cả các phiếu đặt đang hoạt động, sắp xếp theo ngày mới nhất.
      * @return An ArrayList of PhieuDat objects.
      */
     public ArrayList<PhieuDat> getAllPhieuDat() {
         ArrayList<PhieuDat> dsPhieuDat = new ArrayList<>();
+        // Giả định bảng PhieuDat đã có cột ghiChu
         String sql = "SELECT * FROM PhieuDat WHERE isActive = 1 ORDER BY ngayDat DESC";
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -31,14 +46,8 @@ public class PhieuDatDAO {
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                PhieuDat pd = new PhieuDat(
-                    rs.getString("maPhieuDat"),
-                    rs.getString("maNV"),
-                    rs.getDate("ngayDat"),
-                    rs.getString("maKH"),
-                    rs.getBoolean("isActive")
-                );
-                dsPhieuDat.add(pd);
+                // Sử dụng phương thức helper
+                dsPhieuDat.add(mapResultSetToPhieuDat(rs));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -47,11 +56,12 @@ public class PhieuDatDAO {
     }
 
     /**
-     * Retrieves a single order note by its ID.
+     * Lấy một phiếu đặt theo ID.
      * @param id The ID of the order note to find.
      * @return A PhieuDat object if found, otherwise null.
      */
     public PhieuDat getPhieuDatById(String id) {
+        // Giả định bảng PhieuDat đã có cột ghiChu
         String sql = "SELECT * FROM PhieuDat WHERE maPhieuDat = ?";
         PhieuDat pd = null;
 
@@ -62,13 +72,8 @@ public class PhieuDatDAO {
             
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
-                    pd = new PhieuDat(
-                        rs.getString("maPhieuDat"),
-                        rs.getString("maNV"),
-                        rs.getDate("ngayDat"),
-                        rs.getString("maKH"),
-                        rs.getBoolean("isActive")
-                    );
+                    // Sử dụng phương thức helper
+                    pd = mapResultSetToPhieuDat(rs);
                 }
             }
         } catch (SQLException e) {
@@ -78,12 +83,13 @@ public class PhieuDatDAO {
     }
 
     /**
-     * Adds a new order note to the database.
+     * Thêm một phiếu đặt mới vào CSDL.
      * @param phieuDat The PhieuDat object to add.
      * @return true if the operation was successful, false otherwise.
      */
     public boolean addPhieuDat(PhieuDat phieuDat) {
-        String sql = "INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH, isActive) VALUES (?, ?, ?, ?, ?)";
+        // Cập nhật SQL và tham số
+        String sql = "INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH, ghiChu, isActive) VALUES (?, ?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -99,7 +105,8 @@ public class PhieuDatDAO {
             }
             
             stmt.setString(4, phieuDat.getMaKH());
-            stmt.setBoolean(5, phieuDat.isIsActive());
+            stmt.setString(5, phieuDat.getGhiChu()); 
+            stmt.setBoolean(6, phieuDat.isIsActive()); // <-- Chỉ số tăng 1
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -109,12 +116,13 @@ public class PhieuDatDAO {
     }
 
     /**
-     * Updates an existing order note's information.
+     * Cập nhật thông tin của một phiếu đặt.
      * @param phieuDat The PhieuDat object with updated information.
      * @return true if the update was successful, false otherwise.
      */
     public boolean updatePhieuDat(PhieuDat phieuDat) {
-        String sql = "UPDATE PhieuDat SET maNV = ?, ngayDat = ?, maKH = ?, isActive = ? WHERE maPhieuDat = ?";
+        // Cập nhật SQL và tham số
+        String sql = "UPDATE PhieuDat SET maNV = ?, ngayDat = ?, maKH = ?, ghiChu = ?, isActive = ? WHERE maPhieuDat = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -129,8 +137,9 @@ public class PhieuDatDAO {
             }
 
             stmt.setString(3, phieuDat.getMaKH());
-            stmt.setBoolean(4, phieuDat.isIsActive());
-            stmt.setString(5, phieuDat.getMaPhieuDat());
+            stmt.setString(4, phieuDat.getGhiChu()); 
+            stmt.setBoolean(5, phieuDat.isIsActive()); // <-- Chỉ số tăng 1
+            stmt.setString(6, phieuDat.getMaPhieuDat()); // <-- Chỉ số tăng 1
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -140,7 +149,47 @@ public class PhieuDatDAO {
     }
 
     /**
-     * Cancels an order note by setting its isActive flag to false (soft delete).
+     * Tạo mã phiếu đặt tiếp theo (Pattern: PDXXX).
+     * @return The next order number (e.g., "PD001", "PD011", etc.)
+     */
+    public String generateNextMaPhieuDat() {
+        String sql = "SELECT TOP 1 maPhieuDat FROM PhieuDat ORDER BY maPhieuDat DESC";
+        String nextMaPhieuDat = "PD001"; // Default if no records exist
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            if (rs.next()) {
+                String lastMaPhieuDat = rs.getString("maPhieuDat");
+                
+                // Trích xuất phần số từ mã cuối cùng
+                if (lastMaPhieuDat != null && lastMaPhieuDat.startsWith("PD")) {
+                    try {
+                        String numericPart = lastMaPhieuDat.substring(2); // Lấy "XXX" từ "PDXXX"
+                        int lastNumber = Integer.parseInt(numericPart);
+                        int nextNumber = lastNumber + 1;
+                        
+                        // Định dạng lại thành 3 chữ số
+                        nextMaPhieuDat = String.format("PD%03d", nextNumber);
+                    } catch (NumberFormatException e) {
+                        // Nếu có lỗi, quay về mặc định
+                        System.err.println("Lỗi khi phân tích mã phiếu đặt: " + lastMaPhieuDat);
+                        nextMaPhieuDat = "PD001";
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Quay về mặc định nếu có lỗi DB
+            nextMaPhieuDat = "PD001";
+        }
+        
+        return nextMaPhieuDat;
+    }
+
+    /**
+     * Hủy một phiếu đặt (soft delete).
      * @param id The ID of the order note to cancel.
      * @return true if the cancellation was successful, false otherwise.
      */
