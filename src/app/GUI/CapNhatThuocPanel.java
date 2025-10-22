@@ -43,7 +43,6 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 	private JLabel lblSoLuongTon;
 	private JLabel lblGiaBan;
 	private JLabel lblDonVi;
-	private JLabel lblSoLuongToiThieu;
 	private JLabel lblNhaSanXuat;
 
 	private JTextField txtMaThuoc;
@@ -76,7 +75,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         lblSoLuongTon = new JLabel("SL tồn:");
         lblGiaBan = new JLabel("Giá bán:");
     	lblDonVi = new JLabel("Đơn vị:");
-    	lblSoLuongToiThieu = new JLabel("SL tối thiểu:");
+//    	lblSoLuongToiThieu = new JLabel("SL tối thiểu:");
     	lblNhaSanXuat = new JLabel("Nhà sản xuất:");
     	
         txtMaThuoc = new JTextField(15);
@@ -94,7 +93,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         btnXoaTrang = new JButton("Xóa trắng");
         
         // Table init
-        String[] cols = {"Mã thuốc" , "Mã lô" , "Tên thuốc", "Số lượng tồn", "Giá bán","Đơn vị","Số lượng tối thiểu","Mã nsx"};
+        String[] cols = {"Mã thuốc" , "Mã lô" , "Tên thuốc", "Số lượng tồn", "Giá bán","Đơn vị","Mã nsx"};
         dtm = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -108,7 +107,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         add(createTopPanel(),BorderLayout.NORTH);
         add(createBotPanel(), BorderLayout.CENTER);
         
-        loadNhanVienData();
+        loadThuocData();
         setBackground(new Color(248, 248, 248));
 
         
@@ -176,10 +175,10 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 		pnlr6.add(txtDonVi);
 		pnlr6.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 
-		JPanel pnlr7 = new JPanel(new BorderLayout());
-		pnlr7.add(lblSoLuongToiThieu, BorderLayout.WEST);
-		pnlr7.add(txtSoLuongToiThieu);
-		pnlr7.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
+//		JPanel pnlr7 = new JPanel(new BorderLayout());
+//		pnlr7.add(lblSoLuongToiThieu, BorderLayout.WEST);
+//		pnlr7.add(txtSoLuongToiThieu);
+//		pnlr7.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 
 		JPanel pnlr8 = new JPanel(new BorderLayout());
 		pnlr8.add(lblNhaSanXuat, BorderLayout.WEST);
@@ -192,7 +191,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 		pnlCenterOfMain.add(pnlr4);
 		pnlCenterOfMain.add(pnlr5);
 		pnlCenterOfMain.add(pnlr6);
-		pnlCenterOfMain.add(pnlr7);
+//		pnlCenterOfMain.add(pnlr7);
 		pnlCenterOfMain.add(pnlr8);
 		
 		btnThem.setBackground(new Color(224, 248, 228));
@@ -214,7 +213,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 		}
 		JLabel[] lblItems = { 
 			    lblMaThuoc, lblMaLo, lblTenThuoc, lblSoLuongTon,
-			    lblGiaBan, lblDonVi, lblSoLuongToiThieu, lblNhaSanXuat
+			    lblGiaBan, lblDonVi, lblNhaSanXuat
 			};
         for(JLabel item : lblItems) {
         	item.setFont(new Font("Arial", Font.PLAIN, 15));
@@ -256,7 +255,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 		return pnlMain;
 	}
 	
-	public void loadNhanVienData() {
+	public void loadThuocData() {
 		ConnectDB.connect();
         ThuocDAO thuocDAO = new ThuocDAO();
         dsThuoc = thuocDAO.getAllThuoc();
@@ -269,7 +268,6 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 					thuoc.getSoLuongTon(),
 					thuoc.getGiaBan(),
 					thuoc.getDonVi(),
-					thuoc.getSoLuongToiThieu(),
 					thuoc.getMaNSX()
 			};
 		dtm.addRow(rowData);
@@ -308,7 +306,6 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 	            txtSoLuongTon.setText(tblThuoc.getValueAt(row, 3).toString());
 	            txtGiaBan.setText(tblThuoc.getValueAt(row, 4).toString());
 	            txtDonVi.setText(tblThuoc.getValueAt(row, 5).toString());
-	            txtSoLuongToiThieu.setText(tblThuoc.getValueAt(row, 6).toString());
 	            txtNhaSanXuat.setText(tblThuoc.getValueAt(row, 7).toString());
 	        }
 		}
