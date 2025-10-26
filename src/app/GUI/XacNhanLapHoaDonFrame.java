@@ -495,12 +495,22 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
     
     private void timKhachHang() {
         String sdt = txtSDTKhachHang.getText().trim();
+        
+        // Nếu không nhập số điện thoại, hỏi có muốn thêm khách hàng mới không
         if (sdt.isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                    "Vui lòng nhập số điện thoại!",
-                    "Thông báo",
-                    JOptionPane.WARNING_MESSAGE);
-            txtSDTKhachHang.requestFocus();
+            txtTenKhachHang.setText("");
+            int option = JOptionPane.showConfirmDialog(this,
+                "Không có thông tin khách hàng. Bạn có muốn thêm khách hàng mới không?",
+                "Xác nhận",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+            
+            if (option == JOptionPane.YES_OPTION) {
+                // Mở frame thêm khách hàng mới với số điện thoại trống
+                ThemKhachHangKhiLapHoaDon themKHFrame = new ThemKhachHangKhiLapHoaDon("");
+                themKHFrame.setVisible(true);
+            }
+            // Nếu chọn No hoặc đóng dialog, để trống và tiếp tục (khách vãng lai)
             return;
         }
         
@@ -531,20 +541,19 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 txtTenKhachHang.setText(kh.getTenKH());
             } else {
                 txtTenKhachHang.setText("");
-                if (JOptionPane.showConfirmDialog(this,
-                    "Không tìm thấy khách hàng với số điện thoại đã nhập. Bạn có muốn thêm khách hàng mới?",
+                int option = JOptionPane.showConfirmDialog(this,
+                    "Không tìm thấy khách hàng với số điện thoại đã nhập. Bạn có muốn thêm khách hàng mới không?",
                     "Xác nhận",
                     JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-
+                    JOptionPane.QUESTION_MESSAGE);
+                
+                if (option == JOptionPane.YES_OPTION) {
                     // Mở frame thêm khách hàng mới
                     ThemKhachHangKhiLapHoaDon themKHFrame = new ThemKhachHangKhiLapHoaDon(sdt);
                     themKHFrame.setVisible(true);
                     
                     // Đợi frame đóng và kiểm tra lại
-
                     // Vì đã chuyển từ Dialog sang Frame nên cần cách khác để theo dõi
-                    
                     // Một lựa chọn là thử kiểm tra lại sau 1-2 giây
                     Thread.sleep(2000); // Đợi 2 giây
                     
@@ -554,6 +563,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     if (newKH != null) {
                         txtTenKhachHang.setText(newKH.getTenKH());
                     }
+                } else {
+                    // Nếu chọn không thêm khách hàng mới, xóa số điện thoại và để trống (khách vãng lai)
+                    txtSDTKhachHang.setText("");
+                    txtTenKhachHang.setText("");
                 }
             }
         } catch (Exception e) {
@@ -603,13 +616,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             txtTienNhan.requestFocus();
             return;
         }
-        if(txtTenKhachHang.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
-                "Vui lòng nhập tìm kiếm khách hàng!",
-                "Cảnh báo",
-                JOptionPane.WARNING_MESSAGE);
-            return;
-        }
+        // Không bắt buộc phải có thông tin khách hàng - cho phép khách vãng lai
         // Xác nhận lưu hóa đơn
         int confirm = JOptionPane.showConfirmDialog(this,
             "Xác nhận lưu hóa đơn?",
@@ -620,10 +627,11 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         if (confirm == JOptionPane.YES_OPTION) {
             // Lấy thông tin khách hàng (nếu có)
             String sdt = txtSDTKhachHang.getText().trim();
+            String tenKhachHang = txtTenKhachHang.getText().trim();
             String maKhachHang = null;
             
-            // Lấy mã khách hàng từ SDT nếu đã nhập
-            if (!sdt.isEmpty()) {
+            // Chỉ lấy mã khách hàng từ SDT nếu đã nhập và có tên khách hàng hiển thị
+            if (!sdt.isEmpty() && !tenKhachHang.isEmpty()) {
                 try {
                     KhachHangDAO khDAO = new KhachHangDAO();
                     KhachHang kh = khDAO.findKhachHangByPhone(sdt);
@@ -634,6 +642,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     e.printStackTrace();
                 }
             }
+            // Nếu không có thông tin khách hàng, maKhachHang sẽ là null (khách vãng lai)
             
             // Lấy thông tin khuyến mãi và ghi chú
             String maKhuyenMai = txtMaKhuyenMai.getText().trim();
@@ -878,6 +887,9 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 }
                 invoiceInfo.add(new Chunk("Khách hàng: " + tenKhachHang + "\n", normalFont));
                 invoiceInfo.add(new Chunk("Số điện thoại: " + sdtKhachHang + "\n", normalFont));
+            } else {
+                // Khách vãng lai
+                invoiceInfo.add(new Chunk("Khách hàng: Khách vãng lai\n", normalFont));
             }
             
             document.add(invoiceInfo);
