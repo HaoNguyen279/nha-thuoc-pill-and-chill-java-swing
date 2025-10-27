@@ -1,0 +1,27 @@
+[33ma76d9cc[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/MinhKiet[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: pull: Fast-forward
+[33m225f961[m HEAD@{1}: checkout: moving from HaoNguyen to main
+[33m52272dd[m[33m ([m[1;31morigin/HaoNguyen[m[33m, [m[1;32mHaoNguyen[m[33m)[m HEAD@{2}: commit: Done ThongKeDoanhThu
+[33me3fd9e5[m HEAD@{3}: commit: Merged again
+[33m6664a54[m HEAD@{4}: commit: Merge branch 'MinhKiet' into HaoNguyen
+[33maedb530[m HEAD@{5}: commit (merge): Fixed ChucVuDAO and ChucVu
+[33m911fbac[m HEAD@{6}: commit: CRUD completed, testing on xchart
+[33m225f961[m HEAD@{7}: checkout: moving from main to HaoNguyen
+[33m225f961[m HEAD@{8}: commit: Added icon for menu
+[33me9c1b8d[m HEAD@{9}: commit (merge): Merged
+[33mf5ad354[m HEAD@{10}: commit: Update GUI
+[33m8c38bc3[m HEAD@{11}: commit: Add GUI of updating features{thuoc, nhanVien, khachHang, khuyenMai}
+[33md9cbf08[m HEAD@{12}: pull: Merge made by the 'ort' strategy.
+[33mc491cc6[m HEAD@{13}: commit: Add MenuBar,medcine search feature
+[33m2ee67a0[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{14}: reset: moving to 2ee67a0
+[33m98a86e6[m HEAD@{15}: pull origin main --rebase (finish): returning to refs/heads/main
+[33m98a86e6[m HEAD@{16}: pull origin main --rebase (pick): First commit
+[33m4c07324[m[33m ([m[1;31morigin/test-main[m[33m)[m HEAD@{17}: pull origin main --rebase (start): checkout 4c0732404256d2f9e01e5b5c0b37576bd6c3d7bf
+[33m584f1e0[m HEAD@{18}: checkout: moving from master to main
+[33m2ee67a0[m[33m ([m[1;32mmaster[m[33m)[m HEAD@{19}: commit: First Commit
+[33m05f713c[m HEAD@{20}: commit: First Commit
+[33m9cc82c2[m HEAD@{21}: pull origin main --rebase (finish): returning to refs/heads/master
+[33m9cc82c2[m HEAD@{22}: pull origin main --rebase (pick): First commit
+[33m4c07324[m[33m ([m[1;31morigin/test-main[m[33m)[m HEAD@{23}: pull origin main --rebase (start): checkout 4c0732404256d2f9e01e5b5c0b37576bd6c3d7bf
+[33m584f1e0[m HEAD@{24}: checkout: moving from main to master
+[33m584f1e0[m HEAD@{25}: checkout: moving from master to main
+[33m584f1e0[m HEAD@{26}: commit (initial): First commit
