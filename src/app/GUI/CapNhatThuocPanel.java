@@ -132,19 +132,22 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         tblThuoc.setGridColor(Color.LIGHT_GRAY);
         tblThuoc.setFont(new Font("Arial", Font.PLAIN, 15));
         tblThuoc.setRowHeight(40);
-        tblThuoc.setGridColor(Color.LIGHT_GRAY);
-        tblThuoc.setSelectionBackground(new Color(100, 149, 237));
+        tblThuoc.setSelectionBackground(new Color(190, 226, 252));
         tblThuoc.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblThuoc.getColumnModel().getColumn(5).setPreferredWidth(170);
         tblThuoc.addMouseListener(this);
         JTableHeader header = tblThuoc.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(192, 232, 246));
+        header.setBackground(new Color(0, 117, 196));
+        header.setForeground(Color.white);
         header.setFont(new Font("Arial", Font.BOLD, 15));
         JScrollPane scrollPane = new JScrollPane(tblThuoc);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(
     		BorderFactory.createEmptyBorder(00,50,50,50),
     		BorderFactory.createLineBorder(Color.GRAY, 2)
         ));
+        
+
         return scrollPane;
 	}
 	

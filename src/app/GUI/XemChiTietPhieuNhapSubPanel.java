@@ -1,36 +1,67 @@
 package app.GUI;
-import javax.swing.*;
+
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
 import app.ConnectDB.ConnectDB;
-import app.DAO.KhachHangDAO;
-import app.Entity.KhachHang;
+import app.DAO.ChiTietLoThuocDAO;
+import app.DAO.ChiTietPhieuNhapDAO;
+import app.DAO.ThuocDAO;
+import app.Entity.ChiTietLoThuoc;
+import app.Entity.ChiTietPhieuNhap;
+import app.Entity.Thuoc;
 
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-
-public class TimKiemKhachHangPanel extends JPanel implements ActionListener{ 
+public class XemChiTietPhieuNhapSubPanel extends JPanel implements ActionListener {
     private DefaultTableModel dtmTable;
-    private ArrayList<KhachHang> dsKhachHang;
+    private ArrayList<ChiTietPhieuNhap> dsCTPN;
+    private ArrayList<ChiTietLoThuoc> dsCTLT;
     private JButton btnTim;
     private JButton btnReset;
+    private JButton btnQuayLai;
     private JTextField txtTim;
-    private String tieuChi = "Số điện thoại";
+    private String tieuChi = "Mã thuốc";
     private JComboBox<String> cboTieuChi;
     private JTable table;
-    private JLabel lblTongSoBanGhi = new JLabel("");
-    
-    public TimKiemKhachHangPanel(){
+    private ChiTietLoThuocDAO ctltDao = new ChiTietLoThuocDAO();
+    private ChiTietPhieuNhapDAO ctpnDao = new ChiTietPhieuNhapDAO();
+    private ThuocDAO thuocDao = new ThuocDAO();
+    private String maPhieuNhap;
+    private XemPhieuNhapPanel parentPanel;
+    private JLabel lblTongSoBanGhi;
+
+    public XemChiTietPhieuNhapSubPanel(String maPhieuNhap, XemPhieuNhapPanel parentPanel) {
+        this.maPhieuNhap = maPhieuNhap;
+        this.parentPanel = parentPanel;
+        
         setLayout(new BorderLayout());
         
         ConnectDB.getInstance().connect();
-        KhachHangDAO khachHangDao = new KhachHangDAO();
-        dsKhachHang = khachHangDao.getAllKhachHang();
+        
+        dsCTPN = ctpnDao.getChiTietByMaPhieuNhap(maPhieuNhap);
+        dsCTLT = ctltDao.getAllActiveChiTietLoThuoc();
         
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
@@ -38,16 +69,7 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
         JPanel centerPanel = taoCenterPanel();
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         
-        add(mainPanel, BorderLayout.CENTER);
-        
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-            .put(KeyStroke.getKeyStroke("ENTER"), "clickLogin");
-        getActionMap().put("clickLogin", new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                btnTim.doClick();
-            }
-        });
+        add(mainPanel);
         setVisible(true);
     }
     
@@ -59,7 +81,7 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
         // Title Panel
         JPanel titlePanel = new JPanel(new BorderLayout());
         titlePanel.setBackground(Color.WHITE);
-        JLabel titleLabel = new JLabel("TÌM KIẾM KHÁCH HÀNG", SwingConstants.CENTER);
+        JLabel titleLabel = new JLabel("CHI TIẾT PHIẾU NHẬP " + maPhieuNhap, SwingConstants.CENTER);
         titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
         titleLabel.setForeground(new Color(51, 51, 51));
         titleLabel.setBorder(new EmptyBorder(0, 0, 20, 0));
@@ -74,7 +96,8 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
 
-        String[] cols = {"Mã khách hàng", "Tên khách hàng", "Số điện thoại", "Điểm tích lũy"};
+        String[] cols = {"Mã thuốc", "Mã lô", "Tên thuốc", "Số lượng", "Giá nhập", 
+                        "Đơn vị", "Mã NSX", "Ngày sản xuất", "Hạn sử dụng"};
         
         dtmTable = new DefaultTableModel(cols, 0) {
             @Override
@@ -82,7 +105,7 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
                 return false;
             }
         };
-        load_dataKhachHang(dsKhachHang);
+        loadDataChiTiet(dsCTPN);
         
         table = new JTable(dtmTable);
         
@@ -117,7 +140,7 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
         
         panel.add(scrollPane, BorderLayout.CENTER);
         
-        lblTongSoBanGhi = new JLabel("Tổng số bản ghi: " + dsKhachHang.size());
+        lblTongSoBanGhi = new JLabel("Tổng số bản ghi: " + dsCTPN.size());
         lblTongSoBanGhi.setFont(new Font("Arial", Font.PLAIN, 14));
         lblTongSoBanGhi.setBorder(new EmptyBorder(15, 0, 0, 0));
         
@@ -129,6 +152,17 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
     private JPanel taoSearchPanel() {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
         searchPanel.setBackground(Color.WHITE);
+        
+        // Nút quay lại
+        btnQuayLai = new JButton("← Quay lại");
+        btnQuayLai.setFont(new Font("Arial", Font.BOLD, 14));
+        btnQuayLai.setPreferredSize(new Dimension(120, 40));
+        btnQuayLai.setBackground(new Color(70, 70, 70));
+        btnQuayLai.setForeground(Color.WHITE);
+        btnQuayLai.setBorder(BorderFactory.createLineBorder(new Color(50, 50, 50), 1));
+        btnQuayLai.setFocusPainted(false);
+        btnQuayLai.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnQuayLai.addActionListener(this);
         
         // Text field
         txtTim = new JTextField(25);
@@ -159,7 +193,7 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
             }
         });
         
-        // Button Tìm - Green style
+        // Button Tìm
         btnTim = new JButton("Tìm");
         btnTim.setFont(new Font("Arial", Font.BOLD, 14));
         btnTim.setPreferredSize(new Dimension(90, 40));
@@ -170,7 +204,7 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
         btnTim.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnTim.addActionListener(this);
         
-        // Button Reset - White style
+        // Button Reset
         btnReset = new JButton("Reset");
         btnReset.setFont(new Font("Arial", Font.PLAIN, 14));
         btnReset.setPreferredSize(new Dimension(90, 40));
@@ -182,7 +216,7 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
         btnReset.addActionListener(this);
         
         // ComboBox
-        String[] tieuChiTim = {"Số điện thoại", "Mã khách hàng", "Tên khách hàng"};
+        String[] tieuChiTim = {"Mã thuốc", "Mã lô", "Tên thuốc"};
         cboTieuChi = new JComboBox<String>(tieuChiTim);
         cboTieuChi.setFont(new Font("Arial", Font.PLAIN, 14));
         cboTieuChi.setBackground(Color.WHITE);
@@ -192,6 +226,7 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
         cboTieuChi.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150), 1));
         cboTieuChi.addActionListener(this);
         
+        searchPanel.add(btnQuayLai);
         searchPanel.add(txtTim);
         searchPanel.add(btnTim);
         searchPanel.add(btnReset);
@@ -199,50 +234,72 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
         
         return searchPanel;
     }
-   
-    public void load_dataKhachHang(ArrayList<KhachHang> dsKhachHang) {
+    
+    public void loadDataChiTiet(ArrayList<ChiTietPhieuNhap> dsCTPN) {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+        
         dtmTable.setRowCount(0);
-        for(KhachHang khach : dsKhachHang) {
+        for(ChiTietPhieuNhap ct : dsCTPN) {
+            ChiTietLoThuoc lt = new ChiTietLoThuoc();
+            for (ChiTietLoThuoc ctlt : dsCTLT) {
+                if(ctlt.getMaLo().equalsIgnoreCase(ct.getMaLo()) && 
+                   ctlt.getMaThuoc().equalsIgnoreCase(ct.getMaThuoc())) {
+                    lt = ctlt;
+                }
+            }
+            Thuoc thuoc = thuocDao.getThuocById(ct.getMaThuoc());
             Object[] rowData = {
-                khach.getMaKH(),
-                khach.getTenKH(),
-                khach.getSoDienThoai(),
-                khach.getDiemTichLuy()
+                ct.getMaThuoc(),
+                ct.getMaLo(),
+                thuoc.getTenThuoc(),
+                ct.getSoLuong(),
+                ct.getDonGia(),
+                thuoc.getDonVi(),
+                thuoc.getMaNSX(),
+                sdf.format(lt.getNgaySanXuat()),
+                sdf.format(lt.getHanSuDung())
             };
             dtmTable.addRow(rowData);
         }
-        lblTongSoBanGhi.setText("Tổng số bản ghi: " + dsKhachHang.size());
+        if(lblTongSoBanGhi != null) {
+            lblTongSoBanGhi.setText("Tổng số bản ghi: " + dsCTPN.size());
+        }
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
-        if(o == btnTim) {
-            ArrayList<KhachHang> ketQuaTim = new ArrayList<KhachHang>();
+        
+        if(o == btnQuayLai) {
+            parentPanel.quayLaiDanhSach();
+        }
+        else if(o == btnTim) {
+            ArrayList<ChiTietPhieuNhap> ketQuaTim = new ArrayList<ChiTietPhieuNhap>();
             String timString = txtTim.getText().toLowerCase().trim();
             
             if(timString.equals("nhập từ khóa tìm kiếm...") || timString.isBlank()) {
-                load_dataKhachHang(dsKhachHang);
+                loadDataChiTiet(dsCTPN);
             }
             else {
-                if(tieuChi.equals("Mã khách hàng")) {
-                    for(KhachHang khachhang : dsKhachHang) {
-                        if(khachhang.getMaKH().toLowerCase().matches("^.*" + timString + ".*")) {
-                            ketQuaTim.add(khachhang);
+                if(tieuChi.equals("Mã thuốc")) {
+                    for(ChiTietPhieuNhap ct : dsCTPN) {
+                        if(ct.getMaThuoc().toLowerCase().matches("^" + timString + ".*")) {
+                            ketQuaTim.add(ct);
                         }
                     }
                 }
-                else if(tieuChi.equals("Tên khách hàng")) {
-                    for(KhachHang khachhang : dsKhachHang) {
-                        if(khachhang.getTenKH().toLowerCase().matches("^.*" + timString + ".*")) {
-                            ketQuaTim.add(khachhang);
+                else if(tieuChi.equals("Mã lô")) {
+                    for(ChiTietPhieuNhap ct : dsCTPN) {
+                        if(ct.getMaLo().toLowerCase().matches("^" + timString + ".*")) {
+                            ketQuaTim.add(ct);
                         }
                     }
                 }
-                else { // Số điện thoại
-                    for(KhachHang khachhang : dsKhachHang) {
-                        if(khachhang.getSoDienThoai().toLowerCase().matches("^.*" + timString + ".*")) {
-                            ketQuaTim.add(khachhang);
+                else { // Tên thuốc
+                    for(ChiTietPhieuNhap ct : dsCTPN) {
+                        Thuoc thuoc = thuocDao.getThuocById(ct.getMaThuoc());
+                        if(thuoc.getTenThuoc().toLowerCase().contains(timString)) {
+                            ketQuaTim.add(ct);
                         }
                     }
                 }
@@ -251,12 +308,12 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
                     JOptionPane.showMessageDialog(this,
                         "Không tìm thấy kết quả nào!",
                         "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                    load_dataKhachHang(dsKhachHang);
+                    loadDataChiTiet(dsCTPN);
                     txtTim.setText("Nhập từ khóa tìm kiếm...");
                     txtTim.setForeground(Color.GRAY);
                     txtTim.setFont(new Font("Arial", Font.ITALIC, 14));
                 } else {
-                    load_dataKhachHang(ketQuaTim);
+                    loadDataChiTiet(ketQuaTim);
                 }
             }
         }
@@ -265,13 +322,12 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
             txtTim.setForeground(Color.GRAY);
             txtTim.setFont(new Font("Arial", Font.ITALIC, 14));
             cboTieuChi.setSelectedIndex(0);
-            tieuChi = "Số điện thoại";
-            load_dataKhachHang(dsKhachHang);
+            tieuChi = "Mã thuốc";
+            loadDataChiTiet(dsCTPN);
             txtTim.requestFocus();
         }
         else if(o == cboTieuChi) {
             tieuChi = cboTieuChi.getSelectedItem().toString();
-            System.out.println(tieuChi);
         }
     }
 }

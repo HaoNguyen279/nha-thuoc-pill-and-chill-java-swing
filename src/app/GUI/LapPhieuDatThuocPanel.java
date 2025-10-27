@@ -402,10 +402,8 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
             
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                    "Lỗi khi load dữ liệu thuốc: " + e.getMessage(),
-                    "Lỗi",
-                    JOptionPane.ERROR_MESSAGE);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi load dữ liệu thuốc: " + e.getMessage(), false);
+            errorPane.show();
         }
     }
     
@@ -462,10 +460,8 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
         }
         
         if (count == 0) {
-            JOptionPane.showMessageDialog(this, 
-                "Không tìm thấy thuốc nào!", 
-                "Thông báo", 
-                JOptionPane.INFORMATION_MESSAGE);
+            CustomJOptionPane infoPane = new CustomJOptionPane(this, "Không tìm thấy thuốc nào!", false);
+            infoPane.show();
         }
     }
     
@@ -480,10 +476,8 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
         int selectedRow = tblThuoc.getSelectedRow();
         
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, 
-                "Vui lòng chọn thuốc cần thêm vào giỏ hàng!", 
-                "Thông báo", 
-                JOptionPane.WARNING_MESSAGE);
+            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng chọn thuốc cần thêm vào giỏ hàng!", false);
+            warningPane.show();
             return;
         }
         
@@ -494,10 +488,8 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
         
         // Kiểm tra hết hàng
         if (slTonObj.toString().equals("Hết hàng")) {
-            JOptionPane.showMessageDialog(this, 
-                "Thuốc này đã hết hàng!", 
-                "Thông báo", 
-                JOptionPane.WARNING_MESSAGE);
+            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Thuốc này đã hết hàng!", false);
+            warningPane.show();
             return;
         }
         
@@ -506,10 +498,8 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
         
         // Kiểm tra số lượng
         if (soLuongMua > soLuongTon) {
-            JOptionPane.showMessageDialog(this, 
-                "Số lượng mua vượt quá số lượng tồn kho!\nSố lượng tồn: " + soLuongTon, 
-                "Thông báo", 
-                JOptionPane.WARNING_MESSAGE);
+            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Số lượng mua vượt quá số lượng tồn kho!\nSố lượng tồn: " + soLuongTon, false);
+            warningPane.show();
             return;
         }
         
@@ -526,10 +516,8 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
                 int soLuongMoi = soLuongCu + soLuongMua;
                 
                 if (soLuongMoi > soLuongTon) {
-                    JOptionPane.showMessageDialog(this, 
-                        "Tổng số lượng vượt quá số lượng tồn kho!\nSố lượng tồn: " + soLuongTon, 
-                        "Thông báo", 
-                        JOptionPane.WARNING_MESSAGE);
+                    CustomJOptionPane warningPane = new CustomJOptionPane(this, "Tổng số lượng vượt quá số lượng tồn kho!\nSố lượng tồn: " + soLuongTon, false);
+                    warningPane.show();
                     return;
                 }
                 
@@ -562,10 +550,8 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
         int selectedRow = tblGioHang.getSelectedRow();
         
         if (selectedRow == -1) {
-            JOptionPane.showMessageDialog(this, 
-                "Vui lòng chọn thuốc cần xóa khỏi giỏ hàng!", 
-                "Thông báo", 
-                JOptionPane.WARNING_MESSAGE);
+            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng chọn thuốc cần xóa khỏi giỏ hàng!", false);
+            warningPane.show();
             return;
         }
         
@@ -605,35 +591,26 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
     // Phương thức gọi từ UI với xác nhận người dùng
     private void resetGioHangWithConfirm() {
         if (modelGioHang.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, 
-                "Giỏ hàng đang trống!", 
-                "Thông báo", 
-                JOptionPane.INFORMATION_MESSAGE);
+            CustomJOptionPane infoPane = new CustomJOptionPane(this, "Giỏ hàng đang trống!", false);
+            infoPane.show();
             return;
         }
         
-        int confirm = JOptionPane.showConfirmDialog(this, 
-            "Bạn có chắc muốn xóa toàn bộ giỏ hàng?", 
-            "Xác nhận", 
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
+        CustomJOptionPane confirmPane = new CustomJOptionPane(this, "Bạn có chắc muốn xóa toàn bộ giỏ hàng?", true);
+        int confirm = confirmPane.show();
         
         if (confirm == JOptionPane.YES_OPTION) {
             resetGioHang();
-            JOptionPane.showMessageDialog(this, 
-                "Đã xóa toàn bộ giỏ hàng!", 
-                "Thông báo", 
-                JOptionPane.INFORMATION_MESSAGE);
+            CustomJOptionPane successPane = new CustomJOptionPane(this, "Đã xóa toàn bộ giỏ hàng!", false);
+            successPane.show();
         }
     }
     
     // Xác nhận hóa đơn (tạm thời chỉ thông báo)
     private void xacNhanHoaDon() {
         if (modelGioHang.getRowCount() == 0) {
-            JOptionPane.showMessageDialog(this, 
-                "Giỏ hàng đang trống! Vui lòng thêm thuốc vào giỏ hàng.", 
-                "Thông báo", 
-                JOptionPane.WARNING_MESSAGE);
+            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Giỏ hàng đang trống! Vui lòng thêm thuốc vào giỏ hàng.", false);
+            warningPane.show();
             return;
         }
         
@@ -653,11 +630,8 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
             tongTien
         );
         
-        int confirm = JOptionPane.showConfirmDialog(this, 
-            message, 
-            "Xác nhận hóa đơn", 
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
+        CustomJOptionPane confirmPane = new CustomJOptionPane(this, message, true);
+        int confirm = confirmPane.show();
         
         if (confirm == JOptionPane.YES_OPTION) {
             // Tạo mã phiếu đặt tự động theo chuỗi từ database
@@ -701,11 +675,8 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
             boolean updateSuccess = tonKhoDAO.capNhatTonKhoSauKhiDat(dsChiTiet);
             
             if (!updateSuccess) {
-                JOptionPane.showMessageDialog(this,
-                    "Cảnh báo: Có lỗi khi cập nhật tồn kho.\n" +
-                    "Phiếu đặt đã được lưu nhưng vui lòng kiểm tra lại tồn kho.",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE);
+                CustomJOptionPane warningPane = new CustomJOptionPane(this, "Cảnh báo: Có lỗi khi cập nhật tồn kho.\nPhiếu đặt đã được lưu nhưng vui lòng kiểm tra lại tồn kho.", false);
+                warningPane.show();
             }
 
             // 3. Tải lại dữ liệu từ database để đảm bảo hiển thị số lượng tồn mới nhất
@@ -724,32 +695,23 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
                     }
 
                     // Hiển thị thông báo kết quả cho người dùng
-                    JOptionPane.showMessageDialog(this,
-                            "Đã lập phiếu đặt thuốc thành công!\n" +
-                                    "Mã phiếu đặt: " + maPhieuDat + "\n" +
-                                    "Số mặt hàng: " + dsChiTiet.size() + "\n" +
-                                    "Số lượng tồn kho đã được cập nhật (chừa ra).",
-                            "Thành công",
-                            JOptionPane.INFORMATION_MESSAGE);
+                    CustomJOptionPane successPane = new CustomJOptionPane(LapPhieuDatThuocPanel.this, 
+                            "Đã lập phiếu đặt thuốc thành công!\nMã phiếu đặt: " + maPhieuDat + "\nSố mặt hàng: " + dsChiTiet.size() + "\nSố lượng tồn kho đã được cập nhật (chừa ra).", 
+                            false);
+                    successPane.show();
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    JOptionPane.showMessageDialog(this,
-                            "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt.\n" +
-                                    "Vui lòng nhấn Reset để tải lại dữ liệu.",
-                            "Cảnh báo",
-                            JOptionPane.WARNING_MESSAGE);
+                    CustomJOptionPane errorPane = new CustomJOptionPane(LapPhieuDatThuocPanel.this, "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt.\nVui lòng nhấn Reset để tải lại dữ liệu.", false);
+                    errorPane.show();
                 }
             });
 
         } catch (Exception e) {
             e.printStackTrace();
             // Hiển thị thông báo lỗi cho người dùng
-            JOptionPane.showMessageDialog(this,
-                    "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt thuốc.\n" +
-                            "Vui lòng nhấn Reset để tải lại dữ liệu.",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt thuốc.\nVui lòng nhấn Reset để tải lại dữ liệu.", false);
+            errorPane.show();
         }
     }
     
@@ -792,12 +754,12 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
             // Tải lại dữ liệu thuốc
             loadDataThuoc();
             
-            JOptionPane.showMessageDialog(this, "Dữ liệu đã được cập nhật!", 
-                "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+            CustomJOptionPane infoPane = new CustomJOptionPane(this, "Dữ liệu đã được cập nhật!", false);
+            infoPane.show();
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi tải lại dữ liệu: " + e.getMessage(), 
-                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi tải lại dữ liệu: " + e.getMessage(), false);
+            errorPane.show();
         }
     }
 }

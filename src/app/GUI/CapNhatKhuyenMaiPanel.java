@@ -118,13 +118,13 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
         tblKhuyenMai.setGridColor(Color.LIGHT_GRAY);
         tblKhuyenMai.setFont(new Font("Arial", Font.PLAIN, 15));
         tblKhuyenMai.setRowHeight(40);
-        tblKhuyenMai.setGridColor(Color.LIGHT_GRAY);
-        tblKhuyenMai.setSelectionBackground(new Color(100, 149, 237));
+        tblKhuyenMai.setSelectionBackground(new Color(190, 226, 252));
         tblKhuyenMai.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblKhuyenMai.addMouseListener(this);
         JTableHeader header = tblKhuyenMai.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(192, 232, 246));
+        header.setBackground(new Color(0, 117, 196));
+        header.setForeground(Color.white);
         header.setFont(new Font("Arial", Font.BOLD, 15));
         JScrollPane scrollPane = new JScrollPane(tblKhuyenMai);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(

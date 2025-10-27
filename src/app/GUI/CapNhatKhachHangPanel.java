@@ -104,13 +104,13 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener,Mous
         tblKhachHang.setGridColor(Color.LIGHT_GRAY);
         tblKhachHang.setFont(new Font("Arial", Font.PLAIN, 15));
         tblKhachHang.setRowHeight(40);
-        tblKhachHang.setGridColor(Color.LIGHT_GRAY);
-        tblKhachHang.setSelectionBackground(new Color(100, 149, 237));
+        tblKhachHang.setSelectionBackground(new Color(190, 226, 252));
         tblKhachHang.addMouseListener(this);
         tblKhachHang.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JTableHeader header = tblKhachHang.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(192, 232, 246));
+        header.setBackground(new Color(0, 117, 196));
+        header.setForeground(Color.white);
         header.setFont(new Font("Arial", Font.BOLD, 15));
         JScrollPane scrollPane = new JScrollPane(tblKhachHang);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(

@@ -3,6 +3,8 @@ package app.GUI;
 import java.awt.*;
 import javax.swing.*;
 
+import app.DAO.NhanVienDAO;
+
 
 public class MainFrame extends JFrame {
     private String maNhanVien;
@@ -15,12 +17,8 @@ public class MainFrame extends JFrame {
     private CapNhatThuocPanel capNhatThuocPanel;
     private CapNhatKhuyenMaiPanel capNhatKhuyenMaiPanel;
     private LapPhieuDatThuocPanel lapPhieuDatThuocPanel;
-<<<<<<< HEAD
-    private LapPhieuDoiThuocPanel lapPhieuDoiThuocPanel;
     private NhapThuocPanel nhapThuocPanel;
-=======
     private LapPhieuTraThuocPanel lapPhieuTraThuocPanel;
->>>>>>> origin/main
     private ThongKeTheoDoanhThuPanel thongKeTheoDoanhThuPanel;
     private ThongKeDoanhThuTheoThangPanel thongKeTheoDoanhThuTheoThangPanel;
     private ThongKeTheoNhanVienPanel thongKeTheoNhanVienPanel;
@@ -30,6 +28,10 @@ public class MainFrame extends JFrame {
     private ThongKeTheoThuePanel thongKeTheoThuePanel;
     private TimKiemKhachHangPanel timKiemKhachHangPanel;
     private TimKiemNhanVienPanel timKiemNhanVienPanel;
+    private TaiKhoanPanel taiKhoanPanel;
+    private CapNhatChucVuPanel capNhatChucVuPanel;
+    private XemPhieuNhapPanel xemPhieuNhapPanel;
+     
     
     public MainFrame(String maNhanVien) {
         this.maNhanVien = maNhanVien;
@@ -66,12 +68,8 @@ public class MainFrame extends JFrame {
         capNhatThuocPanel = null;
         capNhatKhuyenMaiPanel = null;
         lapPhieuDatThuocPanel = null;
-<<<<<<< HEAD
-        lapPhieuDoiThuocPanel = null;
         nhapThuocPanel = null;
-=======
         lapPhieuTraThuocPanel = null;
->>>>>>> origin/main
         thongKeTheoDoanhThuPanel = null;
         thongKeTheoDoanhThuTheoThangPanel = null;
         thongKeTheoNhanVienPanel = null;
@@ -81,6 +79,9 @@ public class MainFrame extends JFrame {
         thongKeTheoThuePanel = null;
         timKiemKhachHangPanel = null;
         timKiemNhanVienPanel = null;
+        taiKhoanPanel = null;
+        capNhatChucVuPanel = null;
+        xemPhieuNhapPanel = null;
     }
     
     private void showDefaultContent() {
@@ -246,6 +247,63 @@ public class MainFrame extends JFrame {
             thongKeTheoThuePanel = new ThongKeTheoThuePanel();
         }
         showPanel(thongKeTheoThuePanel);
+    }
+    public void showCapNhatChucVuPanel() {
+		if(capNhatChucVuPanel == null) {
+			capNhatChucVuPanel = new CapNhatChucVuPanel();
+		}
+		showPanel(capNhatChucVuPanel);
+		
+	}
+    public void showPhieuNhap() {
+		if(xemPhieuNhapPanel == null) {
+			xemPhieuNhapPanel = new XemPhieuNhapPanel();
+		}
+		showPanel(xemPhieuNhapPanel);
+	}
+	public void showTaiKhoanPanel() {
+		NhanVienDAO nvDao = new NhanVienDAO();
+		if(taiKhoanPanel == null) {
+			taiKhoanPanel = new TaiKhoanPanel(nvDao.getNhanVienById(maNhanVien));
+		}
+		showPanel(taiKhoanPanel);
+	}
+	
+    public void resetApplication() {
+        // Xóa nội dung hiện tại trên màn hình
+        contentPanel.removeAll();
+        contentPanel.revalidate();
+        contentPanel.repaint();
+        
+        // Dispose các panels cũ nếu cần (giải phóng resources)
+        disposeAllPanels();
+        
+        // Set tất cả panels về null
+        initializePanels();
+        
+        // Hiển thị trang chào mừng
+        showDefaultContent();
+    }
+    
+    private void disposeAllPanels() {
+        
+        JPanel[] allPanels = {
+            timKiemThuocPanel, lapHoaDonPanel, capNhatKhachHangPanel,
+            capNhatNhanVienPanel, capNhatThuocPanel, capNhatKhuyenMaiPanel,
+            capNhatChucVuPanel, lapPhieuDatThuocPanel, lapPhieuTraThuocPanel,
+            nhapThuocPanel, thongKeTheoDoanhThuPanel, thongKeTheoNhanVienPanel,
+            thongKeTheoKhachHangPanel, thongKeTheoHSDPanel, thongKeTheoThuocPanel,
+            thongKeTheoThuePanel, timKiemKhachHangPanel, timKiemNhanVienPanel,
+            xemPhieuNhapPanel
+        };
+        
+        
+        for (JPanel panel : allPanels) {
+            if (panel != null) {
+                panel.removeAll();
+            }
+        }
+        
     }
     
     

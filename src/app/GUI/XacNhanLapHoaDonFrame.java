@@ -479,13 +479,12 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         Object o = e.getSource();
         
         if (o == btnQuayVe) {
-            if(JOptionPane.showConfirmDialog(this,
+            CustomJOptionPane confirmPane = new CustomJOptionPane(this,
                 "Bạn có chắc muốn quay về? Mọi thay đổi chưa lưu sẽ bị mất.",
-                "Xác nhận",
-                JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
-                    dispose(); // Đóng frame
-                }
+                true);
+            if(confirmPane.show() == JOptionPane.YES_OPTION) {
+                dispose(); // Đóng frame
+            }
         } else if (o == btnTim) {
             timKhachHang();
         } else if (o == btnXacNhan) {
@@ -499,11 +498,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         // Nếu không nhập số điện thoại, hỏi có muốn thêm khách hàng mới không
         if (sdt.isEmpty()) {
             txtTenKhachHang.setText("");
-            int option = JOptionPane.showConfirmDialog(this,
+            CustomJOptionPane confirmPane = new CustomJOptionPane(this,
                 "Không có thông tin khách hàng. Bạn có muốn thêm khách hàng mới không?",
-                "Xác nhận",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE);
+                true);
+            int option = confirmPane.show();
             
             if (option == JOptionPane.YES_OPTION) {
                 // Mở frame thêm khách hàng mới với số điện thoại trống
@@ -516,12 +514,12 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         
         // Kiểm tra format số điện thoại: phải có đúng 10 số và bắt đầu bằng 0
         if (!sdt.matches("^0\\d{9}$")) {
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane errorPane = new CustomJOptionPane(this,
                 "Số điện thoại không hợp lệ!\n" +
                 "Yêu cầu: Phải có đúng 10 chữ số và bắt đầu bằng số 0\n" +
                 "Ví dụ: 0123456789",
-                "Lỗi định dạng",
-                JOptionPane.ERROR_MESSAGE);
+                false);
+            errorPane.show();
             txtSDTKhachHang.requestFocus();
             txtSDTKhachHang.selectAll(); // Chọn toàn bộ text để người dùng sửa dễ hơn
             return;
@@ -541,11 +539,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 txtTenKhachHang.setText(kh.getTenKH());
             } else {
                 txtTenKhachHang.setText("");
-                int option = JOptionPane.showConfirmDialog(this,
+                CustomJOptionPane confirmPane = new CustomJOptionPane(this,
                     "Không tìm thấy khách hàng với số điện thoại đã nhập. Bạn có muốn thêm khách hàng mới không?",
-                    "Xác nhận",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
+                    true);
+                int option = confirmPane.show();
                 
                 if (option == JOptionPane.YES_OPTION) {
                     // Mở frame thêm khách hàng mới
@@ -572,20 +569,20 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         } catch (Exception e) {
            
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane errorPane = new CustomJOptionPane(this,
                 "Đã xảy ra lỗi khi tìm kiếm khách hàng: " + e.getMessage(),
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
+                false);
+            errorPane.show();
         }
     }
     
     private void xacNhanHoaDon() {
         // Kiểm tra thông tin bắt buộc - nhập tiền khách thanh toán
         if (txtTienNhan.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane warningPane = new CustomJOptionPane(this,
                 "Vui lòng nhập số tiền khách hàng thanh toán!",
-                "Cảnh báo",
-                JOptionPane.WARNING_MESSAGE);
+                false);
+            warningPane.show();
             txtTienNhan.requestFocus();
             return;
         }
@@ -601,28 +598,27 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             double tienNhan = Double.parseDouble(tienNhanStr);
             
             if (tienNhan < tongThanhToan) {
-                JOptionPane.showMessageDialog(this,
+                CustomJOptionPane warningPane = new CustomJOptionPane(this,
                     "Số tiền khách thanh toán chưa đủ!",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE);
+                    false);
+                warningPane.show();
                 txtTienNhan.requestFocus();
                 return;
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane errorPane = new CustomJOptionPane(this,
                 "Số tiền không hợp lệ!",
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
+                false);
+            errorPane.show();
             txtTienNhan.requestFocus();
             return;
         }
         // Không bắt buộc phải có thông tin khách hàng - cho phép khách vãng lai
         // Xác nhận lưu hóa đơn
-        int confirm = JOptionPane.showConfirmDialog(this,
+        CustomJOptionPane confirmPane = new CustomJOptionPane(this,
             "Xác nhận lưu hóa đơn?",
-            "Xác nhận",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
+            true);
+        int confirm = confirmPane.show();
         
         if (confirm == JOptionPane.YES_OPTION) {
             // Lấy thông tin khách hàng (nếu có)
@@ -662,10 +658,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 // Trước khi lưu, kiểm tra xem có đủ số lượng tồn kho không
                 TonKhoDAO tonKhoDAO = new TonKhoDAO();
                 if (!tonKhoDAO.kiemTraDuSoLuong(dsChiTietData)) {
-                    JOptionPane.showMessageDialog(this,
+                    CustomJOptionPane warningPane = new CustomJOptionPane(this,
                         "Không đủ số lượng thuốc trong kho để hoàn tất giao dịch. Vui lòng kiểm tra lại.",
-                        "Cảnh báo tồn kho",
-                        JOptionPane.WARNING_MESSAGE);
+                        false);
+                    warningPane.show();
                     return;
                 }
                 
@@ -682,11 +678,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     updateInventory(dsChiTietData);
                     
                     // Hỏi người dùng có muốn xuất hóa đơn PDF không
-                    int printOption = JOptionPane.showConfirmDialog(this,
+                    CustomJOptionPane printConfirmPane = new CustomJOptionPane(this,
                         "Lưu hóa đơn thành công! Bạn có muốn xuất hóa đơn PDF không?",
-                        "Xuất hóa đơn",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
+                        true);
+                    int printOption = printConfirmPane.show();
                         
                     if (printOption == JOptionPane.YES_OPTION) {
                         // Xuất hóa đơn PDF
@@ -697,17 +692,17 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     // notifyCartClear() sẽ tự động đóng frame
                     notifyCartClear();
                 } else {
-                    JOptionPane.showMessageDialog(this,
+                    CustomJOptionPane errorPane = new CustomJOptionPane(this,
                         "Lưu hóa đơn không thành công!",
-                        "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
+                        false);
+                    errorPane.show();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(this,
+                CustomJOptionPane errorPane = new CustomJOptionPane(this,
                     "Lỗi khi lưu hóa đơn: " + e.getMessage(),
-                    "Lỗi",
-                    JOptionPane.ERROR_MESSAGE);
+                    false);
+                errorPane.show();
             }
         }
     }
@@ -789,17 +784,17 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     }
                 }
             } else {
-                JOptionPane.showMessageDialog(this,
+                CustomJOptionPane warningPane = new CustomJOptionPane(this,
                     "Không thể cập nhật số lượng tồn kho. Hóa đơn đã được lưu nhưng tồn kho chưa được cập nhật.",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE);
+                    false);
+                warningPane.show();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane errorPane = new CustomJOptionPane(this,
                 "Lỗi cập nhật số lượng tồn kho: " + e.getMessage(),
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
+                false);
+            errorPane.show();
         }
     }
     
@@ -965,10 +960,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             document.close();
             
             // Thông báo thành công
-            JOptionPane.showMessageDialog(this, 
+            CustomJOptionPane successPane = new CustomJOptionPane(this, 
                 "Đã xuất hóa đơn PDF thành công!\nVị trí: " + filePath, 
-                "Xuất hóa đơn", 
-                JOptionPane.INFORMATION_MESSAGE);
+                false);
+            successPane.show();
             
             // Tự động mở file PDF sau khi xuất
             try {
@@ -984,19 +979,19 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, 
+                CustomJOptionPane warningPane = new CustomJOptionPane(this, 
                     "Không thể tự động mở file PDF: " + ex.getMessage(), 
-                    "Cảnh báo", 
-                    JOptionPane.WARNING_MESSAGE);
+                    false);
+                warningPane.show();
             }
             
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, 
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, 
                 "Lỗi khi xuất hóa đơn PDF: " + e.getMessage() + 
                 "\nVui lòng kiểm tra đường dẫn: E:\\PTUD\\PDF\\HoaDon", 
-                "Lỗi", 
-                JOptionPane.ERROR_MESSAGE);
+                false);
+            errorPane.show();
         }
     }
     
@@ -1051,10 +1046,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             }
             
             // Hiển thị thông báo thành công trước khi đóng
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane successPane = new CustomJOptionPane(this,
                 "Hóa đơn đã được lưu và tồn kho đã được cập nhật thành công!",
-                "Thành công",
-                JOptionPane.INFORMATION_MESSAGE);
+                false);
+            successPane.show();
             
             // Nếu tìm thấy MainFrame, cập nhật dữ liệu trước khi đóng
             if (mainFrame != null) {

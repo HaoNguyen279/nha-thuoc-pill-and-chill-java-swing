@@ -401,15 +401,13 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
     private void timKhachHang() {
         String sdt = txtSDTKhachHang.getText().trim();
         if (sdt.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại khách hàng!", 
-                "Thông báo", JOptionPane.WARNING_MESSAGE);
+            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng nhập số điện thoại khách hàng!", false);
+            warningPane.show();
             return;
         }
         if (!sdt.matches("^0\\d{9}$")) {
-            JOptionPane.showMessageDialog(this,
-            "Số điện thoại không hợp lệ! (Phải có 10 số và bắt đầu bằng 0)",
-                "Lỗi",
-            JOptionPane.ERROR_MESSAGE);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Số điện thoại không hợp lệ! (Phải có 10 số và bắt đầu bằng 0)", false);
+            errorPane.show();
             return;
         }
         try {
@@ -418,12 +416,12 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                 txtTenKhachHang.setText(kh.getTenKH());
             } else {
                 txtTenKhachHang.setText("");
-                if (JOptionPane.showConfirmDialog(this,
-                    "Không tìm thấy khách hàng với số điện thoại đã nhập.\n" +
-                    "Bạn có muốn thêm khách hàng mới không?",
-                    "Xác nhận",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+                CustomJOptionPane confirmPane = new CustomJOptionPane(this, 
+                    "Không tìm thấy khách hàng với số điện thoại đã nhập.\nBạn có muốn thêm khách hàng mới không?", 
+                    true);
+                int confirm = confirmPane.show();
+                
+                if (confirm == JOptionPane.YES_OPTION) {
 
                     // Mở frame thêm khách hàng mới
                     ThemKhachHangKhiLapHoaDon themKHFrame = new ThemKhachHangKhiLapHoaDon(sdt);
@@ -433,8 +431,8 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi tìm kiếm khách hàng: " + e.getMessage(), 
-                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi tìm kiếm khách hàng: " + e.getMessage(), false);
+            errorPane.show();
         }
     }
     
@@ -442,18 +440,16 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         // Kiểm tra số điện thoại
         String sdt = txtSDTKhachHang.getText().trim();
         if (sdt.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại khách hàng!", 
-                "Thông báo", JOptionPane.WARNING_MESSAGE);
+            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng nhập số điện thoại khách hàng!", false);
+            warningPane.show();
             txtSDTKhachHang.requestFocus();
             return;
         }
         
         // Kiểm tra định dạng số điện thoại
         if (!sdt.matches("^0\\d{9}$")) {
-            JOptionPane.showMessageDialog(this,
-                "Số điện thoại không hợp lệ! (Phải có 10 số và bắt đầu bằng 0)",
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Số điện thoại không hợp lệ! (Phải có 10 số và bắt đầu bằng 0)", false);
+            errorPane.show();
             txtSDTKhachHang.requestFocus();
             return;
         }
@@ -461,8 +457,8 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         // Kiểm tra khách hàng đã được tìm kiếm
         String tenKH = txtTenKhachHang.getText().trim();
         if (tenKH.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng tìm kiếm thông tin khách hàng trước khi xác nhận!", 
-                "Thông báo", JOptionPane.WARNING_MESSAGE);
+            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng tìm kiếm thông tin khách hàng trước khi xác nhận!", false);
+            warningPane.show();
             btnTim.requestFocus();
             return;
         }
@@ -471,13 +467,13 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         try {
             KhachHang kh = khachHangDAO.findKhachHangByPhone(sdt);
             if (kh == null) {
-                JOptionPane.showMessageDialog(this, "Khách hàng không tồn tại trong hệ thống!\nVui lòng thêm khách hàng mới trước.", 
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+                CustomJOptionPane errorPane = new CustomJOptionPane(this, "Khách hàng không tồn tại trong hệ thống!\nVui lòng thêm khách hàng mới trước.", false);
+                errorPane.show();
                 return;
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi kiểm tra thông tin khách hàng: " + ex.getMessage(), 
-                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi kiểm tra thông tin khách hàng: " + ex.getMessage(), false);
+            errorPane.show();
             return;
         }
         
@@ -505,9 +501,9 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         if (ngayGiaoClean.before(ngayHienTai) || ngayGiaoClean.equals(ngayHienTai)) {
             Calendar calNgayMai = Calendar.getInstance();
             calNgayMai.add(Calendar.DAY_OF_MONTH, 1);
-            JOptionPane.showMessageDialog(this, "Ngày giao hàng phải từ " + 
-                new SimpleDateFormat("dd/MM/yyyy").format(calNgayMai.getTime()) + " trở đi!", 
-                "Thông báo", JOptionPane.WARNING_MESSAGE);
+            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Ngày giao hàng phải từ " + 
+                new SimpleDateFormat("dd/MM/yyyy").format(calNgayMai.getTime()) + " trở đi!", false);
+            warningPane.show();
             return;
         }
         
@@ -515,8 +511,8 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             // Lấy thông tin khách hàng từ database
             KhachHang khachHang = khachHangDAO.findKhachHangByPhone(sdt);
             if (khachHang == null) {
-                JOptionPane.showMessageDialog(this, "Khách hàng không tồn tại trong hệ thống!\nVui lòng thêm khách hàng mới trước.", 
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+                CustomJOptionPane errorPane = new CustomJOptionPane(this, "Khách hàng không tồn tại trong hệ thống!\nVui lòng thêm khách hàng mới trước.", false);
+                errorPane.show();
                 return;
             }
             
@@ -547,17 +543,10 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                     String ghiChuText = ghiChuDisplay.isEmpty() ? "(Không có ghi chú)" : ghiChuDisplay;
                     
                     // Hỏi người dùng có muốn xuất phiếu đặt PDF không
-                    int printOption = JOptionPane.showConfirmDialog(this,
-                        "Lập phiếu đặt thành công!\n" +
-                        "Mã phiếu đặt: " + maPhieuDat + "\n" +
-                        "Khách hàng: " + tenKH + "\n" +
-                        "SĐT: " + sdt + "\n" +
-                        "Ngày giao: " + new SimpleDateFormat("dd/MM/yyyy").format(ngayGiao) + "\n" +
-                        "Ghi chú: " + ghiChuText + "\n\n" +
-                        "Bạn có muốn xuất phiếu đặt PDF không?",
-                        "Xuất phiếu đặt",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
+                    CustomJOptionPane confirmPane = new CustomJOptionPane(this,
+                        "Lập phiếu đặt thành công!\nMã phiếu đặt: " + maPhieuDat + "\nKhách hàng: " + tenKH + "\nSĐT: " + sdt + "\nNgày giao: " + new SimpleDateFormat("dd/MM/yyyy").format(ngayGiao) + "\nGhi chú: " + ghiChuText + "\n\nBạn có muốn xuất phiếu đặt PDF không?",
+                        true);
+                    int printOption = confirmPane.show();
                         
                     if (printOption == JOptionPane.YES_OPTION) {
                         // Xuất phiếu đặt PDF
@@ -571,18 +560,18 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                     
                     dispose();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Lỗi khi lưu chi tiết phiếu đặt!", 
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi lưu chi tiết phiếu đặt!", false);
+                    errorPane.show();
                 }
             } else {
-                JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu đặt!", 
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+                CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi lưu phiếu đặt!", false);
+                errorPane.show();
             }
             
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu đặt: " + e.getMessage(), 
-                "Lỗi", JOptionPane.ERROR_MESSAGE);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi lưu phiếu đặt: " + e.getMessage(), false);
+            errorPane.show();
         }
     }
     
@@ -787,11 +776,10 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             document.close();
             
             // Hiển thị thông báo thành công và hỏi có muốn mở file không
-            int openOption = JOptionPane.showConfirmDialog(this,
+            CustomJOptionPane confirmPane = new CustomJOptionPane(this,
                 "Xuất phiếu đặt PDF thành công!\nFile được lưu tại: " + filePath + "\n\nBạn có muốn mở file không?",
-                "Thành công",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.INFORMATION_MESSAGE);
+                true);
+            int openOption = confirmPane.show();
                 
             if (openOption == JOptionPane.YES_OPTION) {
                 // Mở file PDF
@@ -802,10 +790,8 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
-                "Lỗi khi xuất phiếu đặt PDF: " + e.getMessage(),
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi xuất phiếu đặt PDF: " + e.getMessage(), false);
+            errorPane.show();
         }
     }
     

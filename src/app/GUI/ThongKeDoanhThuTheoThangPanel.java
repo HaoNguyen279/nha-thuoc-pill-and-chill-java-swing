@@ -24,7 +24,7 @@ import org.knowm.xchart.style.Styler;
 import app.DAO.HoaDonDAO;
 import app.DAO.KhachHangDAO;
 import app.Entity.DoanhThuHoaDon;
-import app.Entity.DoanhThuTheoThang;
+
 
 
 public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListener {
@@ -154,7 +154,7 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
 			.width(600)
 			.height(400)
 			.title("Doanh thu nhà thuốc theo tháng của năm " + namDuocChon)
-			.xAxisTitle("Tháng")
+			.xAxisTitle("Ngày")
 			.yAxisTitle("Doanh thu (triệu)")
 			.build();
 

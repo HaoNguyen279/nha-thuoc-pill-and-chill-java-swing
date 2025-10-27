@@ -1,8 +1,5 @@
 package app.Entity;
 
-/**
- * Entity class representing monthly revenue statistics
- */
 public class DoanhThuTheoThang {
     private int thang;
     private int nam;
