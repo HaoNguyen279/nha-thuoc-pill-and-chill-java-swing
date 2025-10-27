@@ -5,7 +5,7 @@ import javax.swing.*;
 
 
 public class MainFrame extends JFrame {
-    private String tenNhanVien;
+    private String maNhanVien;
     private MenuBarPanel menuBarPanel;
     private JPanel contentPanel;
     private TimKiemThuocPanel timKiemThuocPanel;
@@ -15,8 +15,12 @@ public class MainFrame extends JFrame {
     private CapNhatThuocPanel capNhatThuocPanel;
     private CapNhatKhuyenMaiPanel capNhatKhuyenMaiPanel;
     private LapPhieuDatThuocPanel lapPhieuDatThuocPanel;
+<<<<<<< HEAD
     private LapPhieuDoiThuocPanel lapPhieuDoiThuocPanel;
     private NhapThuocPanel nhapThuocPanel;
+=======
+    private LapPhieuTraThuocPanel lapPhieuTraThuocPanel;
+>>>>>>> origin/main
     private ThongKeTheoDoanhThuPanel thongKeTheoDoanhThuPanel;
     private ThongKeDoanhThuTheoThangPanel thongKeTheoDoanhThuTheoThangPanel;
     private ThongKeTheoNhanVienPanel thongKeTheoNhanVienPanel;
@@ -27,22 +31,22 @@ public class MainFrame extends JFrame {
     private TimKiemKhachHangPanel timKiemKhachHangPanel;
     private TimKiemNhanVienPanel timKiemNhanVienPanel;
     
-    public MainFrame(String tenNhanVien) {
-        this.tenNhanVien = tenNhanVien;
+    public MainFrame(String maNhanVien) {
+        this.maNhanVien = maNhanVien;
         initializeFrame();
         initializePanels();
         showDefaultContent();
     }
     
     private void initializeFrame() {
-        setTitle("Hệ thống quản lý nhà thuốc - Nhân viên: " + tenNhanVien);
+        setTitle("Hệ thống quản lý nhà thuốc - Nhân viên: " + maNhanVien);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         
         // Tạo menu bar panel
-        menuBarPanel = new MenuBarPanel(tenNhanVien, this);
+        menuBarPanel = new MenuBarPanel(maNhanVien, this);
         add(menuBarPanel, BorderLayout.NORTH);
         
         // Tạo content panel chính
@@ -62,8 +66,12 @@ public class MainFrame extends JFrame {
         capNhatThuocPanel = null;
         capNhatKhuyenMaiPanel = null;
         lapPhieuDatThuocPanel = null;
+<<<<<<< HEAD
         lapPhieuDoiThuocPanel = null;
         nhapThuocPanel = null;
+=======
+        lapPhieuTraThuocPanel = null;
+>>>>>>> origin/main
         thongKeTheoDoanhThuPanel = null;
         thongKeTheoDoanhThuTheoThangPanel = null;
         thongKeTheoNhanVienPanel = null;
@@ -110,7 +118,7 @@ public class MainFrame extends JFrame {
     
     public void showLapHoaDonPanel() {
         if (lapHoaDonPanel == null) {
-            lapHoaDonPanel = new LapHoaDonPanel(tenNhanVien);
+            lapHoaDonPanel = new LapHoaDonPanel(maNhanVien);
         }
         // Luôn làm mới dữ liệu khi hiển thị panel này, bất kể là mới tạo hay đã tồn tại
         lapHoaDonPanel.reloadDataFromDatabase();
@@ -124,7 +132,7 @@ public class MainFrame extends JFrame {
      */
     public LapHoaDonPanel getLapHoaDonPanel() {
         if (lapHoaDonPanel == null) {
-            lapHoaDonPanel = new LapHoaDonPanel(tenNhanVien);
+            lapHoaDonPanel = new LapHoaDonPanel(maNhanVien);
         }
         return lapHoaDonPanel;
     }
@@ -174,18 +182,17 @@ public class MainFrame extends JFrame {
     
     public void showLapPhieuDatThuocPanel() {
         if (lapPhieuDatThuocPanel == null) {
-            lapPhieuDatThuocPanel = new LapPhieuDatThuocPanel(tenNhanVien);
+            lapPhieuDatThuocPanel = new LapPhieuDatThuocPanel(maNhanVien);
         }
-        // Luôn làm mới dữ liệu khi hiển thị panel này, bất kể là mới tạo hay đã tồn tại
         lapPhieuDatThuocPanel.reloadDataFromDatabase();
         showPanel(lapPhieuDatThuocPanel);
     }
     
     public void showLapPhieuDoiThuocPanel() {
-        if (lapPhieuDoiThuocPanel == null) {
-            lapPhieuDoiThuocPanel = new LapPhieuDoiThuocPanel();
+        if (lapPhieuTraThuocPanel == null) {
+            lapPhieuTraThuocPanel = new LapPhieuTraThuocPanel(maNhanVien);
         }
-        showPanel(lapPhieuDoiThuocPanel);
+        showPanel(lapPhieuTraThuocPanel);
     }
     public void showNhapThuocPanel() {
     	if (nhapThuocPanel == null) {

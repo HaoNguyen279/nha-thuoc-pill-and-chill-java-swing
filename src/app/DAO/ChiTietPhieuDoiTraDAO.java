@@ -24,7 +24,7 @@ public class ChiTietPhieuDoiTraDAO {
         ArrayList<ChiTietPhieuDoiTra> dsChiTiet = new ArrayList<>();
         String sql = "SELECT * FROM ChiTietPhieuDoiTra WHERE maPhieuDoiTra = ? AND isActive = 1";
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
 
             stmt.setString(1, maPhieuDoiTra);
@@ -50,7 +50,7 @@ public class ChiTietPhieuDoiTraDAO {
         String sql = "SELECT * FROM ChiTietPhieuDoiTra WHERE maPhieuDoiTra = ? AND maThuoc = ?";
         ChiTietPhieuDoiTra ctpt = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, maPhieuDoiTra);
@@ -76,7 +76,7 @@ public class ChiTietPhieuDoiTraDAO {
         String sql = "INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo, isActive) VALUES (?, ?, ?, ?, ?, ?, ?)";
         int n = 0;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, ctpt.getMaPhieuDoiTra());
@@ -103,7 +103,7 @@ public class ChiTietPhieuDoiTraDAO {
         String sql = "UPDATE ChiTietPhieuDoiTra SET soLuong = ?, donGia = ?, maLo = ?, lyDo = ?, isActive = ? WHERE maPhieuDoiTra = ? AND maThuoc = ?";
         int n = 0;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setInt(1, ctpt.getSoLuong());
@@ -131,7 +131,7 @@ public class ChiTietPhieuDoiTraDAO {
         String sql = "UPDATE ChiTietPhieuDoiTra SET isActive = 0 WHERE maPhieuDoiTra = ? AND maThuoc = ?";
         int n = 0;
         
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, maPhieuDoiTra);

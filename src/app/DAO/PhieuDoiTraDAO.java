@@ -159,4 +159,31 @@ public class PhieuDoiTraDAO {
         }
         return n > 0;
     }
+
+    /**
+     * Tạo mã phiếu đổi trả tự động theo format PDTXXX
+     * @return Mã phiếu đổi trả mới (ví dụ: PDT016)
+     */
+    public String generateMaPhieuDoiTra() {
+        String sql = "SELECT TOP 1 maPhieuDoiTra FROM PhieuDoiTra ORDER BY maPhieuDoiTra DESC";
+        String newMaPDT = "PDT001"; // Mã mặc định nếu chưa có phiếu nào
+        
+        try (Connection con = ConnectDB.getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            if (rs.next()) {
+                String lastMaPDT = rs.getString("maPhieuDoiTra");
+                // Lấy phần số từ mã cuối (ví dụ: PDT015 -> 015)
+                String numberPart = lastMaPDT.substring(3);
+                int number = Integer.parseInt(numberPart);
+                // Tăng lên 1 và format lại
+                newMaPDT = String.format("PDT%03d", number + 1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return newMaPDT;
+    }
 }
