@@ -1,10 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-25"/>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="e:/PTUD/nha-thuoc-pill-and-chill-java-swing/lib/sqljdbc42.jar"/>
-	<classpathentry kind="lib" path="e:/PTUD/nha-thuoc-pill-and-chill-java-swing/lib/itextpdf-5.5.9.jar"/>
-	<classpathentry kind="lib" path="e:/PTUD/nha-thuoc-pill-and-chill-java-swing/lib/jfreechart-1.5.3.jar"/>
 	<classpathentry kind="lib" path="d:/Downloads/poi-bin-5.2.3-20220909/poi-bin-5.2.3/poi-javadoc-5.2.3.jar"/>
 	<classpathentry kind="lib" path="d:/Downloads/poi-bin-5.2.3-20220909/poi-bin-5.2.3/poi-ooxml-lite-5.2.3.jar"/>
 	<classpathentry kind="lib" path="d:/Downloads/poi-bin-5.2.3-20220909/poi-bin-5.2.3/poi-examples-5.2.3.jar"/>
@@ -26,5 +22,8 @@
 	<classpathentry kind="lib" path="d:/Downloads/poi-bin-5.2.3-20220909/poi-bin-5.2.3/ooxml-lib/curvesapi-1.07.jar"/>
 	<classpathentry kind="lib" path="d:/Downloads/poi-bin-5.2.3-20220909/poi-bin-5.2.3/ooxml-lib/commons-compress-1.21.jar"/>
 	<classpathentry kind="lib" path="d:/Downloads/poi-bin-5.2.3-20220909/poi-bin-5.2.3/ooxml-lib/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="lib/sqljdbc42.jar"/>
+	<classpathentry kind="lib" path="lib/itextpdf-5.5.9.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/jdk-22"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
