@@ -317,5 +317,75 @@ public class KhachHangDAO {
         return newMaKH;
     }
     
+    /**
+     * Lấy tổng số khách hàng đã mua hàng trong năm.
+     * Gọi stored procedure sp_GetSoKhachHangCuaNam.
+     * @param nam Năm cần thống kê.
+     * @return Số lượng khách hàng đã mua hàng trong năm đó.
+     */
+    public int getSoKhachHangCuaNam(int nam) {
+        String sql = "{CALL sp_GetSoKhachHangCuaNam(?)}";
+        int soKhachHang = 0;
+        Connection con = ConnectDB.getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1, nam);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                soKhachHang = rs.getInt("SoKhachHang");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return soKhachHang;
+    }
+    
+    /**
+     * Lấy tổng số khách hàng đã mua hàng trong tháng.
+     * Gọi stored procedure sp_GetSoKhachHangCuaThang.
+     * @param thang Tháng cần thống kê (1-12).
+     * @param nam Năm cần thống kê.
+     * @return Số lượng khách hàng đã mua hàng trong tháng đó.
+     */
+    public int getSoKhachHangCuaThang(int thang, int nam) {
+        String sql = "{CALL sp_GetSoKhachHangCuaThang(?, ?)}";
+        int soKhachHang = 0;
+        Connection con = ConnectDB.getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = con.prepareStatement(sql);
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+            rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                soKhachHang = rs.getInt("SoKhachHang");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return soKhachHang;
+    }
+    
 
 }

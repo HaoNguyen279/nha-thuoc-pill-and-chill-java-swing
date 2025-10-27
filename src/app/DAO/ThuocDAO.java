@@ -39,7 +39,6 @@ public class ThuocDAO {
             
             while (rs.next()) {
                 String maThuoc = rs.getString("maThuoc");
-                String maLo = rs.getString("maLo");
                 String tenThuoc = rs.getString("tenThuoc");
                 int soLuongTon = rs.getInt("soLuongTon");
                 double giaBan = rs.getDouble("giaBan");
@@ -48,7 +47,49 @@ public class ThuocDAO {
                 String maNSX = rs.getString("maNSX");
                 boolean isActive = rs.getBoolean("isActive");
 
-                Thuoc thuoc = new Thuoc(maThuoc, maLo, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive);
+                Thuoc thuoc = new Thuoc(maThuoc, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive);
+                dsThuoc.add(thuoc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Đóng ResultSet và Statement, KHÔNG đóng Connection vì nó là singleton
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return dsThuoc;
+    }
+    public ArrayList<Thuoc> getAllThuocCoTenNSX() {
+        ArrayList<Thuoc> dsThuoc = new ArrayList<>();
+        String sql = "Select  t.maThuoc,t.tenThuoc,t.soLuongTon,t.giaBan,t.donVi,t.soLuongToiThieu,nsx.tenNSX from Thuoc t join NhaSanXuat nsx on t.maNSX = nsx.maNSX where t.isActive = 1;";
+        
+        Connection con = ConnectDB.getConnection();
+        if (con == null) {
+            return dsThuoc;
+        }
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            
+            while (rs.next()) {
+                String maThuoc = rs.getString("maThuoc");
+           
+                String tenThuoc = rs.getString("tenThuoc");
+                int soLuongTon = rs.getInt("soLuongTon");
+                double giaBan = rs.getDouble("giaBan");
+                String donVi = rs.getString("donVi");
+                int soLuongToiThieu = rs.getInt("soLuongToiThieu");
+                String maNSX = rs.getString("tenNSX");
+             
+
+                Thuoc thuoc = new Thuoc(maThuoc,  tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, true);
                 dsThuoc.add(thuoc);
             }
         } catch (SQLException e) {
@@ -82,7 +123,6 @@ public class ThuocDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
                     String maThuoc = rs.getString("maThuoc");
-                    String maLo = rs.getString("maLo");
                     String tenThuoc = rs.getString("tenThuoc");
                     int soLuongTon = rs.getInt("soLuongTon");
                     double giaBan = rs.getDouble("giaBan");
@@ -91,7 +131,7 @@ public class ThuocDAO {
                     String maNSX = rs.getString("maNSX");
                     boolean isActive = rs.getBoolean("isActive");
                     
-                    thuoc = new Thuoc(maThuoc, maLo, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive);
+                    thuoc = new Thuoc(maThuoc, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive);
                 }
             }
         } catch (SQLException e) {
@@ -106,21 +146,20 @@ public class ThuocDAO {
      * @return true if the operation was successful, false otherwise.
      */
     public boolean addThuoc(Thuoc thuoc) {
-        String sql = "INSERT INTO Thuoc (maThuoc, maLo, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Thuoc (maThuoc,tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, thuoc.getMaThuoc());
-            stmt.setString(2, thuoc.getMaLo());
-            stmt.setString(3, thuoc.getTenThuoc());
-            stmt.setInt(4, thuoc.getSoLuongTon());
-            stmt.setDouble(5, thuoc.getGiaBan());
-            stmt.setString(6, thuoc.getDonVi());
-            stmt.setInt(7, thuoc.getSoLuongToiThieu());
-            stmt.setString(8, thuoc.getMaNSX());
-            stmt.setBoolean(9, thuoc.isIsActive()); // Use the provided getter
+            stmt.setString(2, thuoc.getTenThuoc());
+            stmt.setInt(3, thuoc.getSoLuongTon());
+            stmt.setDouble(4, thuoc.getGiaBan());
+            stmt.setString(5, thuoc.getDonVi());
+            stmt.setInt(6, thuoc.getSoLuongToiThieu());
+            stmt.setString(7, thuoc.getMaNSX());
+            stmt.setBoolean(8, thuoc.isIsActive()); // Use the provided getter
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -133,7 +172,6 @@ public class ThuocDAO {
         LoThuocDAO daoLo = new LoThuocDAO();
         ChiTietLoThuocDAO daoCTLT = new ChiTietLoThuocDAO();
 
-      
         ArrayList<Thuoc> dsThuocCoSan = daoThuoc.getAllThuoc();               
         ArrayList<LoThuoc> dsLoThuocCoSan = daoLo.getAllLoThuoc();          
         ArrayList<ChiTietLoThuoc> dsCTLTCoSan = daoCTLT.getAllActiveChiTietLoThuoc(); 
@@ -143,7 +181,8 @@ public class ThuocDAO {
             ChiTietLoThuoc ctltNhap = dsCTLT.get(i);
 
             String maThuoc = thuocNhap.getMaThuoc();
-            String maLo = thuocNhap.getMaLo(); 
+            String maLo = ctltNhap.getMaLo();
+            String maNSX = thuocNhap.getMaNSX();
         
             boolean thuocExists = dsThuocCoSan.stream()
                     .anyMatch(t -> t.getMaThuoc().equals(maThuoc));
@@ -153,36 +192,69 @@ public class ThuocDAO {
                     .anyMatch(c -> c.getMaLo().equals(maLo) && c.getMaThuoc().equals(maThuoc));
 
             if (thuocExists && ctltExists) {
-                // TH1: Có thuốc & lô chứa thuốc -> chỉ cập nhật số lượng tổng trong Thuoc
+                // ✅ TH1: Có thuốc & lô chứa thuốc
+                // → Cập nhật CỘNG THÊM số lượng
+                
+                // 1. Cập nhật ChiTietLoThuoc (CỘNG THÊM vào lô cũ)
+                ChiTietLoThuoc ctltHienTai = dsCTLTCoSan.stream()
+                        .filter(c -> c.getMaLo().equals(maLo) && c.getMaThuoc().equals(maThuoc))
+                        .findFirst()
+                        .orElse(null);
+                
+                if (ctltHienTai != null) {
+                    // CỘNG THÊM số lượng nhập vào số lượng cũ của lô
+                    ctltHienTai.setSoLuong(ctltHienTai.getSoLuong() + ctltNhap.getSoLuong());
+                    daoCTLT.update(ctltHienTai);
+                }
+                
+                // 2. Cập nhật Thuoc (CỘNG THÊM vào tổng tồn)
                 Thuoc thuocHienTai = daoThuoc.getThuocById(maThuoc);
-                thuocHienTai.setSoLuongTon(thuocHienTai.getSoLuongTon() + thuocNhap.getSoLuongTon());
+                // CỘNG THÊM số lượng nhập vào tổng tồn cũ
+                thuocHienTai.setSoLuongTon(thuocHienTai.getSoLuongTon() + ctltNhap.getSoLuong());
                 daoThuoc.updateThuoc(thuocHienTai);
 
             } else if (thuocExists && !ctltExists && loExists) {
-                // TH3: Có thuốc, có lô, nhưng lô chưa chứa thuốc -> thêm ChiTietLoThuoc
+                // ✅ TH3: Có thuốc, có lô, chưa có CTLT
+                // → Thêm CTLT mới, CỘNG THÊM vào tổng tồn
+                
                 daoCTLT.create(ctltNhap);
       
                 Thuoc thuocHienTai = daoThuoc.getThuocById(maThuoc);
+                // CỘNG THÊM số lượng nhập vào tổng tồn cũ
                 thuocHienTai.setSoLuongTon(thuocHienTai.getSoLuongTon() + ctltNhap.getSoLuong());
                 daoThuoc.updateThuoc(thuocHienTai);
+                
             } else if (thuocExists && !loExists) {
-                // TH2 (ứng với "có thuốc nhưng chưa có lô") -> tạo LoThuoc mới rồi thêm ChiTietLoThuoc
-                LoThuoc newLo = new LoThuoc(maLo, thuocNhap.getMaNSX(), true); 
+                // ✅ TH2: Có thuốc, chưa có lô
+                // → Tạo lô mới, thêm CTLT, CỘNG THÊM vào tổng tồn
+                
+                LoThuoc newLo = new LoThuoc(maLo, maNSX, true);
                 daoLo.addLoThuoc(newLo);
                 daoCTLT.create(ctltNhap);
 
-                
                 Thuoc thuocHienTai = daoThuoc.getThuocById(maThuoc);
+                // CỘNG THÊM số lượng nhập vào tổng tồn cũ
                 thuocHienTai.setSoLuongTon(thuocHienTai.getSoLuongTon() + ctltNhap.getSoLuong());
                 daoThuoc.updateThuoc(thuocHienTai);
+                
             } else if (!thuocExists && loExists) {
-                // TH4: Thuốc mới, lô đã tồn tại -> thêm Thuoc rồi thêm ChiTietLoThuoc
+                // ✅ TH4: Thuốc MỚI, lô đã tồn tại
+                // → Thuốc mới nên soLuongTon = số lượng nhập (không cộng thêm)
+                
+                // Thuốc mới → tổng tồn = số lượng lô đầu tiên
+                thuocNhap.setSoLuongTon(ctltNhap.getSoLuong());
                 daoThuoc.addThuoc(thuocNhap);
                 daoCTLT.create(ctltNhap);
+                
             } else {
-                // TH5: Thuốc mới & lô mới -> thêm cả 2 + chi tiết lô
-                LoThuoc newLo = new LoThuoc(maLo, thuocNhap.getMaNSX(), true);
+                // ✅ TH5: Thuốc MỚI & lô MỚI
+                // → Thuốc mới nên soLuongTon = số lượng nhập (không cộng thêm)
+                
+                LoThuoc newLo = new LoThuoc(maLo, maNSX, true);
                 daoLo.addLoThuoc(newLo);
+                
+                // Thuốc mới → tổng tồn = số lượng lô đầu tiên
+                thuocNhap.setSoLuongTon(ctltNhap.getSoLuong());
                 daoThuoc.addThuoc(thuocNhap);
                 daoCTLT.create(ctltNhap);
             }
@@ -197,21 +269,19 @@ public class ThuocDAO {
      * @return true if the update was successful, false otherwise.
      */
     public boolean updateThuoc(Thuoc thuoc) {
-        String sql = "UPDATE Thuoc SET maLo = ?, tenThuoc = ?, soLuongTon = ?, giaBan = ?, donVi = ?, soLuongToiThieu = ?, maNSX = ?, isActive = ? WHERE maThuoc = ?";
+        String sql = "UPDATE Thuoc SET tenThuoc = ?, soLuongTon = ?, giaBan = ?, donVi = ?, soLuongToiThieu = ?, maNSX = ?, isActive = ? WHERE maThuoc = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
-            
-            stmt.setString(1, thuoc.getMaLo());
-            stmt.setString(2, thuoc.getTenThuoc());
-            stmt.setInt(3, thuoc.getSoLuongTon());
-            stmt.setDouble(4, thuoc.getGiaBan());
-            stmt.setString(5, thuoc.getDonVi());
-            stmt.setInt(6, thuoc.getSoLuongToiThieu());
-            stmt.setString(7, thuoc.getMaNSX());
-            stmt.setBoolean(8, thuoc.isIsActive()); // Use the provided getter
-            stmt.setString(9, thuoc.getMaThuoc());
+            stmt.setString(1, thuoc.getTenThuoc());
+            stmt.setInt(2, thuoc.getSoLuongTon());
+            stmt.setDouble(3, thuoc.getGiaBan());
+            stmt.setString(4, thuoc.getDonVi());
+            stmt.setInt(5, thuoc.getSoLuongToiThieu());
+            stmt.setString(6, thuoc.getMaNSX());
+            stmt.setBoolean(7, thuoc.isIsActive()); // Use the provided getter
+            stmt.setString(8, thuoc.getMaThuoc());
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {

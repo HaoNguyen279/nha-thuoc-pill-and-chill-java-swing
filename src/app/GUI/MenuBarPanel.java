@@ -39,7 +39,10 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	private JMenuItem mniNhapThuoc;
 
 	// MenuItem cho thống kê
-	private JMenuItem mniDoanhThu;
+	private JMenu mnuDoanhThu; // Đổi thành JMenu để chứa submenu
+	private JMenuItem mniDoanhThuTheoThang;
+	private JMenuItem mniDoanhThuTheoNam;
+	
 	private JMenuItem mniNhanVien;
 	private JMenuItem mniKhachHang;
 	private JMenuItem mniHanSuDung;
@@ -133,8 +136,15 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniNhapThuoc.setIcon(loadIcon("/resources/icon/import_icon.png"));
         
         // MenuItem cho thống kê với icon
-        mniDoanhThu = new JMenuItem("Doanh thu nhà thuốc");
-        mniDoanhThu.setIcon(loadIcon("/resources/icon/revenue_icon.png"));  
+        mnuDoanhThu = new JMenu("Doanh thu nhà thuốc"); // Đổi thành JMenu
+        mnuDoanhThu.setIcon(loadIcon("/resources/icon/revenue_icon.png"));
+        
+        // Tạo các submenu cho Doanh thu
+        mniDoanhThuTheoThang = new JMenuItem("Theo tháng");
+        mniDoanhThuTheoThang.setIcon(loadIcon("/resources/icon/month_icon.png"));
+        
+        mniDoanhThuTheoNam = new JMenuItem("Theo năm");
+        mniDoanhThuTheoNam.setIcon(loadIcon("/resources/icon/year_icon.png"));
         
         mniNhanVien = new JMenuItem("Doanh thu của NV");
         mniNhanVien.setIcon(loadIcon("/resources/icon/employee_revenue_icon.png"));  
@@ -158,13 +168,19 @@ public class MenuBarPanel extends JPanel implements ActionListener {
             mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai,
             mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,
             mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc,mniNhapThuoc,
-            mniDoanhThu, mniNhanVien, mniKhachHang, mniHanSuDung, mniThue, mniThuocDuocMuaNhieu
+            mniDoanhThuTheoThang, mniDoanhThuTheoNam,
+            mniNhanVien, mniKhachHang, mniHanSuDung, mniThue, mniThuocDuocMuaNhieu
         }) {
             item1.setFont(itemFont);
             item1.setBackground(getBackground());
             item1.setPreferredSize(new Dimension(180,40));
             item1.addActionListener(this);
         }
+        
+        // Set bù cho cái Jmenu
+        mnuDoanhThu.setFont(itemFont);
+        mnuDoanhThu.setBackground(getBackground());
+        mnuDoanhThu.setPreferredSize(new Dimension(180,40));
         
         // Hệ thống
         mnuHeThong.add(mniHoTro);
@@ -189,7 +205,10 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mnuXuLy.add(mniNhapThuoc);
         
         // Thống kê
-        mnuThongKe.add(mniDoanhThu);
+        mnuDoanhThu.add(mniDoanhThuTheoThang);
+        mnuDoanhThu.add(mniDoanhThuTheoNam);
+        
+        mnuThongKe.add(mnuDoanhThu);
         mnuThongKe.add(mniNhanVien);
         mnuThongKe.add(mniKhachHang);
         mnuThongKe.add(mniThue);
@@ -245,7 +264,14 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 		else if (o == mniNhapThuoc) parentFrame.showNhapThuocPanel();
 		
 		// Thống kê
-		else if (o == mniDoanhThu) parentFrame.showThongKeTheoDoanhThuPanel();
+		else if (o == mniDoanhThuTheoThang) {
+			// TODO: Implement theo tháng
+			parentFrame.showThongKeTheoDoanhThuPanelTheoThang();
+		}
+		else if (o == mniDoanhThuTheoNam) {
+			// TODO: Implement theo năm
+			parentFrame.showThongKeTheoDoanhThuPanelTheoNam();
+		}
 
 		else if (o == mniNhanVien) parentFrame.showThongKeTheoNhanVienPanel();
 

@@ -5,6 +5,7 @@ import javax.swing.SwingUtilities;
 
 import app.ConnectDB.ConnectDB;
 import app.GUI.DangNhapFrame;
+import app.GUI.MainFrame;
 
 public class App {
     
@@ -13,7 +14,8 @@ public class App {
             try {
                 ConnectDB.getInstance().connect();
                 
-                new DangNhapFrame(); 
+//                new DangNhapFrame(); 
+                new MainFrame("NV001");
             }catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(

@@ -147,6 +147,7 @@ public class ChiTietPhieuNhapDAO {
         return new ChiTietPhieuNhap(
             rs.getString("maPhieuNhapThuoc"),
             rs.getString("maLo"),
+            rs.getString("maThuoc"),
             rs.getInt("soLuong"),
             rs.getFloat("donGia"),
             rs.getBoolean("isActive")

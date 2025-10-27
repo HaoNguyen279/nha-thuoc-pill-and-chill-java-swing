@@ -143,7 +143,7 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
 		JPanel pnlBottomOfMain = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		
 		pnlTopOfMain.add(lblTieuDe);
-		
+		pnlMain.setBorder(BorderFactory.createEmptyBorder(0,30,0,30));
 		JPanel pnlr1 = new JPanel(new BorderLayout());
 		pnlr1.add(lblMaKM, BorderLayout.WEST);
 		pnlr1.add(txtMaKM);
@@ -169,15 +169,16 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
 		pnlCenterOfMain.add(pnlr3);
 		pnlCenterOfMain.add(pnlr4);
 		
-		btnThem.setBackground(new Color(224, 248, 228));
-		btnXoa.setBackground(new Color(255, 121, 121));
-		btnSua.setBackground(new Color(223, 249, 251));
+		btnThem.setBackground(new Color(46, 204, 113));
+		btnXoa.setBackground(new Color(231, 76, 60));
+		btnSua.setBackground(new Color(52, 152, 219));
 		btnXoaTrang.setBackground(Color.WHITE);
 		
 		// JButton, JLabel, JTextField customization
 		JButton[] btnList = {btnXoa, btnThem, btnSua,btnXoaTrang};
 		for(JButton item : btnList) {
-			item.setFont(new Font("Arial", Font.PLAIN, 15));
+			item.setFont(new Font("Arial", Font.BOLD, 16));
+			item.setForeground(Color.WHITE);
 			item.setBorder(BorderFactory.createCompoundBorder(
 				BorderFactory.createLineBorder(Color.LIGHT_GRAY),
 				BorderFactory.createEmptyBorder(15,45,15,45)
@@ -185,7 +186,10 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
 			item.setFocusPainted(false);
 			item.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			item.addActionListener(this);
+			
 		}
+		btnXoaTrang.setForeground(Color.BLACK);
+		
         JLabel[] lblItems =  { lblMaKM, lblMucGiam,lblngayApDung, lblNgayKetThuc };
         for(JLabel item : lblItems) {
         	item.setFont(new Font("Arial", Font.PLAIN, 15));

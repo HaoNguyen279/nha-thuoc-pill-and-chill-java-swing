@@ -18,6 +18,7 @@ public class MainFrame extends JFrame {
     private LapPhieuDoiThuocPanel lapPhieuDoiThuocPanel;
     private NhapThuocPanel nhapThuocPanel;
     private ThongKeTheoDoanhThuPanel thongKeTheoDoanhThuPanel;
+    private ThongKeDoanhThuTheoThangPanel thongKeTheoDoanhThuTheoThangPanel;
     private ThongKeTheoNhanVienPanel thongKeTheoNhanVienPanel;
     private ThongKeTheoKhachHangPanel thongKeTheoKhachHangPanel;
     private ThongKeTheoHSDPanel thongKeTheoHSDPanel;
@@ -36,7 +37,7 @@ public class MainFrame extends JFrame {
     private void initializeFrame() {
         setTitle("Hệ thống quản lý nhà thuốc - Nhân viên: " + tenNhanVien);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1400, 800);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         
@@ -64,6 +65,7 @@ public class MainFrame extends JFrame {
         lapPhieuDoiThuocPanel = null;
         nhapThuocPanel = null;
         thongKeTheoDoanhThuPanel = null;
+        thongKeTheoDoanhThuTheoThangPanel = null;
         thongKeTheoNhanVienPanel = null;
         thongKeTheoKhachHangPanel = null;
         thongKeTheoHSDPanel = null;
@@ -85,10 +87,10 @@ public class MainFrame extends JFrame {
         
         // Thêm hình ảnh nền
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/resources/image/hinh-anh-nha-thuoc.jpg"));
-            JLabel background = new JLabel(icon);
-            background.setHorizontalAlignment(SwingConstants.CENTER);
-            panel.add(background, BorderLayout.CENTER);
+//            ImageIcon icon = new ImageIcon(getClass().getResource("/resources/image/pharmacy.jpg"));
+//            JLabel background = new JLabel(icon);
+//            background.setHorizontalAlignment(SwingConstants.CENTER);
+            panel.add(createImageBackgroundPanel("/resources/image/pharmacy.jpg"), BorderLayout.CENTER);
         } catch (Exception e) {
             // Nếu không tìm thấy hình ảnh, hiển thị text
             JLabel welcomeLabel = new JLabel("Chào mừng đến với hệ thống quản lý nhà thuốc", SwingConstants.CENTER);
@@ -191,14 +193,6 @@ public class MainFrame extends JFrame {
     	}
     	showPanel(nhapThuocPanel);
     }
-    
-//    public void showThongKeTheoDoanhThuPanel() {
-//        if (thongKeTheoDoanhThuPanel == null) {
-//            thongKeTheoDoanhThuPanel = new ThongKeTheoDoanhThuPanel();
-//        }
-//        showPanel(thongKeTheoDoanhThuPanel);
-//    }
-    
     public void showThongKeTheoNhanVienPanel() {
         if (thongKeTheoNhanVienPanel == null) {
             thongKeTheoNhanVienPanel = new ThongKeTheoNhanVienPanel();
@@ -226,10 +220,18 @@ public class MainFrame extends JFrame {
         }
         showPanel(thongKeTheoThuocPanel);
     }
-    public void showThongKeTheoDoanhThuPanel() {
+    public void showThongKeTheoDoanhThuPanelTheoThang() {
+    	if (thongKeTheoDoanhThuTheoThangPanel == null) {
+        	thongKeTheoDoanhThuTheoThangPanel = new ThongKeDoanhThuTheoThangPanel();
+        }
+        thongKeTheoDoanhThuTheoThangPanel.refresh();
+        showPanel(thongKeTheoDoanhThuTheoThangPanel);
+    }
+    public void showThongKeTheoDoanhThuPanelTheoNam() {
         if (thongKeTheoDoanhThuPanel == null) {
         	thongKeTheoDoanhThuPanel = new ThongKeTheoDoanhThuPanel();
         }
+        thongKeTheoDoanhThuPanel.refresh();
         showPanel(thongKeTheoDoanhThuPanel);
     }
     public void showThongKeTheoThuePanel() {
@@ -252,5 +254,16 @@ public class MainFrame extends JFrame {
     	this.dispose();
     	new DangNhapFrame();
    }
+    public static JPanel createImageBackgroundPanel(String imagePath) {
+        Image backgroundImage = new ImageIcon(imagePath).getImage();
+
+        return new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                g.drawImage(backgroundImage, 0, 0, this);
+            }
+        };
+    }
 
 }

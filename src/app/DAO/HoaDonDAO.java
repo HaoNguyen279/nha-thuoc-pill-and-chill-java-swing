@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import app.ConnectDB.ConnectDB;
+import app.Entity.DoanhThuHoaDon;
+import app.Entity.DoanhThuTheoThang;
 import app.Entity.HoaDon;
 
 /**
@@ -17,6 +19,7 @@ import app.Entity.HoaDon;
  * Handles all database operations related to invoices.
  */
 public class HoaDonDAO {
+	
 
     /**
      * Retrieves a list of all active invoices, ordered by the most recent date.
@@ -446,4 +449,210 @@ public class HoaDonDAO {
         
         return success;
     }
+    
+    /**
+     * Thống kê doanh thu theo từng tháng trong năm bằng stored procedure
+     * @param nam Năm cần thống kê
+     * @return ArrayList chứa doanh thu của từng tháng trong năm
+     */
+    public ArrayList<DoanhThuTheoThang> thongKeDoanhThuTheoThang(int nam) {
+        ArrayList<DoanhThuTheoThang> dsDoanhThu = new ArrayList<>();
+        String sql = "{CALL sp_ThongKeDoanhThuTheoThang(?)}";
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            // Set parameter cho stored procedure
+            stmt.setInt(1, nam);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int thang = rs.getInt("Thang");
+                    double doanhThu = rs.getDouble("DoanhThu");
+                    
+                    // Tạo đối tượng DoanhThuTheoThang
+                    DoanhThuTheoThang dt = new DoanhThuTheoThang();
+                    dt.setThang(thang);
+                    dt.setNam(nam);
+                    dt.setdoanhThu(doanhThu);
+                    dt.setSoLuongHoaDon(0); // Không có thông tin số lượng hóa đơn từ SP này
+                    
+                    dsDoanhThu.add(dt);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsDoanhThu;
+    }
+    /**
+     * Thống kê số hóa đơn trong ngày bằng stored procedure
+     * @param nam Năm cần thống kê, thang là tháng thống kê
+     * @return ArrayList ngày và số hóa đơn
+     */
+    public ArrayList<DoanhThuHoaDon> getDoanhThuTheoNgay(int thang,int nam) {
+    	ArrayList<DoanhThuHoaDon> result = new ArrayList<DoanhThuHoaDon>();
+        String sql = "{CALL sp_ThongKeDoanhThuTheoNgay(?,?)}";
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            // Set parameter cho stored procedure
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int ngay = rs.getInt("Ngay");
+                    int doanhThu = rs.getInt("doanhThu");
+                   
+                    DoanhThuHoaDon hd = new DoanhThuHoaDon();
+                    hd.setNgay(ngay);
+                    hd.setDoanhThu(doanhThu);
+                    result.add(hd);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+    
+    public double getDoanhThuCuaThang(int thang, int nam) {
+
+        String sql = "{CALL sp_GetDoanhThuCuaThang(?,?)}";
+        double result = 0;
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            // Set parameter cho stored procedure
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    result = rs.getDouble("TongDoanhThu");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        
+        return result;
+    }
+    public double getDoanhThuCuaNam(int nam) {
+        String sql = "{CALL sp_GetDoanhThuCuaNam(?)}";
+        double result = 0;
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            // Set parameter cho stored procedure
+            stmt.setInt(1, nam);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    result = rs.getDouble("TongDoanhThu");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        
+        return result;
+    }
+    
+    public int getSoHoaDonTheoThang(int thang, int nam) {
+        String sql = "{CALL sp_GetSoHoaDonTheoThang(?,?)}";
+        int result = 0;
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            // Set parameter cho stored procedure
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    result = rs.getInt("SoHoaDon");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        return result;
+    }
+    
+    public int getSoHoaDonTheoNam(int nam) {
+        String sql = "{CALL sp_GetSoHoaDonTheoNam(?)}";
+        int result = 0;
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            // Set parameter cho stored procedure
+            stmt.setInt(1, nam);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    result = rs.getInt("SoHoaDon");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        return result;
+    }
+    
+    /**
+     * Lấy doanh thu trung bình của 1 ngày trong tháng.
+     * Gọi stored procedure sp_GetDoanhThuTrungBinhTheoNgay.
+     * @param thang Tháng cần thống kê (1-12).
+     * @param nam Năm cần thống kê.
+     * @return Doanh thu trung bình mỗi ngày trong tháng.
+     */
+    public double getDoanhThuTrungBinhTheoNgay(int thang, int nam) {
+        String sql = "{CALL sp_GetDoanhThuTrungBinhTheoNgay(?,?)}";
+        double result = 0;
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            // Set parameter cho stored procedure
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    result = rs.getDouble("DoanhThuTrungBinhMoiNgay");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        return result;
+    }
+    
+    /**
+     * Lấy doanh thu trung bình của mỗi tháng trong năm.
+     * Gọi stored procedure sp_GetDoanhThuTrungBinhTheoThang.
+     * @param nam Năm cần thống kê.
+     * @return Doanh thu trung bình mỗi tháng trong năm (tính theo số tháng đã qua).
+     */
+    public double getDoanhThuTrungBinhTheoThang(int nam) {
+        String sql = "{CALL sp_GetDoanhThuTrungBinhTheoThang(?)}";
+        double result = 0;
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            // Set parameter cho stored procedure
+            stmt.setInt(1, nam);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    result = rs.getDouble("DoanhThuTrungBinhMoiThang");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+        return result;
+    }
 }
+
+

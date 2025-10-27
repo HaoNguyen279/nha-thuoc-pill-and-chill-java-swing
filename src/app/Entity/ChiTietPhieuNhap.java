@@ -3,20 +3,28 @@ package app.Entity;
 public class ChiTietPhieuNhap {
     private String maPhieuNhapThuoc;
     private String maLo;
+    private String maThuoc;
     private int soLuong;
     private float donGia;
     private boolean isActive; // true = chi tiết đang hiển thị, false = đã hủy/ẩn
 
     public ChiTietPhieuNhap() {
     }
+    
 
-    public ChiTietPhieuNhap(String maPhieuNhapThuoc, String maLo, int soLuong, float donGia, boolean isActive) {
-        this.maPhieuNhapThuoc = maPhieuNhapThuoc;
-        this.maLo = maLo;
-        this.soLuong = soLuong;
-        this.donGia = donGia;
-        this.isActive = isActive;
-    }
+    public ChiTietPhieuNhap(String maPhieuNhapThuoc, String maLo, String maThuoc, int soLuong, float donGia,
+			boolean isActive) {
+		super();
+		this.maPhieuNhapThuoc = maPhieuNhapThuoc;
+		this.maLo = maLo;
+		this.maThuoc = maThuoc;
+		this.soLuong = soLuong;
+		this.donGia = donGia;
+		this.isActive = isActive;
+	}
+
+
+	
 
     public String getMaPhieuNhapThuoc() {
         return maPhieuNhapThuoc;
@@ -58,9 +66,20 @@ public class ChiTietPhieuNhap {
         this.isActive = isActive;
     }
     
+    
     // --- Phương thức tiện ích ---
     
-    /** Kiểm tra xem chi tiết phiếu nhập có còn hiệu lực hay không */
+    public String getMaThuoc() {
+		return maThuoc;
+	}
+
+
+	public void setMaThuoc(String maThuoc) {
+		this.maThuoc = maThuoc;
+	}
+
+
+	/** Kiểm tra xem chi tiết phiếu nhập có còn hiệu lực hay không */
     public boolean isVisible() {
         return this.isActive;
     }
