@@ -69,9 +69,9 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
 //        styler.setXAxisTitleColor(Color.RED);
 //        styler.setYAxisTitleColor(Color.GREEN);
         styler.setSeriesColors(new Color[]{
+                new Color(160, 238, 160),  // Lục
                 new Color(100, 149, 237), // Xanh 
                 new Color(255, 127, 80),  // Cam
-                new Color(144, 238, 144)  // Lục
         });
         
 		JPanel pnlNorthPanel = createNorthPanel();
