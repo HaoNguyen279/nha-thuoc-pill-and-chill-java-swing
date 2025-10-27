@@ -137,4 +137,45 @@ public class LoThuocDAO {
         }
         return n > 0;
     }
+    
+    public ArrayList<LoThuoc> getAllInactiveLoThuoc() {
+        ArrayList<LoThuoc> dsLo = new ArrayList<>();
+        String sql = "SELECT * FROM LoThuoc WHERE isActive = 0";
+        Connection con = ConnectDB.getConnection();
+        
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                LoThuoc lo = new LoThuoc(
+                    rs.getString("maLo"),
+                    rs.getString("maNSX"),
+                    rs.getBoolean("isActive")
+                );
+                dsLo.add(lo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsLo;
+    }
+
+    /**
+     * Kích hoạt lại lô đã bị xóa mềm
+     */
+    public boolean reactivateLoThuoc(String maLo) {
+        String sql = "UPDATE LoThuoc SET isActive = 1 WHERE maLo = ?";
+        Connection con = ConnectDB.getConnection();
+       
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, maLo);
+            int n = stmt.executeUpdate();
+            System.out.println("   → Reactivated LoThuoc: " + maLo + " (rows: " + n + ")");
+            return n > 0;
+        } catch (SQLException e) {
+            System.err.println("   ❌ Error reactivating LoThuoc: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 }

@@ -101,10 +101,10 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniDangXuat.setIcon(loadIcon("/resources/icon/logout_icon.png"));  
         
         mniDatLai = new JMenuItem("Đặt lại");
-        mniDatLai.setIcon(loadIcon("/resources/icon/reset.png")); // kok
+        mniDatLai.setIcon(loadIcon("/resources/icon/reset_icon.png"));
         
         mniTaiKhoan = new JMenuItem("Đổi mật khẩu");
-        mniTaiKhoan.setIcon(loadIcon("/resources/icon/password.png"));
+        mniTaiKhoan.setIcon(loadIcon("/resources/icon/password_icon.png"));
         
         mniThoat = new JMenuItem("Thoát");
         mniThoat.setIcon(loadIcon("/resources/icon/poweroff_icon.png"));  
@@ -123,7 +123,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniCapNhatKhuyenMai.setIcon(loadIcon("/resources/icon/sale_icon.png")); 
         
         mniCapNhatChucVu = new JMenuItem("Chức vụ");
-        mniCapNhatChucVu.setIcon(loadIcon("/resources/icon/position.png"));
+        mniCapNhatChucVu.setIcon(loadIcon("/resources/icon/position_icon.png"));
         
         mniXemPhieuNhap = new JMenuItem("Phiếu nhập");
         mniXemPhieuNhap.setIcon(loadIcon("/resources/icon/import_icon.png"));

@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
+
 import app.ConnectDB.ConnectDB;
 import app.Entity.ChiTietLoThuoc;
 import app.Entity.LoThuoc;
@@ -172,91 +173,108 @@ public class ThuocDAO {
         LoThuocDAO daoLo = new LoThuocDAO();
         ChiTietLoThuocDAO daoCTLT = new ChiTietLoThuocDAO();
 
+      
         ArrayList<Thuoc> dsThuocCoSan = daoThuoc.getAllThuoc();               
         ArrayList<LoThuoc> dsLoThuocCoSan = daoLo.getAllLoThuoc();          
         ArrayList<ChiTietLoThuoc> dsCTLTCoSan = daoCTLT.getAllActiveChiTietLoThuoc(); 
+        
+        ArrayList<Thuoc> dsThuocInactive = daoThuoc.getAllInactiveThuoc(); // inactive
+        ArrayList<LoThuoc> dsLoThuocInactive = daoLo.getAllInactiveLoThuoc();
+        ArrayList<ChiTietLoThuoc> dsCTLTInactive = daoCTLT.getAllInactiveChiTietLoThuoc();
 
+        
         for (int i = 0; i < dsThuocNhap.size(); i++) {
             Thuoc thuocNhap = dsThuocNhap.get(i);
             ChiTietLoThuoc ctltNhap = dsCTLT.get(i);
 
             String maThuoc = thuocNhap.getMaThuoc();
             String maLo = ctltNhap.getMaLo();
-            String maNSX = thuocNhap.getMaNSX();
-        
-            boolean thuocExists = dsThuocCoSan.stream()
+            
+         
+            boolean thuocInactive = dsThuocInactive.stream()
                     .anyMatch(t -> t.getMaThuoc().equals(maThuoc));
-            boolean loExists = dsLoThuocCoSan.stream()
+            
+            boolean loInactive = dsLoThuocInactive.stream()
                     .anyMatch(l -> l.getMaLo().equals(maLo));
-            boolean ctltExists = dsCTLTCoSan.stream()
+            
+          
+            boolean ctltInactive = dsCTLTInactive.stream()
                     .anyMatch(c -> c.getMaLo().equals(maLo) && c.getMaThuoc().equals(maThuoc));
-
-            if (thuocExists && ctltExists) {
-                // ✅ TH1: Có thuốc & lô chứa thuốc
-                // → Cập nhật CỘNG THÊM số lượng
-                
-                // 1. Cập nhật ChiTietLoThuoc (CỘNG THÊM vào lô cũ)
-                ChiTietLoThuoc ctltHienTai = dsCTLTCoSan.stream()
-                        .filter(c -> c.getMaLo().equals(maLo) && c.getMaThuoc().equals(maThuoc))
-                        .findFirst()
-                        .orElse(null);
-                
-                if (ctltHienTai != null) {
-                    // CỘNG THÊM số lượng nhập vào số lượng cũ của lô
-                    ctltHienTai.setSoLuong(ctltHienTai.getSoLuong() + ctltNhap.getSoLuong());
-                    daoCTLT.update(ctltHienTai);
-                }
-                
-                // 2. Cập nhật Thuoc (CỘNG THÊM vào tổng tồn)
-                Thuoc thuocHienTai = daoThuoc.getThuocById(maThuoc);
-                // CỘNG THÊM số lượng nhập vào tổng tồn cũ
-                thuocHienTai.setSoLuongTon(thuocHienTai.getSoLuongTon() + ctltNhap.getSoLuong());
-                daoThuoc.updateThuoc(thuocHienTai);
-
-            } else if (thuocExists && !ctltExists && loExists) {
-                // ✅ TH3: Có thuốc, có lô, chưa có CTLT
-                // → Thêm CTLT mới, CỘNG THÊM vào tổng tồn
-                
-                daoCTLT.create(ctltNhap);
+            
+            
+            boolean thuocActive = dsThuocCoSan.stream()
+                    .anyMatch(t -> t.getMaThuoc().equals(maThuoc));
+            boolean loActive = dsLoThuocCoSan.stream()
+                    .anyMatch(l -> l.getMaLo().equals(maLo));
+            boolean ctltActive = dsCTLTCoSan.stream()
+                    .anyMatch(c -> c.getMaLo().equals(maLo) && c.getMaThuoc().equals(maThuoc));
+            
+            if (thuocInactive) {
+                // TH0: Thuốc bị xóa mềm → REACTIVATE
+                System.out.println("   ➤ TH0: Reactivate thuốc đã bị xóa");
+                daoThuoc.reactivateThuoc(maThuoc);
+                thuocActive = true; // Cập nhật trạng thái
+            }
+            
+            if (loInactive) {
+                // TH0: Lô bị xóa mềm → REACTIVATE
+                System.out.println("   ➤ TH0: Reactivate lô đã bị xóa");
+                daoLo.reactivateLoThuoc(maLo);
+                loActive = true;
+            }
+            
+            if (ctltInactive) {
+                // TH0: CTLT bị xóa mềm → REACTIVATE và cập nhật số lượng
+                System.out.println(" TH0: Reactivate CTLT đã bị xóa");
+                ChiTietLoThuoc ctltOld = daoCTLT.getChiTietLoThuocByIdIncludeInactive(maLo, maThuoc);
+                ctltOld.setIsActive(true);
+                ctltOld.setSoLuong(ctltOld.getSoLuong());
+                ctltOld.setNgaySanXuat(ctltNhap.getNgaySanXuat()); // Cập nhật thông tin mới
+                ctltOld.setHanSuDung(ctltNhap.getHanSuDung());
+                ctltOld.setGiaNhap(ctltNhap.getGiaNhap());
+                daoCTLT.update(ctltOld);
+                ctltActive = true;
+            }
+            
+            if (thuocActive && ctltActive) {
+                // TH1: Có thuốc & lô chứa thuốc -> chỉ cập nhật số lượng tổng trong Thuoc
+            	
+//            	
       
-                Thuoc thuocHienTai = daoThuoc.getThuocById(maThuoc);
-                // CỘNG THÊM số lượng nhập vào tổng tồn cũ
-                thuocHienTai.setSoLuongTon(thuocHienTai.getSoLuongTon() + ctltNhap.getSoLuong());
-                daoThuoc.updateThuoc(thuocHienTai);
+                ChiTietLoThuoc ctltHienTai = daoCTLT.getChiTietLoThuocById(maLo, maThuoc);
+            	ctltHienTai.setSoLuong(ctltHienTai.getSoLuong()+thuocNhap.getSoLuongTon());
+            	System.out.println(ctltHienTai);
+            	daoCTLT.update(ctltHienTai);
+            } else if (thuocActive && !ctltActive && loActive) {
+                // TH3: Có thuốc, có lô, nhưng lô chưa chứa thuốc -> thêm ChiTietLoThuoc
+                daoCTLT.create(ctltNhap);
                 
-            } else if (thuocExists && !loExists) {
-                // ✅ TH2: Có thuốc, chưa có lô
-                // → Tạo lô mới, thêm CTLT, CỘNG THÊM vào tổng tồn
                 
-                LoThuoc newLo = new LoThuoc(maLo, maNSX, true);
+            } else if (thuocActive && !loActive) {
+                // TH2 (ứng với "có thuốc nhưng chưa có lô") -> tạo LoThuoc mới rồi thêm ChiTietLoThuoc
+                LoThuoc newLo = new LoThuoc(maLo, thuocNhap.getMaNSX(), true); 
                 daoLo.addLoThuoc(newLo);
                 daoCTLT.create(ctltNhap);
-
-                Thuoc thuocHienTai = daoThuoc.getThuocById(maThuoc);
-                // CỘNG THÊM số lượng nhập vào tổng tồn cũ
-                thuocHienTai.setSoLuongTon(thuocHienTai.getSoLuongTon() + ctltNhap.getSoLuong());
-                daoThuoc.updateThuoc(thuocHienTai);
                 
-            } else if (!thuocExists && loExists) {
-                // ✅ TH4: Thuốc MỚI, lô đã tồn tại
-                // → Thuốc mới nên soLuongTon = số lượng nhập (không cộng thêm)
-                
-                // Thuốc mới → tổng tồn = số lượng lô đầu tiên
-                thuocNhap.setSoLuongTon(ctltNhap.getSoLuong());
+            } else if (!thuocActive && loActive) {
+                // TH4: Thuốc mới, lô đã tồn tại -> thêm Thuoc rồi thêm ChiTietLoThuoc
                 daoThuoc.addThuoc(thuocNhap);
                 daoCTLT.create(ctltNhap);
-                
             } else {
-                // ✅ TH5: Thuốc MỚI & lô MỚI
-                // → Thuốc mới nên soLuongTon = số lượng nhập (không cộng thêm)
-                
-                LoThuoc newLo = new LoThuoc(maLo, maNSX, true);
+                // TH5: Thuốc mới & lô mới -> thêm cả 2 + chi tiết lô
+                LoThuoc newLo = new LoThuoc(maLo, thuocNhap.getMaNSX(), true);
                 daoLo.addLoThuoc(newLo);
-                
-                // Thuốc mới → tổng tồn = số lượng lô đầu tiên
-                thuocNhap.setSoLuongTon(ctltNhap.getSoLuong());
                 daoThuoc.addThuoc(thuocNhap);
                 daoCTLT.create(ctltNhap);
+            }
+            if (!thuocActive) {
+                dsThuocCoSan.add(thuocNhap);
+            }
+            if (!loActive) {
+                dsLoThuocCoSan.add(new LoThuoc(maLo, thuocNhap.getMaNSX(), true));
+            }
+            if (!ctltActive) {
+                dsCTLTCoSan.add(ctltNhap);
             }
         }
 
@@ -276,8 +294,8 @@ public class ThuocDAO {
              PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, thuoc.getTenThuoc());
             stmt.setInt(2, thuoc.getSoLuongTon());
-            stmt.setDouble(3, thuoc.getGiaBan());
             stmt.setString(4, thuoc.getDonVi());
+            stmt.setDouble(3, thuoc.getGiaBan());
             stmt.setInt(5, thuoc.getSoLuongToiThieu());
             stmt.setString(6, thuoc.getMaNSX());
             stmt.setBoolean(7, thuoc.isIsActive()); // Use the provided getter
@@ -296,9 +314,10 @@ public class ThuocDAO {
      * @return true if the deletion was successful, false otherwise.
      */
     public boolean deleteThuoc(String id) {
-        String sql = "UPDATE Thuoc SET isActive = 0 WHERE maThuoc = ?";
+        String sql = "UPDATE Thuoc SET soLuongTon = 0,isActive = 0 WHERE maThuoc = ?";
         int n = 0;
-        
+        ChiTietLoThuocDAO ctltDao = new ChiTietLoThuocDAO();
+        ctltDao.softDelete(id);
         try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
@@ -309,5 +328,53 @@ public class ThuocDAO {
             e.printStackTrace();
         }
         return n > 0;
+    }
+    
+    
+    
+    public ArrayList<Thuoc> getAllInactiveThuoc() {
+        ArrayList<Thuoc> dsThuoc = new ArrayList<>();
+        String sql = "SELECT * FROM Thuoc WHERE isActive = 0";
+        Connection con = ConnectDB.getConnection();
+        
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                Thuoc thuoc = new Thuoc(
+                    rs.getString("maThuoc"),
+                    rs.getString("tenThuoc"),
+                    rs.getInt("soLuongTon"),
+                    rs.getDouble("giaBan"),
+                    rs.getString("donVi"),
+                    rs.getInt("soLuongToiThieu"),
+                    rs.getString("maNSX"),
+                    rs.getBoolean("isActive")
+                );
+                dsThuoc.add(thuoc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsThuoc;
+    }
+
+    /**
+     * Kích hoạt lại thuốc đã bị xóa mềm
+     */
+    public boolean reactivateThuoc(String maThuoc) {
+        String sql = "UPDATE Thuoc SET isActive = 1 WHERE maThuoc = ?";
+        Connection con = ConnectDB.getConnection();
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, maThuoc);
+            int n = stmt.executeUpdate();
+            System.out.println("   → Reactivated Thuoc: " + maThuoc + " (rows: " + n + ")");
+            return n > 0;
+        } catch (SQLException e) {
+            System.err.println("   ❌ Error reactivating Thuoc: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
 }

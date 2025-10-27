@@ -2160,15 +2160,27 @@ GO
 INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
 ('PDT015', 'T026', 3, 7500, 'LO013', N'Khách hàng khỏi bệnh, còn thừa thuốc'),
 ('PDT015', 'T022', 1, 12000, 'LO011', N'Mua thừa, chưa mở hộp');
+
+
+
+
+
+
+
+
+--================================ TRIGGER ================================--
+
+GO
+-- Xem trigger hiện tại
+SELECT 
+    OBJECT_NAME(object_id) AS TriggerName,
+    OBJECT_DEFINITION(object_id) AS TriggerDefinition
+FROM sys.triggers
+WHERE name = 'tr_CapNhatSoLuongTon';
 GO
 
--- ===============================================
--- TRIGGER: ĐỒNG BỘ SỐ LƯỢNG TỒN GIỮA ChiTietLoThuoc VÀ Thuoc
--- ===============================================
-IF OBJECT_ID('tr_CapNhatSoLuongTon', 'TR') IS NOT NULL
-BEGIN
-    DROP TRIGGER tr_CapNhatSoLuongTon;
-END
+-- Nếu trigger sai, xóa và tạo lại
+DROP TRIGGER IF EXISTS tr_CapNhatSoLuongTon;
 GO
 
 CREATE TRIGGER tr_CapNhatSoLuongTon
@@ -2176,54 +2188,42 @@ ON ChiTietLoThuoc
 AFTER INSERT, UPDATE, DELETE
 AS
 BEGIN
-    -- 1. Xác định các mã thuốc bị ảnh hưởng (từ cả INSERTED và DELETED)
-    DECLARE @AffectedMaThuoc TABLE (maThuoc VARCHAR(50) PRIMARY KEY);
+    SET NOCOUNT ON;
+    
+    -- Lấy danh sách thuốc bị ảnh hưởng
+    DECLARE @AffectedMaThuoc TABLE (maThuoc VARCHAR(50));
     
     INSERT INTO @AffectedMaThuoc (maThuoc)
     SELECT DISTINCT maThuoc FROM INSERTED
     UNION
     SELECT DISTINCT maThuoc FROM DELETED;
 
-    -- 2. Tính toán tổng số lượng tồn mới cho các thuốc bị ảnh hưởng
-    -- Chỉ tính các lô có isActive = 1
-    UPDATE T
-    SET T.soLuongTon = ISNULL(Sub.TotalQuantity, 0)
-    FROM Thuoc T
-    INNER JOIN @AffectedMaThuoc AMT ON T.maThuoc = AMT.maThuoc
-    LEFT JOIN (
-        SELECT 
-            maThuoc,
-            SUM(soLuong) AS TotalQuantity
+    -- Cập nhật tổng số lượng tồn
+    UPDATE Thuoc
+    SET soLuongTon = ISNULL((
+        SELECT SUM(soLuong)
         FROM ChiTietLoThuoc
-        WHERE isActive = 1
-        GROUP BY maThuoc
-    ) AS Sub ON T.maThuoc = Sub.maThuoc;
-    
-    -- Xử lý trường hợp có thể có UPDATE/DELETE/INSERT không hợp lệ
-    -- Giả sử không có vấn đề gì về tham chiếu khóa ngoại.
-
+        WHERE ChiTietLoThuoc.maThuoc = Thuoc.maThuoc 
+          AND ChiTietLoThuoc.isActive = 1
+    ), 0)
+    WHERE maThuoc IN (SELECT maThuoc FROM @AffectedMaThuoc);
 END
 GO
 
--- ===============================================
--- CHẠY THỦ TỤC THỦ CÔNG ĐỂ TÍNH TỔNG LẦN ĐẦU
--- (Cần thiết vì Trigger chỉ chạy TỰ ĐỘNG sau khi được tạo)
--- ===============================================
--- Lần chạy script đầu tiên, do trigger được tạo SAU khi dữ liệu ChiTietLoThuoc được insert,
--- nên ta cần chạy lệnh UPDATE thủ công 1 lần để tính tổng ban đầu.
-UPDATE T
-SET T.soLuongTon = ISNULL(Sub.TotalQuantity, 0)
-FROM Thuoc T
-LEFT JOIN (
-    SELECT 
-        maThuoc,
-        SUM(soLuong) AS TotalQuantity
-    FROM ChiTietLoThuoc
-    WHERE isActive = 1
-    GROUP BY maThuoc
-) AS Sub ON T.maThuoc = Sub.maThuoc;
-
+-- Test trigger
+PRINT 'Testing trigger...';
+UPDATE ChiTietLoThuoc SET soLuong = soLuong + 1 WHERE maLo = 'LO001' AND maThuoc = 'T001';
+SELECT maThuoc, soLuongTon FROM Thuoc WHERE maThuoc = 'T001';
 GO
+
+
+
+
+
+
+
+--================================ PROCEDURE ================================--
+
 
 -- PROCEDURE Tính doanh thu của nhà thuốc theo tháng của năm 
 -- Param truyền vào là năm
@@ -2515,6 +2515,8 @@ GO
 EXEC sp_GetDoanhThuTrungBinhTheoNgay 5, 2025
 GO
 
+
+
 -- PROCEDURE Tính doanh thu trung bình của mỗi tháng trong năm
 -- Param: Năm cần thống kê
 -- Return: Năm, Số tháng đã qua, Doanh thu trung bình mỗi tháng
@@ -2559,15 +2561,9 @@ BEGIN
         END AS [DoanhThuTrungBinhMoiThang];
 END
 GO
--- Test procedure
-EXEC sp_GetDoanhThuTrungBinhTheoThang 2025
-EXEC sp_GetDoanhThuTrungBinhTheoThang 2024
-GO
 
 
 
 
 
 
--- Kiểm tra kết quả (OPTIONAL):
--- SELECT maThuoc, soLuongTon FROM Thuoc WHERE soLuongTon > 0 ORDER BY maThuoc;

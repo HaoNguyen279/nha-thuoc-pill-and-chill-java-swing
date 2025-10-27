@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+
+
 import app.ConnectDB.ConnectDB;
 import app.Entity.ChiTietPhieuNhap;
 
@@ -73,7 +75,7 @@ public class ChiTietPhieuNhapDAO {
      * @return true if the operation was successful, false otherwise.
      */
     public boolean addChiTietPhieuNhap(ChiTietPhieuNhap ctpn) {
-        String sql = "INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, soLuong, donGia, isActive) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo,maThuoc, soLuong, donGia, isActive) VALUES (?, ?,?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -81,9 +83,10 @@ public class ChiTietPhieuNhapDAO {
             
             stmt.setString(1, ctpn.getMaPhieuNhapThuoc());
             stmt.setString(2, ctpn.getMaLo());
-            stmt.setInt(3, ctpn.getSoLuong());
-            stmt.setFloat(4, ctpn.getDonGia());
-            stmt.setBoolean(5, ctpn.isIsActive());
+            stmt.setString(3,ctpn.getMaThuoc());
+            stmt.setInt(4, ctpn.getSoLuong());
+            stmt.setFloat(5, ctpn.getDonGia());
+            stmt.setBoolean(6, ctpn.isIsActive());
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
