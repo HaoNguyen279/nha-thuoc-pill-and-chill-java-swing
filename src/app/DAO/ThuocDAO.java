@@ -101,6 +101,55 @@ public class ThuocDAO {
     }
 
     /**
+     * Retrieves a single drug by its maThuoc and maLo.
+     * @param maThuoc The ID of the drug to find.
+     * @param maLo The batch/lot ID of the drug to find.
+     * @return A Thuoc object if found, otherwise null.
+     */
+    public Thuoc getThuocByMaThuocAndMaLo(String maThuoc, String maLo) {
+        String sql = "SELECT * FROM Thuoc WHERE maThuoc = ? AND maLo = ?";
+        Thuoc thuoc = null;
+
+        Connection con = ConnectDB.getConnection();
+        if (con == null) {
+            return thuoc;
+        }
+
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, maThuoc);
+            stmt.setString(2, maLo);
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                thuoc = new Thuoc(
+                    rs.getString("maThuoc"),
+                    rs.getString("maLo"),
+                    rs.getString("tenThuoc"),
+                    rs.getInt("soLuongTon"),
+                    rs.getDouble("giaBan"),
+                    rs.getString("donVi"),
+                    rs.getInt("soLuongToiThieu"),
+                    rs.getString("maNSX"),
+                    rs.getBoolean("isActive")
+                );
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return thuoc;
+    }
+
+    /**
      * Adds a new drug to the database.
      * @param thuoc The Thuoc object to add.
      * @return true if the operation was successful, false otherwise.
