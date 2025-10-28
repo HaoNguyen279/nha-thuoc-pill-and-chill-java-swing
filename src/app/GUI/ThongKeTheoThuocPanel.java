@@ -473,11 +473,11 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
         double slTrungBinh = soHoaDon > 0 ? (double) tongSoLuong / soHoaDon : 0;
         
         // Thêm các dòng thống kê
-        addRow(panel, "Tổng số lượng bán:", tongSoLuong + " hộp", labelFont, valueFont, 1);
+        addRow(panel, "Tổng số lượng bán:", tongSoLuong + " đơn vị", labelFont, valueFont, 1);
         addRow(panel, "Số loại thuốc:", String.valueOf(soLoaiThuoc), labelFont, valueFont, 2);
         addRow(panel, "Số hóa đơn:", String.valueOf(soHoaDon), labelFont, valueFont, 3);
         addRow(panel, "Doanh thu:", df.format(tongDoanhThu), labelFont, valueFont, 4);
-        addRow(panel, "SL TB/hóa đơn:", String.format("%.1f hộp", slTrungBinh), labelFont, valueFont, 5);
+        addRow(panel, "SL TB/hóa đơn:", String.format("%.1f đơn vị", slTrungBinh), labelFont, valueFont, 5);
         
         // Thêm Top 3
         if (dsThongKe.size() >= 1) {
@@ -490,10 +490,10 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
                     ThongKeThuoc tk = dsThongKe.get(i);
                     String medal = i == 0 ? "" : i == 1 ? "" : "";
                     String text = medal + " " + tk.getTenThuoc();
-                    String value = tk.getSoLuongBan() + " hộp";
+                    String value = tk.getSoLuongBan() + "  đơn vị";
                     addRow(panel, text, value, labelFont, valueFont, 6 + i);
                 } catch (Exception e) {
-                    System.err.println("❌ Lỗi khi hiển thị thuốc #" + (i+1) + ": " + e.getMessage());
+                    System.err.println("Lỗi khi hiển thị thuốc #" + (i+1) + ": " + e.getMessage());
                 }
             }
         }

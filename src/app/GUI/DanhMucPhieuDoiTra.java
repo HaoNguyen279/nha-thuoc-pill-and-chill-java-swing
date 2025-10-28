@@ -139,10 +139,10 @@ public class DanhMucPhieuDoiTra extends JPanel implements ActionListener, MouseL
 		tblChiTietPhieuDoiTra.setFont(new Font("Arial", Font.PLAIN, 15));
 		tblChiTietPhieuDoiTra.setRowHeight(40);
 		tblChiTietPhieuDoiTra.setGridColor(Color.LIGHT_GRAY);
-		tblChiTietPhieuDoiTra.setSelectionBackground(new Color(100, 149, 237));
+        tblChiTietPhieuDoiTra.setSelectionBackground(new Color(220, 255, 220));
         JTableHeader header = tblChiTietPhieuDoiTra.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(192, 232, 246));
+        header.setBackground(new Color(144, 238, 144));
         header.setFont(new Font("Arial", Font.BOLD, 15));
         JScrollPane scrollPane = new JScrollPane(tblChiTietPhieuDoiTra);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(
@@ -270,10 +270,10 @@ public class DanhMucPhieuDoiTra extends JPanel implements ActionListener, MouseL
         tblPhieuDoiTra.setFont(new Font("Arial", Font.PLAIN, 15));
         tblPhieuDoiTra.setRowHeight(40);
         tblPhieuDoiTra.setGridColor(Color.LIGHT_GRAY);
-        tblPhieuDoiTra.setSelectionBackground(new Color(100, 149, 237));
+        tblPhieuDoiTra.setSelectionBackground(new Color(220, 255, 220));
         JTableHeader header = tblPhieuDoiTra.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(192, 232, 246));
+        header.setBackground(new Color(144, 238, 144));
         header.setFont(new Font("Arial", Font.BOLD, 15));
         JScrollPane scrollPane = new JScrollPane(tblPhieuDoiTra);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(

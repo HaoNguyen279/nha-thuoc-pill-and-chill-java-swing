@@ -73,7 +73,7 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
                 new Color(160, 238, 160),  // Lục
                 new Color(100, 149, 237), // Xanh 
         });
-        
+
 		JPanel pnlNorthPanel = createNorthPanel();
 		add(pnlNorthPanel, BorderLayout.NORTH);
         
@@ -82,8 +82,9 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
 		pnlWestPanel = createWestPanel();
 		add(pnlWestPanel, BorderLayout.WEST);
 		
-//		JPanel pnlSouthPanel = createSouthPanel();
-//		add(pnlSouthPanel, BorderLayout.SOUTH);
+		JPanel pnlSouthPanel = createSouthPanel();
+		add(pnlSouthPanel, BorderLayout.SOUTH);
+		updateTongDoanhThu();
 	}
 	
 	/**
@@ -129,25 +130,25 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
 		
 	}
 	
-	/**
-	 * Tạo panel hiển thị tổng doanh thu
-	 */
-//	private JPanel createSouthPanel() {
-//		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 15));
-//		panel.setBackground(new Color(240, 248, 255)); // Alice Blue
-//		
-//		JLabel lblTitle = new JLabel("Tổng doanh thu năm " + namHienTai + ":");
-//		lblTitle.setFont(new Font("Arial", Font.BOLD, 18));
-//
-//		lblTongDoanhThu = new JLabel("");
-//		lblTongDoanhThu.setFont(new Font("Arial", Font.BOLD, 20));
-//		lblTongDoanhThu.setForeground(new Color(0, 128, 0)); // Màu xanh lá
-//		
-//		panel.add(lblTitle);
-//		panel.add(lblTongDoanhThu);
-//		
-//		return panel;
-//	}
+//	/**
+//	 * Tạo panel hiển thị tổng doanh thu
+//	 */
+	private JPanel createSouthPanel() {
+		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 15));
+		panel.setBackground(new Color(240, 248, 255)); // Alice Blue
+		
+		JLabel lblTitle = new JLabel("Tổng doanh thu tháng " + thangDuocChon + ":");
+		lblTitle.setFont(new Font("Arial", Font.BOLD, 18));
+
+		lblTongDoanhThu = new JLabel("");
+		lblTongDoanhThu.setFont(new Font("Arial", Font.BOLD, 20));
+		lblTongDoanhThu.setForeground(new Color(0, 128, 0)); // Màu xanh lá
+		
+		panel.add(lblTitle);
+		panel.add(lblTongDoanhThu);
+		
+		return panel;
+	}
 	
 	private CategoryChart createChart() {
 		CategoryChart chart = new CategoryChartBuilder()
@@ -211,26 +212,27 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
         refreshWestPanel();
     }
 	
-//	/**
-//	 * Cập nhật hiển thị tổng doanh thu
-//	 */
-//	private void updateTongDoanhThu() {
-//		lblTongDoanhThu.setText(df.format(hdDAO.getDoanhThuCuaNam(namDuocChon)));
-//		
-//		// Cập nhật label title với năm mới
-//		JPanel southPanel = (JPanel) lblTongDoanhThu.getParent();
-//		if(southPanel != null) {
-//			for(int i = 0; i < southPanel.getComponentCount(); i++) {
-//				if(southPanel.getComponent(i) instanceof JLabel) {
-//					JLabel lbl = (JLabel) southPanel.getComponent(i);
-//					if(lbl != lblTongDoanhThu) {
-//						lbl.setText("Tổng doanh thu năm " + namDuocChon + ":");
-//						break;
-//					}
-//				}
-//			}
-//		}
-//	}
+	/**
+	 * Cập nhật hiển thị tổng doanh thu
+	 */
+	private void updateTongDoanhThu() {
+        double tongDoanhThuThang = hdDAO.getDoanhThuCuaThang(thangDuocChon, namDuocChon);
+		lblTongDoanhThu.setText(df.format(tongDoanhThuThang));
+
+		// Cập nhật label title với năm mới
+		JPanel southPanel = (JPanel) lblTongDoanhThu.getParent();
+		if(southPanel != null) {
+			for(int i = 0; i < southPanel.getComponentCount(); i++) {
+				if(southPanel.getComponent(i) instanceof JLabel) {
+					JLabel lbl = (JLabel) southPanel.getComponent(i);
+					if(lbl != lblTongDoanhThu) {
+						lbl.setText("Tổng doanh thu tháng " + thangDuocChon + ":");
+						break;
+					}
+				}
+			}
+		}
+	}
 	
 	public void refresh() {
 		loadDoanhThuTheoNamData(thangDuocChon, namDuocChon);
@@ -247,13 +249,13 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
 			int namChon = (Integer) cboNam.getSelectedItem();
 			namDuocChon = namChon;
 			updateChart(thangDuocChon, namDuocChon);
-
+			updateTongDoanhThu();
 		}
 		else if(e.getSource() == cboThang) {
 			int thangChon = (Integer) cboThang.getSelectedItem();
 			thangDuocChon = thangChon;
 			updateChart(thangDuocChon, namDuocChon);
-
+			updateTongDoanhThu();
 		}
 	}
 	

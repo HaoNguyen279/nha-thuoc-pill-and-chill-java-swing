@@ -378,6 +378,16 @@ INSERT INTO LoThuoc (maLo, maNSX) VALUES
 ('LO023', 'NSX003'),
 ('LO024', 'NSX004'),
 ('LO025', 'NSX005'),
+('LO026', 'NSX001'),
+('LO027', 'NSX002'),
+('LO028', 'NSX003'),
+('LO029', 'NSX004'),
+('LO030', 'NSX005'),
+('LO031', 'NSX001'),
+('LO032', 'NSX002'),
+('LO033', 'NSX003'),
+('LO034', 'NSX004'),
+('LO035', 'NSX005'),
 ('LO999', 'NSX001'); 
 GO
 
@@ -621,7 +631,56 @@ VALUES
 
 -- DỮ LIỆU BỔ SUNG ĐỂ KIỂM TRA ĐỒNG BỘ TỒN KHO
 ('LO999', 'T001', '2025-10-15', '2027-10-15', 2000, 4800), -- Thêm 2000 viên Paracetamol
-('LO999', 'T007', '2025-10-15', '2027-10-15', 500, 20000); 
+('LO999', 'T007', '2025-10-15', '2027-10-15', 500, 20000),
+
+-- ===============================================
+-- DỮ LIỆU LÔ THUỐC ĐÃ HẾT HẠN VÀ SẮP HẾT HẠN
+-- ===============================================
+-- Lô thuốc ĐÃ HẾT HẠN 40 ngày (19/09/2025)
+('LO026', 'T001', '2024-09-19', '2025-09-19', 150, 4500),
+('LO026', 'T021', '2024-09-19', '2025-09-19', 100, 7000),
+
+-- Lô thuốc ĐÃ HẾT HẠN 30 ngày (29/09/2025)
+('LO027', 'T003', '2024-09-29', '2025-09-29', 200, 7200),
+('LO027', 'T011', '2024-09-29', '2025-09-29', 120, 12500),
+('LO027', 'T026', '2024-09-29', '2025-09-29', 80, 6800),
+
+-- Lô thuốc ĐÃ HẾT HẠN 10 ngày (19/10/2025)
+('LO028', 'T006', '2024-10-19', '2025-10-19', 180, 13500),
+('LO028', 'T016', '2024-10-19', '2025-10-19', 90, 6200),
+('LO028', 'T031', '2024-10-19', '2025-10-19', 60, 7800),
+
+-- Lô thuốc SẮP HẾT HẠN còn 10 ngày (08/11/2025)
+('LO029', 'T002', '2024-11-08', '2025-11-08', 220, 6800),
+('LO029', 'T012', '2024-11-08', '2025-11-08', 140, 28000),
+('LO029', 'T027', '2024-11-08', '2025-11-08', 95, 7200),
+
+-- Lô thuốc SẮP HẾT HẠN còn 20 ngày (18/11/2025)
+('LO030', 'T007', '2024-11-18', '2025-11-18', 160, 22000),
+('LO030', 'T017', '2024-11-18', '2025-11-18', 110, 11200),
+('LO030', 'T032', '2024-11-18', '2025-11-18', 75, 9500),
+('LO030', 'T041', '2024-11-18', '2025-11-18', 85, 13500),
+
+-- Lô thuốc SẮP HẾT HẠN còn 50 ngày (18/12/2025)
+('LO031', 'T008', '2024-12-18', '2025-12-18', 190, 19800),
+('LO031', 'T018', '2024-12-18', '2025-12-18', 130, 9900),
+('LO031', 'T033', '2024-12-18', '2025-12-18', 70, 10800),
+
+-- Lô thuốc ĐÃ HẾT HẠN 40 ngày - Nhóm 2 (19/09/2025)
+('LO032', 'T009', '2024-09-19', '2025-09-19', 170, 16200),
+('LO032', 'T036', '2024-09-19', '2025-09-19', 140, 6300),
+
+-- Lô thuốc ĐÃ HẾT HẠN 30 ngày - Nhóm 2 (29/09/2025)
+('LO033', 'T010', '2024-09-29', '2025-09-29', 155, 14400),
+('LO033', 'T037', '2024-09-29', '2025-09-29', 125, 7650),
+
+-- Lô thuốc SẮP HẾT HẠN còn 10 ngày - Nhóm 2 (08/11/2025)
+('LO034', 'T013', '2024-11-08', '2025-11-08', 135, 25200),
+('LO034', 'T038', '2024-11-08', '2025-11-08', 115, 5850),
+
+-- Lô thuốc SẮP HẾT HẠN còn 20 ngày - Nhóm 2 (18/11/2025)
+('LO035', 'T014', '2024-11-18', '2025-11-18', 145, 7650),
+('LO035', 'T039', '2024-11-18', '2025-11-18', 105, 11700); 
 GO
 
 -- Chèn dữ liệu vào bảng HoaDon (Đã chỉnh sửa để dùng giaTriThue)
@@ -2185,7 +2244,7 @@ GO
 
 
 --================================ TRIGGER ================================--
-
+-- cập nhật số lượng tồn trong bảng Thuoc khi có thay đổi trong ChiTietLoThuoc
 GO
 
 CREATE TRIGGER tr_CapNhatSoLuongTon
@@ -2214,12 +2273,69 @@ BEGIN
     WHERE maThuoc IN (SELECT maThuoc FROM @AffectedMaThuoc);
 END
 GO
+-- Trigger cập nhật điểm tích lũy cho khách hàng khi có hóa đơn mới
+CREATE TRIGGER tr_CapNhatDiemTichLuy
+ON HoaDon
+AFTER INSERT
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- Cập nhật điểm tích lũy cho khách hàng
+    -- Chỉ cập nhật nếu hóa đơn có mã khách hàng (không null)
+    UPDATE KhachHang
+    SET diemTichLuy = ISNULL(diemTichLuy, 0) + ISNULL((
+        SELECT FLOOR(SUM(ct.soLuong * ct.donGia) / 1000)
+        FROM ChiTietHoaDon ct
+        WHERE ct.maHoaDon = i.maHoaDon
+          AND ct.isActive = 1
+    ), 0)
+    FROM KhachHang kh
+    INNER JOIN INSERTED i ON kh.maKH = i.maKH
+    WHERE i.maKH IS NOT NULL;
+END
+GO
 
 
 
 
 --================================ PROCEDURE ================================--
+USE QuanLyNhaThuoc;
+GO
 
+-- ===============================================
+-- PROCEDURE: Cập nhật thuốc hết hạn sử dụng
+-- Mô tả: Đặt isActive = 0 cho các lô thuốc đã hết hạn
+-- ===============================================
+
+CREATE PROCEDURE sp_CapNhatThuocHetHan
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    BEGIN TRY
+    
+        BEGIN TRANSACTION;
+        -- Cập nhật isActive = 0 cho các lô thuốc đã hết hạn
+        UPDATE ChiTietLoThuoc
+        SET isActive = 0
+        WHERE hanSuDung < GETDATE()
+          AND isActive = 1;
+        
+        COMMIT TRANSACTION;
+
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0
+            ROLLBACK TRANSACTION;
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
+        DECLARE @ErrorState INT = ERROR_STATE();
+        
+        RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+    END CATCH
+END;
+GO
 
 -- PROCEDURE Tính doanh thu của nhà thuốc theo tháng của năm 
 -- Param truyền vào là năm

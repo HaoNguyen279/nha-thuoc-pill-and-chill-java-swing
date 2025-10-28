@@ -133,10 +133,10 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
 		tblChiTietHoaDon.setGridColor(Color.LIGHT_GRAY);
 		tblChiTietHoaDon.setFont(new Font("Arial", Font.PLAIN, 15));
 		tblChiTietHoaDon.setRowHeight(40);
-		tblChiTietHoaDon.setSelectionBackground(new Color(100, 149, 237));
+        tblChiTietHoaDon.setSelectionBackground(new Color(220, 255, 220));
         JTableHeader header = tblChiTietHoaDon.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(192, 232, 246));
+        header.setBackground(new Color(144, 238, 144));
         header.setFont(new Font("Arial", Font.BOLD, 15));
         JScrollPane scrollPane = new JScrollPane(tblChiTietHoaDon);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(
@@ -266,10 +266,10 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
         tblHoaDon.setFont(new Font("Arial", Font.PLAIN, 15));
         tblHoaDon.setRowHeight(40);
         tblHoaDon.setGridColor(Color.LIGHT_GRAY);
-        tblHoaDon.setSelectionBackground(new Color(100, 149, 237));
+        tblHoaDon.setSelectionBackground(new Color(220, 255, 220));
         JTableHeader header = tblHoaDon.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(192, 232, 246));
+        header.setBackground(new Color(144, 238, 144));
         header.setFont(new Font("Arial", Font.BOLD, 15));
         JScrollPane scrollPane = new JScrollPane(tblHoaDon);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(

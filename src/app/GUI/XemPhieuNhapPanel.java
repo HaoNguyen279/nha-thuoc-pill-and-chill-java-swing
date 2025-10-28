@@ -100,7 +100,7 @@ public class XemPhieuNhapPanel extends JPanel implements ActionListener{
         
         // Style table header
         JTableHeader header = table.getTableHeader();
-        header.setBackground(new Color(240, 250, 240));
+        header.setBackground(new Color(144, 238, 144));
         header.setForeground(new Color(51, 51, 51));
         header.setFont(new Font("Arial", Font.BOLD, 14));
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
@@ -111,7 +111,7 @@ public class XemPhieuNhapPanel extends JPanel implements ActionListener{
         table.setGridColor(new Color(200, 200, 200));
         table.setFont(new Font("Arial", Font.PLAIN, 13));
         table.setRowHeight(35);
-        table.setSelectionBackground(new Color(240, 250, 240));
+        table.setSelectionBackground(new Color(220, 255, 220));
         table.setSelectionForeground(Color.BLACK);
         table.setShowGrid(true);
         table.setIntercellSpacing(new Dimension(1, 1));

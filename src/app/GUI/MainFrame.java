@@ -3,6 +3,7 @@ package app.GUI;
 import java.awt.*;
 import javax.swing.*;
 
+import app.DAO.LoThuocDAO;
 import app.DAO.NhanVienDAO;
 
 
@@ -59,7 +60,8 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(Color.WHITE);
         add(contentPanel, BorderLayout.CENTER);
-        
+        LoThuocDAO loDAO = new LoThuocDAO();
+        loDAO.capNhatThuocHetHan();
         setVisible(true);
     }
     
@@ -104,10 +106,10 @@ public class MainFrame extends JFrame {
         
         // Thêm hình ảnh nền
         try {
-//            ImageIcon icon = new ImageIcon(getClass().getResource("/resources/image/pharmacy.jpg"));
-//            JLabel background = new JLabel(icon);
-//            background.setHorizontalAlignment(SwingConstants.CENTER);
-            panel.add(createImageBackgroundPanel("/resources/image/pharmacy.jpg"), BorderLayout.CENTER);
+        	ImageIcon img = new ImageIcon(getClass().getResource("/resources/image/pharmacy.jpg"));
+        	JLabel lblImg = new JLabel();
+        	lblImg.setIcon(img);
+            panel.add(lblImg, BorderLayout.CENTER);
         } catch (Exception e) {
             // Nếu không tìm thấy hình ảnh, hiển thị text
             JLabel welcomeLabel = new JLabel("Chào mừng đến với hệ thống quản lý nhà thuốc", SwingConstants.CENTER);
@@ -347,16 +349,16 @@ public class MainFrame extends JFrame {
     	this.dispose();
     	new DangNhapFrame();
    }
-    public static JPanel createImageBackgroundPanel(String imagePath) {
-        Image backgroundImage = new ImageIcon(imagePath).getImage();
-
-        return new JPanel() {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                g.drawImage(backgroundImage, 0, 0, this);
-            }
-        };
-    }
+//    public static JPanel createImageBackgroundPanel(String imagePath) {
+//        Image backgroundImage = new ImageIcon(imagePath).getImage();
+//
+//        return new JPanel() {
+//            @Override
+//            protected void paintComponent(Graphics g) {
+//                super.paintComponent(g);
+//                g.drawImage(backgroundImage, 0, 0, this);
+//            }
+//        };
+//    }
 
 }

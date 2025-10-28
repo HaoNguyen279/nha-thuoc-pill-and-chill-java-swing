@@ -676,7 +676,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 if (success) {
                     // Sau khi lưu hóa đơn thành công, cập nhật số lượng tồn kho
                     updateInventory(dsChiTietData);
-                    
+                    hoaDonDAO.capNhatDiemTichLuy(maHoaDon);
                     // Hỏi người dùng có muốn xuất hóa đơn PDF không
                     CustomJOptionPane printConfirmPane = new CustomJOptionPane(this,
                         "Lưu hóa đơn thành công! Bạn có muốn xuất hóa đơn PDF không?",

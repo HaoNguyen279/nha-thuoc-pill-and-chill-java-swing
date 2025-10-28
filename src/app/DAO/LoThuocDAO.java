@@ -258,4 +258,25 @@ public class LoThuocDAO {
             return false;
         }
     }
+    
+    /**
+     * Cập nhật trạng thái các lô thuốc đã hết hạn (isActive = 0)
+     * Gọi stored procedure sp_CapNhatThuocHetHan để tự động cập nhật
+     * các chi tiết lô thuốc có hạn sử dụng < ngày hiện tại
+     * @return Số lượng lô thuốc đã được cập nhật, -1 nếu có lỗi
+     */
+    public int capNhatThuocHetHan() {
+        String sql = "{CALL sp_CapNhatThuocHetHan}";
+        Connection con = ConnectDB.getConnection();
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            int rowsAffected = stmt.executeUpdate();
+            System.out.println("Đã cập nhật " + rowsAffected + " lô thuốc hết hạn");
+            return rowsAffected;
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi cập nhật thuốc hết hạn: " + e.getMessage());
+            e.printStackTrace();
+            return -1;
+        }
+    }
 }

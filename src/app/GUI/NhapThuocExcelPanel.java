@@ -13,6 +13,7 @@ import java.text.DecimalFormat;
 
 import app.ConnectDB.ConnectDB;
 import app.DAO.ChiTietPhieuNhapDAO;
+import app.DAO.LoThuocDAO;
 import app.DAO.PhieuNhapThuocDAO;
 import app.DAO.ThuocDAO;
 import app.Entity.ChiTietLoThuoc;
@@ -384,6 +385,8 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
                     dsThuoc.clear();
                     dsCTLT.clear();
                     capNhatThongKe();
+                    LoThuocDAO loDAO = new LoThuocDAO();
+                    loDAO.capNhatThuocHetHan();
                 }
                 else {
                     JOptionPane.showMessageDialog(this,
@@ -439,7 +442,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
         }
         
         try {
-            String defaultDir = "F:\\PTUD";
+            String defaultDir = "E:\\PTUD";
             File directory = new File(defaultDir);
             
             if (!directory.exists()) {

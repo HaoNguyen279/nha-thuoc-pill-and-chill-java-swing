@@ -225,30 +225,61 @@ public class HoaDonDAO {
     }
     
     /**
-     * Tạo mã hóa đơn tự động theo format HDXXX
-     * @return Mã hóa đơn mới (ví dụ: HD051)
+     * Tạo mã hóa đơn tự động theo định dạng HD + 5 chữ số
+     * @return Mã hóa đơn mới (VD: HD00001)
      */
     public String generateMaHoaDon() {
+        String newMaHD = null;
         String sql = "SELECT TOP 1 maHoaDon FROM HoaDon ORDER BY maHoaDon DESC";
-        String newMaHD = "HD001"; // Mã mặc định nếu chưa có hóa đơn nào
+        Connection con = ConnectDB.getConnection();
         
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             Statement stmt = con.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+        try (PreparedStatement stmt = con.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
             
             if (rs.next()) {
                 String lastMaHD = rs.getString("maHoaDon");
-                // Lấy phần số từ mã cuối (ví dụ: HD050 -> 050)
-                String numberPart = lastMaHD.substring(2);
-                int number = Integer.parseInt(numberPart);
-                // Tăng lên 1 và format lại
-                newMaHD = String.format("HD%03d", number + 1);
+                // Lấy phần số từ mã hóa đơn cuối (VD: HD00150 -> 150)
+                int number = Integer.parseInt(lastMaHD.substring(2));
+                // Tăng lên 1
+                number++;
+                // Format lại thành HD00151
+                newMaHD = String.format("HD%05d", number);
+            } else {
+                // Nếu chưa có hóa đơn nào, bắt đầu từ HD00001
+                newMaHD = "HD00001";
             }
+            
+            // Kiểm tra xem mã vừa sinh có tồn tại không (để chắc chắn)
+            while (checkMaHoaDonExists(newMaHD)) {
+                int number = Integer.parseInt(newMaHD.substring(2));
+                number++;
+                newMaHD = String.format("HD%05d", number);
+            }
+            
         } catch (SQLException e) {
             e.printStackTrace();
         }
         
         return newMaHD;
+    }
+
+    /**
+     * Kiểm tra mã hóa đơn đã tồn tại chưa
+     */
+    private boolean checkMaHoaDonExists(String maHD) {
+        String sql = "SELECT COUNT(*) FROM HoaDon WHERE maHoaDon = ?";
+        Connection con = ConnectDB.getConnection();
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, maHD);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
     
     /**
@@ -816,6 +847,31 @@ public class HoaDonDAO {
             e.printStackTrace();
         }
         return dsHoaDon;
+    }
+    
+    /**
+     * Cập nhật điểm tích lũy cho khách hàng sau khi lưu hóa đơn
+     */
+    public boolean capNhatDiemTichLuy(String maHoaDon) {
+        String sql = "UPDATE KhachHang " +
+                     "SET diemTichLuy = ISNULL(diemTichLuy, 0) + ISNULL(( " +
+                     "    SELECT FLOOR(SUM(ct.soLuong * ct.donGia) / 1000) " +
+                     "    FROM ChiTietHoaDon ct " +
+                     "    WHERE ct.maHoaDon = ? AND ct.isActive = 1 " +
+                     "), 0) " +
+                     "FROM KhachHang kh " +
+                     "INNER JOIN HoaDon hd ON kh.maKH = hd.maKH " +
+                     "WHERE hd.maHoaDon = ? AND hd.maKH IS NOT NULL";
+        
+        Connection con = ConnectDB.getConnection();
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, maHoaDon);
+            stmt.setString(2, maHoaDon);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
     
     
