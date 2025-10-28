@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 import app.ConnectDB.ConnectDB;
 import app.Entity.LoThuoc;
+import app.Entity.LoThuocHetHan;
 
 /**
  * DAO (Data Access Object) for the LoThuoc entity.
@@ -174,6 +175,85 @@ public class LoThuocDAO {
             return n > 0;
         } catch (SQLException e) {
             System.err.println("   ❌ Error reactivating LoThuoc: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Get các lô thuốc đã hết hạn 
+    public ArrayList<LoThuocHetHan> getCacLoThuocHetHan() {
+        ArrayList<LoThuocHetHan> dsLo = new ArrayList<>();
+        String sql =  "{CALL sp_GetLoThuocDaHetHan}";
+        Connection con = ConnectDB.getConnection();
+        
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                LoThuocHetHan lo = new LoThuocHetHan(
+                    rs.getString("maLo"),
+                    rs.getString("maThuoc"),
+                    rs.getString("tenThuoc"),
+                    rs.getDate("ngaySanXuat"),
+                    rs.getDate("hanSuDung"),
+                    rs.getInt("soLuongTon"),
+                    rs.getInt("soNgayDaHetHan")
+                );
+                dsLo.add(lo);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsLo;
+    }
+    
+
+ // Lấy các lô thuốc sắp hết hạn
+    public ArrayList<LoThuocHetHan> getCacLoThuocSapHetHan(int soNgay) {
+        ArrayList<LoThuocHetHan> dsLo = new ArrayList<>();
+        String sql = "{CALL sp_GetLoThuocSapHetHan(?)}";
+        Connection con = ConnectDB.getConnection();
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, soNgay);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    LoThuocHetHan lo = new LoThuocHetHan(
+                        rs.getString("maLo"),
+                        rs.getString("maThuoc"),
+                        rs.getString("tenThuoc"),
+                        rs.getDate("ngaySanXuat"),
+                        rs.getDate("hanSuDung"),
+                        rs.getInt("soLuongTon"),
+                        rs.getInt("soNgayConLai") 
+                    );
+                    dsLo.add(lo);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsLo;
+    }
+    
+    /**
+     * Xóa cứng chi tiết lô thuốc khỏi database (HARD DELETE)
+     * @param maLo Mã lô thuốc cần xóa
+     * @param maThuoc Mã thuốc cần xóa
+     * @return true nếu xóa thành công, false nếu thất bại
+     */
+    public boolean xoaChiTietLoThuoc(String maLo, String maThuoc) {
+        String sql = "DELETE FROM ChiTietLoThuoc WHERE maLo = ? AND maThuoc = ?";
+        Connection con = ConnectDB.getConnection();
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, maLo);
+            stmt.setString(2, maThuoc);
+            
+            int n = stmt.executeUpdate();
+            return n > 0;
+        } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }

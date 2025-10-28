@@ -35,7 +35,10 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	private JMenuItem mniTimKiemThuoc;
 	private JMenuItem mniTimKiemKhachHang;
 	private JMenuItem mniTimKiemNhanVien;
-
+	private JMenuItem mniHoaDon;
+	private JMenuItem mniPhieuDoiTra;
+	private JMenuItem mniPhieuDatThuoc;
+	
 	// MenuItem cho xử lí
 	private JMenuItem mniLapHoaDon;
 	private JMenuItem mniLapPhieuDatThuoc;
@@ -50,7 +53,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	private JMenuItem mniNhanVien;
 	private JMenuItem mniKhachHang;
 	private JMenuItem mniHanSuDung;
-	private JMenuItem mniThue;
+//	private JMenuItem mniThue;
 	private JMenuItem mniThuocDuocMuaNhieu;
 	
     public MenuBarPanel(String tenNhanVien, MainFrame parentFrame) {
@@ -137,7 +140,18 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         
         mniTimKiemNhanVien = new JMenuItem("Nhân viên");
         mniTimKiemNhanVien.setIcon(loadIcon("/resources/icon/employee_icon.png"));  
-
+        
+        //lala
+        mniHoaDon = new JMenuItem("Hóa đơn");
+        mniHoaDon.setIcon(loadIcon("/resources/icon/bill_icon.png"));  
+        
+        mniPhieuDatThuoc = new JMenuItem("Phiếu đặt thuốc");
+        mniPhieuDatThuoc.setIcon(loadIcon("/resources/icon/order_icon.png"));  
+        
+        mniPhieuDoiTra = new JMenuItem("Phiếu đổi trả");
+        mniPhieuDoiTra.setIcon(loadIcon("/resources/icon/cash_back_icon.png"));  
+        
+        
         // MenuItem cho xử lí với icon
         mniLapHoaDon = new JMenuItem("Lập hóa đơn");
         mniLapHoaDon.setIcon(loadIcon("/resources/icon/bill_icon.png"));
@@ -171,8 +185,8 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniHanSuDung = new JMenuItem("Hạn sử dụng");
         mniHanSuDung.setIcon(loadIcon("/resources/icon/expiration_date_icon.png"));  
         
-        mniThue = new JMenuItem("Thuế đã thu");
-        mniThue.setIcon(loadIcon("/resources/icon/tax_icon.png"));  
+//        mniThue = new JMenuItem("Thuế đã thu");
+//        mniThue.setIcon(loadIcon("/resources/icon/tax_icon.png"));  
         
         mniThuocDuocMuaNhieu = new JMenuItem("Thuốc mua nhiều");
         mniThuocDuocMuaNhieu.setIcon(loadIcon("/resources/icon/top_icon.png"));  
@@ -182,10 +196,10 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         for (JMenuItem item1 : new JMenuItem[]{
             mniHoTro, mniDangXuat, mniThoat,mniDatLai,mniTaiKhoan,mniCapNhatChucVu,mniXemPhieuNhap,
             mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai,
-            mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,
-            mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc,mniNhapThuoc,
+            mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien, mniHoaDon,
+            mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc,mniNhapThuoc, mniPhieuDatThuoc, mniPhieuDoiTra, 
             mniDoanhThuTheoThang, mniDoanhThuTheoNam,
-            mniNhanVien, mniKhachHang, mniHanSuDung, mniThue, mniThuocDuocMuaNhieu
+            mniNhanVien, mniKhachHang, mniHanSuDung, mniThuocDuocMuaNhieu
         }) {
             item1.setFont(itemFont);
             item1.setBackground(getBackground());
@@ -211,12 +225,16 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mnuCapNhat.add(mniCapNhatNhanVien);
         mnuCapNhat.add(mniCapNhatKhuyenMai);
         mnuCapNhat.add(mniCapNhatChucVu);
-        mnuCapNhat.add(mniXemPhieuNhap);
+
 
         // Tìm kiếm
         mnuTimKiem.add(mniTimKiemThuoc);
         mnuTimKiem.add(mniTimKiemKhachHang);
         mnuTimKiem.add(mniTimKiemNhanVien);
+        mnuTimKiem.add(mniHoaDon);
+        mnuTimKiem.add(mniPhieuDatThuoc);
+        mnuTimKiem.add(mniPhieuDoiTra);
+        mnuTimKiem.add(mniXemPhieuNhap);
 
         // Xử lý
         mnuXuLy.add(mniLapHoaDon);
@@ -231,7 +249,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mnuThongKe.add(mnuDoanhThu);
         mnuThongKe.add(mniNhanVien);
         mnuThongKe.add(mniKhachHang);
-        mnuThongKe.add(mniThue);
+//        mnuThongKe.add(mniThue);
         mnuThongKe.add(mniHanSuDung);
         mnuThongKe.add(mniThuocDuocMuaNhieu);
 
@@ -278,6 +296,12 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 
 		else if (o == mniTimKiemNhanVien) parentFrame.showTimKiemNhanVienPanel();
 		
+		else if (o == mniHoaDon) parentFrame.showDanhMucHoaDonPanel();
+		
+		else if (o == mniPhieuDatThuoc) parentFrame.showDanhMucPhieuDatThuocPanel();
+		
+		else if (o == mniPhieuDoiTra) parentFrame.showDanhMucPhieuDoiTraPanel();
+		
 		// Xử lý
 		else if (o == mniLapHoaDon) parentFrame.showLapHoaDonPanel();
 
@@ -305,7 +329,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 
 		else if (o == mniThuocDuocMuaNhieu) parentFrame.showThongKeTheoThuocPanel();
 
-		else if (o == mniThue) parentFrame.showThongKeTheoThuePanel();
+//		else if (o == mniThue) parentFrame.showThongKeTheoThuePanel();
 		
 		// Hệ thống
 		else if(o == mniDangXuat) {
@@ -334,7 +358,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 		}
 		else if(o == mniHoTro) {
 			try {
-				URL fileURL = App.class.getResource("/resources/pdf/HuongDanSuDung.pdf");
+				URL fileURL = App.class.getResource("/resources/pdf/HuongDanSuDungPhanMem.pdf");
 				if(fileURL != null) {
 					File file = new File(fileURL.toURI());
 					if(file.exists()) {

@@ -1,6 +1,7 @@
 package app.DAO;
 
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 import app.ConnectDB.ConnectDB;
 import app.Entity.ChiTietLoThuoc;
 import app.Entity.LoThuoc;
+import app.Entity.ThongKeThuoc;
 import app.Entity.Thuoc;
 
 /**
@@ -140,6 +142,7 @@ public class ThuocDAO {
         }
         return thuoc;
     }
+
 
     /**
      * Adds a new drug to the database.
@@ -377,4 +380,320 @@ public class ThuocDAO {
             return false;
         }
     }
+    
+    public ArrayList<ThongKeThuoc> thongKeThuocTheoNgay(Date ngay, int topN) {
+        ArrayList<ThongKeThuoc> dsThongKe = new ArrayList<>();
+        
+        String sql = "SELECT " +
+            "t.maThuoc, " +
+            "t.tenThuoc, " +
+            "t.donVi, " +
+            "SUM(ct.soLuong) AS soLuongBan, " +
+            "COUNT(DISTINCT ct.maHoaDon) AS soLanXuatHien, " +
+            "(SELECT COUNT(*) FROM HoaDon WHERE CAST(ngayBan AS DATE) = ? AND isActive = 1) AS tongSoHoaDon, " +
+            "SUM(ct.soLuong * ct.donGia) AS doanhThu, " +
+            "AVG(ct.donGia) AS giaTriTrungBinh " +
+            "FROM Thuoc t " +
+            "INNER JOIN ChiTietHoaDon ct ON t.maThuoc = ct.maThuoc " +
+            "INNER JOIN HoaDon hd ON ct.maHoaDon = hd.maHoaDon " +
+            "WHERE CAST(hd.ngayBan AS DATE) = ? " +
+            "AND hd.isActive = 1 AND ct.isActive = 1 " +
+            "GROUP BY t.maThuoc, t.tenThuoc, t.donVi " +
+            "ORDER BY soLuongBan DESC";
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setDate(1, ngay);
+            stmt.setDate(2, ngay);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                dsThongKe = mapResultSetToThongKeThuoc(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        // Tính toán thứ hạng và tỷ lệ đóng góp
+        calculateRankAndPercentage(dsThongKe);
+        
+        // Lấy top N nếu cần
+        if (topN > 0 && dsThongKe.size() > topN) {
+            return new ArrayList<>(dsThongKe.subList(0, topN));
+        }
+        
+        return dsThongKe;
+    }
+    
+    /**
+     * Thống kê thuốc bán chạy theo tháng
+     * @param thang Tháng (1-12)
+     * @param nam Năm
+     * @param topN Số lượng top cần lấy (0 = lấy tất cả)
+     * @return ArrayList<ThongKeThuoc>
+     */
+    public ArrayList<ThongKeThuoc> thongKeThuocTheoThang(int thang, int nam, int topN) {
+        ArrayList<ThongKeThuoc> dsThongKe = new ArrayList<>();
+        
+        String sql = "SELECT " +
+            "t.maThuoc, " +
+            "t.tenThuoc, " +
+            "t.donVi, " +
+            "SUM(ct.soLuong) AS soLuongBan, " +
+            "COUNT(DISTINCT ct.maHoaDon) AS soLanXuatHien, " +
+            "(SELECT COUNT(*) FROM HoaDon WHERE MONTH(ngayBan) = ? AND YEAR(ngayBan) = ? AND isActive = 1) AS tongSoHoaDon, " +
+            "SUM(ct.soLuong * ct.donGia) AS doanhThu, " +
+            "AVG(ct.donGia) AS giaTriTrungBinh " +
+            "FROM Thuoc t " +
+            "INNER JOIN ChiTietHoaDon ct ON t.maThuoc = ct.maThuoc " +
+            "INNER JOIN HoaDon hd ON ct.maHoaDon = hd.maHoaDon " +
+            "WHERE MONTH(hd.ngayBan) = ? AND YEAR(hd.ngayBan) = ? " +
+            "AND hd.isActive = 1 AND ct.isActive = 1 " +
+            "GROUP BY t.maThuoc, t.tenThuoc, t.donVi " +
+            "ORDER BY soLuongBan DESC";
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+            stmt.setInt(3, thang);
+            stmt.setInt(4, nam);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                dsThongKe = mapResultSetToThongKeThuoc(rs);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        // Tính toán thứ hạng và tỷ lệ đóng góp
+        calculateRankAndPercentage(dsThongKe);
+        
+        // Lấy top N nếu cần
+        if (topN > 0 && dsThongKe.size() > topN) {
+            return new ArrayList<>(dsThongKe.subList(0, topN));
+        }
+        
+        return dsThongKe;
+    }
+    
+    /**
+     * Thống kê thuốc bán chạy theo năm
+     * @param nam Năm
+     * @param topN Số lượng top cần lấy (0 = lấy tất cả)
+     * @return ArrayList<ThongKeThuoc>
+     */
+    public ArrayList<ThongKeThuoc> thongKeThuocTheoNam(int nam, int topN) {
+        ArrayList<ThongKeThuoc> dsThongKe = new ArrayList<>();
+        
+        String sql = "SELECT " +
+            "t.maThuoc, " +
+            "t.tenThuoc, " +
+            "t.donVi, " +
+            "SUM(ct.soLuong) AS soLuongBan, " +
+            "COUNT(DISTINCT ct.maHoaDon) AS soLanXuatHien, " +
+            "(SELECT COUNT(*) FROM HoaDon WHERE YEAR(ngayBan) = ? AND isActive = 1) AS tongSoHoaDon, " +
+            "SUM(ct.soLuong * ct.donGia) AS doanhThu, " +
+            "AVG(ct.donGia) AS giaTriTrungBinh " +
+            "FROM Thuoc t " +
+            "INNER JOIN ChiTietHoaDon ct ON t.maThuoc = ct.maThuoc " +
+            "INNER JOIN HoaDon hd ON ct.maHoaDon = hd.maHoaDon " +
+            "WHERE YEAR(hd.ngayBan) = ? " +
+            "AND hd.isActive = 1 AND ct.isActive = 1 " +
+            "GROUP BY t.maThuoc, t.tenThuoc, t.donVi " +
+            "ORDER BY soLuongBan DESC";
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setInt(1, nam);
+            stmt.setInt(2, nam);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                dsThongKe = mapResultSetToThongKeThuoc(rs);
+            }
+        } catch (SQLException e) {
+        	e.printStackTrace();
+        }
+        
+        // Tính toán thứ hạng và tỷ lệ đóng góp
+        calculateRankAndPercentage(dsThongKe);
+        
+        // Lấy top N nếu cần
+        if (topN > 0 && dsThongKe.size() > topN) {
+            return new ArrayList<>(dsThongKe.subList(0, topN));
+        }
+        
+        return dsThongKe;
+    }
+    
+    
+    
+    /**
+     * Lấy tổng số lượng thuốc bán theo tháng
+     * @param thang Tháng (1-12)
+     * @param nam Năm
+     * @return Tổng số lượng
+     */
+   
+    
+    
+    
+    /**
+     * Lấy tổng doanh thu từ thuốc theo ngày
+     * @param ngay Ngày cần thống kê
+     * @return Tổng doanh thu
+     */
+    public double getTongDoanhThuThuocTheoNgay(Date ngay) {
+        String sql = "SELECT SUM(ct.soLuong * ct.donGia) AS tongDoanhThu " +
+            "FROM ChiTietHoaDon ct " +
+            "INNER JOIN HoaDon hd ON ct.maHoaDon = hd.maHoaDon " +
+            "WHERE CAST(hd.ngayBan AS DATE) = ? " +
+            "AND hd.isActive = 1 AND ct.isActive = 1";
+        
+        double tongDoanhThu = 0;
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setDate(1, ngay);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    tongDoanhThu = rs.getDouble("tongDoanhThu");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return tongDoanhThu;
+    }
+    
+    /**
+     * Lấy tổng doanh thu từ thuốc theo tháng
+     * @param thang Tháng (1-12)
+     * @param nam Năm
+     * @return Tổng doanh thu
+     */
+    public double getTongDoanhThuThuocTheoThang(int thang, int nam) {
+        String sql = "SELECT SUM(ct.soLuong * ct.donGia) AS tongDoanhThu " +
+            "FROM ChiTietHoaDon ct " +
+            "INNER JOIN HoaDon hd ON ct.maHoaDon = hd.maHoaDon " +
+            "WHERE MONTH(hd.ngayBan) = ? AND YEAR(hd.ngayBan) = ? " +
+            "AND hd.isActive = 1 AND ct.isActive = 1";
+        
+        double tongDoanhThu = 0;
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    tongDoanhThu = rs.getDouble("tongDoanhThu");
+                }
+            }
+        } catch (SQLException e) {
+        	e.printStackTrace();
+        }
+        
+        return tongDoanhThu;
+    }
+    
+    /**
+     * Lấy tổng doanh thu từ thuốc theo năm
+     * @param nam Năm
+     * @return Tổng doanh thu
+     */
+    public double getTongDoanhThuThuocTheoNam(int nam) {
+        String sql = "SELECT SUM(ct.soLuong * ct.donGia) AS tongDoanhThu " +
+            "FROM ChiTietHoaDon ct " +
+            "INNER JOIN HoaDon hd ON ct.maHoaDon = hd.maHoaDon " +
+            "WHERE YEAR(hd.ngayBan) = ? " +
+            "AND hd.isActive = 1 AND ct.isActive = 1";
+        
+        double tongDoanhThu = 0;
+        
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setInt(1, nam);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    tongDoanhThu = rs.getDouble("tongDoanhThu");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return tongDoanhThu;
+    }
+    
+   
+    
+    
+    
+    // --- HELPER METHODS ---
+    
+    /**
+     * Map ResultSet sang ArrayList<ThongKeThuoc>
+     */
+    private ArrayList<ThongKeThuoc> mapResultSetToThongKeThuoc(ResultSet rs) throws SQLException {
+        ArrayList<ThongKeThuoc> list = new ArrayList<>();
+        
+        while (rs.next()) {
+            String maThuoc = rs.getString("maThuoc");
+            String tenThuoc = rs.getString("tenThuoc");
+            String donViTinh = rs.getString("donVi");
+            int soLuongBan = rs.getInt("soLuongBan");
+            int soLanXuatHien = rs.getInt("soLanXuatHien");
+            int tongSoHoaDon = rs.getInt("tongSoHoaDon");
+            double doanhThu = rs.getDouble("doanhThu");
+            double giaTriTrungBinh = rs.getDouble("giaTriTrungBinh");
+            
+            ThongKeThuoc tk = new ThongKeThuoc(
+                maThuoc, tenThuoc, donViTinh,
+                soLuongBan, soLanXuatHien, tongSoHoaDon,
+                doanhThu, giaTriTrungBinh,
+                0, 0  // tyLeDongGop và thuHang sẽ tính sau
+            );
+            
+            list.add(tk);
+        }
+        
+        return list;
+    }
+    
+    /**
+     * Tính thứ hạng và tỷ lệ đóng góp cho danh sách
+     */
+    private void calculateRankAndPercentage(ArrayList<ThongKeThuoc> dsThongKe) {
+        if (dsThongKe.isEmpty()) return;
+        
+        // Tính tổng số lượng bán
+        int tongSoLuongBan = dsThongKe.stream()
+            .mapToInt(ThongKeThuoc::getSoLuongBan)
+            .sum();
+     // Gán thứ hạng và tỷ lệ đóng góp
+        for (int i = 0; i < dsThongKe.size(); i++) {
+            ThongKeThuoc tk = dsThongKe.get(i);
+            
+            // Gán thứ hạng
+            tk.setThuHang(i + 1);
+            
+            // Tính tỷ lệ đóng góp
+            if (tongSoLuongBan > 0) {
+                double tyLe = (tk.getSoLuongBan() * 100.0) / tongSoLuongBan;
+                tk.setTyLeDongGop(tyLe);
+            }
+        }
+    }
+        
+        
 }

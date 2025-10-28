@@ -65,7 +65,6 @@ public class ChiTietLoThuocDAO {
                     chiTiet = new ChiTietLoThuoc(
                         rs.getString("maLo"),
                         rs.getString("maThuoc"),
-                        
                         rs.getDate("ngaySanXuat"),
                         rs.getDate("hanSuDung"),
                         rs.getInt("soLuong"),

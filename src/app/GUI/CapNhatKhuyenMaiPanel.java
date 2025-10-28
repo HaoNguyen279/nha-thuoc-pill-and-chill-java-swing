@@ -260,6 +260,7 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
 	    calNgayApDung.setDate(today);
 	    calNgayKetThuc.setDate(today);
 	    txtMaKM.setEnabled(true);
+	    loadKhuyenMaiData();
 	}
 
 	@Override

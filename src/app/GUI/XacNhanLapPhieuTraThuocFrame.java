@@ -5,12 +5,14 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
 import app.DAO.PhieuDoiTraDAO;
+import app.DAO.ChiTietLoThuocDAO;
 import app.DAO.ChiTietPhieuDoiTraDAO;
 import app.DAO.ThuocDAO;
 import app.DAO.HoaDonDAO;
 import app.DAO.KhachHangDAO;
 import app.DAO.NhanVienDAO;
 import app.Entity.ChiTietHoaDon;
+import app.Entity.ChiTietLoThuoc;
 import app.Entity.ChiTietPhieuDoiTra;
 import app.Entity.PhieuDoiTra;
 import app.Entity.Thuoc;
@@ -21,6 +23,7 @@ import app.Entity.NhanVien;
 // Import iTextPDF classes
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -354,8 +357,10 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
     private void themVaoPhieuTra() {
         int selectedRow = tableChiTietHoaDon.getSelectedRow();
         if (selectedRow < 0) {
-            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng chọn một sản phẩm để thêm vào phiếu trả!", false);
-            warningPane.show();
+            JOptionPane.showMessageDialog(this, 
+                "Vui lòng chọn một sản phẩm để thêm vào phiếu trả!", 
+                "Thông báo", 
+                JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -370,8 +375,10 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
         
         // Validate số lượng
         if (soLuongTra > soLuongHienTai) {
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Số lượng trả không được vượt quá số lượng đã mua (" + soLuongHienTai + ")!", false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, 
+                "Số lượng trả không được vượt quá số lượng đã mua (" + soLuongHienTai + ")!", 
+                "Lỗi", 
+                JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -394,8 +401,11 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
         
         // Kiểm tra tổng số lượng không vượt quá số lượng đã mua
         if (tongSoLuongDaThem + soLuongTra > soLuongHienTai) {
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Tổng số lượng trả (" + (tongSoLuongDaThem + soLuongTra) + ") không được vượt quá số lượng đã mua (" + soLuongHienTai + ")!\nĐã thêm: " + tongSoLuongDaThem + ", Sắp thêm: " + soLuongTra, false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, 
+                "Tổng số lượng trả (" + (tongSoLuongDaThem + soLuongTra) + ") không được vượt quá số lượng đã mua (" + soLuongHienTai + ")!\n" +
+                "Đã thêm: " + tongSoLuongDaThem + ", Sắp thêm: " + soLuongTra, 
+                "Lỗi", 
+                JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -437,8 +447,10 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
     private void xoaKhoiPhieuTra() {
         int selectedRow = tableTraThuoc.getSelectedRow();
         if (selectedRow < 0) {
-            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng chọn một sản phẩm để xóa khỏi phiếu trả!", false);
-            warningPane.show();
+            JOptionPane.showMessageDialog(this, 
+                "Vui lòng chọn một sản phẩm để xóa khỏi phiếu trả!", 
+                "Thông báo", 
+                JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -460,8 +472,10 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
     
     private void xacNhanLapPhieu() {
         if (danhSachTraThuoc.isEmpty()) {
-            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng thêm ít nhất một sản phẩm vào phiếu trả!", false);
-            warningPane.show();
+            JOptionPane.showMessageDialog(this, 
+                "Vui lòng thêm ít nhất một sản phẩm vào phiếu trả!", 
+                "Thông báo", 
+                JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -500,8 +514,11 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
         
         thongTinXacNhan.append("\nBạn có chắc chắn muốn lập phiếu trả thuốc này không?");
         
-        CustomJOptionPane confirmPane = new CustomJOptionPane(this, thongTinXacNhan.toString(), true);
-        int choice = confirmPane.show();
+        int choice = JOptionPane.showConfirmDialog(this, 
+            thongTinXacNhan.toString(), 
+            "Xác nhận lập phiếu trả thuốc", 
+            JOptionPane.YES_NO_OPTION,
+            JOptionPane.QUESTION_MESSAGE);
         
         if (choice != JOptionPane.YES_OPTION) {
             return;
@@ -542,53 +559,73 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
                     
                     if (!chiTietPhieuDoiTraDAO.addChiTietPhieuDoiTra(chiTiet)) {
                         allSuccess = false;
-                        CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi lưu chi tiết phiếu trả cho thuốc: " + maThuoc, false);
-                        errorPane.show();
+                        JOptionPane.showMessageDialog(this, 
+                            "Lỗi khi lưu chi tiết phiếu trả cho thuốc: " + maThuoc, 
+                            "Lỗi", 
+                            JOptionPane.ERROR_MESSAGE);
                         break;
                     }
                     
                     // Cập nhật tồn kho
-                    Thuoc thuoc = thuocDAO.getThuocById(maThuoc); // kok
-                    if (thuoc != null) {
-                        thuoc.setSoLuongTon(thuoc.getSoLuongTon() + soLuongTra);
-                        if (!thuocDAO.updateThuoc(thuoc)) {
+                	ChiTietLoThuocDAO ctloDAO = new ChiTietLoThuocDAO();
+                    ChiTietLoThuoc ctlothuoc = ctloDAO.getChiTietLoThuocById(maLo, maThuoc);
+                    System.out.println(maThuoc + maLo);
+                    if (ctlothuoc != null) {
+                        ctlothuoc.setSoLuong(ctlothuoc.getSoLuong() + soLuongTra);
+                        if (!ctloDAO.update(ctlothuoc)) {
                             allSuccess = false;
-                            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi cập nhật tồn kho cho thuốc: " + maThuoc, false);
-                            errorPane.show();
+                            JOptionPane.showMessageDialog(this, 
+                                "Lỗi khi cập nhật tồn kho cho thuốc: " + maThuoc, 
+                                "Lỗi", 
+                                JOptionPane.ERROR_MESSAGE);
                             break;
                         }
                     } else {
                         allSuccess = false;
-                        CustomJOptionPane errorPane = new CustomJOptionPane(this, "Không tìm thấy thông tin thuốc: " + maThuoc, false);
-                        errorPane.show();
+                        JOptionPane.showMessageDialog(this, 
+                            "Không tìm thấy thông tin thuốc: " + maThuoc, 
+                            "Lỗi", 
+                            JOptionPane.ERROR_MESSAGE);
                         break;
                     }
                 }
                 
                 if (allSuccess) {
                     // Hỏi người dùng có muốn xuất phiếu trả PDF không
-                    CustomJOptionPane pdfConfirmPane = new CustomJOptionPane(this, "Lập phiếu trả thuốc thành công! Bạn có muốn xuất phiếu trả PDF không?", true);
-                    int pdfChoice = pdfConfirmPane.show();
+                    int pdfChoice = JOptionPane.showConfirmDialog(this,
+                        "Lập phiếu trả thuốc thành công! Bạn có muốn xuất phiếu trả PDF không?",
+                        "Xuất PDF",
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.QUESTION_MESSAGE);
                     
                     if (pdfChoice == JOptionPane.YES_OPTION) {
                         // Xuất phiếu trả PDF
                         xuatPhieuTraPDF(maPhieuTraThuoc, danhSachTraThuoc, tongTienTra, maKhachHang, maNhanVien);
                     }
                     
-                    CustomJOptionPane successPane = new CustomJOptionPane(this, "Lập phiếu trả thuốc thành công!\n\nMã phiếu: " + maPhieuTraThuoc + "\nTổng tiền trả: " + String.format("%.0f VNĐ", tongTienTra) + "\nĐã cập nhật tồn kho cho " + danhSachTraThuoc.size() + " sản phẩm", false);
-                    successPane.show();
+                    JOptionPane.showMessageDialog(this, 
+                        "Lập phiếu trả thuốc thành công!\n\n" +
+                        "Mã phiếu: " + maPhieuTraThuoc + "\n" +
+                        "Tổng tiền trả: " + String.format("%.0f VNĐ", tongTienTra) + "\n" +
+                        "Đã cập nhật tồn kho cho " + danhSachTraThuoc.size() + " sản phẩm", 
+                        "Thành công", 
+                        JOptionPane.INFORMATION_MESSAGE);
                     
                     dispose(); // Đóng frame
                 }
             } else {
-                CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi lưu phiếu đổi trả!", false);
-                errorPane.show();
+                JOptionPane.showMessageDialog(this, 
+                    "Lỗi khi lưu phiếu đổi trả!", 
+                    "Lỗi", 
+                    JOptionPane.ERROR_MESSAGE);
             }
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Có lỗi xảy ra: " + ex.getMessage(), false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, 
+                "Có lỗi xảy ra: " + ex.getMessage(), 
+                "Lỗi", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -703,14 +740,14 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
             for (Object[] item : danhSachTraThuoc) {
                 String maThuoc = (String) item[0];
                 String tenThuoc = (String) item[1];
-//                String maLo = (String) item[2]; kok
-                int soLuong = (Integer) item[2];
-                float donGia = (Float) item[3];
-                double thanhTien = (Float) item[4];
+                String maLo = (String) item[2];
+                int soLuong = (Integer) item[3];
+                float donGia = (Float) item[4];
+                double thanhTien = (Float) item[5];
                 
                 table.addCell(new PdfPCell(new Phrase(maThuoc, normalFont)));
                 table.addCell(new PdfPCell(new Phrase(tenThuoc, normalFont)));
-//                table.addCell(new PdfPCell(new Phrase(maLo, normalFont))); kok
+                table.addCell(new PdfPCell(new Phrase(maLo, normalFont)));
                 table.addCell(new PdfPCell(new Phrase(String.valueOf(soLuong), normalFont)));
                 table.addCell(new PdfPCell(new Phrase(df.format(donGia), normalFont)));
                 table.addCell(new PdfPCell(new Phrase(df.format(thanhTien), normalFont)));
@@ -735,7 +772,7 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
             
             for (Object[] item : danhSachTraThuoc) {
                 String tenThuoc = (String) item[1];
-                String lyDo = (String) item[5];
+                String lyDo = (String) item[6];
                 
                 if (lyDo != null && !lyDo.trim().isEmpty() && !lyDo.equals("Nhập lý do")) {
                     ListItem lyDoItem = new ListItem(tenThuoc + ": " + lyDo, normalFont);
@@ -767,8 +804,10 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
             document.close();
             
             // Thông báo thành công
-            CustomJOptionPane successPane = new CustomJOptionPane(this, "Đã xuất phiếu trả thuốc PDF thành công!\nVị trí: " + filePath, false);
-            successPane.show();
+            JOptionPane.showMessageDialog(this, 
+                "Đã xuất phiếu trả thuốc PDF thành công!\nVị trí: " + filePath, 
+                "Xuất phiếu trả", 
+                JOptionPane.INFORMATION_MESSAGE);
             
             // Tự động mở file PDF sau khi xuất
             try {
@@ -784,14 +823,18 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                CustomJOptionPane infoPane = new CustomJOptionPane(this, "Đã xuất PDF thành công, nhưng không thể mở file tự động.\nVị trí: " + filePath, false);
-                infoPane.show();
+                JOptionPane.showMessageDialog(this, 
+                    "Đã xuất PDF thành công, nhưng không thể mở file tự động.\nVị trí: " + filePath,
+                    "Thông báo",
+                    JOptionPane.INFORMATION_MESSAGE);
             }
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Có lỗi xảy ra khi xuất PDF: " + ex.getMessage(), false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, 
+                "Có lỗi xảy ra khi xuất PDF: " + ex.getMessage(), 
+                "Lỗi", 
+                JOptionPane.ERROR_MESSAGE);
         }
     }
     

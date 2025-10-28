@@ -16,7 +16,13 @@ public class DoanhThuTheoThang {
         this.soLuongHoaDon = soLuongHoaDon;
     }
 
-    public int getThang() {
+    public DoanhThuTheoThang(int thang2, int nam2, double doanhThu2) {
+        this.thang = thang2;
+        this.nam = nam2;
+        this.doanhThu = doanhThu2;
+	}
+
+	public int getThang() {
         return thang;
     }
 

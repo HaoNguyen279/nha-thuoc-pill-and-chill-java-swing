@@ -305,6 +305,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 	    cboNhaSanXuat.setSelectedIndex(0);
 	    txtMaThuoc.setEnabled(true);
 	    tblThuoc.clearSelection();
+	    loadThuocData();
 	}
 	
 

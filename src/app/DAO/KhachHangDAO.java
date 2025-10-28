@@ -6,6 +6,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import app.ConnectDB.ConnectDB;
 import app.Entity.KhachHang;
@@ -385,6 +387,87 @@ public class KhachHangDAO {
             }
         }
         return soKhachHang;
+    }
+    
+  //lala
+    public Map<String, Double> thongKeTongDoanhThuKhachHangTheoThangNam(int thang, int nam) {
+        Map<String, Double> mapDoanhThu = new HashMap<>();
+        String sql ="SELECT kh.maKH, SUM(ct.soLuong * ct.donGia) AS TongTien"
+            + " FROM KhachHang kh JOIN HoaDon hd ON kh.maKH = hd.maKH"
+            + " JOIN ChiTietHoaDon ct ON hd.maHoaDon = ct.maHoaDon"
+            + " WHERE hd.isActive = 1"
+            + " AND MONTH(hd.ngayBan) = ? AND YEAR(hd.ngayBan) = ?"
+            + " GROUP BY kh.maKH";
+
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    String maKH = rs.getString("maKH");
+                    double tongTien = rs.getDouble("TongTien");
+                    mapDoanhThu.put(maKH, tongTien);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return mapDoanhThu;
+    }
+
+    
+    //lala
+    public Map<String, Double> thongKeTongDoanhThuTatCaKhachHang() {
+        Map<String, Double> mapDoanhThu = new HashMap<>();
+        String sql = "SELECT kh.maKH, SUM(ct.soLuong * ct.donGia) AS TongTien"
+            + " FROM KhachHang kh JOIN HoaDon hd ON kh.maKH = hd.maKH"
+            + " JOIN ChiTietHoaDon ct ON hd.maHoaDon = ct.maHoaDon"
+            + " WHERE hd.isActive = 1"
+            + " GROUP BY kh.maKH";
+
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+            
+            while (rs.next()) {
+                String maKH = rs.getString("maKH");
+                double tongTien = rs.getDouble("TongTien");
+                mapDoanhThu.put(maKH, tongTien);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return mapDoanhThu;
+    }
+
+    //lala
+    public double timKiemDoanhThuKhachHang(String maKH) {
+        double tongTien = 0.0;
+        String sql = "SELECT SUM(ct.soLuong * ct.donGia) AS TongTien "
+            + " FROM KhachHang kh"
+            + " JOIN HoaDon hd ON kh.maKH = hd.maKH"
+            + " JOIN ChiTietHoaDon ct ON hd.maHoaDon = ct.maHoaDon"
+            + " WHERE hd.isActive = 1 AND kh.maKH = ?";
+
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, maKH);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    tongTien = rs.getDouble("TongTien");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return tongTien;
     }
     
 

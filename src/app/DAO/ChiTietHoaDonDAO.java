@@ -164,4 +164,42 @@ public class ChiTietHoaDonDAO {
             rs.getBoolean("isActive")
         );
     }
+    
+    
+    //lala
+    public ArrayList<ChiTietHoaDon> getChiTietByMaHoaDon5Field(String maHoaDon) {
+        ArrayList<ChiTietHoaDon> dsChiTiet = new ArrayList<>();
+        String sql = "SELECT ct.maThuoc, t.tenThuoc, ct.maLo, ct.soLuong, ct.donGia, ct.isActive \n"
+        		+ "FROM ChiTietHoaDon ct JOIN Thuoc t ON ct.maThuoc = t.maThuoc \n"
+        		+ " WHERE ct.maHoaDon = ? AND ct.isActive = 1"
+        		+ "ORDER BY maThuoc, tenThuoc";
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setString(1, maHoaDon);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    dsChiTiet.add(mapResultSetToChiTiet5Field(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsChiTiet;
+    }
+    
+    //lala
+    private ChiTietHoaDon mapResultSetToChiTiet5Field(ResultSet rs) throws SQLException {
+        // Cập nhật để đọc cả maLo
+        return new ChiTietHoaDon(
+        	rs.getString("tenThuoc"),
+            rs.getString("maThuoc"),
+            rs.getString("maLo"), 
+            rs.getInt("soLuong"),
+            rs.getFloat("donGia"),
+            rs.getBoolean("isActive")
+        );
+    }
 }

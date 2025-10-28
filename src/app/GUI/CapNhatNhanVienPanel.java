@@ -216,8 +216,6 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
     	cboChucVu.setPreferredSize(new Dimension(220,30));
     	cboChucVu.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
 
-        
-		
 		pnlBottomOfMain.add(btnXoaTrang);
 		pnlBottomOfMain.add(Box.createHorizontalStrut(10));
 		pnlBottomOfMain.add(btnXoa);
@@ -264,7 +262,9 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
 	    txtSoDienThoai.setText("");
 	    txtChucVu.setText("");
 	    txtMaNv.setEnabled(true);
+	    loadNhanVienData();
 	    tblNhanVien.clearSelection();
+	    
 	}
 
 	@Override

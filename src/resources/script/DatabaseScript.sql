@@ -2163,24 +2163,29 @@ INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, l
 
 
 
+-- ===============================================
+-- CHẠY THỦ TỤC THỦ CÔNG ĐỂ TÍNH TỔNG LẦN ĐẦU
+-- (Cần thiết vì Trigger chỉ chạy TỰ ĐỘNG sau khi được tạo)
+-- ===============================================
+-- Lần chạy script đầu tiên, do trigger được tạo SAU khi dữ liệu ChiTietLoThuoc được insert,
+-- nên ta cần chạy lệnh UPDATE thủ công 1 lần để tính tổng ban đầu.
+UPDATE T
+SET T.soLuongTon = ISNULL(Sub.TotalQuantity, 0)
+FROM Thuoc T
+LEFT JOIN (
+    SELECT 
+        maThuoc,
+        SUM(soLuong) AS TotalQuantity
+    FROM ChiTietLoThuoc
+    WHERE isActive = 1
+    GROUP BY maThuoc
+) AS Sub ON T.maThuoc = Sub.maThuoc;
 
-
-
+GO
 
 
 --================================ TRIGGER ================================--
 
-GO
--- Xem trigger hiện tại
-SELECT 
-    OBJECT_NAME(object_id) AS TriggerName,
-    OBJECT_DEFINITION(object_id) AS TriggerDefinition
-FROM sys.triggers
-WHERE name = 'tr_CapNhatSoLuongTon';
-GO
-
--- Nếu trigger sai, xóa và tạo lại
-DROP TRIGGER IF EXISTS tr_CapNhatSoLuongTon;
 GO
 
 CREATE TRIGGER tr_CapNhatSoLuongTon
@@ -2209,15 +2214,6 @@ BEGIN
     WHERE maThuoc IN (SELECT maThuoc FROM @AffectedMaThuoc);
 END
 GO
-
--- Test trigger
-PRINT 'Testing trigger...';
-UPDATE ChiTietLoThuoc SET soLuong = soLuong + 1 WHERE maLo = 'LO001' AND maThuoc = 'T001';
-SELECT maThuoc, soLuongTon FROM Thuoc WHERE maThuoc = 'T001';
-GO
-
-
-
 
 
 
@@ -2277,8 +2273,7 @@ BEGIN
     ORDER BY t.Thang;
 END
 GO
-EXEC sp_ThongKeDoanhThuNhanVien 'NV004', 2025
-GO
+
 
 
 
@@ -2300,11 +2295,10 @@ BEGIN
       AND hd.isActive = 1 
       AND cthd.isActive = 1
     GROUP BY MONTH(hd.ngayBan)
-    ORDER BY [Tháng];
+    ORDER BY [Thang];
 END
 GO
-EXEC sp_ThongKeThueTrongNam 2025
-GO
+
 
 
 
@@ -2390,8 +2384,7 @@ BEGIN
 END
 GO
 -- Test procedure
-EXEC sp_GetDoanhThuCuaNam 2025
-GO
+
 
 -- PROCEDURE Lấy tổng doanh thu của tháng
 -- Param: Tháng và Năm cần thống kê
@@ -2414,9 +2407,8 @@ BEGIN
       AND cthd.isActive = 1;
 END
 GO
--- Test procedure
-EXEC sp_GetDoanhThuCuaThang 5, 2025
-GO
+
+
 
 
 
@@ -2441,9 +2433,8 @@ BEGIN
       AND hd.maKH IS NOT NULL;
 END
 GO
--- Test procedure
-EXEC sp_GetSoKhachHangCuaNam 2025
-GO
+
+
 
 -- PROCEDURE Thống kê số lượng khách hàng đã mua hàng trong tháng
 -- Param: Tháng và Năm cần thống kê
@@ -2464,9 +2455,6 @@ BEGIN
       AND hd.isActive = 1
       AND hd.maKH IS NOT NULL;
 END
-GO
--- Test procedure
-EXEC sp_GetSoKhachHangCuaThang 5, 2025
 GO
 
 
@@ -2510,9 +2498,6 @@ BEGIN
             ELSE 0
         END AS [DoanhThuTrungBinhMoiNgay];
 END
-GO
--- Test procedure
-EXEC sp_GetDoanhThuTrungBinhTheoNgay 5, 2025
 GO
 
 
@@ -2567,3 +2552,61 @@ GO
 
 
 
+
+--= =============================  HẠN SỬ DỤNG ==============================--
+
+
+-- PROCEDURE Lấy danh sách các lô thuốc đã hết hạn sử dụng
+-- Param: Không có (sử dụng ngày hiện tại để so sánh)
+-- Return: Danh sách các lô thuốc đã hết hạn với đầy đủ thông tin
+GO
+CREATE PROCEDURE sp_GetLoThuocDaHetHan
+AS
+BEGIN
+        SELECT
+        ct.maLo AS 'maLo',
+        t.maThuoc AS 'maThuoc',
+        t.tenThuoc AS 'tenThuoc',
+        ct.ngaySanXuat AS 'ngaySanXuat',
+        ct.hanSuDung AS 'hanSuDung',
+        ct.soLuong AS 'soLuongTon',
+        DATEDIFF(DAY, ct.hanSuDung, Getdate()) AS 'soNgayDaHetHan'
+        FROM ChiTietLoThuoc ct
+        INNER JOIN Thuoc t ON ct.maThuoc = t.maThuoc
+        WHERE ct.hanSuDung < getdate()
+        AND ct.isActive = 0
+        ORDER BY ct.hanSuDung ASC;
+END
+GO
+
+
+-- PROCEDURE Lấy danh sách các lô thuốc sắp hết hạn (trong vòng X ngày)
+-- Param: @SoNgay - Số ngày để kiểm tra (mặc định 30 ngày)
+-- Return: Danh sách các lô thuốc sắp hết hạn
+GO
+CREATE PROCEDURE sp_GetLoThuocSapHetHan
+    @SoNgay INT = 30
+AS
+BEGIN
+    DECLARE @NgayHienTai DATE = CAST(GETDATE() AS DATE); -- cast để bỏ qua phần giờ phút giây
+    DECLARE @NgayKiemTra DATE = DATEADD(DAY, @SoNgay, @NgayHienTai); -- day là đơn vị cộng thêm, ngày + int 
+    
+    SELECT
+        ct.maLo AS 'maLo',
+        t.maThuoc AS 'maThuoc',
+        t.tenThuoc AS 'tenThuoc',
+        ct.ngaySanXuat AS 'ngaySanXuat',
+        ct.hanSuDung AS 'hanSuDung',
+        ct.soLuong AS 'soLuongTon',
+        DATEDIFF(DAY, @NgayHienTai, ct.hanSuDung) AS [soNgayConLai]
+    FROM ChiTietLoThuoc ct
+    INNER JOIN Thuoc t ON ct.maThuoc = t.maThuoc
+    INNER JOIN LoThuoc lo ON ct.maLo = lo.maLo
+    WHERE ct.hanSuDung >= @NgayHienTai              
+      AND ct.hanSuDung <= @NgayKiemTra               
+      AND ct.isActive = 1                     
+      AND ct.soLuong > 0                            
+      AND t.isActive = 1                            
+    ORDER BY ct.hanSuDung ASC, ct.maThuoc;         
+END
+GO

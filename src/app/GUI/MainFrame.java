@@ -31,6 +31,10 @@ public class MainFrame extends JFrame {
     private TaiKhoanPanel taiKhoanPanel;
     private CapNhatChucVuPanel capNhatChucVuPanel;
     private XemPhieuNhapPanel xemPhieuNhapPanel;
+    
+    private DanhMucHoaDon danhMucHoaDonPanel;
+    private DanhMucPhieuDoiTra danhMucPhieuDoiTra;
+    private DanhMucPhieuDat danhMucPhieuDat;
      
     
     public MainFrame(String maNhanVien) {
@@ -82,6 +86,10 @@ public class MainFrame extends JFrame {
         taiKhoanPanel = null;
         capNhatChucVuPanel = null;
         xemPhieuNhapPanel = null;
+        
+        danhMucHoaDonPanel = null;
+        danhMucPhieuDoiTra = null;
+        danhMucPhieuDat = null;
     }
     
     private void showDefaultContent() {
@@ -268,6 +276,26 @@ public class MainFrame extends JFrame {
 		}
 		showPanel(taiKhoanPanel);
 	}
+	// lala
+	public void showDanhMucHoaDonPanel() {
+		if(danhMucHoaDonPanel == null) {
+			danhMucHoaDonPanel = new DanhMucHoaDon();
+		}
+		showPanel(danhMucHoaDonPanel);
+	} 
+	public void showDanhMucPhieuDatThuocPanel() {
+		if(danhMucPhieuDat == null) {
+			danhMucPhieuDat = new DanhMucPhieuDat();
+		}
+		showPanel(danhMucPhieuDat);
+	}
+	public void showDanhMucPhieuDoiTraPanel() {
+		if(danhMucPhieuDoiTra == null) {
+			danhMucPhieuDoiTra = new DanhMucPhieuDoiTra();
+		}
+		showPanel(danhMucPhieuDoiTra);
+	}
+	
 	
     public void resetApplication() {
         // Xóa nội dung hiện tại trên màn hình

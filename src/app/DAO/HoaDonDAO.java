@@ -13,6 +13,7 @@ import app.ConnectDB.ConnectDB;
 import app.Entity.DoanhThuHoaDon;
 import app.Entity.DoanhThuTheoThang;
 import app.Entity.HoaDon;
+import app.Entity.ThongKeNhanVien;
 
 /**
  * DAO (Data Access Object) for the HoaDon entity.
@@ -653,6 +654,176 @@ public class HoaDonDAO {
         }
         return result;
     }
+    
+    
+  //Thống kê doanh thu của nhân viên
+    public ArrayList<ThongKeNhanVien> thongKeDoanhThuNhanVien(int nam) {
+        ArrayList<ThongKeNhanVien> dsThongKe = new ArrayList<>();
+        
+        // Tính tổng doanh thu công ty để tính tỷ lệ đóng góp
+        double tongDoanhThuCongTy = getDoanhThuCuaNam(nam);
+        
+        String sql = "SELECT " +
+            "hd.maNV, " +
+            "nv.tenNV, " +
+            "COUNT(DISTINCT hd.maHoaDon) AS soLuongDonHang, " +
+            "COUNT(DISTINCT hd.maKH) AS soLuongKhachHang, " +
+            "SUM((ct.soLuong * ct.donGia) * (1 + hd.giaTriThue)) AS doanhThu " +
+            "FROM HoaDon hd " +
+            "INNER JOIN ChiTietHoaDon ct ON hd.maHoaDon = ct.maHoaDon " +
+            "INNER JOIN NhanVien nv ON hd.maNV = nv.maNV " +
+            "WHERE hd.isActive = 1 AND ct.isActive = 1 " +
+            "AND YEAR(hd.ngayBan) = ? " +
+            "GROUP BY hd.maNV, nv.tenNV " +
+            "ORDER BY doanhThu DESC";
+        
+        try {
+            Connection con = ConnectDB.getInstance().getConnection();
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, nam);
+            ResultSet rs = stmt.executeQuery();
+            
+            while(rs.next()) {
+                String maNV = rs.getString("maNV");
+                String tenNV = rs.getString("tenNV");
+                int soLuongDonHang = rs.getInt("soLuongDonHang");
+                int soLuongKhachHang = rs.getInt("soLuongKhachHang");
+                double doanhThu = rs.getDouble("doanhThu");
+                double giaTriTrungBinh = doanhThu / soLuongDonHang;
+                double tyLeDongGop = (doanhThu / tongDoanhThuCongTy) * 100;
+                
+                ThongKeNhanVien tk = new ThongKeNhanVien(
+                    maNV, tenNV, soLuongDonHang, soLuongKhachHang, 
+                    doanhThu, giaTriTrungBinh, tyLeDongGop
+                );
+                dsThongKe.add(tk);
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return dsThongKe;
+    }
+    
+    
+    
+    
+    /**
+     * Lấy top N nhân viên có doanh thu cao nhất
+     */
+    public ArrayList<ThongKeNhanVien> getTopNhanVien(int nam, int topN) {
+        ArrayList<ThongKeNhanVien> dsThongKe = thongKeDoanhThuNhanVien(nam);
+        
+        // Đã được sắp xếp DESC trong query
+        if(dsThongKe.size() > topN) {
+            return new ArrayList<>(dsThongKe.subList(0, topN));
+        }
+        
+        return dsThongKe;
+    }
+    
+    
+    
+    /**
+     * Lấy doanh thu của nhân viên theo tháng trong năm
+     */
+    public ArrayList<DoanhThuTheoThang> thongKeDoanhThuNhanVienTheoThang(String maNV, int nam) {
+        ArrayList<DoanhThuTheoThang> dsDoanhThu = new ArrayList<>();
+        
+        String sql = "SELECT " +
+            "MONTH(hd.ngayBan) AS thang, " +
+            "SUM((ct.soLuong * ct.donGia) * (1 + hd.giaTriThue)) AS doanhThu " +
+            "FROM HoaDon hd " +
+            "INNER JOIN ChiTietHoaDon ct ON hd.maHoaDon = ct.maHoaDon " +
+            "WHERE hd.maNV = ? AND YEAR(hd.ngayBan) = ? " +
+            "AND hd.isActive = 1 AND ct.isActive = 1 " +
+            "GROUP BY MONTH(hd.ngayBan) " +
+            "ORDER BY thang";
+        
+        try {
+            Connection con = ConnectDB.getInstance().getConnection();
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, maNV);
+            stmt.setInt(2, nam);
+            ResultSet rs = stmt.executeQuery();
+            
+            while(rs.next()) {
+                int thang = rs.getInt("thang");
+                double doanhThu = rs.getDouble("doanhThu");
+                DoanhThuTheoThang dt = new DoanhThuTheoThang(thang,nam,doanhThu);
+                dsDoanhThu.add(dt);
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return dsDoanhThu;
+    }
+    // lala
+    public ArrayList<HoaDon> getAllHoaDon5Field() {
+        ArrayList<HoaDon> dsHoaDon = new ArrayList<>();
+        String sql = "SELECT maHoaDon, tenNV, tenKH, ngayBan, ghiChu, hd.isActive\n"
+        		+ "FROM HoaDon hd JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
+        		+ "	JOIN NhanVien nv ON nv.maNV = hd.maNV\n"
+        		+ "WHERE hd.isActive = 1"
+        		+ "ORDER BY ngayBan DESC, maHoaDon DESC";
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                dsHoaDon.add(mapResultSetToHoaDon5Field(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsHoaDon;
+    }
+    //lala
+    private HoaDon mapResultSetToHoaDon5Field(ResultSet rs) throws SQLException {
+        return new HoaDon(
+            rs.getString("maHoaDon"),
+            rs.getString("tenNV"),
+            rs.getString("tenKH"),
+            rs.getDate("ngayBan"),
+            rs.getString("ghiChu"),
+            rs.getBoolean("isActive")
+        );
+    }
+    
+    //lala
+    public ArrayList<HoaDon> findHoaDonByThangNam(int thang, int nam) {
+        ArrayList<HoaDon> dsHoaDon = new ArrayList<>();
+        String sql = "SELECT maHoaDon, tenNV, tenKH, ngayBan, ghiChu, hd.isActive\n"
+        		+ "FROM HoaDon hd JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
+        		+ "	JOIN NhanVien nv ON nv.maNV = hd.maNV\n"
+        		+ "WHERE hd.isActive = 1 AND MONTH(ngayBan) = ? AND YEAR(ngayBan) = ?\n"
+        		+ "ORDER BY ngayBan DESC, maHoaDon DESC";
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    dsHoaDon.add(mapResultSetToHoaDon5Field(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsHoaDon;
+    }
+    
+    
+    
+    
 }
+
+
+
 
 

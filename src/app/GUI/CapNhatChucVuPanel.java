@@ -227,9 +227,9 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener,MouseLi
 		}
 	}
 	public void xoaTrang() {
+		loadChucVuData();
 	    txtMaChucVu.setText("");
 	    txtTenChucVu.setText("");
-	    
 	    txtMaChucVu.setEnabled(true);
 	}
 

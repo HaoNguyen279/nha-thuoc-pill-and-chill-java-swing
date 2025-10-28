@@ -233,6 +233,7 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener,Mous
 	    txtSoDienThoai.setText("");
 	    txtDiemTichLuy.setText("");
 	    txtMaKh.setEnabled(true);
+	    loadKhachHangData();
 	}
 
 	@Override
