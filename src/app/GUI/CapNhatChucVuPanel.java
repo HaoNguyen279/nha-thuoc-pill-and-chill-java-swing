@@ -40,15 +40,11 @@ import app.Entity.KhachHang;
 public class CapNhatChucVuPanel extends JPanel implements ActionListener,MouseListener{
 	
 	private JLabel lblTieuDe;
-	private JLabel lblMaKh;
-	private JLabel lblTenKh;
-	private JLabel lblSoDienThoai;
-	private JLabel lblDiemTichLuy;
+
 
 	private JTextField txtMaKh;
 	private JTextField txtTenKh;
-	private JTextField txtSoDienThoai;
-	private JTextField txtDiemTichLuy;
+
 
 	private JButton btnXoa;
 	private JButton btnSua;
@@ -58,7 +54,7 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener,MouseLi
 	private DefaultTableModel dtm;
 	private JTable tblChucVu;
 	
-	private ArrayList<KhachHang> dsKhachHang;
+
 	private JLabel lblMaChucVu;
 	private JLabel lblTenChucVu;
 	private JTextField txtMaChucVu;

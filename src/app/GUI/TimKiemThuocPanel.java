@@ -6,7 +6,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
 import app.ConnectDB.ConnectDB;
+import app.DAO.NhaSanXuatDAO;
 import app.DAO.ThuocDAO;
+import app.Entity.NhaSanXuat;
 import app.Entity.Thuoc;
 
 import java.awt.*;
@@ -25,14 +27,15 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener{
     private JTable table;
     private JLabel lblTongSoBanGhi = new JLabel("");
     private ThuocDAO thuocdao = new ThuocDAO();
-    
+	private ArrayList<NhaSanXuat> dsNhaSanXuat;
+	private NhaSanXuatDAO nsxDAO = new NhaSanXuatDAO();
     public TimKiemThuocPanel() {
         setLayout(new BorderLayout());
         
         ConnectDB.getInstance().connect();
         
         dsThuoc = thuocdao.getAllThuocCoTenNSX();
-        
+       
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.setBackground(Color.WHITE);
         
@@ -75,8 +78,8 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener{
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
 
-        String[] cols = {"Mã thuốc", "Tên thuốc", "Số lượng tồn", 
-                        "Giá bán", "Đơn vị", "Mã NSX"};
+        String[] cols = {"Mã thuốc", "Tên thuốc", "Số lượng", 
+                        "Giá bán", "Đơn vị", "NSX"};
         
         dtmTable = new DefaultTableModel(cols, 0) {
             @Override
@@ -265,7 +268,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener{
             txtTim.setFont(new Font("Arial", Font.ITALIC, 14));
             cboTieuChi.setSelectedIndex(0);
             tieuChi = "Mã thuốc";
-            dsThuoc = thuocdao.getAllThuoc();
+            dsThuoc = thuocdao.getAllThuocCoTenNSX();
             loadData_Thuoc(dsThuoc);
             txtTim.requestFocus();
         }
