@@ -414,7 +414,7 @@ public class DanhMucPhieuDat extends JPanel implements ActionListener, MouseList
 	private void xuatPhieuDatPDF() {
 		try {
             // Sử dụng đường dẫn mặc định để lưu file
-            String defaultDir = "E:\\PTUD\\PDF\\PhieuDat";
+            String defaultDir = "D:\\PTUD\\PDF\\PhieuDat";
             File directory = new File(defaultDir);
             
             // Kiểm tra và tạo thư mục nếu chưa tồn tại
@@ -555,7 +555,14 @@ public class DanhMucPhieuDat extends JPanel implements ActionListener, MouseList
             document.add(signature);
             
             // Thêm ghi chú từ form nếu có
-            String ghiChuText = hd.getGhiChu();
+            String ghiChuText;
+            if(hd.getGhiChu() != null) {
+            	ghiChuText = hd.getGhiChu();
+            }else {
+                ghiChuText = "";
+            }
+
+
             if (!ghiChuText.isEmpty()) {
                 document.add(new Paragraph("\n"));
                 Paragraph ghiChuParagraph = new Paragraph("Ghi chú: " + ghiChuText, normalFont);

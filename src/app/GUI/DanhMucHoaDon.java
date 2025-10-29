@@ -413,7 +413,7 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
 	private void xuatHoaDonPDF() {
 		try {
             // Sử dụng đường dẫn mặc định để lưu file
-            String defaultDir = "E:\\PTUD\\PDF\\HoaDon";
+            String defaultDir = "D:\\PTUD\\PDF\\HoaDon";
             File directory = new File(defaultDir);
             
             // Kiểm tra và tạo thư mục nếu chưa tồn tại

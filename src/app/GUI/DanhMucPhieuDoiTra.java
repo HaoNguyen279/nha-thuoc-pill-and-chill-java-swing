@@ -409,7 +409,7 @@ public class DanhMucPhieuDoiTra extends JPanel implements ActionListener, MouseL
 	private void xuatPhieuDoiTraPDF() {
 		try {
             // Sử dụng đường dẫn mặc định để lưu file
-            String defaultDir = "E:\\PTUD\\PDF\\PhieuDoiTra";
+            String defaultDir = "D:\\PTUD\\PDF\\PhieuDoiTra";
             File directory = new File(defaultDir);
             
             // Kiểm tra và tạo thư mục nếu chưa tồn tại

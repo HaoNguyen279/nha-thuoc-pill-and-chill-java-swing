@@ -810,7 +810,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                               double tongTien, String maKhachHang, String maNhanVien) {
         try {
             // Sử dụng đường dẫn mặc định để lưu file
-            String defaultDir = "E:\\PTUD\\PDF\\HoaDon";
+            String defaultDir = "D:\\PTUD\\PDF\\HoaDon";
             File directory = new File(defaultDir);
             
             // Kiểm tra và tạo thư mục nếu chưa tồn tại

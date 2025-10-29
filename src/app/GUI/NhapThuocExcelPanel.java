@@ -442,7 +442,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
         }
         
         try {
-            String defaultDir = "E:\\PTUD";
+            String defaultDir = "D:\\PTUD";
             File directory = new File(defaultDir);
             
             if (!directory.exists()) {

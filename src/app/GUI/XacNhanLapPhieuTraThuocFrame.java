@@ -641,7 +641,7 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
                                 double tongTienTra, String maKhachHang, String maNhanVien) {
         try {
             // Sử dụng đường dẫn mặc định để lưu file
-            String defaultDir = "E:\\PTUD\\PDF\\PhieuTra";
+            String defaultDir = "D:\\PTUD\\PDF\\PhieuTra";
             File directory = new File(defaultDir);
             
             // Kiểm tra và tạo thư mục nếu chưa tồn tại
