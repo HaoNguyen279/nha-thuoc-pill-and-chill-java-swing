@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import app.ConnectDB.ConnectDB;
 import app.Entity.ChucVu;
 import app.Entity.NhanVien;
+import app.Entity.TaiKhoan;
 
 /**
  * DAO (Data Access Object) cho thực thể NhanVien.
@@ -118,7 +119,6 @@ public class NhanVienDAO {
         int n = 0;
         Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
-
         try {
             stmt = con.prepareStatement(sql);
             stmt.setString(1, nhanVien.getMaNV());
@@ -128,6 +128,11 @@ public class NhanVienDAO {
             stmt.setBoolean(5, nhanVien.isIsActive());
             
             n = stmt.executeUpdate();
+            
+    		TaiKhoanDAO tkDAO = new TaiKhoanDAO();
+    		TaiKhoan tk = new TaiKhoan(nhanVien.getMaNV(),"1",true);
+    		tkDAO.addTaiKhoan(tk);
+    		
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -197,6 +202,41 @@ public class NhanVienDAO {
             }
         }
         return n > 0;
+    }
+    
+    
+    public boolean isQuanLy(String id) {
+        String sql = "SELECT maChucVu FROM NhanVien WHERE isActive = 1 AND maNV =?";
+        NhanVien nv = null; 
+        Connection con = ConnectDB.getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        String chucVu = ""; 
+        try {
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, id);
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                chucVu = ""; // Mặc định nếu không có trường chucVu
+                
+                try {
+                    chucVu = rs.getString("maChucVu");
+                } catch (SQLException e) {
+                	System.err.println("11");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return chucVu.equalsIgnoreCase("QLY");
     }
     
     // Đã có phương thức getNhanVienById ở trên nên phần này đã bị xóa để tránh trùng lặp

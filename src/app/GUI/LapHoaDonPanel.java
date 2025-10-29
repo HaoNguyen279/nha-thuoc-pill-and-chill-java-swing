@@ -141,7 +141,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         btnSearch.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnSearch.addActionListener(this);
         
-        btnResetSearch = new JButton("Reset");
+        btnResetSearch = new JButton("Làm mới");
         btnResetSearch.setFont(new Font("Arial", Font.PLAIN, 13));
         btnResetSearch.setPreferredSize(new Dimension(80, 30));
         btnResetSearch.setBackground(Color.WHITE);
@@ -276,7 +276,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         btnRemove.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnRemove.addActionListener(this);
 
-        btnReset = new JButton("Reset giỏ hàng");
+        btnReset = new JButton("Làm mới giỏ hàng");
         btnReset.setFont(new Font("Arial", Font.PLAIN, 13));
         btnReset.setPreferredSize(new Dimension(140, 35));
         btnReset.setBackground(Color.WHITE);

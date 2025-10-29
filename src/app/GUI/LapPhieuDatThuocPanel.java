@@ -152,7 +152,7 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
         btnSearch.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnSearch.addActionListener(this);
         
-        btnResetSearch = new JButton("Reset");
+        btnResetSearch = new JButton("Làm mới");
         btnResetSearch.setFont(new Font("Arial", Font.PLAIN, 13));
         btnResetSearch.setPreferredSize(new Dimension(80, 30));
         btnResetSearch.setBackground(Color.WHITE);
@@ -287,7 +287,7 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
         btnRemove.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnRemove.addActionListener(this);
 
-        btnReset = new JButton("Reset giỏ hàng");
+        btnReset = new JButton("Làm mới giỏ hàng");
         btnReset.setFont(new Font("Arial", Font.PLAIN, 13));
         btnReset.setPreferredSize(new Dimension(140, 35));
         btnReset.setBackground(Color.WHITE);
@@ -702,7 +702,7 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    CustomJOptionPane errorPane = new CustomJOptionPane(LapPhieuDatThuocPanel.this, "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt.\nVui lòng nhấn Reset để tải lại dữ liệu.", false);
+                    CustomJOptionPane errorPane = new CustomJOptionPane(LapPhieuDatThuocPanel.this, "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt.\nVui lòng nhấn làm mới để tải lại dữ liệu.", false);
                     errorPane.show();
                 }
             });
@@ -710,7 +710,7 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
         } catch (Exception e) {
             e.printStackTrace();
             // Hiển thị thông báo lỗi cho người dùng
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt thuốc.\nVui lòng nhấn Reset để tải lại dữ liệu.", false);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt thuốc.\nVui lòng nhấn làm mới để tải lại dữ liệu.", false);
             errorPane.show();
         }
     }

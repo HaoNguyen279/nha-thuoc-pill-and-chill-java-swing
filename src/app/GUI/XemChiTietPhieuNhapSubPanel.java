@@ -205,7 +205,7 @@ public class XemChiTietPhieuNhapSubPanel extends JPanel implements ActionListene
         btnTim.addActionListener(this);
         
         // Button Reset
-        btnReset = new JButton("Reset");
+        btnReset = new JButton("Làm mới");
         btnReset.setFont(new Font("Arial", Font.PLAIN, 14));
         btnReset.setPreferredSize(new Dimension(90, 40));
         btnReset.setBackground(Color.WHITE);

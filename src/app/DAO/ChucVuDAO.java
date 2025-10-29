@@ -61,6 +61,28 @@ public class ChucVuDAO {
         return null;
     }
     
+    public ChucVu getByName(String chucVU) {
+        String sql = "SELECT * FROM ChucVu WHERE tenChucVu = ? and isActive = 1";
+        
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, chucVU);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    ChucVu chucVu = new ChucVu();
+                    chucVu.setMaChucVu(rs.getString("maChucVu"));
+                    chucVu.setTenChucVu(rs.getString("tenChucVu"));
+                    chucVu.setIsActive(rs.getBoolean("isActive"));
+                    return chucVu;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return null;
+    }
+    
     /**
      * Tìm kiếm chức vụ theo tên
      */

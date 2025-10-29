@@ -34,8 +34,10 @@ import javax.swing.table.JTableHeader;
 import app.ConnectDB.ConnectDB;
 import app.DAO.ChucVuDAO;
 import app.DAO.NhanVienDAO;
+import app.DAO.TaiKhoanDAO;
 import app.Entity.ChucVu;
 import app.Entity.NhanVien;
+import app.Entity.TaiKhoan;
 
 public class CapNhatNhanVienPanel extends JPanel implements ActionListener, MouseListener{
 	
@@ -235,18 +237,28 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
 	}
 	
 	public void loadNhanVienData() {
-        NhanVienDAO nvDAO = new NhanVienDAO();
-        dsNhanVien = nvDAO.getAllNhanVien();
-		dtm.setRowCount(0);
-		for(NhanVien nv : dsNhanVien) {
-			Object[] rowData = {
-					nv.getMaNV(),
-					nv.getTenNV(),
-					nv.getSoDienThoai(),
-					cvDAO.getById(nv.getmaChucVu()).toString()
-			};
-		dtm.addRow(rowData);
-		}
+	    NhanVienDAO nvDAO = new NhanVienDAO();
+	    dsNhanVien = nvDAO.getAllNhanVien();
+	    
+	    // Load trước tất cả chức vụ vào Map
+	    Map<String, String> mapTenChucVu = new HashMap<>();
+	    for(ChucVu cv : dsChucVu) {
+	        mapTenChucVu.put(cv.getMaChucVu(), cv.getTenChucVu());
+	    }
+	    
+	    dtm.setRowCount(0);
+	    for(NhanVien nv : dsNhanVien) {
+	        // Lấy tên chức vụ từ Map thay vì gọi DAO
+	        String tenChucVu = mapTenChucVu.getOrDefault(nv.getmaChucVu(), "Không xác định");
+	        
+	        Object[] rowData = {
+	            nv.getMaNV(),
+	            nv.getTenNV(),
+	            nv.getSoDienThoai(),
+	            tenChucVu
+	        };
+	        dtm.addRow(rowData);
+	    }
 	}
 	public void loadChucVuData() {
 		dsChucVu = cvDAO.getAllChucVu();
@@ -296,9 +308,13 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
 				String tenNV = txtTenNv.getText();
 				String soDienThoai = txtSoDienThoai.getText();
 				String chucVu = cboChucVu.getSelectedItem().toString();
+				
+				ChucVu cv = cvDAO.getByName(chucVu);
 				NhanVienDAO nvDAO = new NhanVienDAO();
-				NhanVien nvNew = new NhanVien(maNV, tenNV,chucVu, soDienThoai , true);
+				NhanVien nvNew = new NhanVien(maNV, tenNV,cv.getMaChucVu(), soDienThoai , true);
 				boolean result = nvDAO.addNhanVien(nvNew);
+				
+
 				if(result) {
 					CustomJOptionPane a1 = new CustomJOptionPane(this, "Thêm nhân viên thành công!", false);
 					a1.show();

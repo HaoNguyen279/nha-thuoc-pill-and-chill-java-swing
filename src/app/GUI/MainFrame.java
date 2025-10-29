@@ -36,13 +36,18 @@ public class MainFrame extends JFrame {
     private DanhMucHoaDon danhMucHoaDonPanel;
     private DanhMucPhieuDoiTra danhMucPhieuDoiTra;
     private DanhMucPhieuDat danhMucPhieuDat;
-     
+    
+    private boolean isQuanLy = false;
     
     public MainFrame(String maNhanVien) {
         this.maNhanVien = maNhanVien;
         initializeFrame();
         initializePanels();
         showDefaultContent();
+        if(true) {
+        	NhanVienDAO nvDAO = new NhanVienDAO();
+        	isQuanLy=  nvDAO.isQuanLy(maNhanVien);
+        }
     }
     
     private void initializeFrame() {
@@ -156,6 +161,11 @@ public class MainFrame extends JFrame {
     }
     
     public void showCapNhatNhanVienPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (capNhatNhanVienPanel == null) {
             capNhatNhanVienPanel = new CapNhatNhanVienPanel();
         }
@@ -212,6 +222,11 @@ public class MainFrame extends JFrame {
     	showPanel(nhapThuocPanel);
     }
     public void showThongKeTheoNhanVienPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoNhanVienPanel == null) {
             thongKeTheoNhanVienPanel = new ThongKeTheoNhanVienPanel();
         }
@@ -219,6 +234,11 @@ public class MainFrame extends JFrame {
     }
     
     public void showThongKeTheoKhachHangPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoKhachHangPanel == null) {
             thongKeTheoKhachHangPanel = new ThongKeTheoKhachHangPanel();
         }
@@ -226,6 +246,11 @@ public class MainFrame extends JFrame {
     }
     
     public void showThongKeTheoHSDPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoHSDPanel == null) {
             thongKeTheoHSDPanel = new ThongKeTheoHSDPanel();
         }
@@ -233,12 +258,22 @@ public class MainFrame extends JFrame {
     }
     
     public void showThongKeTheoThuocPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoThuocPanel == null) {
             thongKeTheoThuocPanel = new ThongKeTheoThuocPanel();
         }
         showPanel(thongKeTheoThuocPanel);
     }
     public void showThongKeTheoDoanhThuPanelTheoThang() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
     	if (thongKeTheoDoanhThuTheoThangPanel == null) {
         	thongKeTheoDoanhThuTheoThangPanel = new ThongKeDoanhThuTheoThangPanel();
         }
@@ -246,6 +281,11 @@ public class MainFrame extends JFrame {
         showPanel(thongKeTheoDoanhThuTheoThangPanel);
     }
     public void showThongKeTheoDoanhThuPanelTheoNam() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoDoanhThuPanel == null) {
         	thongKeTheoDoanhThuPanel = new ThongKeTheoDoanhThuPanel();
         }
@@ -253,12 +293,22 @@ public class MainFrame extends JFrame {
         showPanel(thongKeTheoDoanhThuPanel);
     }
     public void showThongKeTheoThuePanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoThuePanel == null) {
             thongKeTheoThuePanel = new ThongKeTheoThuePanel();
         }
         showPanel(thongKeTheoThuePanel);
     }
     public void showCapNhatChucVuPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
 		if(capNhatChucVuPanel == null) {
 			capNhatChucVuPanel = new CapNhatChucVuPanel();
 		}
@@ -272,6 +322,7 @@ public class MainFrame extends JFrame {
 		showPanel(xemPhieuNhapPanel);
 	}
 	public void showTaiKhoanPanel() {
+		
 		NhanVienDAO nvDao = new NhanVienDAO();
 		if(taiKhoanPanel == null) {
 			taiKhoanPanel = new TaiKhoanPanel(nvDao.getNhanVienById(maNhanVien));

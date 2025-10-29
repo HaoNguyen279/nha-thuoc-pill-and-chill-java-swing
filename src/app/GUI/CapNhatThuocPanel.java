@@ -254,6 +254,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         cboDonVi.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         
 		txtMaThuoc.setDisabledTextColor(Color.GRAY);
+		txtSoLuongTon.setDisabledTextColor(Color.GRAY);
 		
 		pnlBottomOfMain.add(btnXoaTrang);
 		pnlBottomOfMain.add(Box.createHorizontalStrut(10));
@@ -300,7 +301,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 	    txtMaThuoc.setText("");
 	    txtTenThuoc.setText("");
 	    txtGiaBan.setText("");
-	    txtSoLuongTon.setText("");
+	    txtSoLuongTon.setText("0");
 	    cboDonVi.setSelectedIndex(0);
 	    cboNhaSanXuat.setSelectedIndex(0);
 	    txtMaThuoc.setEnabled(true);
@@ -342,7 +343,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 			if(validateInput(true)) {
 				String maThuoc = txtMaThuoc.getText().trim();
 				String tenThuoc = txtTenThuoc.getText().trim();
-				int soLuongTon = Integer.parseInt(txtSoLuongTon.getText().trim());
+				int soLuongTon = 0;
 				double giaBan = Double.parseDouble(txtGiaBan.getText().trim());
 				String donVi = cboDonVi.getSelectedItem().toString();
 				int soLuongToiThieu = 0;
@@ -425,12 +426,6 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 			txtTenThuoc.requestFocus();
 			return false;
 		}
-		if (txtSoLuongTon.getText().trim().isEmpty()) {
-			CustomJOptionPane a = new CustomJOptionPane(this, "Số lượng không được để trống!", false);
-			a.show();
-			txtGiaBan.requestFocus();
-			return false;
-		}
 		if (txtGiaBan.getText().trim().isEmpty()) {
 			CustomJOptionPane a = new CustomJOptionPane(this, "Giá bán không được để trống!", false);
 			a.show();
@@ -474,23 +469,6 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 			return false;
 		}
 		
-		// Kiểm tra số lượng tồn (chỉ khi sửa)
-		if(!txtSoLuongTon.getText().trim().isEmpty()) {
-			try {
-				int soLuongTon = Integer.parseInt(txtSoLuongTon.getText().trim());
-				if(soLuongTon < 0) {
-					CustomJOptionPane a = new CustomJOptionPane(this, "Số lượng tồn không được âm!", false);
-					a.show();
-					txtSoLuongTon.requestFocus();
-					return false;
-				}
-			} catch (NumberFormatException ex) {
-				CustomJOptionPane a = new CustomJOptionPane(this, "Số lượng tồn phải là số nguyên!", false);
-				a.show();
-				txtSoLuongTon.requestFocus();
-				return false;
-			}
-		}
 		
 		
 		return true;
@@ -502,6 +480,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 		Object o = e.getSource();
 		if(o == tblThuoc) {
 			txtMaThuoc.setEnabled(false);
+			txtSoLuongTon.setEnabled(false);
 			int row = tblThuoc.getSelectedRow();
 	        if (row >= 0) {
 	            txtMaThuoc.setText(tblThuoc.getValueAt(row, 0).toString());
