@@ -2296,6 +2296,31 @@ BEGIN
 END
 GO
 
+CREATE TRIGGER tr_DongBoAnNhanVien
+ON NhanVien
+AFTER UPDATE
+AS
+BEGIN
+    SET NOCOUNT ON;
+    
+    -- Khi ẩn nhân viên (isActive = 0), tự động ẩn tài khoản của nhân viên đó
+    UPDATE TaiKhoan
+    SET isActive = 0
+    FROM TaiKhoan tk
+    INNER JOIN INSERTED i ON tk.maNV = i.maNV
+    WHERE i.isActive = 0
+      AND tk.isActive = 1;
+    
+    -- Khi kích hoạt lại nhân viên (isActive = 1), tự động kích hoạt lại tài khoản
+    UPDATE TaiKhoan
+    SET isActive = 1
+    FROM TaiKhoan tk
+    INNER JOIN INSERTED i ON tk.maNV = i.maNV
+    WHERE i.isActive = 1
+      AND tk.isActive = 0;
+END
+GO
+
 
 
 

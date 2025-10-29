@@ -66,7 +66,7 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
         styler.setLegendFont(new Font("Segoe UI", Font.PLAIN, 13));
         styler.setBaseFont(new Font("Segoe UI", Font.BOLD, 20));
         styler.setSeriesColors(new Color[]{
-            new Color(46, 204, 113),  // Xanh lá
+            Color.red  // Xanh lá
 //            new Color(52, 152, 219),  // Xanh dương
 //            new Color(155, 89, 182),  // Tím
 //            new Color(241, 196, 15),  // Vàng
@@ -242,7 +242,7 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
         // Load dữ liệu ban đầu
         loadData();
         
-        // ✅ Kiểm tra dữ liệu trước khi thêm vào chart
+        // Kiểm tra dữ liệu trước khi thêm vào chart
         if (dsThongKe != null && !dsThongKe.isEmpty()) {
         	ArrayList<String> tenThuoc = new ArrayList<>();
             ArrayList<Integer> soLuongBan = new ArrayList<>();
@@ -252,7 +252,7 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
             }
             chart.addSeries("kk", tenThuoc, soLuongBan);
         } else {
-            // ✅ Thêm dữ liệu giả để chart không bị lỗi
+            // Thêm dữ liệu giả để chart không bị lỗi
             chart.addSeries(
                 "Không có dữ liệu",
                 java.util.Arrays.asList("Không có dữ liệu"),
@@ -294,10 +294,10 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
      * Load dữ liệu từ DAO
      */
     private void loadData() {
-        // ✅ Khởi tạo dsThongKe rỗng trước
+        // Khởi tạo dsThongKe rỗng trước
         dsThongKe = new ArrayList<>();
         
-        // ✅ Kiểm tra calThoiGian
+        // Kiểm tra calThoiGian
         if (calThoiGian == null || calThoiGian.getDate() == null) {
             calThoiGian.setDate(new Date());
         }

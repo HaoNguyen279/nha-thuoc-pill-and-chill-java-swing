@@ -48,7 +48,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
     private DecimalFormat df = new DecimalFormat("#,###");
 
     public NhapThuocExcelPanel(ArrayList<Thuoc> dsThuoc1, ArrayList<ChiTietLoThuoc> dsCTLT1) {
-        // ✅ Sử dụng BorderLayout
+        //  Sử dụng BorderLayout
         setLayout(new BorderLayout());
         
         ConnectDB.getInstance().connect();
@@ -60,7 +60,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
         mainPanel.setBackground(Color.WHITE);
         
         JPanel centerPanel = taoCenterPanel();
-        // ❌ XÓA: centerPanel.setPreferredSize(new Dimension(1400,700));
+        // centerPanel.setPreferredSize(new Dimension(1400,700));
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         
         add(mainPanel, BorderLayout.CENTER);
@@ -121,12 +121,12 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
         table.setIntercellSpacing(new Dimension(1, 1));
         
         JScrollPane scrollPane = new JScrollPane(table);
-        // ❌ XÓA: scrollPane.setPreferredSize(new Dimension(0, 300));
+        // scrollPane.setPreferredSize(new Dimension(0, 300));
         scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         
         panel.add(scrollPane, BorderLayout.CENTER);
         
-        // ✅ Panel thống kê ở dưới
+        // Panel thống kê ở dưới
         JPanel thongKePanel = taoThongKePanel();
         
         centerPanel.add(panel, BorderLayout.CENTER);
@@ -134,7 +134,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
         return centerPanel;
     }
     
-    // ✅ Tạo panel thống kê với 3 label
+    // Tạo panel thống kê với 3 label
     private JPanel taoThongKePanel() {
         JPanel thongKePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 10));
         thongKePanel.setBackground(Color.WHITE);
@@ -163,7 +163,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
         return thongKePanel;
     }
     
-    // ✅ Tính tổng số lượng
+    // Tính tổng số lượng
     private int tinhTongSoLuong() {
         int tong = 0;
         for (Thuoc thuoc : dsThuoc) {
@@ -172,7 +172,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
         return tong;
     }
     
-    // ✅ Tính tổng tiền
+    // Tính tổng tiền
     private double tinhTongTien() {
         double tong = 0;
         for (Thuoc thuoc : dsThuoc) {
@@ -181,7 +181,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
         return tong;
     }
     
-    // ✅ Cập nhật thống kê
+    // Cập nhật thống kê
     private void capNhatThongKe() {
         lblTongSoBanGhi.setText("Tổng số bản ghi: " + dsThuoc.size());
         lblTongSoLuong.setText("Tổng số lượng: " + df.format(tinhTongSoLuong()));
@@ -278,7 +278,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
             };
             dtmTable.addRow(rowData);
         }
-        // ✅ Cập nhật thống kê
+        // Cập nhật thống kê
         capNhatThongKe();
     }
 
@@ -364,7 +364,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
                 dtmTable.removeRow(row);
                 dsThuoc.remove(row);
                 dsCTLT.remove(row);
-                // ✅ Cập nhật thống kê sau khi xóa
+                // Cập nhật thống kê sau khi xóa
                 capNhatThongKe();
             }
         }

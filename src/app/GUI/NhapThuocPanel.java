@@ -41,11 +41,11 @@ public class NhapThuocPanel extends JPanel {
     private JPanel centerPanel; // Panel chứa nội dung chính
     
     public NhapThuocPanel() {
-        // ✅ Sử dụng BorderLayout cho panel chính
+        //Sử dụng BorderLayout cho panel chính
         setLayout(new BorderLayout());
         setBackground(Color.WHITE);
 
-        // ✅ Panel phía trên chứa nút chọn file
+        // Panel phía trên chứa nút chọn file
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 20));
         topPanel.setBackground(Color.WHITE);
         topPanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
@@ -62,11 +62,11 @@ public class NhapThuocPanel extends JPanel {
         
         topPanel.add(btnChonFile);
 
-        // ✅ Panel trung tâm chứa NhapThuocExcelPanel
+        // Panel trung tâm chứa NhapThuocExcelPanel
         centerPanel = new JPanel(new BorderLayout());
         centerPanel.setBackground(Color.WHITE);
 
-        // ✅ Thêm các panel vào layout chính
+        // Thêm các panel vào layout chính
         add(topPanel, BorderLayout.NORTH);
         add(centerPanel, BorderLayout.CENTER);
     }
@@ -101,16 +101,16 @@ public class NhapThuocPanel extends JPanel {
             dsThuoc.forEach(System.out::println);
             dsCTLT.forEach(System.out::println);
 
-            // ✅ Xóa panel cũ nếu có
+            // Xóa panel cũ nếu có
             if (nhapThuocPanel != null) {
                 centerPanel.remove(nhapThuocPanel);
             }
 
-            // ✅ Tạo panel mới và thêm vào centerPanel
+            // Tạo panel mới và thêm vào centerPanel
             nhapThuocPanel = new NhapThuocExcelPanel(dsThuoc, dsCTLT);
             centerPanel.add(nhapThuocPanel, BorderLayout.CENTER);
 
-            // ✅ Cập nhật giao diện
+            // Cập nhật giao diện
             centerPanel.revalidate();
             centerPanel.repaint();
 
@@ -158,7 +158,7 @@ public class NhapThuocPanel extends JPanel {
                         continue;
                     }
 
-                    // ✅ Kiểm tra định dạng mã thuốc: TXXX (T + 3 chữ số)
+                    //  Kiểm tra định dạng mã thuốc: TXXX (T + 3 chữ số)
                     if (!maThuoc.matches("^T\\d{3}$")) {
                         String error = "Dòng " + (i + 1) + ": Mã thuốc '" + maThuoc + 
                                        "' không đúng định dạng (phải là TXXX với XXX là 3 chữ số)";
@@ -167,7 +167,7 @@ public class NhapThuocPanel extends JPanel {
                         continue;
                     }
 
-                    // ✅ Kiểm tra định dạng mã lô: LOXXX (LO + 3 chữ số)
+                    // Kiểm tra định dạng mã lô: LOXXX (LO + 3 chữ số)
                     if (!maLo.matches("^LO\\d{3}$")) {
                         String error = "Dòng " + (i + 1) + ": Mã lô '" + maLo + 
                                        "' không đúng định dạng (phải là LOXXX với XXX là 3 chữ số)";
@@ -176,7 +176,7 @@ public class NhapThuocPanel extends JPanel {
                         continue;
                     }
 
-                    // ✅ Kiểm tra số lượng phải > 0
+                    //  Kiểm tra số lượng phải > 0
                     if (soLuongTon <= 0) {
                         String error = "Dòng " + (i + 1) + ": Số lượng tồn phải lớn hơn 0";
                         System.out.println(error);
@@ -184,7 +184,7 @@ public class NhapThuocPanel extends JPanel {
                         continue;
                     }
 
-                    // ✅ Kiểm tra giá bán phải > 0
+                    // iểm tra giá bán phải > 0
                     if (giaBan <= 0) {
                         String error = "Dòng " + (i + 1) + ": Giá bán phải lớn hơn 0";
                         System.out.println(error);
@@ -192,7 +192,7 @@ public class NhapThuocPanel extends JPanel {
                         continue;
                     }
 
-                    // ✅ Kiểm tra ngày sản xuất và hạn sử dụng
+                    // Kiểm tra ngày sản xuất và hạn sử dụng
                     if (ngaySX == null || hanSD == null) {
                         String error = "Dòng " + (i + 1) + ": Thiếu ngày sản xuất hoặc hạn sử dụng";
                         System.out.println(error);
@@ -200,7 +200,7 @@ public class NhapThuocPanel extends JPanel {
                         continue;
                     }
 
-                    // ✅ Kiểm tra hạn sử dụng phải sau ngày sản xuất
+                    // Kiểm tra hạn sử dụng phải sau ngày sản xuất
                     if (hanSD.before(ngaySX)) {
                         String error = "Dòng " + (i + 1) + ": Hạn sử dụng phải sau ngày sản xuất";
                         System.out.println(error);
@@ -208,7 +208,7 @@ public class NhapThuocPanel extends JPanel {
                         continue;
                     }
 
-                    // ✅ Kiểm tra hạn sử dụng không được trong quá khứ
+                    // Kiểm tra hạn sử dụng không được trong quá khứ
                     if (hanSD.before(new Date())) {
                         String error = "Dòng " + (i + 1) + ": Thuốc đã hết hạn sử dụng";
                         System.out.println(error);
@@ -248,7 +248,7 @@ public class NhapThuocPanel extends JPanel {
                 }
             }
 
-            // ✅ Hiển thị thông báo lỗi nếu có
+            //  Hiển thị thông báo lỗi nếu có
             if (!errors.isEmpty()) {
                 StringBuilder errorMessage = new StringBuilder();
                 errorMessage.append("Có ").append(errors.size()).append(" lỗi khi đọc file:\n\n");
@@ -286,7 +286,7 @@ public class NhapThuocPanel extends JPanel {
     private String getStringCell(Cell cell) {
         if (cell == null) return "";
         cell.setCellType(CellType.STRING);
-        return cell.getStringCellValue().trim().toUpperCase(); // ✅ Chuyển về chữ hoa để đồng nhất
+        return cell.getStringCellValue().trim().toUpperCase(); //  Chuyển về chữ hoa để đồng nhất
     }
 
     private double getNumericCell(Cell cell) {
