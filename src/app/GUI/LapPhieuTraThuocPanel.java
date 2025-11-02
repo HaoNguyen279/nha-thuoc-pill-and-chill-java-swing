@@ -302,6 +302,35 @@ public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
         // Mở frame xác nhận lập phiếu trà thuốc với thông tin nhân viên
         new XacNhanLapPhieuTraThuocFrame(maHoaDonSelected, danhSachChiTiet, maNhanVienDangNhap);
     }
+
+    /**
+     * Phương thức reload dữ liệu từ database
+     * Gọi lại khi cần cập nhật danh sách hóa đơn (ví dụ sau khi xuất hóa đơn mới)
+     */
+    public void reloadDataFromDatabase() {
+        try {
+            // Load lại dữ liệu hóa đơn từ database
+            loadDataHoaDon();
+            
+            // Reset selection và clear chi tiết
+            tableHoaDon.clearSelection();
+            maHoaDonSelected = null;
+            modelChiTiet.setRowCount(0);
+            
+            // Refresh UI
+            tableHoaDon.revalidate();
+            tableHoaDon.repaint();
+            tableChiTiet.revalidate();
+            tableChiTiet.repaint();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, 
+                "Lỗi khi tải lại dữ liệu: " + e.getMessage(), 
+                "Lỗi", 
+                JOptionPane.ERROR_MESSAGE);
+        }
+    }
 }
 
 

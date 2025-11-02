@@ -26,6 +26,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
     private JTextField txtSearch;
     private JButton btnSearch;
     private JButton btnResetSearch; // Nút reset tìm kiếm
+    private JButton btnXuatHoaDonChoPhieuDat; // Nút xuất hóa đơn cho phiếu đặt
     private JSpinner spnQuantityTop;  // Spinner ở bảng trên
     private JSpinner spnQuantityBottom;  // Spinner ở bảng dưới
     private JButton btnAddToCart;
@@ -150,9 +151,19 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         btnResetSearch.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnResetSearch.addActionListener(this);
 
+        btnXuatHoaDonChoPhieuDat = new JButton("Xuất hóa đơn cho phiếu đặt");
+        btnXuatHoaDonChoPhieuDat.setFont(new Font("Arial", Font.PLAIN, 13));
+        btnXuatHoaDonChoPhieuDat.setPreferredSize(new Dimension(180, 30));
+        btnXuatHoaDonChoPhieuDat.setBackground(new Color(240, 250, 240)); // Màu xanh nhạt
+        btnXuatHoaDonChoPhieuDat.setBorder(BorderFactory.createLineBorder(new Color(34, 139, 34))); // Viền xanh đậm
+        btnXuatHoaDonChoPhieuDat.setFocusPainted(false);
+        btnXuatHoaDonChoPhieuDat.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnXuatHoaDonChoPhieuDat.addActionListener(this);
+
         searchPanel.add(txtSearch);
         searchPanel.add(btnSearch);
         searchPanel.add(btnResetSearch);
+        searchPanel.add(btnXuatHoaDonChoPhieuDat);
 
         return searchPanel;
     }
@@ -413,6 +424,8 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
             timKiemThuoc();
         } else if (o == btnResetSearch) {
             resetTimKiem();
+        }else if (o == btnXuatHoaDonChoPhieuDat) {
+            new LapHoaDonTuPhieuDatFrame(maNhanVien).setVisible(true);
         } else if (o == btnAddToCart) {
             themVaoGioHang();
         } else if (o == btnRemove) {
@@ -421,7 +434,15 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
             resetGioHangWithConfirm();
         } else if (o == btnConfirm) {
             xacNhanHoaDon();
+        } else if (o == btnXuatHoaDonChoPhieuDat) {
+            xuatHoaDonChoPhieuDat();
         }
+    }
+    
+    private void xuatHoaDonChoPhieuDat() {
+        // Mở frame lập hóa đơn từ phiếu đặt
+        LapHoaDonTuPhieuDatFrame frame = new LapHoaDonTuPhieuDatFrame(maNhanVien);
+        frame.setVisible(true);
     }
     
     private void timKiemThuoc() {

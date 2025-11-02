@@ -95,6 +95,14 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         this.hoaDonCallback = parentPanel;
     }
     
+    // Constructor với thông tin khách hàng từ phiếu đặt
+    public XacNhanLapHoaDonFrame(ArrayList<Object[]> dsChiTietData, double tongTien, String maHoaDon, 
+                                String maNhanVien, String soDienThoaiKH, String tenKhachHang) {
+        this(dsChiTietData, tongTien, maHoaDon, maNhanVien);
+        // Set thông tin khách hàng sau khi tạo GUI
+        setThongTinKhachHang(soDienThoaiKH, tenKhachHang);
+    }
+    
     private void createGUI() {
         setLayout(new BorderLayout(10, 10));
         
@@ -474,6 +482,20 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         }
     }
     
+    /**
+     * Thiết lập thông tin khách hàng từ phiếu đặt
+     * @param soDienThoai Số điện thoại khách hàng
+     * @param tenKhachHang Tên khách hàng
+     */
+    private void setThongTinKhachHang(String soDienThoai, String tenKhachHang) {
+        if (soDienThoai != null && !soDienThoai.trim().isEmpty()) {
+            txtSDTKhachHang.setText(soDienThoai.trim());
+        }
+        if (tenKhachHang != null && !tenKhachHang.trim().isEmpty()) {
+            txtTenKhachHang.setText(tenKhachHang.trim());
+        }
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
@@ -810,7 +832,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                               double tongTien, String maKhachHang, String maNhanVien) {
         try {
             // Sử dụng đường dẫn mặc định để lưu file
-            String defaultDir = "D:\\PTUD\\PDF\\HoaDon";
+            String defaultDir = "E:\\PTUD\\PDF\\HoaDon";
             File directory = new File(defaultDir);
             
             // Kiểm tra và tạo thư mục nếu chưa tồn tại

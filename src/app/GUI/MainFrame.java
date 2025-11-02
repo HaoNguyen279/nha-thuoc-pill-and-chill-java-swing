@@ -213,6 +213,7 @@ public class MainFrame extends JFrame {
         if (lapPhieuTraThuocPanel == null) {
             lapPhieuTraThuocPanel = new LapPhieuTraThuocPanel(maNhanVien);
         }
+        lapPhieuTraThuocPanel.reloadDataFromDatabase();
         showPanel(lapPhieuTraThuocPanel);
     }
     public void showNhapThuocPanel() {

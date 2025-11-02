@@ -18,7 +18,6 @@ import app.ConnectDB.ConnectDB;
 import app.DAO.HoaDonDAO;
 import app.DAO.PhieuDatDAO;
 import app.DAO.ThuocDAO;
-import app.DAO.TonKhoDAO;
 import app.Entity.Thuoc;
 
 public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, PhieuDatCallback {
@@ -646,7 +645,7 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
                 String donGiaStr = modelGioHang.getValueAt(i, 3).toString();
                 float donGia = Float.parseFloat(donGiaStr.replaceAll("[^0-9]", ""));
                 
-                // Lấy maLo đầu tiên có sẵn cho thuốc này từ TonKhoDAO
+                // Lấy maLo đầu tiên có sẵn cho thuốc này từ database
                 String maLo = getMaLoForThuoc(maThuoc);
                 
                 Object[] data = {maThuoc, tenThuoc, soLuong, donGia, soLuong * donGia, maLo};
@@ -662,28 +661,20 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
     /**
      * Phương thức xử lý khi nhận callback từ XacNhanLapPhieuDatFrame
      * Được gọi khi phiếu đặt thuốc đã được lập thành công
-     * Cập nhật lại số lượng tồn kho ngay lập tức mà không cần load lại từ database
+     * LƯU Ý: Không cập nhật tồn kho ở đây vì phiếu đặt không ảnh hưởng đến tồn kho
+     * Tồn kho chỉ được trừ khi lập hóa đơn từ phiếu đặt
      */
     public void onPhieuDatSuccess(ArrayList<Object[]> dsChiTiet, String maPhieuDat) {
         try {
-            // 1. Reset giỏ hàng và tổng tiền trước
+            // 1. Reset giỏ hàng và tổng tiền sau khi lập phiếu đặt thành công
             resetGioHang();
             updateTongTien();
 
-            // 2. Cập nhật tồn kho sau khi đặt thuốc (trừ số lượng vì sẽ chừa ra ngay)
-            TonKhoDAO tonKhoDAO = new TonKhoDAO();
-            boolean updateSuccess = tonKhoDAO.capNhatTonKhoSauKhiDat(dsChiTiet);
-            
-            if (!updateSuccess) {
-                CustomJOptionPane warningPane = new CustomJOptionPane(this, "Cảnh báo: Có lỗi khi cập nhật tồn kho.\nPhiếu đặt đã được lưu nhưng vui lòng kiểm tra lại tồn kho.", false);
-                warningPane.show();
-            }
-
-            // 3. Tải lại dữ liệu từ database để đảm bảo hiển thị số lượng tồn mới nhất
-            // Lưu vị trí đang chọn và scroll position hiện tại để khôi phục sau khi load lại
+            // 2. Lưu vị trí đang chọn để khôi phục sau khi load lại
             int selectedRow = tblThuoc.getSelectedRow();
 
-            // Force load lại dữ liệu từ database ngay lập tức
+            // 3. Load lại dữ liệu từ database để làm mới giao diện
+            // (Tồn kho không thay đổi, chỉ làm mới để đảm bảo hiển thị dữ liệu mới nhất)
             SwingUtilities.invokeLater(() -> {
                 try {
                     // Tải lại dữ liệu từ database
@@ -696,13 +687,13 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
 
                     // Hiển thị thông báo kết quả cho người dùng
                     CustomJOptionPane successPane = new CustomJOptionPane(LapPhieuDatThuocPanel.this, 
-                            "Đã lập phiếu đặt thuốc thành công!\nMã phiếu đặt: " + maPhieuDat + "\nSố mặt hàng: " + dsChiTiet.size() + "\nSố lượng tồn kho đã được cập nhật (chừa ra).", 
+                            "Đã lập phiếu đặt thuốc thành công!\nMã phiếu đặt: " + maPhieuDat + "\nSố mặt hàng: " + dsChiTiet.size() + "\nTồn kho không thay đổi.", 
                             false);
                     successPane.show();
 
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    CustomJOptionPane errorPane = new CustomJOptionPane(LapPhieuDatThuocPanel.this, "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt.\nVui lòng nhấn làm mới để tải lại dữ liệu.", false);
+                    CustomJOptionPane errorPane = new CustomJOptionPane(LapPhieuDatThuocPanel.this, "Đã xảy ra lỗi khi tải lại dữ liệu sau khi lập phiếu đặt.\nVui lòng nhấn làm mới để tải lại dữ liệu.", false);
                     errorPane.show();
                 }
             });
@@ -710,7 +701,7 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
         } catch (Exception e) {
             e.printStackTrace();
             // Hiển thị thông báo lỗi cho người dùng
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập phiếu đặt thuốc.\nVui lòng nhấn làm mới để tải lại dữ liệu.", false);
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Đã xảy ra lỗi sau khi lập phiếu đặt thuốc.\nPhiếu đặt đã được lưu thành công.\nLỗi: " + e.getMessage(), false);
             errorPane.show();
         }
     }

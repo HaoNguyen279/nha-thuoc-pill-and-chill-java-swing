@@ -6,7 +6,6 @@ import app.DAO.KhachHangDAO;
 import app.DAO.PhieuDatDAO;
 import app.DAO.ChiTietPhieuDatDAO;
 import app.DAO.NhanVienDAO;
-import app.DAO.TonKhoDAO;
 import app.Entity.KhachHang;
 import app.Entity.PhieuDat;
 import app.Entity.ChiTietPhieuDat;
@@ -314,10 +313,15 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         // Ngày giao hàng
         panel.add(createInfoRow("Ngày giao hàng:", labelFont));
         Calendar cal = Calendar.getInstance();
-        cal.add(Calendar.DAY_OF_MONTH, 1);
+        cal.add(Calendar.DAY_OF_MONTH, 1); // Ngày mai
         Date minDate = cal.getTime();
         
-        SpinnerDateModel dateModel = new SpinnerDateModel(minDate, minDate, null, Calendar.DAY_OF_MONTH);
+        // Giới hạn tối đa 7 ngày từ hôm nay
+        Calendar maxCal = Calendar.getInstance();
+        maxCal.add(Calendar.DAY_OF_MONTH, 7);
+        Date maxDate = maxCal.getTime();
+        
+        SpinnerDateModel dateModel = new SpinnerDateModel(minDate, minDate, maxDate, Calendar.DAY_OF_MONTH);
         spinnerNgayGiao = new JSpinner(dateModel);
         JSpinner.DateEditor dateEditor = new JSpinner.DateEditor(spinnerNgayGiao, "dd/MM/yyyy");
         spinnerNgayGiao.setEditor(dateEditor);
@@ -480,13 +484,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         // Kiểm tra ngày giao hàng
         Date ngayGiao = (Date) spinnerNgayGiao.getValue();
         
-        // Lấy ngày hiện tại (chỉ lấy ngày, bỏ qua giờ)
-        Calendar calHienTai = Calendar.getInstance();
-        calHienTai.set(Calendar.HOUR_OF_DAY, 0);
-        calHienTai.set(Calendar.MINUTE, 0);
-        calHienTai.set(Calendar.SECOND, 0);
-        calHienTai.set(Calendar.MILLISECOND, 0);
-        Date ngayHienTai = calHienTai.getTime();
+        // Kiểm tra ngày giao hàng
         
         // Lấy ngày giao (chỉ lấy ngày, bỏ qua giờ)
         Calendar calNgayGiao = Calendar.getInstance();
@@ -497,12 +495,33 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         calNgayGiao.set(Calendar.MILLISECOND, 0);
         Date ngayGiaoClean = calNgayGiao.getTime();
         
-        // Kiểm tra: ngày giao phải từ ngày mai trở đi
-        if (ngayGiaoClean.before(ngayHienTai) || ngayGiaoClean.equals(ngayHienTai)) {
-            Calendar calNgayMai = Calendar.getInstance();
-            calNgayMai.add(Calendar.DAY_OF_MONTH, 1);
+        // Kiểm tra: ngày giao phải từ ngày mai đến tối đa 7 ngày
+        Calendar calNgayMai = Calendar.getInstance();
+        calNgayMai.add(Calendar.DAY_OF_MONTH, 1);
+        calNgayMai.set(Calendar.HOUR_OF_DAY, 0);
+        calNgayMai.set(Calendar.MINUTE, 0);
+        calNgayMai.set(Calendar.SECOND, 0);
+        calNgayMai.set(Calendar.MILLISECOND, 0);
+        Date ngayMai = calNgayMai.getTime();
+        
+        Calendar calToiDa = Calendar.getInstance();
+        calToiDa.add(Calendar.DAY_OF_MONTH, 7);
+        calToiDa.set(Calendar.HOUR_OF_DAY, 0);
+        calToiDa.set(Calendar.MINUTE, 0);
+        calToiDa.set(Calendar.SECOND, 0);
+        calToiDa.set(Calendar.MILLISECOND, 0);
+        Date ngayToiDa = calToiDa.getTime();
+        
+        if (ngayGiaoClean.before(ngayMai)) {
             CustomJOptionPane warningPane = new CustomJOptionPane(this, "Ngày giao hàng phải từ " + 
-                new SimpleDateFormat("dd/MM/yyyy").format(calNgayMai.getTime()) + " trở đi!", false);
+                new SimpleDateFormat("dd/MM/yyyy").format(ngayMai) + " trở đi!", false);
+            warningPane.show();
+            return;
+        }
+        
+        if (ngayGiaoClean.after(ngayToiDa)) {
+            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Ngày giao hàng không được quá " + 
+                new SimpleDateFormat("dd/MM/yyyy").format(ngayToiDa) + "!\nChỉ cho phép đặt thuốc trong vòng 7 ngày.", false);
             warningPane.show();
             return;
         }
@@ -537,6 +556,8 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                 
                 if (success) {
                     // Lưu chi tiết phiếu đặt thành công
+                    // LƯU Ý: Không cập nhật tồn kho ở đây
+                    // Tồn kho chỉ được trừ khi lập hóa đơn từ phiếu đặt
                     
                     // Lấy ghi chú để hiển thị trong thông báo
                     String ghiChuDisplay = txtGhiChu.getText().trim();
@@ -618,7 +639,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                                 double tongTien, String maKhachHang, String maNhanVien, Date ngayGiao) {
         try {
             // Sử dụng đường dẫn mặc định để lưu file
-            String defaultDir = "D:\\PTUD\\PDF\\PhieuDat";
+            String defaultDir = "E:\\PTUD\\PDF\\PhieuDat";
             File directory = new File(defaultDir);
             
             // Kiểm tra và tạo thư mục nếu chưa tồn tại
