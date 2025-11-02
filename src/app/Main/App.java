@@ -15,7 +15,6 @@ public class App {
                 ConnectDB.getInstance().connect();
                 
                 new DangNhapFrame(); 
-//                new MainFrame("NV001");
             }catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(
