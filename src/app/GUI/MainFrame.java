@@ -216,12 +216,12 @@ public class MainFrame extends JFrame {
         lapPhieuTraThuocPanel.reloadDataFromDatabase();
         showPanel(lapPhieuTraThuocPanel);
     }
-    public void showNhapThuocPanel() {
-    	if (nhapThuocPanel == null) {
-    		nhapThuocPanel = new NhapThuocPanel();
-    	}
-    	showPanel(nhapThuocPanel);
-    }
+    // public void showNhapThuocPanel() {
+    // 	if (nhapThuocPanel == null) {
+    // 		nhapThuocPanel = new NhapThuocPanel();
+    // 	}
+    // 	showPanel(nhapThuocPanel);
+    // }
     public void showThongKeTheoNhanVienPanel() {
     	if(!isQuanLy) {
     		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
@@ -373,7 +373,8 @@ public class MainFrame extends JFrame {
             timKiemThuocPanel, lapHoaDonPanel, capNhatKhachHangPanel,
             capNhatNhanVienPanel, capNhatThuocPanel, capNhatKhuyenMaiPanel,
             capNhatChucVuPanel, lapPhieuDatThuocPanel, lapPhieuTraThuocPanel,
-            nhapThuocPanel, thongKeTheoDoanhThuPanel, thongKeTheoNhanVienPanel,
+            // nhapThuocPanel, // Temporarily disabled due to missing Apache POI dependencies
+            thongKeTheoDoanhThuPanel, thongKeTheoNhanVienPanel,
             thongKeTheoKhachHangPanel, thongKeTheoHSDPanel, thongKeTheoThuocPanel,
             thongKeTheoThuePanel, timKiemKhachHangPanel, timKiemNhanVienPanel,
             xemPhieuNhapPanel
