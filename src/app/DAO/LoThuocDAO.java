@@ -271,11 +271,11 @@ public class LoThuocDAO {
         
         try (PreparedStatement stmt = con.prepareStatement(sql)) {
             int rowsAffected = stmt.executeUpdate();
-            System.out.println("Đã cập nhật " + rowsAffected + " lô thuốc hết hạn");
+            // System.out.println("Đã cập nhật " + rowsAffected + " lô thuốc hết hạn");
             return rowsAffected;
         } catch (SQLException e) {
-            System.err.println("Lỗi khi cập nhật thuốc hết hạn: " + e.getMessage());
-            e.printStackTrace();
+            // System.err.println("Lỗi khi cập nhật thuốc hết hạn: " + e.getMessage());
+            // e.printStackTrace();
             return -1;
         }
     }

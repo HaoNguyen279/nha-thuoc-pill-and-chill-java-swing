@@ -56,7 +56,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
     private JTextField txtSDTKhachHang, txtTenKhachHang, txtMaKhuyenMai;
     private JTextField txtNhanVienLap, txtNgayMua;
     private JTextArea txtGhiChu;
-    private JTextField txtTongTien, txtThue, txtTienGiam, txtTongCong, txtTienNhan, txtTienThua;
+    private JTextField txtTongTien, txtThue, txtTienGiam, txtTongCong, txtTienNhan, txtTienThua, txtDiemTichLuyKhachHang, txtDiemSuDung;
     
     private JTable tblChiTiet;
     private DefaultTableModel modelChiTiet;
@@ -269,7 +269,13 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         txtTenKhachHang.setFocusable(false); // Không thể focus vào
         panel.add(txtTenKhachHang);
          
-        
+        panel.add(createInfoRow("Điểm tích lũy:", labelFont));
+        txtDiemTichLuyKhachHang = createTextField(fieldFont);
+        txtDiemTichLuyKhachHang.setEditable(false);
+        txtDiemTichLuyKhachHang.setBackground(new Color(220, 220, 220)); // Màu xám nhạt để thể hiện không editable
+        txtDiemTichLuyKhachHang.setFocusable(false); // Không thể focus vào
+        panel.add(txtDiemTichLuyKhachHang);
+
         // Mã khuyến mãi
         panel.add(createInfoRow("Mã khuyến mãi:", labelFont));
         txtMaKhuyenMai = createTextField(fieldFont);
@@ -342,7 +348,38 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         txtThue.setText(df.format(tienThue) + " VNĐ");
         panel.add(txtThue);
          
+        panel.add(createInfoRow("Điểm sử dụng (1 điểm = 1 VNĐ):", labelFont));
+        txtDiemSuDung = createTextField(fieldFont);
+        txtDiemSuDung.setHorizontalAlignment(JTextField.RIGHT);
+        txtDiemSuDung.setText("0");
         
+        // Thêm FocusListener để validate và tính lại tổng cộng khi blur
+        txtDiemSuDung.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                validateVaTinhLaiTongCong();
+            }
+        });
+        
+        // Thêm DocumentFilter để chỉ cho phép nhập số
+        ((javax.swing.text.AbstractDocument) txtDiemSuDung.getDocument()).setDocumentFilter(new javax.swing.text.DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+                if (string != null && string.matches("[0-9]*")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+            
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
+                if (text != null && text.matches("[0-9]*")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+        
+        panel.add(txtDiemSuDung);
+
         // Tiền giảm
         panel.add(createInfoRow("Tiền giảm:", labelFont));
         txtTienGiam = createTextField(fieldFont);
@@ -352,10 +389,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         panel.add(txtTienGiam);
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         
-        // Tính tổng thanh toán
+        // Tính tổng thanh toán ban đầu (sẽ được cập nhật lại khi có điểm sử dụng)
         tongThanhToan = tongTien + tienThue;
         
-        // Tổng cộng (Tổng tiền + Thuế - Tiền giảm)
+        // Tổng cộng (Tổng tiền + Thuế - Điểm sử dụng)
         panel.add(createInfoRow("Tổng cộng:", labelFont));
         txtTongCong = createTextField(fieldFont);
         txtTongCong.setEditable(false);
@@ -483,6 +520,92 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
     }
     
     /**
+     * Validate điểm sử dụng và tính lại tổng cộng
+     */
+    private void validateVaTinhLaiTongCong() {
+        try {
+            String diemSuDungStr = txtDiemSuDung.getText().trim();
+            if (diemSuDungStr.isEmpty()) {
+                diemSuDungStr = "0";
+                txtDiemSuDung.setText("0");
+            }
+            
+            int diemSuDung = Integer.parseInt(diemSuDungStr);
+            
+            // Lấy điểm tích lũy hiện tại
+            String diemTichLuyStr = txtDiemTichLuyKhachHang.getText().trim();
+            int diemTichLuy = 0;
+            if (!diemTichLuyStr.isEmpty()) {
+                diemTichLuy = Integer.parseInt(diemTichLuyStr);
+            }
+            
+            // Validate: điểm sử dụng không được vượt quá điểm tích lũy
+            if (diemSuDung > diemTichLuy) {
+                diemSuDung = diemTichLuy;
+                txtDiemSuDung.setText(String.valueOf(diemSuDung));
+                
+                CustomJOptionPane warningPane = new CustomJOptionPane(this,
+                    "Điểm sử dụng không được vượt quá điểm tích lũy hiện có (" + diemTichLuy + " điểm)!",
+                    false);
+                warningPane.show();
+            }
+            
+            // Validate: điểm sử dụng không được âm
+            if (diemSuDung < 0) {
+                diemSuDung = 0;
+                txtDiemSuDung.setText("0");
+            }
+            
+            // Tính lại tổng cộng
+            tinhLaiTongCong();
+            
+        } catch (NumberFormatException ex) {
+            txtDiemSuDung.setText("0");
+            tinhLaiTongCong();
+        }
+    }
+    
+    /**
+     * Tính lại tổng cộng có tính đến điểm sử dụng
+     */
+    private void tinhLaiTongCong() {
+        try {
+            // Lấy điểm sử dụng
+            String diemSuDungStr = txtDiemSuDung.getText().trim();
+            int diemSuDung = 0;
+            if (!diemSuDungStr.isEmpty()) {
+                diemSuDung = Integer.parseInt(diemSuDungStr);
+            }
+            
+            // Tính tổng cộng = tổng tiền + thuế - điểm sử dụng (1 điểm = 1 VNĐ)
+            double tyLeThue = 0.10;
+            double tienThue = tongTien * tyLeThue;
+            tongThanhToan = tongTien + tienThue - diemSuDung;
+            
+            // Đảm bảo tổng thanh toán không âm
+            if (tongThanhToan < 0) {
+                tongThanhToan = 0;
+            }
+            
+            // Cập nhật hiển thị
+            DecimalFormat df = new DecimalFormat("#,###");
+            txtTongCong.setText(df.format(tongThanhToan) + " VNĐ");
+            
+            // Tính lại tiền thừa nếu đã nhập tiền nhận
+            tinhTienThua();
+            
+        } catch (NumberFormatException ex) {
+            // Nếu có lỗi, giữ nguyên tính toán cũ
+            double tyLeThue = 0.10;
+            double tienThue = tongTien * tyLeThue;
+            tongThanhToan = tongTien + tienThue;
+            
+            DecimalFormat df = new DecimalFormat("#,###");
+            txtTongCong.setText(df.format(tongThanhToan) + " VNĐ");
+        }
+    }
+    
+    /**
      * Thiết lập thông tin khách hàng từ phiếu đặt
      * @param soDienThoai Số điện thoại khách hàng
      * @param tenKhachHang Tên khách hàng
@@ -520,6 +643,9 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         // Nếu không nhập số điện thoại, hỏi có muốn thêm khách hàng mới không
         if (sdt.isEmpty()) {
             txtTenKhachHang.setText("");
+            txtDiemTichLuyKhachHang.setText("0");
+            txtDiemSuDung.setText("0");
+            tinhLaiTongCong();
             CustomJOptionPane confirmPane = new CustomJOptionPane(this,
                 "Không có thông tin khách hàng. Bạn có muốn thêm khách hàng mới không?",
                 true);
@@ -559,8 +685,15 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             
             if (kh != null) {
                 txtTenKhachHang.setText(kh.getTenKH());
+                txtDiemTichLuyKhachHang.setText(String.valueOf(kh.getDiemTichLuy()));
+                // Reset điểm sử dụng khi tìm khách hàng mới
+                txtDiemSuDung.setText("0");
+                tinhLaiTongCong();
             } else {
                 txtTenKhachHang.setText("");
+                txtDiemTichLuyKhachHang.setText("0");
+                txtDiemSuDung.setText("0");
+                tinhLaiTongCong();
                 CustomJOptionPane confirmPane = new CustomJOptionPane(this,
                     "Không tìm thấy khách hàng với số điện thoại đã nhập. Bạn có muốn thêm khách hàng mới không?",
                     true);
@@ -586,6 +719,9 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     // Nếu chọn không thêm khách hàng mới, xóa số điện thoại và để trống (khách vãng lai)
                     txtSDTKhachHang.setText("");
                     txtTenKhachHang.setText("");
+                    txtDiemTichLuyKhachHang.setText("0");
+                    txtDiemSuDung.setText("0");
+                    tinhLaiTongCong();
                 }
             }
         } catch (Exception e) {

@@ -18,7 +18,7 @@ public class MainFrame extends JFrame {
     private CapNhatThuocPanel capNhatThuocPanel;
     private CapNhatKhuyenMaiPanel capNhatKhuyenMaiPanel;
     private LapPhieuDatThuocPanel lapPhieuDatThuocPanel;
-    private NhapThuocPanel nhapThuocPanel;
+    //private NhapThuocEPanel nhapThuocPanel; // Temporarily disabled due to missing Apache POI dependencies
     private LapPhieuTraThuocPanel lapPhieuTraThuocPanel;
     private ThongKeTheoDoanhThuPanel thongKeTheoDoanhThuPanel;
     private ThongKeDoanhThuTheoThangPanel thongKeTheoDoanhThuTheoThangPanel;
@@ -65,8 +65,8 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(Color.WHITE);
         add(contentPanel, BorderLayout.CENTER);
-        LoThuocDAO loDAO = new LoThuocDAO();
-        loDAO.capNhatThuocHetHan();
+            // LoThuocDAO loDAO = new LoThuocDAO();
+            // loDAO.capNhatThuocHetHan();
         setVisible(true);
     }
     
@@ -79,7 +79,7 @@ public class MainFrame extends JFrame {
         capNhatThuocPanel = null;
         capNhatKhuyenMaiPanel = null;
         lapPhieuDatThuocPanel = null;
-        nhapThuocPanel = null;
+        // nhapThuocPanel = null; // Temporarily disabled due to missing Apache POI dependencies
         lapPhieuTraThuocPanel = null;
         thongKeTheoDoanhThuPanel = null;
         thongKeTheoDoanhThuTheoThangPanel = null;
@@ -111,7 +111,7 @@ public class MainFrame extends JFrame {
         
         // Thêm hình ảnh nền
         try {
-        	ImageIcon img = new ImageIcon(getClass().getResource("/resources/image/pharmacy.jpg"));
+        	ImageIcon img = new ImageIcon(getClass().getResource("/image/pharmacy.jpg"));
         	JLabel lblImg = new JLabel();
         	lblImg.setIcon(img);
             panel.add(lblImg, BorderLayout.CENTER);

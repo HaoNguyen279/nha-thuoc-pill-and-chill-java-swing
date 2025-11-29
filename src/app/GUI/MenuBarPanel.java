@@ -74,19 +74,19 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         
         // Tạo các menu với icon
         JMenu mnuHeThong = new JMenu("Hệ thống");
-        mnuHeThong.setIcon(loadIcon("/resources/icon/system_icon.png"));  
+        mnuHeThong.setIcon(loadIcon("/icon/system_icon.png"));  
         
         JMenu mnuCapNhat = new JMenu("Danh mục");
-        mnuCapNhat.setIcon(loadIcon("/resources/icon/task_icon.png"));  
+        mnuCapNhat.setIcon(loadIcon("/icon/task_icon.png"));  
         
         JMenu mnuTimKiem = new JMenu("Tìm kiếm");
-        mnuTimKiem.setIcon(loadIcon("/resources/icon/magnifier_icon.png"));  
+        mnuTimKiem.setIcon(loadIcon("/icon/magnifier_icon.png"));  
         
         JMenu mnuXuLy = new JMenu("Xử lý");
-        mnuXuLy.setIcon(loadIcon("/resources/icon/update_icon.png"));  
+        mnuXuLy.setIcon(loadIcon("/icon/update_icon.png"));  
         
         JMenu mnuThongKe = new JMenu("Thống kê");
-        mnuThongKe.setIcon(loadIcon("/resources/icon/chart_icon.png"));  
+        mnuThongKe.setIcon(loadIcon("/icon/chart_icon.png"));  
         
         Font fntMenu = new Font("Arial", Font.PLAIN, 15);
         
@@ -104,126 +104,126 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	
 	     // HỆ THỐNG
 	     mniHoTro = new JMenuItem("Hỗ trợ");
-	     mniHoTro.setIcon(loadIcon("/resources/icon/support_icon.png"));
+	     mniHoTro.setIcon(loadIcon("/icon/support_icon.png"));
 	     mniHoTro.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0)); // F1
 	
 	     mniDatLai = new JMenuItem("Đặt lại");
-	     mniDatLai.setIcon(loadIcon("/resources/icon/reset_icon.png"));
+	     mniDatLai.setIcon(loadIcon("/icon/reset_icon.png"));
 	     mniDatLai.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F5, 0)); // F5
 	
 	     mniTaiKhoan = new JMenuItem("Đổi mật khẩu");
-	     mniTaiKhoan.setIcon(loadIcon("/resources/icon/password_icon.png"));
+	     mniTaiKhoan.setIcon(loadIcon("/icon/password_icon.png"));
 	     mniTaiKhoan.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, ActionEvent.CTRL_MASK)); // Ctrl+P
 	
 	     mniDangXuat = new JMenuItem("Đăng xuất");
-	     mniDangXuat.setIcon(loadIcon("/resources/icon/logout_icon.png"));
+	     mniDangXuat.setIcon(loadIcon("/icon/logout_icon.png"));
 	     mniDangXuat.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.CTRL_MASK)); // Ctrl+L
 	
 	     mniThoat = new JMenuItem("Thoát");
-	     mniThoat.setIcon(loadIcon("/resources/icon/poweroff_icon.png"));
+	     mniThoat.setIcon(loadIcon("/icon/poweroff_icon.png"));
 	     mniThoat.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_Q, ActionEvent.CTRL_MASK)); // Ctrl+Q
 	
 	     // CẬP NHẬT
 	     mniCapNhatThuoc = new JMenuItem("Thuốc");
-	     mniCapNhatThuoc.setIcon(loadIcon("/resources/icon/drug_icon.png"));
+	     mniCapNhatThuoc.setIcon(loadIcon("/icon/drug_icon.png"));
 	     mniCapNhatThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.CTRL_MASK)); // Ctrl+T
 	
 	     mniCapNhatKhachHang = new JMenuItem("Khách hàng");
-	     mniCapNhatKhachHang.setIcon(loadIcon("/resources/icon/customer_icon.png"));
+	     mniCapNhatKhachHang.setIcon(loadIcon("/icon/customer_icon.png"));
 	     mniCapNhatKhachHang.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, ActionEvent.CTRL_MASK)); // Ctrl+K
 	
 	     mniCapNhatNhanVien = new JMenuItem("Nhân viên");
-	     mniCapNhatNhanVien.setIcon(loadIcon("/resources/icon/employee_icon.png"));
+	     mniCapNhatNhanVien.setIcon(loadIcon("/icon/employee_icon.png"));
 	     mniCapNhatNhanVien.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK)); // Ctrl+N
 	
 	     mniCapNhatKhuyenMai = new JMenuItem("Khuyến mãi");
-	     mniCapNhatKhuyenMai.setIcon(loadIcon("/resources/icon/sale_icon.png"));
+	     mniCapNhatKhuyenMai.setIcon(loadIcon("/icon/sale_icon.png"));
 	     mniCapNhatKhuyenMai.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK)); // Ctrl+M
 	
 	     mniCapNhatChucVu = new JMenuItem("Chức vụ");
-	     mniCapNhatChucVu.setIcon(loadIcon("/resources/icon/position_icon.png"));
+	     mniCapNhatChucVu.setIcon(loadIcon("/icon/position_icon.png"));
 	     mniCapNhatChucVu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK)); // Ctrl+V
 	
 	     mniXemPhieuNhap = new JMenuItem("Phiếu nhập");
-	     mniXemPhieuNhap.setIcon(loadIcon("/resources/icon/import_icon.png"));
+	     mniXemPhieuNhap.setIcon(loadIcon("/icon/import_icon.png"));
 	     mniXemPhieuNhap.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK)); // Ctrl+I
 	
 	     // TÌM KIẾM
 	     mniTimKiemThuoc = new JMenuItem("Thuốc");
-	     mniTimKiemThuoc.setIcon(loadIcon("/resources/icon/drug_icon.png"));
+	     mniTimKiemThuoc.setIcon(loadIcon("/icon/drug_icon.png"));
 	     mniTimKiemThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.ALT_MASK)); // Ctrl+F
 	     
 	     mniTimKiemKhachHang = new JMenuItem("Khách hàng");
-	     mniTimKiemKhachHang.setIcon(loadIcon("/resources/icon/customer_icon.png"));
+	     mniTimKiemKhachHang.setIcon(loadIcon("/icon/customer_icon.png"));
 	     mniTimKiemKhachHang.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_K, ActionEvent.ALT_MASK)); // Ctrl+Shift+F
 	     
 	     mniTimKiemNhanVien = new JMenuItem("Nhân viên");
-	     mniTimKiemNhanVien.setIcon(loadIcon("/resources/icon/employee_icon.png"));
+	     mniTimKiemNhanVien.setIcon(loadIcon("/icon/employee_icon.png"));
 	     mniTimKiemNhanVien.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK)); // Alt+F
 	     
         //lala
         mniHoaDon = new JMenuItem("Hóa đơn");
-        mniHoaDon.setIcon(loadIcon("/resources/icon/bill_icon.png"));  
+        mniHoaDon.setIcon(loadIcon("/icon/bill_icon.png"));  
         mniHoaDon.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK)); // Alt+N
 	    
         mniPhieuDatThuoc = new JMenuItem("Phiếu đặt thuốc");
-        mniPhieuDatThuoc.setIcon(loadIcon("/resources/icon/order_icon.png"));  
+        mniPhieuDatThuoc.setIcon(loadIcon("/icon/order_icon.png"));  
         mniPhieuDatThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK)); // Alt+D
 	    
         mniPhieuDoiTra = new JMenuItem("Phiếu đổi trả");
-        mniPhieuDoiTra.setIcon(loadIcon("/resources/icon/cash_back_icon.png"));  
+        mniPhieuDoiTra.setIcon(loadIcon("/icon/cash_back_icon.png"));  
         mniPhieuDoiTra.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK)); // Alt+T
 		    
 	     
 	     // XỬ LÝ
 	     mniLapHoaDon = new JMenuItem("Lập hóa đơn");
-	     mniLapHoaDon.setIcon(loadIcon("/resources/icon/bill_icon.png"));
+	     mniLapHoaDon.setIcon(loadIcon("/icon/bill_icon.png"));
 	     mniLapHoaDon.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.CTRL_MASK)); // Ctrl+H
 	
 	     mniLapPhieuDatThuoc = new JMenuItem("Lập phiếu đặt thuốc");
-	     mniLapPhieuDatThuoc.setIcon(loadIcon("/resources/icon/order_icon.png"));
+	     mniLapPhieuDatThuoc.setIcon(loadIcon("/icon/order_icon.png"));
 	     mniLapPhieuDatThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK)); // Ctrl+D
 	
 	     mniLapPhieuTraThuoc = new JMenuItem("Lập phiếu trả thuốc");
-	     mniLapPhieuTraThuoc.setIcon(loadIcon("/resources/icon/refund_icon.png"));
+	     mniLapPhieuTraThuoc.setIcon(loadIcon("/icon/refund_icon.png"));
 	     mniLapPhieuTraThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK)); // Ctrl+R
 	
 	     mniNhapThuoc = new JMenuItem("Nhập thuốc");
-	     mniNhapThuoc.setIcon(loadIcon("/resources/icon/import_icon.png"));
+	     mniNhapThuoc.setIcon(loadIcon("/icon/import_icon.png"));
 	     mniNhapThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK)); // Ctrl+Shift+I
 	
 	     // THỐNG KÊ
         // MenuItem cho thống kê với icon
         mnuDoanhThu = new JMenu("Doanh thu nhà thuốc"); // Đổi thành JMenu
-        mnuDoanhThu.setIcon(loadIcon("/resources/icon/revenue_icon.png"));
+        mnuDoanhThu.setIcon(loadIcon("/icon/revenue_icon.png"));
 	     
 	     
 	     
         // Tạo các submenu cho Doanh thu
         mniDoanhThuTheoThang = new JMenuItem("Theo tháng");
-        mniDoanhThuTheoThang.setIcon(loadIcon("/resources/icon/month_icon.png"));
+        mniDoanhThuTheoThang.setIcon(loadIcon("/icon/month_icon.png"));
         mniDoanhThuTheoThang.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_1, ActionEvent.CTRL_MASK)); // Ctrl+1
         
         mniDoanhThuTheoNam = new JMenuItem("Theo năm");
-        mniDoanhThuTheoNam.setIcon(loadIcon("/resources/icon/year_icon.png"));
+        mniDoanhThuTheoNam.setIcon(loadIcon("/icon/year_icon.png"));
         mniDoanhThuTheoNam.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_2, ActionEvent.CTRL_MASK)); // Ctrl+2
         
 	     mniNhanVien = new JMenuItem("Doanh thu của NV");
-	     mniNhanVien.setIcon(loadIcon("/resources/icon/employee_revenue_icon.png"));
+	     mniNhanVien.setIcon(loadIcon("/icon/employee_revenue_icon.png"));
 	     mniNhanVien.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_3, ActionEvent.CTRL_MASK)); // Ctrl+2
 	
 	     mniKhachHang = new JMenuItem("Doanh thu từ KH");
-	     mniKhachHang.setIcon(loadIcon("/resources/icon/customer_revenue_icon.png"));
+	     mniKhachHang.setIcon(loadIcon("/icon/customer_revenue_icon.png"));
 	     mniKhachHang.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_4, ActionEvent.CTRL_MASK)); // Ctrl+3
 	
 	     mniHanSuDung = new JMenuItem("Hạn sử dụng");
-	     mniHanSuDung.setIcon(loadIcon("/resources/icon/expiration_date_icon.png"));  
+	     mniHanSuDung.setIcon(loadIcon("/icon/expiration_date_icon.png"));  
 	     mniHanSuDung.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, ActionEvent.CTRL_MASK)); // Ctrl+4
 	
-
+	
 	
 	     mniThuocDuocMuaNhieu = new JMenuItem("Thuốc mua nhiều");
-	     mniThuocDuocMuaNhieu.setIcon(loadIcon("/resources/icon/top_icon.png"));  
+	     mniThuocDuocMuaNhieu.setIcon(loadIcon("/icon/top_icon.png"));  
 	     mniThuocDuocMuaNhieu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_6, ActionEvent.CTRL_MASK)); // Ctrl+6
             
         Font itemFont = new Font("Arial", Font.PLAIN, 14);
@@ -400,7 +400,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 		}
 		else if(o == mniHoTro) {
 			try {
-				URL fileURL = App.class.getResource("/resources/pdf/HuongDanSuDungPhanMem.pdf");
+				URL fileURL = App.class.getResource("/pdf/HuongDanSuDungPhanMem.pdf");
 				if(fileURL != null) {
 					File file = new File(fileURL.toURI());
 					if(file.exists()) {
