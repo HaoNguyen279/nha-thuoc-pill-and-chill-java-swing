@@ -186,4 +186,65 @@ public class PhieuDoiTraDAO {
         
         return newMaPDT;
     }
+    
+    //lala
+    public ArrayList<PhieuDoiTra> getAllHoaDon5Field() {
+        ArrayList<PhieuDoiTra> dsPhieuDoiTra = new ArrayList<>();
+        String sql = "SELECT maPhieuDoiTra, tenNV, tenKH, ngayDoiTra, pdt.isActive \n"
+        		+ "FROM PhieuDoiTra pdt JOIN NhanVien nv ON pdt.maNV = nv.maNV\n"
+        		+ "	JOIN KhachHang kh ON kh.maKH = pdt.maKH\n"
+        		+ "ORDER BY maPhieuDoiTra DESC";
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                PhieuDoiTra pdt = new PhieuDoiTra(
+                    rs.getString("maPhieuDoiTra"),
+                    rs.getDate("ngayDoiTra"),
+                    rs.getString("tenKH"),
+                    rs.getString("tenNV"),
+                    rs.getBoolean("isActive")
+                );
+                dsPhieuDoiTra.add(pdt);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsPhieuDoiTra;
+    }
+    
+    //lala
+    public ArrayList<PhieuDoiTra> findPhieuDoiTraByThangNam(int thang, int nam) {
+        ArrayList<PhieuDoiTra> dsPhieuDoiTra = new ArrayList<>();
+        String sql = "SELECT maPhieuDoiTra, tenNV, tenKH, ngayDoiTra, pdt.isActive\n"
+        		+ "FROM PhieuDoiTra pdt JOIN NhanVien nv ON pdt.maNV = nv.maNV\n"
+        		+ "	JOIN KhachHang kh ON kh.maKH = pdt.maKH\n"
+        		+ "WHERE pdt.isActive = 1 AND MONTH(ngayDoiTra) = ? AND YEAR(ngayDoiTra) = ?\n"
+        		+ "ORDER BY ngayDoiTra DESC, maPhieuDoiTra DESC";
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+                PreparedStatement stmt = con.prepareStatement(sql)) {
+               
+               stmt.setInt(1, thang);
+               stmt.setInt(2, nam);
+               
+               try (ResultSet rs = stmt.executeQuery()) {
+                   while (rs.next()) {
+                           PhieuDoiTra pdt = new PhieuDoiTra(
+                               rs.getString("maPhieuDoiTra"),
+                               rs.getDate("ngayDoiTra"),
+                               rs.getString("tenKH"),
+                               rs.getString("tenNV"),
+                               rs.getBoolean("isActive")
+                           );
+                           dsPhieuDoiTra.add(pdt);
+                   }
+               }
+           } catch (SQLException e) {
+               e.printStackTrace();
+           }
+        return dsPhieuDoiTra;
+    }
 }

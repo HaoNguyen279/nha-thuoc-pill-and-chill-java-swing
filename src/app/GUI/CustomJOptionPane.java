@@ -12,29 +12,42 @@ public class CustomJOptionPane {
 		this.parent = parent;
 		this.textDisplay = textDisplay;
 		this.isYesNoOption = isYesNoOption;
+		
 	}
     public int show() {
         // Tạo JOptionPane
         JOptionPane pane;
 
-        JLabel lblTextDisplay = new JLabel(textDisplay);
-        lblTextDisplay.setFont(new Font("Roboto", Font.BOLD, 17));
-        lblTextDisplay.setBorder(BorderFactory.createEmptyBorder(50,50,50,50));
+        JTextArea txtTextDisplay = new JTextArea(textDisplay);
+        txtTextDisplay.setFont(new Font("Roboto", Font.BOLD, 15));
+        txtTextDisplay.setEditable(false);
+        txtTextDisplay.setOpaque(false);
+        txtTextDisplay.setFocusable(false);
+        txtTextDisplay.setLineWrap(true);
+        txtTextDisplay.setWrapStyleWord(true);
+//        txtTextDisplay.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        txtTextDisplay.setBackground(new Color(0, 0, 0, 0)); // Trong suốt
+        
+        
+        int maxWidth = 350;
+        txtTextDisplay.setSize(maxWidth, Short.MAX_VALUE);
+        Dimension preferredSize = txtTextDisplay.getPreferredSize();
+        txtTextDisplay.setPreferredSize(new Dimension(maxWidth, preferredSize.height));
+        
+        JPanel pnlText = new JPanel(new BorderLayout());
+        pnlText.add(txtTextDisplay, BorderLayout.CENTER);
+        pnlText.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         if(isYesNoOption) {
             pane = new JOptionPane(
-            	lblTextDisplay,
+            		pnlText,
                 JOptionPane.PLAIN_MESSAGE,
                 JOptionPane.YES_NO_OPTION
             );
         }
         else {
             pane = new JOptionPane(
-            		"<html>" +
-                            "<body style='font-family: Roboto; font-size: 11px;'>" +
-                            textDisplay +
-                            "</body>" +
-                    "</html>",
+            		pnlText,
                 JOptionPane.PLAIN_MESSAGE,
                 JOptionPane.DEFAULT_OPTION
             );
@@ -62,11 +75,12 @@ public class CustomJOptionPane {
         btnKhong.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         // Set các nút vào OptionPane
-        if(isYesNoOption) 
+        if(isYesNoOption)
         	pane.setOptions(new Object[]{btnXacNhan, btnKhong});
         else
         	pane.setOptions(new Object[]{btnXacNhan});
         
+        pane.setInitialValue(btnXacNhan);
         // Tạo dialog
         JDialog dialog = pane.createDialog(parent, "Thông báo");
         
@@ -82,7 +96,7 @@ public class CustomJOptionPane {
             result[0] = JOptionPane.NO_OPTION;
             dialog.dispose();
         });
-        
+        dialog.pack();
         dialog.setVisible(true);
         
         return result[0];

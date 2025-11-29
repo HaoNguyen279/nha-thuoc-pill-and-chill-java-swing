@@ -4,14 +4,17 @@ import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import app.ConnectDB.ConnectDB;
-import app.GUI.DangNhap;
+import app.GUI.DangNhapFrame;
+import app.GUI.MainFrame;
 
 public class App {
     
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                ConnectDB.connect();
+                ConnectDB.getInstance().connect();
+                
+                new DangNhapFrame(); 
             }catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(
@@ -21,9 +24,8 @@ public class App {
                     JOptionPane.ERROR_MESSAGE
                 );
                 return;
+                
             }
-
-            new DangNhap();
         });
     }
 }

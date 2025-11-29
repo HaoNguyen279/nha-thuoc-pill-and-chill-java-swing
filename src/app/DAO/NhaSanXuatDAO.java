@@ -74,6 +74,29 @@ public class NhaSanXuatDAO {
         }
         return nsx;
     }
+    
+    /**
+     * Retrieves a single manufacturer name by its ID.
+     * @param id The ID of the manufacturer to find.
+     * @return A String if found, otherwise null.
+     */
+    public String getTenNSXById(String id) {
+        String sql = "SELECT * FROM NhaSanXuat WHERE maNSX = ?";
+        String tenNSX = null;
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+            PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, id);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                      tenNSX =  rs.getString("tenNSX");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tenNSX;
+    }
 
     /**
      * Adds a new manufacturer to the database.

@@ -2,7 +2,6 @@ package app.Entity;
 
 public class Thuoc {
     private String maThuoc;
-    private String maLo;
     private String tenThuoc;
     private int soLuongTon;
     private double giaBan;
@@ -15,10 +14,9 @@ public class Thuoc {
     public Thuoc() {
     }
 
-    public Thuoc(String maThuoc, String maLo, String tenThuoc, int soLuongTon, double giaBan, 
+    public Thuoc(String maThuoc, String tenThuoc, int soLuongTon, double giaBan, 
                  String donVi, int soLuongToiThieu, String maNSX, boolean isActive) {
         this.maThuoc = maThuoc;
-        this.maLo = maLo;
         this.tenThuoc = tenThuoc;
         this.soLuongTon = soLuongTon;
         this.giaBan = giaBan;
@@ -34,14 +32,6 @@ public class Thuoc {
 
     public void setMaThuoc(String maThuoc) {
         this.maThuoc = maThuoc;
-    }
-
-    public String getMaLo() {
-        return maLo;
-    }
-
-    public void setMaLo(String maLo) {
-        this.maLo = maLo;
     }
 
     public String getTenThuoc() {
@@ -122,7 +112,6 @@ public class Thuoc {
     public String toString() {
         return "Thuoc {" +
                 "maThuoc='" + maThuoc + '\'' +
-                ", maLo='" + maLo + '\'' +
                 ", tenThuoc='" + tenThuoc + '\'' +
                 ", soLuongTon=" + soLuongTon +
                 ", giaBan=" + giaBan +

@@ -31,7 +31,16 @@ public class HoaDon {
 
     // --- Getters and Setters ---
 
-    public String getMaHoaDon() {
+    public HoaDon(String maHD, String tenNV, String tenKH, java.sql.Date ngayBan, String ghiChu, boolean isActive) {
+        this.maHoaDon = maHD;
+        this.maNV = tenNV;
+        this.maKH = tenKH;
+        this.ngayBan = ngayBan;
+        this.ghiChu = ghiChu;
+        this.isActive = isActive;
+	}
+
+	public String getMaHoaDon() {
         return maHoaDon;
     }
 

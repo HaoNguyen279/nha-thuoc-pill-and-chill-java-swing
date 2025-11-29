@@ -28,7 +28,6 @@ public class KhuyenMaiDAO {
         Connection con = ConnectDB.getInstance().getConnection();
         PreparedStatement stmt = null;
         ResultSet rs = null;
-
         try {
             stmt = con.prepareStatement(sql);
             // Get current date as java.sql.Date for DB comparison

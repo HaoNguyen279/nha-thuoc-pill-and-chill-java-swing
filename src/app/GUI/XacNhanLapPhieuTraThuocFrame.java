@@ -5,12 +5,14 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellEditor;
 
 import app.DAO.PhieuDoiTraDAO;
+import app.DAO.ChiTietLoThuocDAO;
 import app.DAO.ChiTietPhieuDoiTraDAO;
 import app.DAO.ThuocDAO;
 import app.DAO.HoaDonDAO;
 import app.DAO.KhachHangDAO;
 import app.DAO.NhanVienDAO;
 import app.Entity.ChiTietHoaDon;
+import app.Entity.ChiTietLoThuoc;
 import app.Entity.ChiTietPhieuDoiTra;
 import app.Entity.PhieuDoiTra;
 import app.Entity.Thuoc;
@@ -21,6 +23,7 @@ import app.Entity.NhanVien;
 // Import iTextPDF classes
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.*;
+
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -564,10 +567,12 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
                     }
                     
                     // Cập nhật tồn kho
-                    Thuoc thuoc = thuocDAO.getThuocByMaThuocAndMaLo(maThuoc, maLo);
-                    if (thuoc != null) {
-                        thuoc.setSoLuongTon(thuoc.getSoLuongTon() + soLuongTra);
-                        if (!thuocDAO.updateThuoc(thuoc)) {
+                	ChiTietLoThuocDAO ctloDAO = new ChiTietLoThuocDAO();
+                    ChiTietLoThuoc ctlothuoc = ctloDAO.getChiTietLoThuocById(maLo, maThuoc);
+                    System.out.println(maThuoc + maLo);
+                    if (ctlothuoc != null) {
+                        ctlothuoc.setSoLuong(ctlothuoc.getSoLuong() + soLuongTra);
+                        if (!ctloDAO.update(ctlothuoc)) {
                             allSuccess = false;
                             JOptionPane.showMessageDialog(this, 
                                 "Lỗi khi cập nhật tồn kho cho thuốc: " + maThuoc, 

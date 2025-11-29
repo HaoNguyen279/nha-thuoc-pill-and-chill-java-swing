@@ -1,0 +1,26 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "app.Main.App",
+            "projectName": "Nhom4_QuanLyNhaThuocPillAndChill"
+        },
+        {
+            "type": "java",
+            "name": "Launch App",
+            "request": "launch",
+            "mainClass": "app.Main.App",
+            "projectName": "phtrUD",
+            "classPaths": [
+                "bin",
+                "lib/*"
+            ],
+            "preLaunchTask": "Build Java Project",
+            "console": "internalConsole",
+            "args": []
+        }
+    ]
+}

@@ -1,25 +1,28 @@
 package app.Entity;
 
-/**
- * Entity class representing monthly revenue statistics
- */
 public class DoanhThuTheoThang {
     private int thang;
     private int nam;
-    private double tongDoanhThu;
+    private double doanhThu;
     private int soLuongHoaDon;
 
     public DoanhThuTheoThang() {
     }
 
-    public DoanhThuTheoThang(int thang, int nam, double tongDoanhThu, int soLuongHoaDon) {
+    public DoanhThuTheoThang(int thang, int nam, double doanhThu, int soLuongHoaDon) {
         this.thang = thang;
         this.nam = nam;
-        this.tongDoanhThu = tongDoanhThu;
+        this.doanhThu = doanhThu;
         this.soLuongHoaDon = soLuongHoaDon;
     }
 
-    public int getThang() {
+    public DoanhThuTheoThang(int thang2, int nam2, double doanhThu2) {
+        this.thang = thang2;
+        this.nam = nam2;
+        this.doanhThu = doanhThu2;
+	}
+
+	public int getThang() {
         return thang;
     }
 
@@ -35,12 +38,12 @@ public class DoanhThuTheoThang {
         this.nam = nam;
     }
 
-    public double getTongDoanhThu() {
-        return tongDoanhThu;
+    public double getDoanhThu() {
+        return doanhThu;
     }
 
-    public void setTongDoanhThu(double tongDoanhThu) {
-        this.tongDoanhThu = tongDoanhThu;
+    public void setdoanhThu(double doanhThu) {
+        this.doanhThu = doanhThu;
     }
 
     public int getSoLuongHoaDon() {
@@ -60,7 +63,7 @@ public class DoanhThuTheoThang {
         return "DoanhThuTheoThang{" +
                 "thang=" + thang +
                 ", nam=" + nam +
-                ", tongDoanhThu=" + tongDoanhThu +
+                ", doanhThu=" + doanhThu +
                 ", soLuongHoaDon=" + soLuongHoaDon +
                 '}';
     }

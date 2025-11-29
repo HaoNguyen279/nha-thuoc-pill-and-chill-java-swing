@@ -13,6 +13,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.geom.RoundRectangle2D;
+import java.net.URL;
 import java.util.concurrent.Flow;
 
 public class DangNhapFrame extends JFrame {
@@ -51,15 +52,31 @@ public class DangNhapFrame extends JFrame {
         pnlLeft.setBackground(new Color(240, 245, 240));
         pnlLeft.setBorder(BorderFactory.createMatteBorder(0, 0, 0, 1, Color.LIGHT_GRAY));
         
-        ImageIcon logo = new ImageIcon(getClass().getResource("/resources/image/logo.png"));
-        Image img = logo.getImage();
-        // Anti aliasing khử răng cưa 
-        Image scaledImg = img.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+        ImageIcon logo;
+        try {
+            // Đường dẫn đúng đến file logo
+            URL logoUrl = getClass().getResource("/image/logo.png");
+            if (logoUrl != null) {
+                logo = new ImageIcon(logoUrl);
+                Image img = logo.getImage();
+                // Anti aliasing khử răng cưa 
+                Image scaledImg = img.getScaledInstance(300, 300, Image.SCALE_SMOOTH);
+                logo = new ImageIcon(scaledImg);
+            } else {
+                // Fallback nếu không tìm thấy logo
+                logo = new ImageIcon();
+            }
+        } catch (Exception e) {
+            // Fallback nếu có lỗi
+            logo = new ImageIcon();
+        }
         
-        ImageIcon scaleLogo = new ImageIcon(scaledImg);
-        
-        lblHinhAnh = new JLabel(scaleLogo, SwingConstants.CENTER);
-        lblHinhAnh.setForeground(Color.WHITE);
+        lblHinhAnh = new JLabel(logo, SwingConstants.CENTER);
+        lblHinhAnh.setText("NHÀ THUỐC PILL & CHILL"); // Text backup
+        lblHinhAnh.setHorizontalTextPosition(SwingConstants.CENTER);
+        lblHinhAnh.setVerticalTextPosition(SwingConstants.BOTTOM);
+        lblHinhAnh.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblHinhAnh.setForeground(new Color(76, 175, 80));
         lblHinhAnh.setBackground(Color.WHITE);
         lblHinhAnh.setPreferredSize(new Dimension(500, 500));
         
@@ -205,17 +222,19 @@ public class DangNhapFrame extends JFrame {
 		String pwd = new String(txtMatKhau.getPassword());
 
 		if (user.isEmpty() || pwd.isEmpty()) {
-			JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!", "Thông Báo", JOptionPane.WARNING_MESSAGE);
+			CustomJOptionPane a = new CustomJOptionPane(this, "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!", false);
+			a.show();
 			return;
 		}
 		TaiKhoan taiKhoan = taiKhoanDAO.kiemTraDangNhap(user, pwd);
 		if (taiKhoan != null) {
-			JOptionPane.showMessageDialog(this, "Đăng nhập thành công! Xin chào " + taiKhoan.getMaNV());
+			CustomJOptionPane a = new CustomJOptionPane(this, "Đăng nhập thành công! Xin chào "+ taiKhoan.getMaNV(), false);
+			a.show();
 			this.dispose(); 
 			new MainFrame(taiKhoan.getMaNV());
 		} else {
-
-			JOptionPane.showMessageDialog(this, "Tên đăng nhập hoặc mật khẩu không đúng, hoặc tài khoản của bạn đã bị khóa.", "Đăng Nhập Thất Bại", JOptionPane.ERROR_MESSAGE);
+			CustomJOptionPane a = new CustomJOptionPane(this,  "Tên đăng nhập hoặc mật khẩu không đúng, hoặc tài khoản của bạn đã bị khóa.", false);
+			a.show();
 			txtMatKhau.setText("");
 			txtMaNhanVien.requestFocus();
 		}

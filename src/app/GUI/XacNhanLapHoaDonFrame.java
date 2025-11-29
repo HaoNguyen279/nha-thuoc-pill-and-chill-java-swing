@@ -56,7 +56,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
     private JTextField txtSDTKhachHang, txtTenKhachHang, txtMaKhuyenMai;
     private JTextField txtNhanVienLap, txtNgayMua;
     private JTextArea txtGhiChu;
-    private JTextField txtTongTien, txtThue, txtTienGiam, txtTongCong, txtTienNhan, txtTienThua;
+    private JTextField txtTongTien, txtThue, txtTienGiam, txtTongCong, txtTienNhan, txtTienThua, txtDiemTichLuyKhachHang, txtDiemSuDung;
     
     private JTable tblChiTiet;
     private DefaultTableModel modelChiTiet;
@@ -93,6 +93,14 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         this(dsChiTietData, tongTien, maHoaDon, maNhanVien);
         // Đặt callback từ parentPanel vì LapHoaDonPanel implement HoaDonCallback
         this.hoaDonCallback = parentPanel;
+    }
+    
+    // Constructor với thông tin khách hàng từ phiếu đặt
+    public XacNhanLapHoaDonFrame(ArrayList<Object[]> dsChiTietData, double tongTien, String maHoaDon, 
+                                String maNhanVien, String soDienThoaiKH, String tenKhachHang) {
+        this(dsChiTietData, tongTien, maHoaDon, maNhanVien);
+        // Set thông tin khách hàng sau khi tạo GUI
+        setThongTinKhachHang(soDienThoaiKH, tenKhachHang);
     }
     
     private void createGUI() {
@@ -261,7 +269,13 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         txtTenKhachHang.setFocusable(false); // Không thể focus vào
         panel.add(txtTenKhachHang);
          
-        
+        panel.add(createInfoRow("Điểm tích lũy:", labelFont));
+        txtDiemTichLuyKhachHang = createTextField(fieldFont);
+        txtDiemTichLuyKhachHang.setEditable(false);
+        txtDiemTichLuyKhachHang.setBackground(new Color(220, 220, 220)); // Màu xám nhạt để thể hiện không editable
+        txtDiemTichLuyKhachHang.setFocusable(false); // Không thể focus vào
+        panel.add(txtDiemTichLuyKhachHang);
+
         // Mã khuyến mãi
         panel.add(createInfoRow("Mã khuyến mãi:", labelFont));
         txtMaKhuyenMai = createTextField(fieldFont);
@@ -334,7 +348,38 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         txtThue.setText(df.format(tienThue) + " VNĐ");
         panel.add(txtThue);
          
+        panel.add(createInfoRow("Điểm sử dụng (1 điểm = 1 VNĐ):", labelFont));
+        txtDiemSuDung = createTextField(fieldFont);
+        txtDiemSuDung.setHorizontalAlignment(JTextField.RIGHT);
+        txtDiemSuDung.setText("0");
         
+        // Thêm FocusListener để validate và tính lại tổng cộng khi blur
+        txtDiemSuDung.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                validateVaTinhLaiTongCong();
+            }
+        });
+        
+        // Thêm DocumentFilter để chỉ cho phép nhập số
+        ((javax.swing.text.AbstractDocument) txtDiemSuDung.getDocument()).setDocumentFilter(new javax.swing.text.DocumentFilter() {
+            @Override
+            public void insertString(FilterBypass fb, int offset, String string, javax.swing.text.AttributeSet attr) throws javax.swing.text.BadLocationException {
+                if (string != null && string.matches("[0-9]*")) {
+                    super.insertString(fb, offset, string, attr);
+                }
+            }
+            
+            @Override
+            public void replace(FilterBypass fb, int offset, int length, String text, javax.swing.text.AttributeSet attrs) throws javax.swing.text.BadLocationException {
+                if (text != null && text.matches("[0-9]*")) {
+                    super.replace(fb, offset, length, text, attrs);
+                }
+            }
+        });
+        
+        panel.add(txtDiemSuDung);
+
         // Tiền giảm
         panel.add(createInfoRow("Tiền giảm:", labelFont));
         txtTienGiam = createTextField(fieldFont);
@@ -344,10 +389,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         panel.add(txtTienGiam);
         panel.add(Box.createRigidArea(new Dimension(0, 10)));
         
-        // Tính tổng thanh toán
+        // Tính tổng thanh toán ban đầu (sẽ được cập nhật lại khi có điểm sử dụng)
         tongThanhToan = tongTien + tienThue;
         
-        // Tổng cộng (Tổng tiền + Thuế - Tiền giảm)
+        // Tổng cộng (Tổng tiền + Thuế - Điểm sử dụng)
         panel.add(createInfoRow("Tổng cộng:", labelFont));
         txtTongCong = createTextField(fieldFont);
         txtTongCong.setEditable(false);
@@ -474,18 +519,117 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         }
     }
     
+    /**
+     * Validate điểm sử dụng và tính lại tổng cộng
+     */
+    private void validateVaTinhLaiTongCong() {
+        try {
+            String diemSuDungStr = txtDiemSuDung.getText().trim();
+            if (diemSuDungStr.isEmpty()) {
+                diemSuDungStr = "0";
+                txtDiemSuDung.setText("0");
+            }
+            
+            int diemSuDung = Integer.parseInt(diemSuDungStr);
+            
+            // Lấy điểm tích lũy hiện tại
+            String diemTichLuyStr = txtDiemTichLuyKhachHang.getText().trim();
+            int diemTichLuy = 0;
+            if (!diemTichLuyStr.isEmpty()) {
+                diemTichLuy = Integer.parseInt(diemTichLuyStr);
+            }
+            
+            // Validate: điểm sử dụng không được vượt quá điểm tích lũy
+            if (diemSuDung > diemTichLuy) {
+                diemSuDung = diemTichLuy;
+                txtDiemSuDung.setText(String.valueOf(diemSuDung));
+                
+                CustomJOptionPane warningPane = new CustomJOptionPane(this,
+                    "Điểm sử dụng không được vượt quá điểm tích lũy hiện có (" + diemTichLuy + " điểm)!",
+                    false);
+                warningPane.show();
+            }
+            
+            // Validate: điểm sử dụng không được âm
+            if (diemSuDung < 0) {
+                diemSuDung = 0;
+                txtDiemSuDung.setText("0");
+            }
+            
+            // Tính lại tổng cộng
+            tinhLaiTongCong();
+            
+        } catch (NumberFormatException ex) {
+            txtDiemSuDung.setText("0");
+            tinhLaiTongCong();
+        }
+    }
+    
+    /**
+     * Tính lại tổng cộng có tính đến điểm sử dụng
+     */
+    private void tinhLaiTongCong() {
+        try {
+            // Lấy điểm sử dụng
+            String diemSuDungStr = txtDiemSuDung.getText().trim();
+            int diemSuDung = 0;
+            if (!diemSuDungStr.isEmpty()) {
+                diemSuDung = Integer.parseInt(diemSuDungStr);
+            }
+            
+            // Tính tổng cộng = tổng tiền + thuế - điểm sử dụng (1 điểm = 1 VNĐ)
+            double tyLeThue = 0.10;
+            double tienThue = tongTien * tyLeThue;
+            tongThanhToan = tongTien + tienThue - diemSuDung;
+            
+            // Đảm bảo tổng thanh toán không âm
+            if (tongThanhToan < 0) {
+                tongThanhToan = 0;
+            }
+            
+            // Cập nhật hiển thị
+            DecimalFormat df = new DecimalFormat("#,###");
+            txtTongCong.setText(df.format(tongThanhToan) + " VNĐ");
+            
+            // Tính lại tiền thừa nếu đã nhập tiền nhận
+            tinhTienThua();
+            
+        } catch (NumberFormatException ex) {
+            // Nếu có lỗi, giữ nguyên tính toán cũ
+            double tyLeThue = 0.10;
+            double tienThue = tongTien * tyLeThue;
+            tongThanhToan = tongTien + tienThue;
+            
+            DecimalFormat df = new DecimalFormat("#,###");
+            txtTongCong.setText(df.format(tongThanhToan) + " VNĐ");
+        }
+    }
+    
+    /**
+     * Thiết lập thông tin khách hàng từ phiếu đặt
+     * @param soDienThoai Số điện thoại khách hàng
+     * @param tenKhachHang Tên khách hàng
+     */
+    private void setThongTinKhachHang(String soDienThoai, String tenKhachHang) {
+        if (soDienThoai != null && !soDienThoai.trim().isEmpty()) {
+            txtSDTKhachHang.setText(soDienThoai.trim());
+        }
+        if (tenKhachHang != null && !tenKhachHang.trim().isEmpty()) {
+            txtTenKhachHang.setText(tenKhachHang.trim());
+        }
+    }
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
         
         if (o == btnQuayVe) {
-            if(JOptionPane.showConfirmDialog(this,
+            CustomJOptionPane confirmPane = new CustomJOptionPane(this,
                 "Bạn có chắc muốn quay về? Mọi thay đổi chưa lưu sẽ bị mất.",
-                "Xác nhận",
-                JOptionPane.YES_NO_OPTION,
-                    JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION) {
-                    dispose(); // Đóng frame
-                }
+                true);
+            if(confirmPane.show() == JOptionPane.YES_OPTION) {
+                dispose(); // Đóng frame
+            }
         } else if (o == btnTim) {
             timKhachHang();
         } else if (o == btnXacNhan) {
@@ -499,11 +643,13 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         // Nếu không nhập số điện thoại, hỏi có muốn thêm khách hàng mới không
         if (sdt.isEmpty()) {
             txtTenKhachHang.setText("");
-            int option = JOptionPane.showConfirmDialog(this,
+            txtDiemTichLuyKhachHang.setText("0");
+            txtDiemSuDung.setText("0");
+            tinhLaiTongCong();
+            CustomJOptionPane confirmPane = new CustomJOptionPane(this,
                 "Không có thông tin khách hàng. Bạn có muốn thêm khách hàng mới không?",
-                "Xác nhận",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE);
+                true);
+            int option = confirmPane.show();
             
             if (option == JOptionPane.YES_OPTION) {
                 // Mở frame thêm khách hàng mới với số điện thoại trống
@@ -516,12 +662,12 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         
         // Kiểm tra format số điện thoại: phải có đúng 10 số và bắt đầu bằng 0
         if (!sdt.matches("^0\\d{9}$")) {
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane errorPane = new CustomJOptionPane(this,
                 "Số điện thoại không hợp lệ!\n" +
                 "Yêu cầu: Phải có đúng 10 chữ số và bắt đầu bằng số 0\n" +
                 "Ví dụ: 0123456789",
-                "Lỗi định dạng",
-                JOptionPane.ERROR_MESSAGE);
+                false);
+            errorPane.show();
             txtSDTKhachHang.requestFocus();
             txtSDTKhachHang.selectAll(); // Chọn toàn bộ text để người dùng sửa dễ hơn
             return;
@@ -539,13 +685,19 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             
             if (kh != null) {
                 txtTenKhachHang.setText(kh.getTenKH());
+                txtDiemTichLuyKhachHang.setText(String.valueOf(kh.getDiemTichLuy()));
+                // Reset điểm sử dụng khi tìm khách hàng mới
+                txtDiemSuDung.setText("0");
+                tinhLaiTongCong();
             } else {
                 txtTenKhachHang.setText("");
-                int option = JOptionPane.showConfirmDialog(this,
+                txtDiemTichLuyKhachHang.setText("0");
+                txtDiemSuDung.setText("0");
+                tinhLaiTongCong();
+                CustomJOptionPane confirmPane = new CustomJOptionPane(this,
                     "Không tìm thấy khách hàng với số điện thoại đã nhập. Bạn có muốn thêm khách hàng mới không?",
-                    "Xác nhận",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.QUESTION_MESSAGE);
+                    true);
+                int option = confirmPane.show();
                 
                 if (option == JOptionPane.YES_OPTION) {
                     // Mở frame thêm khách hàng mới
@@ -567,25 +719,28 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     // Nếu chọn không thêm khách hàng mới, xóa số điện thoại và để trống (khách vãng lai)
                     txtSDTKhachHang.setText("");
                     txtTenKhachHang.setText("");
+                    txtDiemTichLuyKhachHang.setText("0");
+                    txtDiemSuDung.setText("0");
+                    tinhLaiTongCong();
                 }
             }
         } catch (Exception e) {
            
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane errorPane = new CustomJOptionPane(this,
                 "Đã xảy ra lỗi khi tìm kiếm khách hàng: " + e.getMessage(),
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
+                false);
+            errorPane.show();
         }
     }
     
     private void xacNhanHoaDon() {
         // Kiểm tra thông tin bắt buộc - nhập tiền khách thanh toán
         if (txtTienNhan.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane warningPane = new CustomJOptionPane(this,
                 "Vui lòng nhập số tiền khách hàng thanh toán!",
-                "Cảnh báo",
-                JOptionPane.WARNING_MESSAGE);
+                false);
+            warningPane.show();
             txtTienNhan.requestFocus();
             return;
         }
@@ -601,28 +756,27 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             double tienNhan = Double.parseDouble(tienNhanStr);
             
             if (tienNhan < tongThanhToan) {
-                JOptionPane.showMessageDialog(this,
+                CustomJOptionPane warningPane = new CustomJOptionPane(this,
                     "Số tiền khách thanh toán chưa đủ!",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE);
+                    false);
+                warningPane.show();
                 txtTienNhan.requestFocus();
                 return;
             }
         } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane errorPane = new CustomJOptionPane(this,
                 "Số tiền không hợp lệ!",
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
+                false);
+            errorPane.show();
             txtTienNhan.requestFocus();
             return;
         }
         // Không bắt buộc phải có thông tin khách hàng - cho phép khách vãng lai
         // Xác nhận lưu hóa đơn
-        int confirm = JOptionPane.showConfirmDialog(this,
+        CustomJOptionPane confirmPane = new CustomJOptionPane(this,
             "Xác nhận lưu hóa đơn?",
-            "Xác nhận",
-            JOptionPane.YES_NO_OPTION,
-            JOptionPane.QUESTION_MESSAGE);
+            true);
+        int confirm = confirmPane.show();
         
         if (confirm == JOptionPane.YES_OPTION) {
             // Lấy thông tin khách hàng (nếu có)
@@ -662,10 +816,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 // Trước khi lưu, kiểm tra xem có đủ số lượng tồn kho không
                 TonKhoDAO tonKhoDAO = new TonKhoDAO();
                 if (!tonKhoDAO.kiemTraDuSoLuong(dsChiTietData)) {
-                    JOptionPane.showMessageDialog(this,
+                    CustomJOptionPane warningPane = new CustomJOptionPane(this,
                         "Không đủ số lượng thuốc trong kho để hoàn tất giao dịch. Vui lòng kiểm tra lại.",
-                        "Cảnh báo tồn kho",
-                        JOptionPane.WARNING_MESSAGE);
+                        false);
+                    warningPane.show();
                     return;
                 }
                 
@@ -681,12 +835,36 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     // Sau khi lưu hóa đơn thành công, cập nhật số lượng tồn kho
                     updateInventory(dsChiTietData);
                     
+                    // Cập nhật điểm tích lũy cho khách hàng
+                    hoaDonDAO.capNhatDiemTichLuy(maHoaDon);
+                    
+                    // Trừ điểm tích lũy đã sử dụng nếu có
+                    if (maKhachHang != null && !maKhachHang.isEmpty()) {
+                        try {
+                            String diemSuDungStr = txtDiemSuDung.getText().trim();
+                            if (!diemSuDungStr.isEmpty() && !"0".equals(diemSuDungStr)) {
+                                int diemSuDung = Integer.parseInt(diemSuDungStr);
+                                if (diemSuDung > 0) {
+                                    boolean truDiemSuccess = hoaDonDAO.truDiemTichLuy(maKhachHang, diemSuDung);
+                                    if (!truDiemSuccess) {
+                                        CustomJOptionPane warningPane = new CustomJOptionPane(this,
+                                            "Cảnh báo: Không thể trừ điểm tích lũy đã sử dụng (" + diemSuDung + " điểm).\n" +
+                                            "Hóa đơn đã được lưu nhưng điểm tích lũy chưa được trừ.",
+                                            false);
+                                        warningPane.show();
+                                    }
+                                }
+                            }
+                        } catch (NumberFormatException ex) {
+                            // Bỏ qua lỗi parse số
+                        }
+                    }
+                    
                     // Hỏi người dùng có muốn xuất hóa đơn PDF không
-                    int printOption = JOptionPane.showConfirmDialog(this,
+                    CustomJOptionPane printConfirmPane = new CustomJOptionPane(this,
                         "Lưu hóa đơn thành công! Bạn có muốn xuất hóa đơn PDF không?",
-                        "Xuất hóa đơn",
-                        JOptionPane.YES_NO_OPTION,
-                        JOptionPane.QUESTION_MESSAGE);
+                        true);
+                    int printOption = printConfirmPane.show();
                         
                     if (printOption == JOptionPane.YES_OPTION) {
                         // Xuất hóa đơn PDF
@@ -697,17 +875,17 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     // notifyCartClear() sẽ tự động đóng frame
                     notifyCartClear();
                 } else {
-                    JOptionPane.showMessageDialog(this,
+                    CustomJOptionPane errorPane = new CustomJOptionPane(this,
                         "Lưu hóa đơn không thành công!",
-                        "Lỗi",
-                        JOptionPane.ERROR_MESSAGE);
+                        false);
+                    errorPane.show();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
-                JOptionPane.showMessageDialog(this,
+                CustomJOptionPane errorPane = new CustomJOptionPane(this,
                     "Lỗi khi lưu hóa đơn: " + e.getMessage(),
-                    "Lỗi",
-                    JOptionPane.ERROR_MESSAGE);
+                    false);
+                errorPane.show();
             }
         }
     }
@@ -789,17 +967,17 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                     }
                 }
             } else {
-                JOptionPane.showMessageDialog(this,
+                CustomJOptionPane warningPane = new CustomJOptionPane(this,
                     "Không thể cập nhật số lượng tồn kho. Hóa đơn đã được lưu nhưng tồn kho chưa được cập nhật.",
-                    "Cảnh báo",
-                    JOptionPane.WARNING_MESSAGE);
+                    false);
+                warningPane.show();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane errorPane = new CustomJOptionPane(this,
                 "Lỗi cập nhật số lượng tồn kho: " + e.getMessage(),
-                "Lỗi",
-                JOptionPane.ERROR_MESSAGE);
+                false);
+            errorPane.show();
         }
     }
     
@@ -965,10 +1143,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             document.close();
             
             // Thông báo thành công
-            JOptionPane.showMessageDialog(this, 
+            CustomJOptionPane successPane = new CustomJOptionPane(this, 
                 "Đã xuất hóa đơn PDF thành công!\nVị trí: " + filePath, 
-                "Xuất hóa đơn", 
-                JOptionPane.INFORMATION_MESSAGE);
+                false);
+            successPane.show();
             
             // Tự động mở file PDF sau khi xuất
             try {
@@ -984,19 +1162,19 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 }
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, 
+                CustomJOptionPane warningPane = new CustomJOptionPane(this, 
                     "Không thể tự động mở file PDF: " + ex.getMessage(), 
-                    "Cảnh báo", 
-                    JOptionPane.WARNING_MESSAGE);
+                    false);
+                warningPane.show();
             }
             
         } catch (Exception e) {
             e.printStackTrace();
-            JOptionPane.showMessageDialog(this, 
+            CustomJOptionPane errorPane = new CustomJOptionPane(this, 
                 "Lỗi khi xuất hóa đơn PDF: " + e.getMessage() + 
                 "\nVui lòng kiểm tra đường dẫn: E:\\PTUD\\PDF\\HoaDon", 
-                "Lỗi", 
-                JOptionPane.ERROR_MESSAGE);
+                false);
+            errorPane.show();
         }
     }
     
@@ -1051,10 +1229,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             }
             
             // Hiển thị thông báo thành công trước khi đóng
-            JOptionPane.showMessageDialog(this,
+            CustomJOptionPane successPane = new CustomJOptionPane(this,
                 "Hóa đơn đã được lưu và tồn kho đã được cập nhật thành công!",
-                "Thành công",
-                JOptionPane.INFORMATION_MESSAGE);
+                false);
+            successPane.show();
             
             // Nếu tìm thấy MainFrame, cập nhật dữ liệu trước khi đóng
             if (mainFrame != null) {

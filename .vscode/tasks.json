@@ -1,0 +1,60 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Auto Build and Run",
+            "type": "shell", 
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Write-Host 'Building Java Project...' -ForegroundColor Green; if (Test-Path bin) { Remove-Item -Recurse -Force bin }; mkdir -Force bin | Out-Null; javac -cp 'lib/*' -d bin -sourcepath src (Get-ChildItem -Recurse -Path src -Include *.java).FullName; if ($LASTEXITCODE -eq 0) { Write-Host 'Copying resources...' -ForegroundColor Yellow; if (-not (Test-Path 'bin\\image')) { mkdir -Force 'bin\\image' | Out-Null }; if (-not (Test-Path 'bin\\icon')) { mkdir -Force 'bin\\icon' | Out-Null }; if (-not (Test-Path 'bin\\pdf')) { mkdir -Force 'bin\\pdf' | Out-Null }; Copy-Item 'src\\resources\\image\\*' 'bin\\image\\' -Force; Copy-Item 'src\\resources\\icon\\*' 'bin\\icon\\' -Force; Copy-Item 'src\\resources\\pdf\\*' 'bin\\pdf\\' -Force; Write-Host 'Build successful! Running application...' -ForegroundColor Green; java -cp 'bin;lib/*' app.Main.App } else { Write-Host 'Build failed!' -ForegroundColor Red }"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Build Only",
+            "type": "shell",
+            "command": "powershell",
+            "args": [
+                "-Command",
+                "Write-Host 'Building Java Project...' -ForegroundColor Green; if (Test-Path bin) { Remove-Item -Recurse -Force bin }; mkdir -Force bin | Out-Null; javac -cp 'lib/*' -d bin -sourcepath src (Get-ChildItem -Recurse -Path src -Include *.java).FullName; if ($LASTEXITCODE -eq 0) { Write-Host 'Copying resources...' -ForegroundColor Yellow; if (-not (Test-Path 'bin\\image')) { mkdir -Force 'bin\\image' | Out-Null }; if (-not (Test-Path 'bin\\icon')) { mkdir -Force 'bin\\icon' | Out-Null }; if (-not (Test-Path 'bin\\pdf')) { mkdir -Force 'bin\\pdf' | Out-Null }; Copy-Item 'src\\resources\\image\\*' 'bin\\image\\' -Force; Copy-Item 'src\\resources\\icon\\*' 'bin\\icon\\' -Force; Copy-Item 'src\\resources\\pdf\\*' 'bin\\pdf\\' -Force; Write-Host 'Build successful!' -ForegroundColor Green } else { Write-Host 'Build failed!' -ForegroundColor Red }"
+            ],
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        },
+        {
+            "label": "Run Only",
+            "type": "shell",
+            "command": "java",
+            "args": [
+                "-cp",
+                "bin;lib/*",
+                "app.Main.App"
+            ],
+            "group": "test",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

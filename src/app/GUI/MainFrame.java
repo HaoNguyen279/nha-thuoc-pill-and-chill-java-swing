@@ -3,6 +3,9 @@ package app.GUI;
 import java.awt.*;
 import javax.swing.*;
 
+import app.DAO.LoThuocDAO;
+import app.DAO.NhanVienDAO;
+
 
 public class MainFrame extends JFrame {
     private String maNhanVien;
@@ -15,8 +18,10 @@ public class MainFrame extends JFrame {
     private CapNhatThuocPanel capNhatThuocPanel;
     private CapNhatKhuyenMaiPanel capNhatKhuyenMaiPanel;
     private LapPhieuDatThuocPanel lapPhieuDatThuocPanel;
+    private NhapThuocPanel nhapThuocPanel;
     private LapPhieuTraThuocPanel lapPhieuTraThuocPanel;
     private ThongKeTheoDoanhThuPanel thongKeTheoDoanhThuPanel;
+    private ThongKeDoanhThuTheoThangPanel thongKeTheoDoanhThuTheoThangPanel;
     private ThongKeTheoNhanVienPanel thongKeTheoNhanVienPanel;
     private ThongKeTheoKhachHangPanel thongKeTheoKhachHangPanel;
     private ThongKeTheoHSDPanel thongKeTheoHSDPanel;
@@ -24,18 +29,31 @@ public class MainFrame extends JFrame {
     private ThongKeTheoThuePanel thongKeTheoThuePanel;
     private TimKiemKhachHangPanel timKiemKhachHangPanel;
     private TimKiemNhanVienPanel timKiemNhanVienPanel;
+    private TaiKhoanPanel taiKhoanPanel;
+    private CapNhatChucVuPanel capNhatChucVuPanel;
+    private XemPhieuNhapPanel xemPhieuNhapPanel;
+    
+    private DanhMucHoaDon danhMucHoaDonPanel;
+    private DanhMucPhieuDoiTra danhMucPhieuDoiTra;
+    private DanhMucPhieuDat danhMucPhieuDat;
+    
+    private boolean isQuanLy = false;
     
     public MainFrame(String maNhanVien) {
         this.maNhanVien = maNhanVien;
         initializeFrame();
         initializePanels();
         showDefaultContent();
+        if(true) {
+        	NhanVienDAO nvDAO = new NhanVienDAO();
+        	isQuanLy=  nvDAO.isQuanLy(maNhanVien);
+        }
     }
     
     private void initializeFrame() {
         setTitle("Hệ thống quản lý nhà thuốc - Nhân viên: " + maNhanVien);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1400, 800);
+        setExtendedState(JFrame.MAXIMIZED_BOTH);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         
@@ -47,7 +65,8 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(Color.WHITE);
         add(contentPanel, BorderLayout.CENTER);
-        
+            // LoThuocDAO loDAO = new LoThuocDAO();
+            // loDAO.capNhatThuocHetHan();
         setVisible(true);
     }
     
@@ -60,8 +79,10 @@ public class MainFrame extends JFrame {
         capNhatThuocPanel = null;
         capNhatKhuyenMaiPanel = null;
         lapPhieuDatThuocPanel = null;
+        nhapThuocPanel = null;
         lapPhieuTraThuocPanel = null;
         thongKeTheoDoanhThuPanel = null;
+        thongKeTheoDoanhThuTheoThangPanel = null;
         thongKeTheoNhanVienPanel = null;
         thongKeTheoKhachHangPanel = null;
         thongKeTheoHSDPanel = null;
@@ -69,6 +90,13 @@ public class MainFrame extends JFrame {
         thongKeTheoThuePanel = null;
         timKiemKhachHangPanel = null;
         timKiemNhanVienPanel = null;
+        taiKhoanPanel = null;
+        capNhatChucVuPanel = null;
+        xemPhieuNhapPanel = null;
+        
+        danhMucHoaDonPanel = null;
+        danhMucPhieuDoiTra = null;
+        danhMucPhieuDat = null;
     }
     
     private void showDefaultContent() {
@@ -83,10 +111,10 @@ public class MainFrame extends JFrame {
         
         // Thêm hình ảnh nền
         try {
-            ImageIcon icon = new ImageIcon(getClass().getResource("/resources/image/hinh-anh-nha-thuoc.jpg"));
-            JLabel background = new JLabel(icon);
-            background.setHorizontalAlignment(SwingConstants.CENTER);
-            panel.add(background, BorderLayout.CENTER);
+        	ImageIcon img = new ImageIcon(getClass().getResource("/image/pharmacy.jpg"));
+        	JLabel lblImg = new JLabel();
+        	lblImg.setIcon(img);
+            panel.add(lblImg, BorderLayout.CENTER);
         } catch (Exception e) {
             // Nếu không tìm thấy hình ảnh, hiển thị text
             JLabel welcomeLabel = new JLabel("Chào mừng đến với hệ thống quản lý nhà thuốc", SwingConstants.CENTER);
@@ -133,6 +161,11 @@ public class MainFrame extends JFrame {
     }
     
     public void showCapNhatNhanVienPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (capNhatNhanVienPanel == null) {
             capNhatNhanVienPanel = new CapNhatNhanVienPanel();
         }
@@ -180,17 +213,21 @@ public class MainFrame extends JFrame {
         if (lapPhieuTraThuocPanel == null) {
             lapPhieuTraThuocPanel = new LapPhieuTraThuocPanel(maNhanVien);
         }
+        lapPhieuTraThuocPanel.reloadDataFromDatabase();
         showPanel(lapPhieuTraThuocPanel);
     }
-    
-//    public void showThongKeTheoDoanhThuPanel() {
-//        if (thongKeTheoDoanhThuPanel == null) {
-//            thongKeTheoDoanhThuPanel = new ThongKeTheoDoanhThuPanel();
-//        }
-//        showPanel(thongKeTheoDoanhThuPanel);
-//    }
-    
+    public void showNhapThuocPanel() {
+    	if (nhapThuocPanel == null) {
+    		nhapThuocPanel = new NhapThuocPanel();
+    	}
+    	showPanel(nhapThuocPanel);
+    }
     public void showThongKeTheoNhanVienPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoNhanVienPanel == null) {
             thongKeTheoNhanVienPanel = new ThongKeTheoNhanVienPanel();
         }
@@ -198,6 +235,11 @@ public class MainFrame extends JFrame {
     }
     
     public void showThongKeTheoKhachHangPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoKhachHangPanel == null) {
             thongKeTheoKhachHangPanel = new ThongKeTheoKhachHangPanel();
         }
@@ -205,6 +247,11 @@ public class MainFrame extends JFrame {
     }
     
     public void showThongKeTheoHSDPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoHSDPanel == null) {
             thongKeTheoHSDPanel = new ThongKeTheoHSDPanel();
         }
@@ -212,22 +259,133 @@ public class MainFrame extends JFrame {
     }
     
     public void showThongKeTheoThuocPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoThuocPanel == null) {
             thongKeTheoThuocPanel = new ThongKeTheoThuocPanel();
         }
         showPanel(thongKeTheoThuocPanel);
     }
-    public void showThongKeTheoDoanhThuPanel() {
+    public void showThongKeTheoDoanhThuPanelTheoThang() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
+    	if (thongKeTheoDoanhThuTheoThangPanel == null) {
+        	thongKeTheoDoanhThuTheoThangPanel = new ThongKeDoanhThuTheoThangPanel();
+        }
+        thongKeTheoDoanhThuTheoThangPanel.refresh();
+        showPanel(thongKeTheoDoanhThuTheoThangPanel);
+    }
+    public void showThongKeTheoDoanhThuPanelTheoNam() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoDoanhThuPanel == null) {
         	thongKeTheoDoanhThuPanel = new ThongKeTheoDoanhThuPanel();
         }
+        thongKeTheoDoanhThuPanel.refresh();
         showPanel(thongKeTheoDoanhThuPanel);
     }
     public void showThongKeTheoThuePanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
         if (thongKeTheoThuePanel == null) {
             thongKeTheoThuePanel = new ThongKeTheoThuePanel();
         }
         showPanel(thongKeTheoThuePanel);
+    }
+    public void showCapNhatChucVuPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
+		if(capNhatChucVuPanel == null) {
+			capNhatChucVuPanel = new CapNhatChucVuPanel();
+		}
+		showPanel(capNhatChucVuPanel);
+		
+	}
+    public void showPhieuNhap() {
+		if(xemPhieuNhapPanel == null) {
+			xemPhieuNhapPanel = new XemPhieuNhapPanel();
+		}
+		showPanel(xemPhieuNhapPanel);
+	}
+	public void showTaiKhoanPanel() {
+		
+		NhanVienDAO nvDao = new NhanVienDAO();
+		if(taiKhoanPanel == null) {
+			taiKhoanPanel = new TaiKhoanPanel(nvDao.getNhanVienById(maNhanVien));
+		}
+		showPanel(taiKhoanPanel);
+	}
+	// lala
+	public void showDanhMucHoaDonPanel() {
+		if(danhMucHoaDonPanel == null) {
+			danhMucHoaDonPanel = new DanhMucHoaDon();
+		}
+		showPanel(danhMucHoaDonPanel);
+	} 
+	public void showDanhMucPhieuDatThuocPanel() {
+		if(danhMucPhieuDat == null) {
+			danhMucPhieuDat = new DanhMucPhieuDat();
+		}
+		showPanel(danhMucPhieuDat);
+	}
+	public void showDanhMucPhieuDoiTraPanel() {
+		if(danhMucPhieuDoiTra == null) {
+			danhMucPhieuDoiTra = new DanhMucPhieuDoiTra();
+		}
+		showPanel(danhMucPhieuDoiTra);
+	}
+	
+	
+    public void resetApplication() {
+        // Xóa nội dung hiện tại trên màn hình
+        contentPanel.removeAll();
+        contentPanel.revalidate();
+        contentPanel.repaint();
+        
+        // Dispose các panels cũ nếu cần (giải phóng resources)
+        disposeAllPanels();
+        
+        // Set tất cả panels về null
+        initializePanels();
+        
+        // Hiển thị trang chào mừng
+        showDefaultContent();
+    }
+    
+    private void disposeAllPanels() {
+        
+        JPanel[] allPanels = {
+            timKiemThuocPanel, lapHoaDonPanel, capNhatKhachHangPanel,
+            capNhatNhanVienPanel, capNhatThuocPanel, capNhatKhuyenMaiPanel,
+            capNhatChucVuPanel, lapPhieuDatThuocPanel, lapPhieuTraThuocPanel,
+            nhapThuocPanel, thongKeTheoDoanhThuPanel, thongKeTheoNhanVienPanel,
+            thongKeTheoKhachHangPanel, thongKeTheoHSDPanel, thongKeTheoThuocPanel,
+            thongKeTheoThuePanel, timKiemKhachHangPanel, timKiemNhanVienPanel,
+            xemPhieuNhapPanel
+        };
+        
+        
+        for (JPanel panel : allPanels) {
+            if (panel != null) {
+                panel.removeAll();
+            }
+        }
+        
     }
     
     
@@ -241,7 +399,18 @@ public class MainFrame extends JFrame {
     
     public void dangXuatHandle() {
     	this.dispose();
-    	new DangNhap();
+    	new DangNhapFrame();
    }
+//    public static JPanel createImageBackgroundPanel(String imagePath) {
+//        Image backgroundImage = new ImageIcon(imagePath).getImage();
+//
+//        return new JPanel() {
+//            @Override
+//            protected void paintComponent(Graphics g) {
+//                super.paintComponent(g);
+//                g.drawImage(backgroundImage, 0, 0, this);
+//            }
+//        };
+//    }
 
 }

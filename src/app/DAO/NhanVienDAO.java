@@ -8,7 +8,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 
 import app.ConnectDB.ConnectDB;
+import app.Entity.ChucVu;
 import app.Entity.NhanVien;
+import app.Entity.TaiKhoan;
 
 /**
  * DAO (Data Access Object) cho thực thể NhanVien.
@@ -22,23 +24,24 @@ public class NhanVienDAO {
      */
     public ArrayList<NhanVien> getAllNhanVien() {
         ArrayList<NhanVien> dsNhanVien = new ArrayList<>();
-        String sql = "SELECT * FROM NhanVien WHERE isActive = 1"; // Chỉ lấy nhân viên đang làm việc
+        String sql = "SELECT maNV, tenNV, maChucVu, soDienThoai, isActive FROM NhanVien WHERE isActive = 1"; // Chỉ lấy nhân viên đang làm việc
         Connection con = ConnectDB.getInstance().getConnection();
         Statement stmt = null;
         ResultSet rs = null;
-
         try {
             stmt = con.createStatement();
             rs = stmt.executeQuery(sql);
+            ChucVuDAO cvDAO = new ChucVuDAO();
 
+            
             while (rs.next()) {
                 String maNV = rs.getString("maNV");
                 String tenNV = rs.getString("tenNV");
-                String chucVu = rs.getString("chucVu");
+                String maChucVu = rs.getString("maChucVu");
                 String soDienThoai = rs.getString("soDienThoai");
                 boolean isActive = rs.getBoolean("isActive");
-
-                NhanVien nv = new NhanVien(maNV, tenNV, chucVu, soDienThoai, isActive);
+                
+                NhanVien nv = new NhanVien(maNV, tenNV, maChucVu, soDienThoai, isActive);
                 dsNhanVien.add(nv);
             }
         } catch (SQLException e) {
@@ -60,8 +63,8 @@ public class NhanVienDAO {
      * @return Một đối tượng NhanVien nếu tìm thấy, ngược lại trả về null.
      */
     public NhanVien getNhanVienById(String id) {
-        String sql = "SELECT * FROM NhanVien WHERE maNV = ?";
-        NhanVien nv = null;
+        String sql = "SELECT * FROM NhanVien WHERE isActive = 1 AND maNV =?";
+        NhanVien nv = null; 
         Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
         ResultSet rs = null;
@@ -78,7 +81,7 @@ public class NhanVienDAO {
                 
                 // Kiểm tra xem có trường chucVu hay không trước khi truy cập
                 try {
-                    chucVu = rs.getString("chucVu");
+                    chucVu = rs.getString("maChucVu");
                 } catch (SQLException e) {
                     // Có thể thử với tên trường khác nếu có
                     try {
@@ -112,20 +115,24 @@ public class NhanVienDAO {
      * @return true nếu thêm thành công, false nếu thất bại.
      */
     public boolean addNhanVien(NhanVien nhanVien) {
-        String sql = "INSERT INTO NhanVien (maNV, tenNV, chucVu, soDienThoai, isActive) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO NhanVien (maNV, tenNV, maChucVu, soDienThoai, isActive) VALUES (?, ?, ?, ?, ?)";
         int n = 0;
         Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
-
         try {
             stmt = con.prepareStatement(sql);
             stmt.setString(1, nhanVien.getMaNV());
             stmt.setString(2, nhanVien.getTenNV());
-            stmt.setString(3, nhanVien.getChucVu());
+            stmt.setString(3, nhanVien.getmaChucVu());
             stmt.setString(4, nhanVien.getSoDienThoai());
             stmt.setBoolean(5, nhanVien.isIsActive());
             
             n = stmt.executeUpdate();
+            
+    		TaiKhoanDAO tkDAO = new TaiKhoanDAO();
+    		TaiKhoan tk = new TaiKhoan(nhanVien.getMaNV(),"1",true);
+    		tkDAO.addTaiKhoan(tk);
+    		
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
@@ -144,15 +151,14 @@ public class NhanVienDAO {
      * @return true nếu cập nhật thành công, false nếu thất bại.
      */
     public boolean updateNhanVien(NhanVien nhanVien) {
-        String sql = "UPDATE NhanVien SET tenNV = ?, chucVu = ?, soDienThoai = ?, isActive = ? WHERE maNV = ?";
+        String sql = "UPDATE NhanVien SET tenNV = ?, maChucVu = ?, soDienThoai = ?, isActive = ? WHERE maNV = ?";
         int n = 0;
         Connection con = ConnectDB.getConnection();
         PreparedStatement stmt = null;
-
         try {
             stmt = con.prepareStatement(sql);
             stmt.setString(1, nhanVien.getTenNV());
-            stmt.setString(2, nhanVien.getChucVu());
+            stmt.setString(2, nhanVien.getmaChucVu());
             stmt.setString(3, nhanVien.getSoDienThoai());
             stmt.setBoolean(4, nhanVien.isIsActive());
             stmt.setString(5, nhanVien.getMaNV());
@@ -196,6 +202,41 @@ public class NhanVienDAO {
             }
         }
         return n > 0;
+    }
+    
+    
+    public boolean isQuanLy(String id) {
+        String sql = "SELECT maChucVu FROM NhanVien WHERE isActive = 1 AND maNV =?";
+        NhanVien nv = null; 
+        Connection con = ConnectDB.getConnection();
+        PreparedStatement stmt = null;
+        ResultSet rs = null;
+        String chucVu = ""; 
+        try {
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, id);
+            rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                chucVu = ""; // Mặc định nếu không có trường chucVu
+                
+                try {
+                    chucVu = rs.getString("maChucVu");
+                } catch (SQLException e) {
+                	System.err.println("11");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return chucVu.equalsIgnoreCase("QLY");
     }
     
     // Đã có phương thức getNhanVienById ở trên nên phần này đã bị xóa để tránh trùng lặp

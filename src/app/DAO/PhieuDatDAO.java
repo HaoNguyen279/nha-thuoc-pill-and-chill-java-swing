@@ -208,4 +208,66 @@ public class PhieuDatDAO {
         }
         return n > 0;
     }
+    
+    
+    //lala
+    public ArrayList<PhieuDat> getAllPhieuDat5Field() {
+        ArrayList<PhieuDat> dsPhieuDat = new ArrayList<>();
+        // Giả định bảng PhieuDat đã có cột ghiChu
+        String sql = "SELECT maPhieuDat, tenNV, ngayDat, tenKH, ghiChu, pd.isActive \n"
+        		+ "FROM PhieuDat pd JOIN NhanVien nv ON pd.maNV = nv.maNV\n"
+        		+ "	JOIN KhachHang kh ON kh.maKH = pd.maKH\n"
+        		+ "ORDER BY maPhieuDat DESC ";
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                // Sử dụng phương thức helper
+                dsPhieuDat.add(mapResultSetToPhieuDat5Field(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsPhieuDat;
+    }
+
+    //lala
+    private PhieuDat mapResultSetToPhieuDat5Field(ResultSet rs) throws SQLException {
+        return new PhieuDat(
+            rs.getString("maPhieuDat"),
+            rs.getString("tenNV"),
+            rs.getDate("ngayDat"),
+            rs.getString("tenKH"),
+            rs.getString("ghiChu"), 
+            rs.getBoolean("isActive")
+        );
+    }
+    
+  //lala
+    public ArrayList<PhieuDat> findPhieuDatByThangNam(int thang, int nam) {
+        ArrayList<PhieuDat> dsPhieuDat = new ArrayList<>();
+        String sql = "SELECT maPhieuDat, tenNV, ngayDat, tenKH, ghiChu, pd.isActive\n"
+        		+ "FROM PhieuDat pd JOIN NhanVien nv ON pd.maNV = nv.maNV\n"
+        		+ "	JOIN KhachHang kh ON kh.maKH = pd.maKH\n"
+        		+ "WHERE pd.isActive = 1 AND MONTH(ngayDat) = ? AND YEAR(ngayDat) = ?\n"
+        		+ "ORDER BY ngayDat DESC, maPhieuDat DESC";
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                	dsPhieuDat.add(mapResultSetToPhieuDat5Field(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsPhieuDat;
+    }
 }

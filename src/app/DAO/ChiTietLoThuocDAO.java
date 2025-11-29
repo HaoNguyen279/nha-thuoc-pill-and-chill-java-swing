@@ -67,6 +67,8 @@ public class ChiTietLoThuocDAO {
                         rs.getString("maThuoc"),
                         rs.getDate("ngaySanXuat"),
                         rs.getDate("hanSuDung"),
+                        rs.getInt("soLuong"),
+                        rs.getInt("giaNhap"),
                         rs.getBoolean("isActive")
                     );
                 }
@@ -83,7 +85,7 @@ public class ChiTietLoThuocDAO {
      * @return true nếu thêm thành công, false nếu thất bại.
      */
     public boolean create(ChiTietLoThuoc chiTiet) {
-        String sql = "INSERT INTO ChiTietLoThuoc (maLo, maThuoc, ngaySanXuat, hanSuDung, isActive) VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO ChiTietLoThuoc (maLo, maThuoc, ngaySanXuat, hanSuDung,soLuong,giaNhap, isActive) VALUES (?, ?, ?, ?, ?,?,?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -93,7 +95,9 @@ public class ChiTietLoThuocDAO {
             stmt.setString(2, chiTiet.getMaThuoc());
             stmt.setDate(3, new java.sql.Date(chiTiet.getNgaySanXuat().getTime()));
             stmt.setDate(4, new java.sql.Date(chiTiet.getHanSuDung().getTime()));
-            stmt.setBoolean(5, chiTiet.isIsActive());
+            stmt.setInt(5, chiTiet.getSoLuong());
+            stmt.setFloat(6,(float) chiTiet.getGiaNhap());
+            stmt.setBoolean(7, chiTiet.isIsActive());
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -108,21 +112,35 @@ public class ChiTietLoThuocDAO {
      * @return true nếu cập nhật thành công, false nếu thất bại.
      */
     public boolean update(ChiTietLoThuoc chiTiet) {
-        String sql = "UPDATE ChiTietLoThuoc SET ngaySanXuat = ?, hanSuDung = ?, isActive = ? WHERE maLo = ? AND maThuoc = ?";
+        String sql = "UPDATE ChiTietLoThuoc SET ngaySanXuat = ?, hanSuDung = ?, soLuong = ?, giaNhap = ?, isActive = ? WHERE maLo = ? AND maThuoc = ?";
+        
+        Connection con = ConnectDB.getConnection(); // Dùng singleton connection
+        PreparedStatement stmt = null;
         int n = 0;
-
-        try (Connection con = ConnectDB.getInstance().getConnection();
-             PreparedStatement stmt = con.prepareStatement(sql)) {
-            
+        
+        try {
+            stmt = con.prepareStatement(sql);
             stmt.setDate(1, new java.sql.Date(chiTiet.getNgaySanXuat().getTime()));
             stmt.setDate(2, new java.sql.Date(chiTiet.getHanSuDung().getTime()));
-            stmt.setBoolean(3, chiTiet.isIsActive());
-            stmt.setString(4, chiTiet.getMaLo());
-            stmt.setString(5, chiTiet.getMaThuoc());
-
+            stmt.setInt(3, chiTiet.getSoLuong());
+            stmt.setDouble(4, chiTiet.getGiaNhap());
+            stmt.setBoolean(5, chiTiet.isIsActive());
+            stmt.setString(6, chiTiet.getMaLo());
+            stmt.setString(7, chiTiet.getMaThuoc());
+            
             n = stmt.executeUpdate();
+            System.out.println("   → Updated " + n + " rows in ChiTietLoThuoc");
+            
         } catch (SQLException e) {
+            System.err.println("   ❌ Error updating CTLT: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+                // ⚠️ KHÔNG đóng Connection!
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
         }
         return n > 0;
     }
@@ -133,20 +151,75 @@ public class ChiTietLoThuocDAO {
      * @param maThuoc Mã thuốc của chi tiết cần xóa.
      * @return true nếu thành công, false nếu thất bại.
      */
-    public boolean softDelete(String maLo, String maThuoc) {
-        String sql = "UPDATE ChiTietLoThuoc SET isActive = 0 WHERE maLo = ? AND maThuoc = ?";
+    public boolean softDelete( String maThuoc) {
+        String sql = "UPDATE ChiTietLoThuoc SET soLuong = 0,isActive = 0 WHERE maThuoc = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
-            stmt.setString(1, maLo);
-            stmt.setString(2, maThuoc);
+           
+            stmt.setString(1, maThuoc);
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
         return n > 0;
+    }
+
+    public ArrayList<ChiTietLoThuoc> getAllInactiveChiTietLoThuoc() {
+        ArrayList<ChiTietLoThuoc> dsChiTiet = new ArrayList<>();
+        String sql = "SELECT * FROM ChiTietLoThuoc WHERE isActive = 0";
+        Connection con = ConnectDB.getConnection();
+        try (Statement stmt = con.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+            
+            while (rs.next()) {
+                ChiTietLoThuoc ct = new ChiTietLoThuoc(
+                    rs.getString("maLo"),
+                    rs.getString("maThuoc"),
+                    rs.getDate("ngaySanXuat"),
+                    rs.getDate("hanSuDung"),
+                    rs.getBoolean("isActive")
+                );
+                ct.setSoLuong(rs.getInt("soLuong"));
+                ct.setGiaNhap(rs.getDouble("giaNhap"));
+                dsChiTiet.add(ct);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsChiTiet;
+    }
+
+    /**
+     * Lấy CTLT theo ID (bao gồm cả inactive)
+     */
+    public ChiTietLoThuoc getChiTietLoThuocByIdIncludeInactive(String maLo, String maThuoc) {
+        String sql = "SELECT * FROM ChiTietLoThuoc WHERE maLo = ? AND maThuoc = ?";
+        Connection con = ConnectDB.getConnection();
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, maLo);
+            stmt.setString(2, maThuoc);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    ChiTietLoThuoc ct = new ChiTietLoThuoc(
+                        rs.getString("maLo"),
+                        rs.getString("maThuoc"),
+                        rs.getDate("ngaySanXuat"),
+                        rs.getDate("hanSuDung"),
+                        rs.getBoolean("isActive")
+                    );
+                    ct.setSoLuong(rs.getInt("soLuong"));
+                    ct.setGiaNhap(rs.getDouble("giaNhap"));
+                    return ct;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

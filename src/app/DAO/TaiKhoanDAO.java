@@ -180,4 +180,29 @@ public class TaiKhoanDAO {
         }
         return n > 0;
     }
+
+    /**
+     * Lấy tên nhân viên từ mã nhân viên.
+     * @param maNV Mã nhân viên cần tìm.
+     * @return Tên nhân viên nếu tìm thấy, ngược lại trả về null.
+     */
+    public String getTenNhanVienByMaNV(String maNV) {
+        String sql = "SELECT tenNV FROM NhanVien WHERE maNV = ?";
+        String tenNV = null;
+
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, maNV);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    tenNV = rs.getString("tenNV");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return tenNV;
+    }
 }
