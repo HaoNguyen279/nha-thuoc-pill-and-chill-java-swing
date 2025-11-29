@@ -834,7 +834,32 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 if (success) {
                     // Sau khi lưu hóa đơn thành công, cập nhật số lượng tồn kho
                     updateInventory(dsChiTietData);
+                    
+                    // Cập nhật điểm tích lũy cho khách hàng
                     hoaDonDAO.capNhatDiemTichLuy(maHoaDon);
+                    
+                    // Trừ điểm tích lũy đã sử dụng nếu có
+                    if (maKhachHang != null && !maKhachHang.isEmpty()) {
+                        try {
+                            String diemSuDungStr = txtDiemSuDung.getText().trim();
+                            if (!diemSuDungStr.isEmpty() && !"0".equals(diemSuDungStr)) {
+                                int diemSuDung = Integer.parseInt(diemSuDungStr);
+                                if (diemSuDung > 0) {
+                                    boolean truDiemSuccess = hoaDonDAO.truDiemTichLuy(maKhachHang, diemSuDung);
+                                    if (!truDiemSuccess) {
+                                        CustomJOptionPane warningPane = new CustomJOptionPane(this,
+                                            "Cảnh báo: Không thể trừ điểm tích lũy đã sử dụng (" + diemSuDung + " điểm).\n" +
+                                            "Hóa đơn đã được lưu nhưng điểm tích lũy chưa được trừ.",
+                                            false);
+                                        warningPane.show();
+                                    }
+                                }
+                            }
+                        } catch (NumberFormatException ex) {
+                            // Bỏ qua lỗi parse số
+                        }
+                    }
+                    
                     // Hỏi người dùng có muốn xuất hóa đơn PDF không
                     CustomJOptionPane printConfirmPane = new CustomJOptionPane(this,
                         "Lưu hóa đơn thành công! Bạn có muốn xuất hóa đơn PDF không?",

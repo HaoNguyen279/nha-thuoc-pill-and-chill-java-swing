@@ -874,6 +874,31 @@ public class HoaDonDAO {
         }
     }
     
+    /**
+     * Trừ điểm tích lũy đã sử dụng cho khách hàng
+     * @param maKhachHang Mã khách hàng
+     * @param diemSuDung Số điểm đã sử dụng
+     * @return true nếu thành công, false nếu thất bại
+     */
+    public boolean truDiemTichLuy(String maKhachHang, int diemSuDung) {
+        if (maKhachHang == null || maKhachHang.isEmpty() || diemSuDung <= 0) {
+            return true; // Không có điểm để trừ
+        }
+        
+        String sql = "UPDATE KhachHang SET diemTichLuy = diemTichLuy - ? WHERE maKH = ? AND diemTichLuy >= ?";
+        
+        Connection con = ConnectDB.getConnection();
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setInt(1, diemSuDung);
+            stmt.setString(2, maKhachHang);
+            stmt.setInt(3, diemSuDung);
+            return stmt.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
     
     
     
