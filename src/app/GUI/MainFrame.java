@@ -18,7 +18,7 @@ public class MainFrame extends JFrame {
     private CapNhatThuocPanel capNhatThuocPanel;
     private CapNhatKhuyenMaiPanel capNhatKhuyenMaiPanel;
     private LapPhieuDatThuocPanel lapPhieuDatThuocPanel;
-    //private NhapThuocEPanel nhapThuocPanel; // Temporarily disabled due to missing Apache POI dependencies
+    private NhapThuocPanel nhapThuocPanel;
     private LapPhieuTraThuocPanel lapPhieuTraThuocPanel;
     private ThongKeTheoDoanhThuPanel thongKeTheoDoanhThuPanel;
     private ThongKeDoanhThuTheoThangPanel thongKeTheoDoanhThuTheoThangPanel;
@@ -79,7 +79,7 @@ public class MainFrame extends JFrame {
         capNhatThuocPanel = null;
         capNhatKhuyenMaiPanel = null;
         lapPhieuDatThuocPanel = null;
-        // nhapThuocPanel = null; // Temporarily disabled due to missing Apache POI dependencies
+        nhapThuocPanel = null;
         lapPhieuTraThuocPanel = null;
         thongKeTheoDoanhThuPanel = null;
         thongKeTheoDoanhThuTheoThangPanel = null;
@@ -216,12 +216,12 @@ public class MainFrame extends JFrame {
         lapPhieuTraThuocPanel.reloadDataFromDatabase();
         showPanel(lapPhieuTraThuocPanel);
     }
-    // public void showNhapThuocPanel() {
-    // 	if (nhapThuocPanel == null) {
-    // 		nhapThuocPanel = new NhapThuocPanel();
-    // 	}
-    // 	showPanel(nhapThuocPanel);
-    // }
+    public void showNhapThuocPanel() {
+    	if (nhapThuocPanel == null) {
+    		nhapThuocPanel = new NhapThuocPanel();
+    	}
+    	showPanel(nhapThuocPanel);
+    }
     public void showThongKeTheoNhanVienPanel() {
     	if(!isQuanLy) {
     		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
@@ -373,8 +373,7 @@ public class MainFrame extends JFrame {
             timKiemThuocPanel, lapHoaDonPanel, capNhatKhachHangPanel,
             capNhatNhanVienPanel, capNhatThuocPanel, capNhatKhuyenMaiPanel,
             capNhatChucVuPanel, lapPhieuDatThuocPanel, lapPhieuTraThuocPanel,
-            // nhapThuocPanel, // Temporarily disabled due to missing Apache POI dependencies
-            thongKeTheoDoanhThuPanel, thongKeTheoNhanVienPanel,
+            nhapThuocPanel, thongKeTheoDoanhThuPanel, thongKeTheoNhanVienPanel,
             thongKeTheoKhachHangPanel, thongKeTheoHSDPanel, thongKeTheoThuocPanel,
             thongKeTheoThuePanel, timKiemKhachHangPanel, timKiemNhanVienPanel,
             xemPhieuNhapPanel
