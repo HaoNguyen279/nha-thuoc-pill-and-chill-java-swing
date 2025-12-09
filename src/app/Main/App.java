@@ -3,6 +3,9 @@ package app.Main;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
+
+import com.formdev.flatlaf.FlatLightLaf;
+
 import app.ConnectDB.ConnectDB;
 import app.GUI.DangNhapFrame;
 import app.GUI.MainFrame;
@@ -13,9 +16,8 @@ public class App {
         SwingUtilities.invokeLater(() -> {
             try {
                 ConnectDB.getInstance().connect();
-                
-                new DangNhapFrame(); 
-//                new MainFrame("NV001");
+                FlatLightLaf.setup();
+                new MainFrame("nv001"); 
             }catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(

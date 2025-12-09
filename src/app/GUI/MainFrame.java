@@ -16,6 +16,7 @@ public class MainFrame extends JFrame {
     private CapNhatKhachHangPanel capNhatKhachHangPanel;
     private CapNhatNhanVienPanel capNhatNhanVienPanel;
     private CapNhatThuocPanel capNhatThuocPanel;
+    private CapNhatDonViPanel capNhatDonViPanel;
     private CapNhatKhuyenMaiPanel capNhatKhuyenMaiPanel;
     private LapPhieuDatThuocPanel lapPhieuDatThuocPanel;
     private NhapThuocPanel nhapThuocPanel;
@@ -81,6 +82,7 @@ public class MainFrame extends JFrame {
         lapPhieuDatThuocPanel = null;
         nhapThuocPanel = null;
         lapPhieuTraThuocPanel = null;
+        
         thongKeTheoDoanhThuPanel = null;
         thongKeTheoDoanhThuTheoThangPanel = null;
         thongKeTheoNhanVienPanel = null;
@@ -88,6 +90,7 @@ public class MainFrame extends JFrame {
         thongKeTheoHSDPanel = null;
         thongKeTheoThuocPanel = null;
         thongKeTheoThuePanel = null;
+        
         timKiemKhachHangPanel = null;
         timKiemNhanVienPanel = null;
         taiKhoanPanel = null;
@@ -314,6 +317,19 @@ public class MainFrame extends JFrame {
 			capNhatChucVuPanel = new CapNhatChucVuPanel();
 		}
 		showPanel(capNhatChucVuPanel);
+		
+	}
+    
+    public void showCapNhatDonViPanel() {
+    	if(!isQuanLy) {
+    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
+    		a.show();
+    		return;
+    	}
+		if(capNhatDonViPanel == null) {
+			capNhatDonViPanel = new CapNhatDonViPanel();
+		}
+		showPanel(capNhatDonViPanel);
 		
 	}
     public void showPhieuNhap() {

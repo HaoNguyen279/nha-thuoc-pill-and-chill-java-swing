@@ -1,279 +1,268 @@
 package app.GUI;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
-import org.knowm.xchart.CategorySeries.CategorySeriesRenderStyle;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.style.Styler;
+
+import com.formdev.flatlaf.FlatClientProperties;
 
 import app.DAO.HoaDonDAO;
 import app.DAO.KhachHangDAO;
 import app.Entity.DoanhThuTheoThang;
 
-
 public class ThongKeTheoDoanhThuPanel extends JPanel implements ActionListener {
-	private JLabel lblChonNam; 
-	private JLabel lblChonThang;
-	
-	private JComboBox<Integer> cboNam; 
-	private JComboBox<Integer> cboThang; 
-	
-	private JLabel lblTongDoanhThu;
-	private CategoryChart chart;
-	private XChartPanel<CategoryChart> chartPanel;
-	private JPanel pnlWestPanel;
-	
-	private String[] months;
-	private Double[] revenue;
-	private int namHienTai = 2025; // Năm mặc định
-	private DecimalFormat df = new DecimalFormat("#,###.##' VND'");
+
+    private JComboBox<Integer> cboNam;
+    private CategoryChart chart;
+    private XChartPanel<CategoryChart> chartPanel;
+    private JPanel pnlStats;
+
+    private String[] months;
+    private Double[] revenue;
+    private int namDuocChon;
+
+    private DecimalFormat df = new DecimalFormat("#,###.##' VND'");
     private HoaDonDAO hdDAO = new HoaDonDAO();
     private KhachHangDAO khDAO = new KhachHangDAO();
     
-	public ThongKeTheoDoanhThuPanel() {
-		setLayout(new BorderLayout());
-		
-		// Tạo chart ở phía Center
-		chart = createChart();
-		chartPanel = new XChartPanel<CategoryChart>(chart);
-		Styler styler = chart.getStyler();
-        styler.setChartBackgroundColor(new Color(245, 245, 255));
+    private JButton btnDetail;
+    private XemChiTietDoanhThuTheoThangFrame xemChiTietDoanhThuTheoNamFrame;
+    public ThongKeTheoDoanhThuPanel() {
+        initData();
+        initComponents();
+    }
+
+    private void initData() {
+        namDuocChon = 2025;
+    }
+
+    private void initComponents() {
+        setLayout(new BorderLayout(20, 20));
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setBackground(Color.WHITE);
+
+        add(createHeaderPanel(), BorderLayout.NORTH);
+        
+        JPanel pnlCenter = new JPanel(new BorderLayout(20, 0));
+        pnlCenter.setBackground(Color.WHITE);
+        
+        pnlStats = createStatsPanel();
+        pnlCenter.add(pnlStats, BorderLayout.WEST);
+
+        chart = createChart();
+        chartPanel = new XChartPanel<>(chart);
+        chartPanel.setBorder(BorderFactory.createLineBorder(new Color(230, 230, 230), 1, true));
+        pnlCenter.add(chartPanel, BorderLayout.CENTER);
+
+        add(pnlCenter, BorderLayout.CENTER);
+    }
+
+    private JPanel createHeaderPanel() {
+        JPanel pnlHeader = new JPanel(new BorderLayout());
+        pnlHeader.setBackground(Color.WHITE);
+
+        JLabel lblTitle = new JLabel("Thống Kê Doanh Thu Theo Năm");
+        lblTitle.putClientProperty(FlatClientProperties.STYLE, "font:bold +10");
+        
+        JPanel pnlControls = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
+        pnlControls.setBackground(Color.WHITE);
+
+        JLabel lblChonNam = new JLabel("Năm:");
+        
+        cboNam = new JComboBox<>();
+        cboNam.setPreferredSize(new Dimension(100, 30));
+        
+        updateYearCombobox();
+        // check later - done
+        cboNam.setSelectedItem(namDuocChon);
+        cboNam.addActionListener(this);
+
+        pnlControls.add(lblChonNam);
+        pnlControls.add(cboNam);
+
+        pnlHeader.add(lblTitle, BorderLayout.WEST);
+        pnlHeader.add(pnlControls, BorderLayout.EAST);
+
+        return pnlHeader;
+    }
+
+    private JPanel createStatsPanel() {
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel.setBackground(new Color(248, 250, 252));
+        panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        panel.putClientProperty(FlatClientProperties.STYLE, "arc: 15");
+        panel.setPreferredSize(new Dimension(320, 0));
+
+        JLabel lblSummaryTitle = new JLabel("Tổng Quan Năm " + namDuocChon);
+        lblSummaryTitle.putClientProperty(FlatClientProperties.STYLE, "font:bold +2");
+        
+        JPanel pnlTitle = new JPanel(new BorderLayout());
+        pnlTitle.setBackground(new Color(248, 250, 252));
+        pnlTitle.add(lblSummaryTitle, BorderLayout.WEST);
+        pnlTitle.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
+        
+        panel.add(pnlTitle);
+        panel.add(Box.createVerticalStrut(15));
+
+        double tongDoanhThuNam = hdDAO.getDoanhThuCuaNam(namDuocChon);
+        int soHoaDonNam = hdDAO.getSoHoaDonTheoNam(namDuocChon);
+        int soKhachHangNam = khDAO.getSoKhachHangCuaNam(namDuocChon);
+        
+        double giaTriTrungBinh = soHoaDonNam > 0 ? tongDoanhThuNam / soHoaDonNam : 0;
+        double doanhThuTrungBinhThang = hdDAO.getDoanhThuTrungBinhTheoThang(namDuocChon);
+
+        panel.add(createStatCard("Tổng doanh thu", df.format(tongDoanhThuNam), new Color(13, 148, 136)));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createStatCard("Tổng số hóa đơn", String.valueOf(soHoaDonNam), new Color(234, 88, 12)));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createStatCard("Khách hàng mua", String.valueOf(soKhachHangNam), new Color(79, 70, 229)));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createStatCard("Trung bình/Hóa đơn", df.format(giaTriTrungBinh), new Color(219, 39, 119)));
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(createStatCard("Trung bình/Tháng", df.format(doanhThuTrungBinhThang), new Color(8, 145, 178)));
+        
+        JPanel pnlDetailButton = new JPanel();
+        btnDetail = new JButton("Xem chi tiết");
+        btnDetail.addActionListener(this);
+        pnlDetailButton.setBackground(new Color(248, 250, 252));
+        pnlDetailButton.add(btnDetail);
+        
+        panel.add(Box.createVerticalStrut(10));
+        panel.add(pnlDetailButton);
+        
+        
+        panel.add(Box.createVerticalGlue());
+        
+        return panel;
+    }
+
+    private JPanel createStatCard(String title, String value, Color accentColor) {
+        JPanel card = new JPanel(new BorderLayout(5, 5));
+        card.setBackground(Color.WHITE);
+        card.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 4, 0, 0, accentColor),
+            BorderFactory.createEmptyBorder(10, 15, 10, 15)
+        ));
+        card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80)); 
+
+        JLabel lblTitle = new JLabel(title);
+        lblTitle.setForeground(Color.GRAY);
+        
+        JLabel lblValue = new JLabel(value);
+        lblValue.putClientProperty(FlatClientProperties.STYLE, "font:bold +2");
+
+        card.add(lblTitle, BorderLayout.NORTH);
+        card.add(lblValue, BorderLayout.CENTER);
+        return card;
+    }
+
+    private CategoryChart createChart() {
+        CategoryChart chart = new CategoryChartBuilder()
+                .width(800)
+                .height(600)
+                .title("Biểu Đồ Doanh Thu Năm " + namDuocChon)
+                .xAxisTitle("Tháng")
+                .yAxisTitle("Doanh Thu (Triệu VNĐ)")
+                .build();
+
+        loadDoanhThuTheoNamData(namDuocChon);
+        
+        Styler styler = chart.getStyler();
+        styler.setChartBackgroundColor(Color.WHITE);
         styler.setPlotBackgroundColor(Color.WHITE);
-        styler.setLegendBackgroundColor(new Color(230, 230, 255));
+        styler.setLegendBackgroundColor(Color.WHITE);
+        styler.setLegendBorderColor(Color.WHITE);
         
-        // Font chữ
-        styler.setChartTitleFont(new Font("Segoe UI", Font.BOLD, 20));
-        styler.setLegendFont(new Font("Segoe UI", Font.PLAIN, 13));
-        styler.setBaseFont(new Font("Segoe UI", Font.BOLD, 20));
-//        styler.setXAxisTitleColor(Color.RED);
-//        styler.setYAxisTitleColor(Color.GREEN);
-        styler.setSeriesColors(new Color[]{
-                new Color(100, 149, 237), // Xanh 
-                new Color(255, 127, 80),  // Cam
-                new Color(144, 238, 144)  // Lục
-        });
-        
-		JPanel pnlNorthPanel = createNorthPanel();
-		add(pnlNorthPanel, BorderLayout.NORTH);
-        
-		add(chartPanel, BorderLayout.CENTER);
-		
-		pnlWestPanel = createWestPanel(1);
-		add(pnlWestPanel, BorderLayout.WEST);
-		
-		JPanel pnlSouthPanel = createSouthPanel();
-		add(pnlSouthPanel, BorderLayout.SOUTH);
-	}
-	
-	/**
-	 * Tạo panel chọn năm
-	 */
-	private JPanel createNorthPanel() {
-		JPanel pnlMain = new JPanel(new BorderLayout());
-        JLabel lblTieuDe = new JLabel("DOANH THU NĂM", SwingConstants.CENTER);
-        lblTieuDe.setFont(new Font("Arial", Font.BOLD, 24));
-        
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
-		
-		lblChonNam = new JLabel("Chọn năm:");
-		lblChonNam.setFont(new Font("Arial", Font.BOLD, 16));
-		
-		cboNam = new JComboBox<>();
-		// Thêm các năm từ 2020 đến 2025
-		for(int i = 2024; i <= 2025; i++) {
-			cboNam.addItem(i);
-		}
-		cboNam.setSelectedItem(2025); // Chọn mặc định năm 2025
-		cboNam.setFont(new Font("Arial", Font.PLAIN, 14));
-		cboNam.addActionListener(this);
-		
-		panel.add(lblChonNam);
-		panel.add(cboNam);
-		
-		pnlMain.add(panel, BorderLayout.CENTER);
-		pnlMain.add(lblTieuDe, BorderLayout.NORTH);
-		return pnlMain;
-		
-	}
-	
-	/**
-	 * Tạo panel hiển thị tổng doanh thu
-	 */
-	private JPanel createSouthPanel() {
-		JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 15));
-		panel.setBackground(new Color(240, 248, 255)); // Alice Blue
-		
-		JLabel lblTitle = new JLabel("Tổng doanh thu năm " + namHienTai + ":");
-		lblTitle.setFont(new Font("Arial", Font.BOLD, 18));
+        styler.setChartTitleFont(new Font("Segoe UI", Font.BOLD, 18));
+        styler.setSeriesColors(new Color[]{new Color(59, 130, 246)});
+        styler.setLegendVisible(false);
 
-		lblTongDoanhThu = new JLabel("");
-		lblTongDoanhThu.setFont(new Font("Arial", Font.BOLD, 20));
-		lblTongDoanhThu.setForeground(new Color(0, 128, 0)); // Màu xanh lá
-		
-		panel.add(lblTitle);
-		panel.add(lblTongDoanhThu);
-		
-		return panel;
-	}
-	
-	private CategoryChart createChart() {
-		CategoryChart chart = new CategoryChartBuilder()
-			.width(600)
-			.height(400)
-			.title("Doanh thu nhà thuốc theo tháng của năm " + namHienTai)
-			.xAxisTitle("Tháng")
-			.yAxisTitle("Doanh thu (triệu)")
-			.build();
-		
-		loadDoanhThuTheoNamData(namHienTai);
-		chart.getStyler().setOverlapped(false);
-	    chart.getStyler().setLegendVisible(true);
-	    chart.getStyler().setDefaultSeriesRenderStyle(CategorySeriesRenderStyle.Bar);
+        chart.addSeries("Doanh thu", Arrays.asList(months), Arrays.asList(revenue));
 
-        chart.addSeries("Doanh thu " + namHienTai, Arrays.asList(months), Arrays.asList(revenue));
+        return chart;
+    }
 
-		return chart;
-	}
-	
-	
-	private void loadDoanhThuTheoNamData(int nam) {
-		ArrayList<DoanhThuTheoThang> dsDT = new ArrayList<>();
+    private void loadDoanhThuTheoNamData(int nam) {
+        ArrayList<DoanhThuTheoThang> dsDT = hdDAO.thongKeDoanhThuTheoThang(nam);
+        months = new String[dsDT.size()];
+        revenue = new Double[dsDT.size()];
+        for(int i = 0; i < dsDT.size(); i++) {
+            months[i] = dsDT.get(i).getTenThang();
+            revenue[i] = dsDT.get(i).getDoanhThu()/1000000.0;
+        }
+    }
 
-		dsDT = hdDAO.thongKeDoanhThuTheoThang(nam);
-		int i = 0;
-		months = new String[dsDT.size()];
-		revenue = new Double[dsDT.size()];
-		for(DoanhThuTheoThang item : dsDT) {
-			months[i] = item.getTenThang();
-			revenue[i] = item.getDoanhThu()/1000000;
-			i++;
-		}
-	}
-	
-	/**
-	 * Cập nhật biểu đồ khi chọn năm mới
-	 */
-	private void updateChart(int nam) {
-		namHienTai = nam;
-		loadDoanhThuTheoNamData(nam);
-		
-		// Xóa series cũ và thêm series mới
-		chart.getSeriesMap().clear();
-		chart.addSeries("Doanh thu " + nam, Arrays.asList(months), Arrays.asList(revenue));
-		chart.setTitle("Doanh thu nhà thuốc năm " + nam);
-		
-		// Cập nhật tổng doanh thu
-		updateTongDoanhThu();
-		
-		// Cập nhật lại chartPanel
-		chartPanel.repaint();
-		refreshWestPanel();
-	}
-	
-	/**
-	 * Cập nhật hiển thị tổng doanh thu
-	 */
-	private void updateTongDoanhThu() {
-		lblTongDoanhThu.setText(df.format(hdDAO.getDoanhThuCuaNam(namHienTai)));
-		
-		// Cập nhật label title với năm mới
-		JPanel southPanel = (JPanel) lblTongDoanhThu.getParent();
-		if(southPanel != null) {
-			for(int i = 0; i < southPanel.getComponentCount(); i++) {
-				if(southPanel.getComponent(i) instanceof JLabel) {
-					JLabel lbl = (JLabel) southPanel.getComponent(i);
-					if(lbl != lblTongDoanhThu) {
-						lbl.setText("Tổng doanh thu năm " + namHienTai + ":");
-						break;
-					}
-				}
-			}
-		}
-	}
-	
-	public void refresh() {
-		int namDuocChon = (Integer) cboNam.getSelectedItem();
-		loadDoanhThuTheoNamData(namDuocChon);
-		chart.getSeriesMap().clear();
-        chart.addSeries("Doanh thu " + namDuocChon, Arrays.asList(months), Arrays.asList(revenue));
-		updateChart(namDuocChon);
-		updateTongDoanhThu();
+    private void updateChart(int nam) {
+        loadDoanhThuTheoNamData(nam);
+
+        chart.getSeriesMap().clear();
+        chart.addSeries("Doanh thu", Arrays.asList(months), Arrays.asList(revenue));
+        chart.setTitle("Biểu Đồ Doanh Thu Năm " + nam);
+
         chartPanel.repaint();
         chartPanel.revalidate();
-	}
+        
+        refreshStatsPanel();
+    }
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		if(e.getSource() == cboNam) {
-			int namDuocChon = (Integer) cboNam.getSelectedItem();
-			updateChart(namDuocChon);
-			namHienTai = namDuocChon;
-		}
-	}
-	
-	 public  JPanel createWestPanel(int option) {
-	        // Tạo panel chính với GridLayout
-	        JPanel panel = new JPanel(new GridLayout(10,1,0,0));
-	        panel.setBackground(Color.WHITE);
-	        
-	        // Font cho labels
-	        Font labelFont = new Font("Arial", Font.PLAIN, 14);
-	        Font valueFont = new Font("Arial", Font.BOLD, 14);
+    public void refresh() {
+        loadDoanhThuTheoNamData(namDuocChon);
+        chart.getSeriesMap().clear();
+        chart.addSeries("Doanh thu", Arrays.asList(months), Arrays.asList(revenue));
+        updateChart(namDuocChon);
+    }
+    
+    public void refreshStatsPanel() {
+        JPanel parent = (JPanel) pnlStats.getParent();
+        if (parent != null) {
+            parent.remove(pnlStats);
+            pnlStats = createStatsPanel();
+            parent.add(pnlStats, BorderLayout.WEST);
+            parent.revalidate();
+            parent.repaint();
+        }
+    }
+    public void updateYearCombobox() {
+    	HoaDonDAO hdDAO = new HoaDonDAO();
+    	ArrayList<Integer> listNam = hdDAO.getNamCoHoaDon();
+    	for(int i : listNam) {
+    		cboNam.addItem(i);
+    	}
+    }
 
-	        // Thêm các dòng dữ liệu
-	        double tongDoanhThu = hdDAO.getDoanhThuCuaNam(namHienTai);
-	        int soHoaDon = hdDAO.getSoHoaDonTheoNam(namHienTai);
-	        double giaTriTrungBinh = tongDoanhThu/soHoaDon;
-	        double doanhThuTrungBinhThang = hdDAO.getDoanhThuTrungBinhTheoThang(namHienTai);
-	        
-	        addRow(panel, "Tổng doanh thu:", df.format(tongDoanhThu), labelFont, valueFont,1);
-	        addRow(panel, "Tổng số hóa đơn:", String.valueOf(soHoaDon), labelFont, valueFont,2);
-	        addRow(panel, "Tổng sổ khách hàng (có tài khoản) đã mua:",String.valueOf(khDAO.getSoKhachHangCuaNam(namHienTai)) , labelFont, valueFont,3);
-	        addRow(panel, "Giá trị trung bình của 1 hóa đơn:", df.format(giaTriTrungBinh), labelFont, valueFont,4);
-	        addRow(panel, "Doanh thu trung bình mỗi tháng:", df.format(doanhThuTrungBinhThang), labelFont, valueFont,5);
-	        
-	        for(int i = 0;i <5; i++) panel.add(new JPanel());
-	        
-	        return panel;
-	    }
-	    
-	    private static void addRow(JPanel panel, String label, String value, 
-	                               Font labelFont, Font valueFont,int row) {
-	        JLabel lblLabel = new JLabel(label);
-	        lblLabel.setFont(labelFont);
-	        JLabel lblValue = new JLabel(value);
-	        lblValue.setFont(valueFont);
-	        lblValue.setHorizontalAlignment(SwingConstants.RIGHT);
-	        JPanel pnlRow = new JPanel(new BorderLayout());
-	        pnlRow.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
-	        if(row%2 == 0) pnlRow.setBackground(new Color(230, 230, 230));
-	        
-	        pnlRow.add(lblLabel,BorderLayout.WEST);
-	        pnlRow.add(lblValue,BorderLayout.EAST);
-	        panel.add(pnlRow);
-	    }
-	    
-	    public void refreshWestPanel() {
-	        this.remove(pnlWestPanel); // xóa panel cũ
-	        pnlWestPanel = createWestPanel(1); // tạo panel mới với dữ liệu namHienTai mới
-	        this.add(pnlWestPanel, BorderLayout.WEST); // add lại vào frame đúng vị trí
-	        this.revalidate(); // cập nhật layout
-	        this.repaint(); // vẽ lại frame
-	    }
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        if (e.getSource() == cboNam) {
+            namDuocChon = (Integer) cboNam.getSelectedItem();
+            updateChart(namDuocChon);
+        } else if(e.getSource() == btnDetail) {
+        	if(xemChiTietDoanhThuTheoNamFrame!= null) {
 
-
+        		xemChiTietDoanhThuTheoNamFrame.dispose();
+        		xemChiTietDoanhThuTheoNamFrame = null;
+        	}
+        	xemChiTietDoanhThuTheoNamFrame = new XemChiTietDoanhThuTheoThangFrame(namDuocChon);
+        }
+    }
 }

@@ -2,8 +2,10 @@ package app.GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +14,7 @@ import java.io.File;
 import java.net.URL;
 
 import javax.swing.*;
+import javax.swing.border.Border;
 
 import app.DAO.TaiKhoanDAO;
 import app.Main.App;
@@ -32,6 +35,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	private JMenuItem mniCapNhatNhanVien;
 	private JMenuItem mniCapNhatKhuyenMai;
 	private JMenuItem mniCapNhatChucVu;
+	private JMenuItem mniCapNhatDonVi;
 	private JMenuItem mniXemPhieuNhap;
 
 	// MenuItem cho tìm kiếm
@@ -59,6 +63,17 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 //	private JMenuItem mniThue;
 	private JMenuItem mniThuocDuocMuaNhieu;
 	
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
+    private final Color PRIMARY_BLUE = new Color(46,171,255);
+    private final Color ACCENT_COLOR = new Color(255, 255, 255);
+    private final Color BG_COLOR = new Color(235, 235, 235);
+    private final Color TEXT_COLOR = new Color(51, 51, 51);
+    
+    private final Color BTN_ADD_COLOR = new Color(46, 204, 113);
+    private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
+    private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
+    private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
+	
     public MenuBarPanel(String maNV, MainFrame parentFrame) {
         this.maNV = maNV;
         this.parentFrame = parentFrame;
@@ -66,6 +81,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
     }
 
     private void initializeMenuBar() {
+    	
         JMenuBar mnuMenuBar = new JMenuBar();
         TaiKhoanDAO tkDAO = new TaiKhoanDAO();
         String tenNhanVien =  tkDAO.getTenNhanVienByMaNV(maNV);
@@ -97,8 +113,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
     	        item.setFont(fntMenu);
     	    }
 
-        this.setPreferredSize(new Dimension(0,50));
-        mnuMenuBar.setBackground(new Color(240,250,240));
+
 
 	     // Trong method initializeMenuBar(), sau khi tạo JMenuItem
 	
@@ -143,6 +158,10 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	     mniCapNhatChucVu = new JMenuItem("Chức vụ");
 	     mniCapNhatChucVu.setIcon(loadIcon("/resources/icon/position_icon.png"));
 	     mniCapNhatChucVu.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK)); // Ctrl+V
+	     
+	     mniCapNhatDonVi = new JMenuItem("Đơn vị"); // check-later
+	     mniCapNhatDonVi.setIcon(loadIcon("/resources/icon/position_icon.png"));
+	     mniCapNhatDonVi.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.CTRL_MASK)); // Ctrl+U
 	
 	     mniXemPhieuNhap = new JMenuItem("Phiếu nhập");
 	     mniXemPhieuNhap.setIcon(loadIcon("/resources/icon/import_icon.png"));
@@ -161,42 +180,39 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	     mniTimKiemNhanVien.setIcon(loadIcon("/resources/icon/employee_icon.png"));
 	     mniTimKiemNhanVien.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK)); // Alt+F
 	     
-        //lala
-        mniHoaDon = new JMenuItem("Hóa đơn");
-        mniHoaDon.setIcon(loadIcon("/resources/icon/bill_icon.png"));  
-        mniHoaDon.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK)); // Alt+N
-	    
-        mniPhieuDatThuoc = new JMenuItem("Phiếu đặt thuốc");
-        mniPhieuDatThuoc.setIcon(loadIcon("/resources/icon/order_icon.png"));  
-        mniPhieuDatThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK)); // Alt+D
-	    
-        mniPhieuDoiTra = new JMenuItem("Phiếu đổi trả");
-        mniPhieuDoiTra.setIcon(loadIcon("/resources/icon/cash_back_icon.png"));  
-        mniPhieuDoiTra.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK)); // Alt+T
+		//lala
+		mniHoaDon = new JMenuItem("Hóa đơn");
+		mniHoaDon.setIcon(loadIcon("/resources/icon/bill_icon.png"));  
+		mniHoaDon.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK)); // Alt+N
+		
+		mniPhieuDatThuoc = new JMenuItem("Phiếu đặt thuốc");
+		mniPhieuDatThuoc.setIcon(loadIcon("/resources/icon/order_icon.png"));  
+		mniPhieuDatThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK)); // Alt+D
+		
+		mniPhieuDoiTra = new JMenuItem("Phiếu đổi trả");
+		mniPhieuDoiTra.setIcon(loadIcon("/resources/icon/cash_back_icon.png"));  
+		mniPhieuDoiTra.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK)); // Alt+T
 		    
 	     
-	     // XỬ LÝ
-	     mniLapHoaDon = new JMenuItem("Lập hóa đơn");
-	     mniLapHoaDon.setIcon(loadIcon("/resources/icon/bill_icon.png"));
-	     mniLapHoaDon.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.CTRL_MASK)); // Ctrl+H
-	
-	     mniLapPhieuDatThuoc = new JMenuItem("Lập phiếu đặt thuốc");
-	     mniLapPhieuDatThuoc.setIcon(loadIcon("/resources/icon/order_icon.png"));
-	     mniLapPhieuDatThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK)); // Ctrl+D
-	
-	     mniLapPhieuTraThuoc = new JMenuItem("Lập phiếu trả thuốc");
-	     mniLapPhieuTraThuoc.setIcon(loadIcon("/resources/icon/refund_icon.png"));
-	     mniLapPhieuTraThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK)); // Ctrl+R
-	
-	     mniNhapThuoc = new JMenuItem("Nhập thuốc");
-	     mniNhapThuoc.setIcon(loadIcon("/resources/icon/import_icon.png"));
-	     mniNhapThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK)); // Ctrl+Shift+I
-	
-	     // THỐNG KÊ
-        // MenuItem cho thống kê với icon
-        mnuDoanhThu = new JMenu("Doanh thu nhà thuốc"); // Đổi thành JMenu
-        mnuDoanhThu.setIcon(loadIcon("/resources/icon/revenue_icon.png"));
-	     
+		// XỬ LÝ
+		mniLapHoaDon = new JMenuItem("Lập hóa đơn");
+		mniLapHoaDon.setIcon(loadIcon("/resources/icon/bill_icon.png"));
+		mniLapHoaDon.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.CTRL_MASK)); // Ctrl+H
+		mniLapPhieuDatThuoc = new JMenuItem("Lập phiếu đặt thuốc");
+		mniLapPhieuDatThuoc.setIcon(loadIcon("/resources/icon/order_icon.png"));
+		mniLapPhieuDatThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK)); // Ctrl+D
+		mniLapPhieuTraThuoc = new JMenuItem("Lập phiếu trả thuốc");
+		mniLapPhieuTraThuoc.setIcon(loadIcon("/resources/icon/refund_icon.png"));
+		mniLapPhieuTraThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_R, ActionEvent.CTRL_MASK)); // Ctrl+R
+		
+		mniNhapThuoc = new JMenuItem("Nhập thuốc");
+		mniNhapThuoc.setIcon(loadIcon("/resources/icon/import_icon.png"));
+		mniNhapThuoc.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.CTRL_MASK | ActionEvent.SHIFT_MASK)); // Ctrl+Shift+I
+		 // THỐNG KÊ
+		// MenuItem cho thống kê với icon
+		mnuDoanhThu = new JMenu("Doanh thu nhà thuốc"); // Đổi thành JMenu
+		mnuDoanhThu.setIcon(loadIcon("/resources/icon/revenue_icon.png"));
+			     
 	     
 	     
         // Tạo các submenu cho Doanh thu
@@ -220,7 +236,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 	     mniHanSuDung.setIcon(loadIcon("/resources/icon/expiration_date_icon.png"));  
 	     mniHanSuDung.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_5, ActionEvent.CTRL_MASK)); // Ctrl+4
 	
-
+	
 	
 	     mniThuocDuocMuaNhieu = new JMenuItem("Thuốc mua nhiều");
 	     mniThuocDuocMuaNhieu.setIcon(loadIcon("/resources/icon/top_icon.png"));  
@@ -229,7 +245,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         Font itemFont = new Font("Arial", Font.PLAIN, 14);
 
         for (JMenuItem item1 : new JMenuItem[]{
-            mniHoTro, mniDangXuat, mniThoat,mniDatLai,mniTaiKhoan,mniCapNhatChucVu,mniXemPhieuNhap,
+            mniHoTro, mniDangXuat, mniThoat,mniDatLai,mniTaiKhoan,mniCapNhatChucVu,mniCapNhatDonVi,mniXemPhieuNhap,
             mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai,
             mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien, mniHoaDon,
             mniDoanhThuTheoThang, mniDoanhThuTheoNam,
@@ -255,61 +271,78 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mnuDoanhThu.setPreferredSize(new Dimension(180,40));
         
         // Hệ thống
-        mnuHeThong.add(mniHoTro);
-        mnuHeThong.add(mniDatLai);
-        mnuHeThong.add(mniTaiKhoan);
-        mnuHeThong.add(mniDangXuat);
-        mnuHeThong.add(mniThoat);
-
-        // Cập nhật
-        mnuCapNhat.add(mniCapNhatThuoc);
-        mnuCapNhat.add(mniCapNhatKhachHang);
-        mnuCapNhat.add(mniCapNhatNhanVien);
-        mnuCapNhat.add(mniCapNhatKhuyenMai);
-        mnuCapNhat.add(mniCapNhatChucVu);
-
-
-        // Tìm kiếm
-        mnuTimKiem.add(mniTimKiemThuoc);
-        mnuTimKiem.add(mniTimKiemKhachHang);
-        mnuTimKiem.add(mniTimKiemNhanVien);
-        mnuTimKiem.add(mniHoaDon);
-        mnuTimKiem.add(mniPhieuDatThuoc);
-        mnuTimKiem.add(mniPhieuDoiTra);
-        mnuTimKiem.add(mniXemPhieuNhap);
-
-        // Xử lý
-        mnuXuLy.add(mniLapHoaDon);
-        mnuXuLy.add(mniLapPhieuDatThuoc);
-        mnuXuLy.add(mniLapPhieuTraThuoc);
-        mnuXuLy.add(mniNhapThuoc);
+//        mnuHeThong.add(mniHoTro);
+//        mnuHeThong.add(mniDatLai);
+//        mnuHeThong.add(mniTaiKhoan);
+//        mnuHeThong.add(mniDangXuat);
+//        mnuHeThong.add(mniThoat);
+//
+//        // Cập nhật
+//        mnuCapNhat.add(mniCapNhatThuoc);
+//        mnuCapNhat.add(mniCapNhatKhachHang);
+//        mnuCapNhat.add(mniCapNhatNhanVien);
+//        mnuCapNhat.add(mniCapNhatKhuyenMai);
+//        mnuCapNhat.add(mniCapNhatChucVu);
+//        mnuCapNhat.add(mniCapNhatDonVi);
+//
+//
+//        // Tìm kiếm
+//        mnuTimKiem.add(mniTimKiemThuoc);
+//        mnuTimKiem.add(mniTimKiemKhachHang);
+//        mnuTimKiem.add(mniTimKiemNhanVien);
+//        mnuTimKiem.add(mniHoaDon);
+//        mnuTimKiem.add(mniPhieuDatThuoc);
+//        mnuTimKiem.add(mniPhieuDoiTra);
+//        mnuTimKiem.add(mniXemPhieuNhap);
+//
+//        // Xử lý
+//        mnuXuLy.add(mniLapHoaDon);
+//        mnuXuLy.add(mniLapPhieuDatThuoc);
+//        mnuXuLy.add(mniLapPhieuTraThuoc);
+//        mnuXuLy.add(mniNhapThuoc);
         
         // Thống kê
-        mnuDoanhThu.add(mniDoanhThuTheoThang);
-        mnuDoanhThu.add(mniDoanhThuTheoNam);
+//        mnuDoanhThu.add(mniDoanhThuTheoThang);
+//        mnuDoanhThu.add(mniDoanhThuTheoNam);
         
-        mnuThongKe.add(mnuDoanhThu);
-        mnuThongKe.add(mniNhanVien);
-        mnuThongKe.add(mniKhachHang);
-//        mnuThongKe.add(mniThue);
-        mnuThongKe.add(mniHanSuDung);
-        mnuThongKe.add(mniThuocDuocMuaNhieu);
-
-        // Thêm vào Menubar chính
-        mnuMenuBar.add(mnuHeThong);
-        mnuMenuBar.add(mnuCapNhat);
-        mnuMenuBar.add(mnuTimKiem);
-        mnuMenuBar.add(mnuXuLy);
-        mnuMenuBar.add(mnuThongKe);
+//        mnuThongKe.add(mnuDoanhThu);
+//        mnuThongKe.add(mniNhanVien);
+//        mnuThongKe.add(mniKhachHang);
+////        mnuThongKe.add(mniThue);
+//        mnuThongKe.add(mniHanSuDung);
+//        mnuThongKe.add(mniThuocDuocMuaNhieu);
+//
+//        // Thêm vào Menubar chính
+//        mnuMenuBar.add(mnuHeThong);
+//        mnuMenuBar.add(mnuCapNhat);
+//        mnuMenuBar.add(mnuTimKiem);
+//        mnuMenuBar.add(mnuXuLy);
+//        mnuMenuBar.add(mnuThongKe);
+        
+        
+//        this.setPreferredSize(new Dimension(0,10));
+//        this.setBorder(BorderFactory.createEmptyBorder(20,20,20,20));
+        
         //Tạo khoảng cách giữa mnubar và tên nhân viên
-        mnuMenuBar.add(Box.createHorizontalGlue());
+//        mnuMenuBar.add(Box.createHorizontalGlue());
+//        mnuMenuBar.add(lblTenNhanVien);
+//        mnuMenuBar.add(Box.createHorizontalStrut(10));
+
         
         
 
-        mnuMenuBar.add(lblTenNhanVien);
-        mnuMenuBar.add(Box.createHorizontalStrut(10));
+        // JToolBar
+        JToolBar tb = createModernToolbar(tenNhanVien);
+        JPanel pnlToolbarWrapper = new JPanel(new BorderLayout());
+        pnlToolbarWrapper.setBackground(Color.white);
+        pnlToolbarWrapper.putClientProperty("FlatLaf.style", "arc: 25"); 
+        pnlToolbarWrapper.add(tb, BorderLayout.CENTER);
+        pnlToolbarWrapper.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        
         this.setLayout(new BorderLayout());
-        this.add(mnuMenuBar, BorderLayout.CENTER);
+//        this.setBackground(BG_COLOR);
+        this.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        this.add(pnlToolbarWrapper, BorderLayout.CENTER);
         
     }
 
@@ -328,6 +361,8 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 		else if (o == mniCapNhatKhuyenMai) parentFrame.showCapNhatKhuyenMaiPanel();
 		
 		else if(o == mniCapNhatChucVu) parentFrame.showCapNhatChucVuPanel();
+		
+		else if(o == mniCapNhatDonVi) parentFrame.showCapNhatDonViPanel();
 		
 		else if (o == mniXemPhieuNhap) parentFrame.showPhieuNhap();
 		
@@ -400,7 +435,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 		}
 		else if(o == mniHoTro) {
 			try {
-				URL fileURL = App.class.getResource("/resources/pdf/HuongDanSuDungPhanMem.pdf");
+				URL fileURL = App.class.getResource("/pdf/HuongDanSuDungPhanMem.pdf");
 				if(fileURL != null) {
 					File file = new File(fileURL.toURI());
 					if(file.exists()) {
@@ -438,4 +473,133 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         }
         return null;
     }
+    
+    private JToolBar createModernToolbar(String tenNhanVien) {
+        // === TOOLBAR ===
+        JToolBar toolBar = new JToolBar();
+        toolBar.setFloatable(false);
+        toolBar.setBackground(Color.white);
+        
+        // Font menu
+        Font fontMenu = new Font("Segoe UI", Font.BOLD, 15);
+
+
+        // ---- BUTTON MENU CHÍNH ----
+        JButton btnHeThong = createToolbarButton("Hệ thống", "/resources/icon/system_icon.png", fontMenu);
+        JButton btnCapNhat = createToolbarButton("Danh mục", "/resources/icon/task_icon.png", fontMenu);
+        JButton btnTimKiem = createToolbarButton("Tìm kiếm", "/resources/icon/magnifier_icon.png", fontMenu);
+        JButton btnXuLy = createToolbarButton("Xử lý", "/resources/icon/update_icon.png", fontMenu);
+        JButton btnThongKe = createToolbarButton("Thống kê", "/resources/icon/chart_icon.png", fontMenu);
+
+        // === POPUP MENU ===
+        JPopupMenu popHeThong = new JPopupMenu();
+        popHeThong.add(mniHoTro);
+        popHeThong.add(mniDatLai);
+        popHeThong.add(mniTaiKhoan);
+        popHeThong.add(mniDangXuat);
+        popHeThong.add(mniThoat);
+
+        JPopupMenu popCapNhat = new JPopupMenu();
+        popCapNhat.add(mniCapNhatThuoc);
+        popCapNhat.add(mniCapNhatKhachHang);
+        popCapNhat.add(mniCapNhatNhanVien);
+        popCapNhat.add(mniCapNhatKhuyenMai);
+        popCapNhat.add(mniCapNhatChucVu);
+        popCapNhat.add(mniCapNhatDonVi);
+
+        JPopupMenu popTimKiem = new JPopupMenu();
+        popTimKiem.add(mniTimKiemThuoc);
+        popTimKiem.add(mniTimKiemKhachHang);
+        popTimKiem.add(mniTimKiemNhanVien);
+        popTimKiem.add(mniHoaDon);
+        popTimKiem.add(mniPhieuDatThuoc);
+        popTimKiem.add(mniPhieuDoiTra);
+        popTimKiem.add(mniXemPhieuNhap);
+
+        JPopupMenu popXuLy = new JPopupMenu();
+        popXuLy.add(mniLapHoaDon);
+        popXuLy.add(mniLapPhieuDatThuoc);
+        popXuLy.add(mniLapPhieuTraThuoc);
+        popXuLy.add(mniNhapThuoc);
+
+        JPopupMenu popThongKe = new JPopupMenu();
+        popThongKe.add(mniDoanhThuTheoThang);
+        popThongKe.add(mniDoanhThuTheoNam);
+        popThongKe.add(mniNhanVien);
+        popThongKe.add(mniKhachHang);
+        popThongKe.add(mniHanSuDung);
+        popThongKe.add(mniThuocDuocMuaNhieu);
+
+        // === GÁN POPUP ===
+        attachPopup(btnHeThong, popHeThong);
+        attachPopup(btnCapNhat, popCapNhat);
+        attachPopup(btnTimKiem, popTimKiem);
+        attachPopup(btnXuLy, popXuLy);
+        attachPopup(btnThongKe, popThongKe);
+
+        // =========== ADD BUTTONS ============
+        toolBar.add(btnHeThong);
+        toolBar.add(Box.createHorizontalStrut(10));
+        toolBar.add(btnCapNhat);
+        toolBar.add(Box.createHorizontalStrut(10));
+        toolBar.add(btnTimKiem);
+        toolBar.add(Box.createHorizontalStrut(10));
+        toolBar.add(btnXuLy);
+        toolBar.add(Box.createHorizontalStrut(10));
+        toolBar.add(btnThongKe);
+
+        toolBar.add(Box.createHorizontalGlue()); // đẩy label qua phải
+
+        // === LABEL CHÀO MỪNG ===
+        JPanel pnlUser = new JPanel(new BorderLayout());
+        pnlUser.putClientProperty("FlatLaf.style", "arc: 50"); 
+        pnlUser.setBackground(PRIMARY_COLOR);
+
+        JLabel lblUser = new JLabel("Chào mừng: " + tenNhanVien + "  ");
+        lblUser.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        lblUser.setForeground(Color.WHITE);
+        lblUser.setBorder(BorderFactory.createEmptyBorder(10,20,10,20));
+        
+        pnlUser.setMaximumSize(lblUser.getPreferredSize());
+        pnlUser.add(lblUser);
+        
+        toolBar.add(pnlUser);
+
+        return toolBar;
+    }
+    private void attachPopup(JButton btn, JPopupMenu popup) {
+        btn.addActionListener(e -> {
+            popup.show(btn, 0, btn.getHeight());
+        });
+    }
+    private JButton createToolbarButton(String text, String iconPath, Font font) {
+        JButton btn = new JButton(text, loadIcon(iconPath));
+
+        Dimension size = new Dimension(120, 40);
+        btn.setPreferredSize(size);
+        btn.setMaximumSize(size);
+        
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setBackground(PRIMARY_BLUE);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        
+        return btn;
+    }
+    private void addHotkey(JComponent root, KeyStroke key, Runnable action) {
+        String name = "hk_" + key.toString();
+        root.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(key, name);
+        root.getActionMap().put(name, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                action.run();
+            }
+        });
+    }
+
+
+
+
 }
