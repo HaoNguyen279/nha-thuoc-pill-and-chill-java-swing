@@ -164,6 +164,7 @@ CREATE TABLE PhieuDat (
     ngayDat DATE,
     maKH VARCHAR(50),
 	ghiChu NVARCHAR(200),
+    isReceived BIT DEFAULT 0, -- 0: Chưa nhận, 1: Đã nhận
 	isActive bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)

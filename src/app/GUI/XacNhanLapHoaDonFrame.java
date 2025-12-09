@@ -7,8 +7,10 @@ import app.DAO.KhachHangDAO;
 import app.DAO.HoaDonDAO;
 import app.DAO.NhanVienDAO;
 import app.DAO.TonKhoDAO;
+import app.DAO.PhieuDatDAO;
 import app.Entity.KhachHang;
 import app.Entity.NhanVien;
+import app.Entity.PhieuDat;
 import app.ConnectDB.ConnectDB;
 
 import java.awt.BorderLayout;
@@ -62,6 +64,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
     private DefaultTableModel modelChiTiet;
     
     private String maNhanVienLap; // Store employee ID for later use
+    private PhieuDat phieuDatDuocChon; // Phiếu đặt được chọn để lập hóa đơn
     
     public XacNhanLapHoaDonFrame(ArrayList<Object[]> dsChiTietData, double tongTien, String maHoaDon, String maNhanVien) {
         this.dsChiTietData = dsChiTietData;
@@ -101,6 +104,13 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         this(dsChiTietData, tongTien, maHoaDon, maNhanVien);
         // Set thông tin khách hàng sau khi tạo GUI
         setThongTinKhachHang(soDienThoaiKH, tenKhachHang);
+    }
+    
+    // Constructor với phiếu đặt để cập nhật trạng thái sau khi lập hóa đơn
+    public XacNhanLapHoaDonFrame(ArrayList<Object[]> dsChiTietData, double tongTien, String maHoaDon, 
+                                String maNhanVien, String soDienThoaiKH, String tenKhachHang, PhieuDat phieuDat) {
+        this(dsChiTietData, tongTien, maHoaDon, maNhanVien, soDienThoaiKH, tenKhachHang);
+        this.phieuDatDuocChon = phieuDat;
     }
     
     private void createGUI() {
@@ -813,11 +823,11 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             boolean success = false;
             
             try {
-                // Trước khi lưu, kiểm tra xem có đủ số lượng tồn kho không
+                // Trước khi lưu, kiểm tra xem có đủ số lượng available stock không (xét đến phiếu đặt trước)
                 TonKhoDAO tonKhoDAO = new TonKhoDAO();
-                if (!tonKhoDAO.kiemTraDuSoLuong(dsChiTietData)) {
+                if (!tonKhoDAO.kiemTraDuSoLuongAvailable(dsChiTietData)) {
                     CustomJOptionPane warningPane = new CustomJOptionPane(this,
-                        "Không đủ số lượng thuốc trong kho để hoàn tất giao dịch. Vui lòng kiểm tra lại.",
+                        "Không đủ số lượng thuốc khả dụng trong kho để hoàn tất giao dịch. Vui lòng kiểm tra lại.",
                         false);
                     warningPane.show();
                     return;
@@ -834,6 +844,27 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 if (success) {
                     // Sau khi lưu hóa đơn thành công, cập nhật số lượng tồn kho
                     updateInventory(dsChiTietData);
+                    
+                    // Cập nhật trạng thái phiếu đặt thành đã nhận (true) nếu hóa đơn được lập từ phiếu đặt
+                    if (phieuDatDuocChon != null) {
+                        try {
+                            PhieuDatDAO phieuDatDAO = new PhieuDatDAO();
+                            boolean updateSuccess = phieuDatDAO.updateReceivedStatus(phieuDatDuocChon.getMaPhieuDat(), true);
+                            if (!updateSuccess) {
+                                CustomJOptionPane warningPane = new CustomJOptionPane(this,
+                                    "Cảnh báo: Không thể cập nhật trạng thái phiếu đặt " + phieuDatDuocChon.getMaPhieuDat() + 
+                                    ".\nHóa đơn đã được lưu thành công.",
+                                    false);
+                                warningPane.show();
+                            }
+                        } catch (Exception ex) {
+                            CustomJOptionPane warningPane = new CustomJOptionPane(this,
+                                "Cảnh báo: Lỗi khi cập nhật trạng thái phiếu đặt: " + ex.getMessage() + 
+                                ".\nHóa đơn đã được lưu thành công.",
+                                false);
+                            warningPane.show();
+                        }
+                    }
                     
                     // Cập nhật điểm tích lũy cho khách hàng
                     hoaDonDAO.capNhatDiemTichLuy(maHoaDon);

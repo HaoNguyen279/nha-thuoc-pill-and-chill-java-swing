@@ -8,11 +8,12 @@ public class PhieuDat {
     private String maKH;
     private String ghiChu; 
     private boolean isActive; // true = đơn đặt hàng đang có hiệu lực, false = đã hủy/ẩn
+    private boolean isReceived; // true = đã nhận hàng, false = chưa nhận
 
     public PhieuDat() {
     }
 
-    // Constructor đã được cập nhật
+    // Constructor cũ để tương thích ngược (isReceived mặc định là false)
     public PhieuDat(String maPhieuDat, String maNV, Date ngayDat, String maKH, String ghiChu, boolean isActive) {
         this.maPhieuDat = maPhieuDat;
         this.maNV = maNV;
@@ -20,6 +21,18 @@ public class PhieuDat {
         this.maKH = maKH;
         this.ghiChu = ghiChu; 
         this.isActive = isActive;
+        this.isReceived = false; // Mặc định chưa nhận
+    }
+
+    // Constructor đã được cập nhật
+    public PhieuDat(String maPhieuDat, String maNV, Date ngayDat, String maKH, String ghiChu, boolean isActive, boolean isReceived) {
+        this.maPhieuDat = maPhieuDat;
+        this.maNV = maNV;
+        this.ngayDat = ngayDat;
+        this.maKH = maKH;
+        this.ghiChu = ghiChu; 
+        this.isActive = isActive;
+        this.isReceived = isReceived;
     }
 
     public String getMaPhieuDat() {
@@ -71,6 +84,14 @@ public class PhieuDat {
     public void setIsActive(boolean isActive) {
         this.isActive = isActive;
     }
+
+    public boolean isReceived() {
+        return isReceived;
+    }
+
+    public void setReceived(boolean isReceived) {
+        this.isReceived = isReceived;
+    }
     
     // --- Phương thức tiện ích ---
     
@@ -94,6 +115,7 @@ public class PhieuDat {
                 ", maKH='" + maKH + '\'' +
                 ", ghiChu='" + ghiChu + '\'' + 
                 ", isActive=" + isActive +
+                ", isReceived=" + isReceived +
                 '}';
     }
 }
