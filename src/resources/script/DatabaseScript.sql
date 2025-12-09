@@ -2551,6 +2551,13 @@ GO
 
 
 
+-- PROCEDURE Lấy về hóa đơn trong tháng x năm y
+-- Param: Tháng và Năm cần thống kê
+-- Return: data toàn bộ hóa đơn kèm tính sẵn tổng tiền
+
+
+-- new procedure right over here
+
 
 
 --==============================  KHÁCH HÀNG ==============================--

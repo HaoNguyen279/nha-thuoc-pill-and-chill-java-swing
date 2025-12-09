@@ -10,9 +10,11 @@ import java.util.ArrayList;
 import java.util.Date;
 
 import app.ConnectDB.ConnectDB;
+import app.DTO.HoaDonKemGiaDTO;
 import app.Entity.DoanhThuHoaDon;
 import app.Entity.DoanhThuTheoThang;
 import app.Entity.HoaDon;
+import app.Entity.NhanVien;
 import app.Entity.ThongKeNhanVien;
 
 /**
@@ -757,6 +759,7 @@ public class HoaDonDAO {
     
     /**
      * Lấy doanh thu của nhân viên theo tháng trong năm
+     * Hao
      */
     public ArrayList<DoanhThuTheoThang> thongKeDoanhThuNhanVienTheoThang(String maNV, int nam) {
         ArrayList<DoanhThuTheoThang> dsDoanhThu = new ArrayList<>();
@@ -790,6 +793,125 @@ public class HoaDonDAO {
         
         return dsDoanhThu;
     }
+    
+    /**
+     * Lấy list năm có hóa đơn
+     * Hao
+     */
+    public ArrayList<Integer> getNamCoHoaDon() {
+        ArrayList<Integer> res = new ArrayList<>();
+        String sql = "select distinct year(ngayBan) as nam from HoaDon";
+        Connection con = ConnectDB.getInstance().getConnection();
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                int nam = rs.getInt("nam");
+                res.add(nam);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    	return res;
+    }
+    
+    /**
+     * Lấy hóa đơn theo tháng, năm 
+     * Hao
+     */
+    public ArrayList<HoaDonKemGiaDTO> getHoaDonTrongThang(int thang, int nam) {
+        ArrayList<HoaDonKemGiaDTO> dsHoaDonKemGia = new ArrayList<>();
+        String sql = "SELECT hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu, SUM(cthd.donGia*cthd.soLuong ) as tongTien\n"
+        		+ "FROM HoaDon hd JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
+        		+ "	JOIN NhanVien nv ON nv.maNV = hd.maNV\n"
+        		+ "	JOIN ChiTietHoaDon cthd ON cthd.maHoaDon = hd.maHoaDon\n"
+        		+ "WHERE hd.isActive = 1 AND datepart(MM, hd.ngayBan) = ? AND year(hd.ngayBan) = ?\n"
+        		+ "GROUP BY hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu\n"
+        		+ "ORDER BY ngayBan DESC, hd.maHoaDon DESC";
+        
+
+        try {
+            Connection con = ConnectDB.getInstance().getConnection();
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, thang);
+            stmt.setInt(2, nam);
+            ResultSet rs = stmt.executeQuery();
+            
+            while(rs.next()) {
+            	dsHoaDonKemGia.add(mapResToInvoiceWithTotal(rs));
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return dsHoaDonKemGia;
+    }
+    
+    /**
+     * Lấy hóa đơn theo năm
+     * Hao
+     */
+    public ArrayList<HoaDonKemGiaDTO> getHoaDonTrongNam(int nam) {
+        ArrayList<HoaDonKemGiaDTO> dsHoaDonKemGia = new ArrayList<>();
+        String sql = "SELECT hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu, SUM(cthd.donGia*cthd.soLuong ) as tongTien\n"
+        		+ "FROM HoaDon hd JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
+        		+ "	JOIN NhanVien nv ON nv.maNV = hd.maNV\n"
+        		+ "	JOIN ChiTietHoaDon cthd ON cthd.maHoaDon = hd.maHoaDon\n"
+        		+ "WHERE hd.isActive = 1 AND year(hd.ngayBan) = ?\n"
+        		+ "GROUP BY hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu\n"
+        		+ "ORDER BY ngayBan DESC, hd.maHoaDon DESC";
+
+        try {
+            Connection con = ConnectDB.getInstance().getConnection();
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, nam);
+            ResultSet rs = stmt.executeQuery();
+            
+            while(rs.next()) {
+            	dsHoaDonKemGia.add(mapResToInvoiceWithTotal(rs));
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return dsHoaDonKemGia;
+    }
+    /**
+     * Clone function, map res to invoice with total
+     * Hao
+     */
+    
+    private HoaDonKemGiaDTO mapResToInvoiceWithTotal(ResultSet rs) throws SQLException {
+        return new HoaDonKemGiaDTO(
+            rs.getString("maHoaDon"),
+            rs.getString("tenNV"),
+            rs.getString("tenKH"),
+            rs.getDate("ngayBan"),
+            rs.getString("ghiChu"),
+            rs.getDouble("tongTien")
+        );
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     // lala
     public ArrayList<HoaDon> getAllHoaDon5Field() {
         ArrayList<HoaDon> dsHoaDon = new ArrayList<>();

@@ -1,14 +1,15 @@
 package app.GUI;
 
-
-
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridLayout;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -16,8 +17,8 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -26,334 +27,331 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import app.ConnectDB.ConnectDB;
 import app.DAO.ChucVuDAO;
-import app.DAO.KhachHangDAO;
-import app.DAO.KhachHangDAO;
 import app.Entity.ChucVu;
-import app.Entity.KhachHang;
-import app.Entity.KhachHang;
 
-public class CapNhatChucVuPanel extends JPanel implements ActionListener,MouseListener{
-	
-	private JLabel lblTieuDe;
+public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseListener {
+    
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
+    private final Color ACCENT_COLOR = new Color(255, 255, 255);
+    private final Color BG_COLOR = new Color(245, 245, 245);
+    private final Color TEXT_COLOR = new Color(51, 51, 51);
+    
+    private final Color BTN_ADD_COLOR = new Color(46, 204, 113);
+    private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
+    private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
+    private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
 
+    private JLabel lblTieuDe;
+    private JLabel lblMaChucVu;
+    private JLabel lblTenChucVu;
+    
+    private JTextField txtMaChucVu;
+    private JTextField txtTenChucVu;
 
-	private JTextField txtMaKh;
-	private JTextField txtTenKh;
-
-
-	private JButton btnXoa;
-	private JButton btnSua;
-	private JButton btnThem;
-	private JButton btnXoaTrang;
-	
-	private DefaultTableModel dtm;
-	private JTable tblChucVu;
-	
-
-	private JLabel lblMaChucVu;
-	private JLabel lblTenChucVu;
-	private JTextField txtMaChucVu;
-	private JTextField txtTenChucVu;
-	private ArrayList<ChucVu> dsChucVu;
-	private ChucVuDAO cvDao;
-	
-	public CapNhatChucVuPanel() {
-		
-		
-        lblTieuDe = new JLabel("Cập nhật chức vụ", SwingConstants.CENTER);
-        lblTieuDe.setFont(new Font("Arial", Font.BOLD, 24));
-        lblTieuDe.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
-
-        lblMaChucVu = new JLabel("Mã Chức Vụ:");
-        lblTenChucVu = new JLabel("Tên Chức Vụ:");
+    private JButton btnXoa;
+    private JButton btnSua;
+    private JButton btnThem;
+    private JButton btnXoaTrang;
+    
+    private DefaultTableModel dtm;
+    private JTable tblChucVu;
+    
+    private ArrayList<ChucVu> dsChucVu;
+    private ChucVuDAO cvDao;
+    
+    public CapNhatChucVuPanel() {
+        ConnectDB.getInstance().connect();
+        cvDao = new ChucVuDAO();
         
+        setLayout(new BorderLayout(10, 10));
+        setBackground(BG_COLOR);
+        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
         
-        txtMaChucVu= new JTextField(15);
-        txtTenChucVu = new JTextField(15);
-  
+        initHeader();
+        initInputForm();
+        initButtons();
         
-        btnXoa = new JButton("Xóa");
-        btnSua = new JButton("Sửa");
-        btnThem = new JButton("Thêm");
-        btnXoaTrang = new JButton("Xóa trắng");
-        
-        // Table init
         String[] cols = {"Mã chức vụ" , "Tên chức vụ"};
         dtm = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-               //all cells false, ngăn edit trên cell
                return false;
             }
         };
         
-        // Frame 
-        setLayout(new BorderLayout());
-        add(createTopPanel(),BorderLayout.NORTH);
+        JPanel pnlTop = new JPanel(new BorderLayout(0, 15));
+        pnlTop.setBackground(BG_COLOR);
+        pnlTop.add(lblTieuDe, BorderLayout.NORTH);
+        pnlTop.add(createInputPanel(), BorderLayout.CENTER);
+        pnlTop.add(createButtonPanel(), BorderLayout.SOUTH);
+        
+        add(pnlTop, BorderLayout.NORTH);
         add(createBotPanel(), BorderLayout.CENTER);
         
         loadChucVuData();
-        setBackground(new Color(248, 248, 248));
-        setVisible(true);
+    }
+
+    private void initHeader() {
+        lblTieuDe = new JLabel("QUẢN LÝ CHỨC VỤ", SwingConstants.CENTER);
+        lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        lblTieuDe.setForeground(PRIMARY_COLOR);
+    }
+
+    private void initInputForm() {
+        Font fontLabel = new Font("Segoe UI", Font.BOLD, 14);
+        Font fontText = new Font("Segoe UI", Font.PLAIN, 14);
+
+        lblMaChucVu = new JLabel("Mã chức vụ:");
+        lblMaChucVu.setFont(fontLabel);
         
-	}
-	
-	public JScrollPane createBotPanel() {
-        tblChucVu = new JTable(dtm);        
-        tblChucVu.setBackground(new Color(240, 240, 245));
-        tblChucVu.setGridColor(Color.LIGHT_GRAY);
-        tblChucVu.setFont(new Font("Arial", Font.PLAIN, 15));
-        tblChucVu.setRowHeight(40);
-        tblChucVu.setSelectionBackground(new Color(190, 226, 252));
-        tblChucVu.addMouseListener(this);
-        tblChucVu.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        JTableHeader header = tblChucVu.getTableHeader();
-        header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(0, 117, 196));
-        header.setForeground(Color.white);
-        header.setFont(new Font("Arial", Font.BOLD, 15));
-        JScrollPane scrollPane = new JScrollPane(tblChucVu);
-        scrollPane.setBorder(BorderFactory.createCompoundBorder(
-    		BorderFactory.createEmptyBorder(00,50,50,50),
-    		BorderFactory.createLineBorder(Color.GRAY, 2)
+        lblTenChucVu = new JLabel("Tên chức vụ:");
+        lblTenChucVu.setFont(fontLabel);
+        
+        txtMaChucVu = new JTextField();
+        txtMaChucVu.setFont(fontText);
+        
+        txtTenChucVu = new JTextField();
+        txtTenChucVu.setFont(fontText);
+    }
+
+    private JPanel createInputPanel() {
+        JPanel pnlForm = new JPanel(new GridBagLayout());
+        pnlForm.setBackground(ACCENT_COLOR);
+        pnlForm.setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+            BorderFactory.createEmptyBorder(20, 50, 20, 50)
         ));
+
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.1;
+        pnlForm.add(lblMaChucVu, gbc);
+        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.9;
+        pnlForm.add(txtMaChucVu, gbc);
+
+        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.1;
+        pnlForm.add(lblTenChucVu, gbc);
+        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.9;
+        pnlForm.add(txtTenChucVu, gbc);
+
+        return pnlForm;
+    }
+
+    private void initButtons() {
+        btnThem = createStyledButton("Thêm", BTN_ADD_COLOR);
+        btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
+        btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
+        btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
+
+        btnThem.addActionListener(this);
+        btnSua.addActionListener(this);
+        btnXoa.addActionListener(this);
+        btnXoaTrang.addActionListener(this);
+    }
+
+    private JButton createStyledButton(String text, Color bgColor) {
+        JButton btn = new JButton(text);
+        btn.setPreferredSize(new Dimension(120, 40));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btn.setBackground(bgColor);
+        btn.setForeground(Color.WHITE);
+        btn.setFocusPainted(false);
+        btn.setBorderPainted(false);
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        return btn;
+    }
+
+    private JPanel createButtonPanel() {
+        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
+        pnlButtons.setBackground(BG_COLOR);
+        pnlButtons.add(btnThem);
+        pnlButtons.add(btnSua);
+        pnlButtons.add(btnXoa);
+        pnlButtons.add(btnXoaTrang);
+        return pnlButtons;
+    }
+    
+    public JScrollPane createBotPanel() {
+        tblChucVu = new JTable(dtm) {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };        
+        
+        tblChucVu.setRowHeight(35);
+        tblChucVu.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tblChucVu.setFillsViewportHeight(true);
+        tblChucVu.setShowGrid(true);
+        tblChucVu.setGridColor(new Color(224, 224, 224));
+        tblChucVu.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblChucVu.setSelectionBackground(new Color(178, 223, 219));
+        tblChucVu.setSelectionForeground(Color.BLACK);
+        
+        JTableHeader header = tblChucVu.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(Color.WHITE);
+        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setReorderingAllowed(false);
+        
+        DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        tblChucVu.addMouseListener(this);
+        
+        JScrollPane scrollPane = new JScrollPane(tblChucVu);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
         return scrollPane;
-	}
-	
-	
-	public JPanel createTopPanel() {
+    }
+    
 
-		JPanel pnlMain = new JPanel(new BorderLayout());
-		JPanel pnlTopOfMain = new JPanel();
-		JPanel pnlCenterOfMain = new JPanel(new GridLayout(2,2,10,10));
-		JPanel pnlBottomOfMain = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-		
-		pnlMain.setBorder(BorderFactory.createEmptyBorder(0,30,0,30));
-		pnlTopOfMain.add(lblTieuDe);
-		
-		JPanel pnlr1 = new JPanel(new BorderLayout());
-		pnlr1.add(lblMaChucVu, BorderLayout.WEST);
-		pnlr1.add(txtMaChucVu);
-		pnlr1.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
-
-		JPanel pnlr2 = new JPanel(new BorderLayout());
-		pnlr2.add(lblTenChucVu, BorderLayout.WEST);
-		pnlr2.add(txtTenChucVu);
-		pnlr2.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
-		
-		
-		
-		
-		pnlCenterOfMain.add(pnlr1);
-		pnlCenterOfMain.add(pnlr2);
-	
-		
-		btnThem.setBackground(new Color(46, 204, 113));
-		btnXoa.setBackground(new Color(231, 76, 60));
-		btnSua.setBackground(new Color(52, 152, 219));
-		btnXoaTrang.setBackground(Color.WHITE);
-		
-		// JButton, JLabel, JTextField customization
-		JButton[] btnList = {btnXoa, btnThem, btnSua, btnXoaTrang};
-		for(JButton item : btnList) {
-			item.setFont(new Font("Arial", Font.BOLD, 16));
-			item.setForeground(Color.WHITE);
-			item.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-				BorderFactory.createEmptyBorder(15,45,15,45)
-			));
-			item.setFocusPainted(false);
-			item.setCursor(new Cursor(Cursor.HAND_CURSOR));
-			item.addActionListener(this);
-		}
-		btnXoaTrang.setForeground(Color.BLACK);
-        JLabel[] lblItems =  { lblMaChucVu, lblTenChucVu };
-        for(JLabel item : lblItems) {
-        	item.setFont(new Font("Arial", Font.PLAIN, 15));
-        	item.setPreferredSize(new Dimension(100,0));
-        }
-        JTextField[] txtItems =  { txtMaChucVu, txtTenChucVu };
-        for(JTextField item : txtItems) {
-        	item.setFont(new Font("Arial", Font.ITALIC, 16));
-        	item.setForeground(Color.BLUE); // Màu font 
-        	item.setBackground(new Color(245, 245, 245));
-        	item.setPreferredSize(new Dimension(200,20));
-        	item.setBorder(BorderFactory.createCompoundBorder(
-            	BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-        		BorderFactory.createEmptyBorder(5,10,5,10)
-        	));
-        }
-        
-        txtMaChucVu.setDisabledTextColor(Color.BLACK);
-		pnlBottomOfMain.add(btnXoaTrang);
-		pnlBottomOfMain.add(Box.createHorizontalStrut(10));
-		pnlBottomOfMain.add(btnXoa);
-		pnlBottomOfMain.add(Box.createHorizontalStrut(10));
-		pnlBottomOfMain.add(btnSua);
-		pnlBottomOfMain.add(Box.createHorizontalStrut(10));
-		pnlBottomOfMain.add(btnThem);
-		pnlBottomOfMain.add(Box.createHorizontalStrut(50));
-		
-		pnlMain.add(pnlTopOfMain,BorderLayout.NORTH);
-		pnlCenterOfMain.setPreferredSize(new Dimension(0,90));
-		pnlMain.add(pnlCenterOfMain, BorderLayout.CENTER);
-		pnlBottomOfMain.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
-		pnlMain.add(pnlBottomOfMain, BorderLayout.SOUTH);
-		
-		return pnlMain;
-	}
-	
-	public void loadChucVuData() {
-		ConnectDB.getInstance().connect();
-        
-        cvDao = new ChucVuDAO();
+    
+    public void loadChucVuData() {
         dsChucVu = cvDao.getAllChucVu();
-		dtm.setRowCount(0);
-		for(ChucVu cv : dsChucVu) {
-			Object[] rowData = {
-				cv.getMaChucVu(),
-				cv.getTenChucVu(),
-			};
-		dtm.addRow(rowData);
-		}
-	}
-	public void xoaTrang() {
-		loadChucVuData();
-	    txtMaChucVu.setText("");
-	    txtTenChucVu.setText("");
-	    txtMaChucVu.setEnabled(true);
-	}
+        dtm.setRowCount(0);
+        for(ChucVu cv : dsChucVu) {
+            Object[] rowData = {
+                cv.getMaChucVu(),
+                cv.getTenChucVu(),
+            };
+            dtm.addRow(rowData);
+        }
+    }
+    
+    public void xoaTrang() {
+        txtMaChucVu.setText("");
+        txtTenChucVu.setText("");
+        txtMaChucVu.setEnabled(true);
+        tblChucVu.clearSelection();
+        loadChucVuData();
+    }
 
-	@Override
-	public void actionPerformed(ActionEvent e) {
-		Object o = e.getSource();
-		if(o == btnXoa) {
-			int selectedRow = tblChucVu.getSelectedRow();
-			String maCV = tblChucVu.getValueAt(selectedRow, 0).toString();
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        Object o = e.getSource();
+        if(o == btnXoa) {
+            int selectedRow = tblChucVu.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn chức vụ cần xóa!");
+                return;
+            }
+            String maCV = tblChucVu.getValueAt(selectedRow, 0).toString();
 
-			CustomJOptionPane a = new CustomJOptionPane(this, "Có chắc muốn xóa chức vụ " + maCV, true);
-			int option = a.show();
-			if(option == JOptionPane.YES_OPTION) {
-				
-				boolean result =  cvDao.delete(maCV);
-				if(result) {
-					CustomJOptionPane a1 = new CustomJOptionPane(this, "Xóa chức vụ thành công!", false);
-					a1.show();
-					loadChucVuData();
-					xoaTrang();
-				}
-				else {
-					CustomJOptionPane a1 = new CustomJOptionPane(this, "Không thể xóa chức vụ này!\n"+"Hãy chắc chắn rằng chức vụ muốn xóa không có nhân viên", false);
-					a1.show();
-				}
-			}
-		}
-		else if(o == btnThem) {
-			if(validateInput(true)) {
-				String maChucVu = txtMaChucVu.getText();
-				String tenChucVu = txtTenChucVu.getText();
-				
-				
-				ChucVu cv = new ChucVu(maChucVu,tenChucVu,true);
-				boolean result = cvDao.insert(cv);
-				if(result) {
-					CustomJOptionPane a1 = new CustomJOptionPane(this, "Thêm chức vụ thành công!", false);
-					a1.show();
-					loadChucVuData();
-					xoaTrang();
-				}
-				else {
-					CustomJOptionPane a1 = new CustomJOptionPane(this, "Thêm chức vụ không thành công!", false);
-					a1.show();
-				}
-			}
-		}
-		else if(o == btnSua) {
-			if(validateInput(false)) {
-				String maChucVu = txtMaChucVu.getText();
-				String tenChucVu = txtTenChucVu.getText();
-				ChucVu cv = new ChucVu(maChucVu,tenChucVu,true);
-				boolean result = cvDao.update(cv);
-				if(result) {
-					CustomJOptionPane a1 = new CustomJOptionPane(this, "Cập nhật chức vụ thành công!", false);
-					a1.show();
-					loadChucVuData();
-					xoaTrang();
-				}
-				else {
-					CustomJOptionPane a1 = new CustomJOptionPane(this, "Cập nhật chức vụ không thành công!", false);
-					a1.show();
-				}
-			}
-		}
-		else if(o == btnXoaTrang) {
-			xoaTrang();
-		}
-		
-	}
-	private boolean validateInput(boolean isAddingNew) {
-	    loadChucVuData();
-	    // Kiểm tra các trường không được rỗng
-	    if (txtMaChucVu.getText().trim().isEmpty()) {
-	        CustomJOptionPane a1 = new CustomJOptionPane(this, "Mã chức vụ không được để trống!", false);
-	        a1.show();
-	        txtMaKh.requestFocus();
-	        return false;
-	    }
-	    if (txtTenChucVu.getText().trim().isEmpty()) {
-	        CustomJOptionPane a1 = new CustomJOptionPane(this, "Tên chức vụ không được để trống!", false);
-	        a1.show();
-	        txtTenKh.requestFocus();
-	        return false;
-	    }
-	    return true;
-	}
+            int option = JOptionPane.showConfirmDialog(this, 
+                    "Có chắc muốn xóa chức vụ " + maCV + "?", 
+                    "Xác nhận", 
+                    JOptionPane.YES_NO_OPTION);
+            
+            if(option == JOptionPane.YES_OPTION) {
+                boolean result = cvDao.delete(maCV);
+                if(result) {
+                    JOptionPane.showMessageDialog(this, "Xóa chức vụ thành công!");
+                    loadChucVuData();
+                    xoaTrang();
+                } else {
+                    JOptionPane.showMessageDialog(this, 
+                        "Không thể xóa chức vụ này!\nHãy chắc chắn rằng chức vụ muốn xóa không có nhân viên.");
+                }
+            }
+        }
+        else if(o == btnThem) {
+            if(validateInput(true)) {
+                String maChucVu = txtMaChucVu.getText().trim();
+                String tenChucVu = txtTenChucVu.getText().trim();
+                
+                ChucVu cv = new ChucVu(maChucVu, tenChucVu, true);
+                boolean result = cvDao.insert(cv);
+                if(result) {
+                    JOptionPane.showMessageDialog(this, "Thêm chức vụ thành công!");
+                    loadChucVuData();
+                    xoaTrang();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Thêm chức vụ không thành công!");
+                }
+            }
+        }
+        else if(o == btnSua) {
+            if(validateInput(false)) {
+                String maChucVu = txtMaChucVu.getText().trim();
+                String tenChucVu = txtTenChucVu.getText().trim();
+                
+                ChucVu cv = new ChucVu(maChucVu, tenChucVu, true);
+                boolean result = cvDao.update(cv);
+                if(result) {
+                    JOptionPane.showMessageDialog(this, "Cập nhật chức vụ thành công!");
+                    loadChucVuData();
+                    xoaTrang();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cập nhật chức vụ không thành công!");
+                }
+            }
+        }
+        else if(o == btnXoaTrang) {
+            xoaTrang();
+        }
+    }
+    
+    private boolean validateInput(boolean isAddingNew) {
+        if (txtMaChucVu.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Mã chức vụ không được để trống!");
+            txtMaChucVu.requestFocus();
+            return false;
+        }
+        if (txtTenChucVu.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Tên chức vụ không được để trống!");
+            txtTenChucVu.requestFocus();
+            return false;
+        }
+        
+        if (isAddingNew) {
+            String maMoi = txtMaChucVu.getText().trim();
+            for (ChucVu cv : dsChucVu) {
+                if (cv.getMaChucVu().equalsIgnoreCase(maMoi)) {
+                    JOptionPane.showMessageDialog(this, "Mã chức vụ đã tồn tại!");
+                    txtMaChucVu.requestFocus();
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
+    @Override
+    public void mouseClicked(MouseEvent e) {
         Object o = e.getSource();
         if(o == tblChucVu) {
             int row = tblChucVu.getSelectedRow();
             if (row >= 0) {
                 txtMaChucVu.setText(tblChucVu.getValueAt(row, 0).toString());
                 txtTenChucVu.setText(tblChucVu.getValueAt(row, 1).toString());
-  
                 txtMaChucVu.setEnabled(false);
-                
             }
         }
-		
-	}
+    }
 
-	@Override
-	public void mousePressed(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void mousePressed(MouseEvent e) {}
 
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void mouseReleased(MouseEvent e) {}
 
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    public void mouseEntered(MouseEvent e) {}
 
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-
+    @Override
+    public void mouseExited(MouseEvent e) {}
 }
-
