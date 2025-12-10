@@ -17,7 +17,7 @@ public class App {
             try {
                 ConnectDB.getInstance().connect();
                 FlatLightLaf.setup();
-                new MainFrame("nv001"); 
+                new DangNhapFrame();
             }catch (Exception e) {
                 e.printStackTrace();
                 JOptionPane.showMessageDialog(

@@ -98,7 +98,7 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
     }
 
     private void initHeader() {
-        lblTieuDe = new JLabel("QUẢN LÝ CHỨC VỤ / ĐƠN VỊ", SwingConstants.CENTER);
+        lblTieuDe = new JLabel("QUẢN LÝ ĐƠN VỊ", SwingConstants.CENTER);
         lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblTieuDe.setForeground(PRIMARY_COLOR);
     }
