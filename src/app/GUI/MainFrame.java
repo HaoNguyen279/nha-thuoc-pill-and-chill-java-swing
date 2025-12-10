@@ -66,8 +66,8 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(Color.WHITE);
         add(contentPanel, BorderLayout.CENTER);
-        LoThuocDAO loDAO = new LoThuocDAO();
-        loDAO.capNhatThuocHetHan();
+            // LoThuocDAO loDAO = new LoThuocDAO();
+            // loDAO.capNhatThuocHetHan();
         setVisible(true);
     }
     
@@ -114,7 +114,7 @@ public class MainFrame extends JFrame {
         
         // Thêm hình ảnh nền
         try {
-        	ImageIcon img = new ImageIcon(getClass().getResource("/resources/image/pharmacy.jpg"));
+        	ImageIcon img = new ImageIcon(getClass().getResource("/image/pharmacy.jpg"));
         	JLabel lblImg = new JLabel();
         	lblImg.setIcon(img);
             panel.add(lblImg, BorderLayout.CENTER);

@@ -437,4 +437,97 @@ public class TonKhoDAO {
             }
         }
     }
+
+    /**
+     * Tính toán số lượng tồn kho đã được reserved (đặt trước) cho một thuốc
+     * @param maThuoc mã thuốc cần kiểm tra
+     * @return số lượng đã được đặt trước
+     */
+    public int getSoLuongReserved(String maThuoc) {
+        Connection con = null;
+        try {
+            con = ConnectDB.getConnection();
+            
+            // Tính tổng số lượng đã đặt trước từ các phiếu đặt chưa nhận hàng
+            String sql = "SELECT SUM(ctpd.soLuong) as tongSoLuongDat " +
+                        "FROM ChiTietPhieuDat ctpd " +
+                        "INNER JOIN PhieuDat pd ON ctpd.maPhieuDat = pd.maPhieuDat " +
+                        "WHERE ctpd.maThuoc = ? AND ctpd.isActive = 1 AND pd.isActive = 1 AND pd.isReceived = 0";
+                        
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setString(1, maThuoc);
+            ResultSet rs = stmt.executeQuery();
+            
+            if (rs.next()) {
+                int soLuongReserved = rs.getInt("tongSoLuongDat");
+                rs.close();
+                stmt.close();
+                return soLuongReserved;
+            }
+            
+            rs.close();
+            stmt.close();
+            return 0;
+            
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * Tính toán số lượng tồn kho khả dụng (Available Stock = On Hand - Reserved)
+     * @param maThuoc mã thuốc cần kiểm tra
+     * @return số lượng khả dụng để bán
+     */
+    public int getSoLuongAvailable(String maThuoc) {
+        int onHand = getSoLuongTonKho(maThuoc);
+        int reserved = getSoLuongReserved(maThuoc);
+        return Math.max(0, onHand - reserved);
+    }
+
+    /**
+     * Kiểm tra số lượng tồn kho có đủ để bán hay không (xét đến số lượng đã đặt trước)
+     * @param dsChiTiet danh sách chi tiết thuốc [maThuoc, tenThuoc, soLuong, donGia]
+     * @return true nếu đủ số lượng, false nếu không đủ
+     */
+    public boolean kiemTraDuSoLuongAvailable(ArrayList<Object[]> dsChiTiet) {
+        for (Object[] item : dsChiTiet) {
+            String maThuoc = (String) item[0];
+            String tenThuoc = (String) item[1];
+            int soLuongCanMua = (Integer) item[2];
+            
+            // Lấy số lượng tồn thực tế (On Hand)
+            int onHand = getSoLuongTonKho(maThuoc);
+            
+            // Lấy số lượng đã đặt trước (Reserved)
+            int reserved = getSoLuongReserved(maThuoc);
+            
+            // Tính số lượng khả dụng (Available)
+            int available = Math.max(0, onHand - reserved);
+            
+            if (available < soLuongCanMua) {
+                // Hiển thị thông báo chi tiết về tồn kho
+                String message = "Không đủ số lượng thuốc " + tenThuoc + " (mã " + maThuoc + ") khả dụng!\n\n" +
+                               "📦 Tồn kho thực tế (On Hand): " + onHand + " viên\n" +
+                               "🔒 Đã đặt trước (Reserved): " + reserved + " viên\n" +
+                               "✅ Khả dụng để bán (Available): " + available + " viên\n\n" +
+                               "❌ Cần: " + soLuongCanMua + " viên\n" +
+                               "💡 Đề xuất: Chỉ có thể bán tối đa " + available + " viên";
+                
+                if (reserved > 0) {
+                    message += "\n\n⚠️ Lý do: " + reserved + " viên đã được khách khác đặt trước.";
+                }
+                
+                javax.swing.JOptionPane.showMessageDialog(null,
+                    message,
+                    "Cảnh báo tồn kho",
+                    javax.swing.JOptionPane.WARNING_MESSAGE);
+                    
+                return false;
+            }
+        }
+        
+        return true;
+    }
 }

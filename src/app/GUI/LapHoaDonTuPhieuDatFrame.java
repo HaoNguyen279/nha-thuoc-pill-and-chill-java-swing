@@ -609,14 +609,15 @@ public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
                 }
             }
             
-            // Mở frame xác nhận lập hóa đơn với thông tin khách hàng
+            // Mở frame xác nhận lập hóa đơn với thông tin khách hàng và phiếu đặt
             new XacNhanLapHoaDonFrame(
                 dsChiTietHoaDon, 
                 tongTien, 
                 maHoaDon, 
                 maNhanVien,
                 soDienThoaiKH,
-                tenKhachHang
+                tenKhachHang,
+                phieuDatDuocChon
             );
             
             // Đóng frame hiện tại

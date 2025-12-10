@@ -1,11 +1,23 @@
 USE master
 GO
-DROP database QuanLyNhaThuoc; 
+
+-- Kiểm tra nếu database tồn tại thì xóa (để làm sạch hoàn toàn)
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'QuanLyNhaThuoc')
+BEGIN
+    ALTER DATABASE QuanLyNhaThuoc SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE QuanLyNhaThuoc;
+END
 GO
+
 CREATE DATABASE QuanLyNhaThuoc;
 GO
+
 USE QuanLyNhaThuoc;
 GO
+
+-- ===============================================
+-- TẠO CẤU TRÚC BẢNG
+-- ===============================================
 
 -- Tạo bảng NhaSanXuat
 CREATE TABLE NhaSanXuat (
@@ -26,12 +38,11 @@ CREATE TABLE LoThuoc (
 );
 GO
 
-
 -- Tạo bảng Thuoc
 CREATE TABLE Thuoc (
     maThuoc VARCHAR(50) PRIMARY KEY,
     tenThuoc NVARCHAR(100),
-    soLuongTon INT, -- Tổng số lượng tồn (sẽ được cập nhật bằng Trigger)
+    soLuongTon INT DEFAULT 0, -- Tổng số lượng tồn
     giaBan FLOAT,
     donVi NVARCHAR(50),
     soLuongToiThieu INT,
@@ -40,6 +51,7 @@ CREATE TABLE Thuoc (
 	FOREIGN KEY (maNSX) REFERENCES NhaSanXuat(maNSX)
 );
 GO
+
 -- Tạo bảng ChiTietLoThuoc (Chi tiết tồn kho theo lô)
 CREATE TABLE ChiTietLoThuoc (
     maLo VARCHAR(50),
@@ -53,8 +65,8 @@ CREATE TABLE ChiTietLoThuoc (
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc)
 );
-
 GO
+
 -- Tạo bảng KhachHang
 CREATE TABLE KhachHang (
     maKH VARCHAR(50) PRIMARY KEY,
@@ -73,7 +85,7 @@ CREATE TABLE ChucVu (
 );
 GO
 
--- TẠO BẢNG NHANVIEN (Sử dụng maChucVu)
+-- TẠO BẢNG NHANVIEN
 CREATE TABLE NhanVien (
     maNV VARCHAR(50) PRIMARY KEY,
     tenNV NVARCHAR(100),
@@ -83,6 +95,7 @@ CREATE TABLE NhanVien (
 	FOREIGN KEY (maChucVu) REFERENCES ChucVu(maChucVu)
 );
 GO
+
 -- Tạo bảng TaiKhoan
 CREATE TABLE TaiKhoan(
 	maNV VARCHAR(50) PRIMARY KEY,
@@ -91,6 +104,7 @@ CREATE TABLE TaiKhoan(
 	FOREIGN KEY (maNV)	REFERENCES NhanVien(maNV)
 );
 GO
+
 -- Tạo bảng KhuyenMai
 CREATE TABLE KhuyenMai (
     maKM VARCHAR(50) PRIMARY KEY,
@@ -101,7 +115,7 @@ CREATE TABLE KhuyenMai (
 );
 GO
 
--- TẠO BẢNG HOADON (Sử dụng giaTriThue và tenLoaiThue)
+-- TẠO BẢNG HOADON
 CREATE TABLE HoaDon (
     maHoaDon VARCHAR(50) PRIMARY KEY,
     ngayBan DATE,
@@ -117,20 +131,22 @@ CREATE TABLE HoaDon (
 	FOREIGN KEY (maKM) REFERENCES KhuyenMai(maKM)
 );
 GO
--- Tạo bảng ChiTietHoaDon (ĐÃ CẬP NHẬT)
+
+-- Tạo bảng ChiTietHoaDon
 CREATE TABLE ChiTietHoaDon (
     maHoaDon VARCHAR(50),
     maThuoc VARCHAR(50),
-    maLo VARCHAR(50), -- Thêm mã lô
+    maLo VARCHAR(50),
     soLuong INT,
 	donGia FLOAT,
 	isActive bit DEFAULT 1,
-    PRIMARY KEY (maHoaDon, maThuoc, maLo), -- Thay đổi khóa chính
+    PRIMARY KEY (maHoaDon, maThuoc, maLo),
     FOREIGN KEY (maHoaDon) REFERENCES HoaDon(maHoaDon),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
-	FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo) -- Thêm khóa ngoại cho mã lô
+	FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo)
 );
 GO
+
 -- Tạo bảng PhieuDoiTra
 CREATE TABLE PhieuDoiTra (
     maPhieuDoiTra VARCHAR(50) PRIMARY KEY,
@@ -142,7 +158,8 @@ CREATE TABLE PhieuDoiTra (
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
 );
 GO
--- Tạo bảng ChiTietPhieuDoiTra (ĐÃ CẬP NHẬT KHÓA CHÍNH)
+
+-- Tạo bảng ChiTietPhieuDoiTra
 CREATE TABLE ChiTietPhieuDoiTra (
     maPhieuDoiTra VARCHAR(50),
     maThuoc VARCHAR(50),
@@ -151,38 +168,42 @@ CREATE TABLE ChiTietPhieuDoiTra (
     maLo VARCHAR(50),
     lyDo NVARCHAR(200),
 	isActive bit DEFAULT 1,
-    PRIMARY KEY (maPhieuDoiTra, maThuoc, maLo), -- Sửa khóa chính
+    PRIMARY KEY (maPhieuDoiTra, maThuoc, maLo),
     FOREIGN KEY (maPhieuDoiTra) REFERENCES PhieuDoiTra(maPhieuDoiTra),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo)
 );
 GO
--- Tạo bảng PhieuDat (ĐÃ CẬP NHẬT)
+
+-- Tạo bảng PhieuDat
 CREATE TABLE PhieuDat (
     maPhieuDat VARCHAR(50) PRIMARY KEY,
     maNV VARCHAR(50),
     ngayDat DATE,
     maKH VARCHAR(50),
 	ghiChu NVARCHAR(200),
+    isReceived BIT DEFAULT 0, -- 0: Chưa nhận, 1: Đã nhận
 	isActive bit DEFAULT 1,
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV),
     FOREIGN KEY (maKH) REFERENCES KhachHang(maKH)
 );
 GO
--- Tạo bảng ChiTietPhieuDat (ĐÃ CẬP NHẬT)
+
+-- Tạo bảng ChiTietPhieuDat
 CREATE TABLE ChiTietPhieuDat (
     maPhieuDat VARCHAR(50),
     maThuoc VARCHAR(50),
-    maLo VARCHAR(50), -- Thêm mã lô
+    maLo VARCHAR(50), 
     tenThuoc NVARCHAR(100),
     soLuong INT,
 	isActive bit DEFAULT 1,
-    PRIMARY KEY (maPhieuDat, maThuoc, maLo), -- Thay đổi khóa chính
+    PRIMARY KEY (maPhieuDat, maThuoc, maLo),
     FOREIGN KEY (maPhieuDat) REFERENCES PhieuDat(maPhieuDat),
     FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
-	FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo) -- Thêm khóa ngoại cho mã lô
+	FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo)
 );
 GO
+
 -- Tạo bảng PhieuNhapThuoc
 CREATE TABLE PhieuNhapThuoc (
     maPhieuNhapThuoc VARCHAR(50) PRIMARY KEY,
@@ -192,6 +213,7 @@ CREATE TABLE PhieuNhapThuoc (
     FOREIGN KEY (maNV) REFERENCES NhanVien(maNV)
 );
 GO
+
 -- Tạo bảng ChiTietPhieuNhap
 CREATE TABLE ChiTietPhieuNhap (
     maPhieuNhapThuoc VARCHAR(50),
@@ -200,7 +222,7 @@ CREATE TABLE ChiTietPhieuNhap (
 	soLuong INT,
 	donGia FLOAT,
 	isActive bit DEFAULT 1,
-    PRIMARY KEY (maPhieuNhapThuoc, maLo,maThuoc),
+    PRIMARY KEY (maPhieuNhapThuoc, maLo, maThuoc),
     FOREIGN KEY (maPhieuNhapThuoc) REFERENCES PhieuNhapThuoc(maPhieuNhapThuoc),
 	FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
     FOREIGN KEY (maLo) REFERENCES LoThuoc(maLo)
@@ -208,46 +230,9 @@ CREATE TABLE ChiTietPhieuNhap (
 GO
 
 -- ===============================================
--- XÓA DỮ LIỆU CŨ (Nếu có, để đảm bảo chạy lại thành công)
--- ===============================================
-
-USE QuanLyNhaThuoc;
-GO
-
--- Tắt kiểm tra khóa ngoại để xóa dữ liệu dễ dàng
-EXEC sp_MSforeachtable "ALTER TABLE ? NOCHECK CONSTRAINT all"
-GO
-
--- Xóa dữ liệu cũ
-DELETE FROM ChiTietPhieuNhap;
-DELETE FROM PhieuNhapThuoc;
-DELETE FROM ChiTietPhieuDat;
-DELETE FROM PhieuDat;
-DELETE FROM ChiTietPhieuDoiTra;
-DELETE FROM PhieuDoiTra;
-DELETE FROM ChiTietHoaDon;
-DELETE FROM HoaDon;
-DELETE FROM TaiKhoan;
-DELETE FROM ChiTietLoThuoc;
-DELETE FROM Thuoc;
-DELETE FROM LoThuoc;
-DELETE FROM KhuyenMai;
-DELETE FROM NhanVien;
-DELETE FROM ChucVu;
-DELETE FROM KhachHang;
-DELETE FROM NhaSanXuat;
-GO
-
--- Bật lại kiểm tra khóa ngoại
-EXEC sp_MSforeachtable "ALTER TABLE ? CHECK CONSTRAINT all"
-GO
-
--- ===============================================
 -- CHÈN DỮ LIỆU MẪU
 -- ===============================================
 
-use QuanLyNhaThuoc
-go
 -- Chèn dữ liệu vào bảng NhaSanXuat
 INSERT INTO NhaSanXuat (maNSX, tenNSX, diaChiNSX, soDienThoai) VALUES
 ('NSX001', N'Công ty Cổ phần Dược Hậu Giang', N'288 Bis Nguyễn Văn Cừ, P. An Hòa, Q. Ninh Kiều, Cần Thơ', '0292123456'),
@@ -301,7 +286,7 @@ INSERT INTO KhachHang (maKH, tenKH, soDienThoai, diemTichLuy) VALUES
 ('KH035', N'Diệp Văn Xuân', '0945678904', 80);
 GO
 
--- Chèn dữ liệu vào bảng ChucVu (Bảng mới)
+-- Chèn dữ liệu vào bảng ChucVu
 INSERT INTO ChucVu (maChucVu, tenChucVu) VALUES
 ('QLY', N'Quản Lý'),
 ('BHA', N'Nhân Viên Bán Hàng'),
@@ -309,7 +294,7 @@ INSERT INTO ChucVu (maChucVu, tenChucVu) VALUES
 ('KTO', N'Kế Toán');
 GO
 
--- Chèn dữ liệu vào bảng NhanVien (Đã thay đổi cột chucVu thành maChucVu)
+-- Chèn dữ liệu vào bảng NhanVien
 INSERT INTO NhanVien (maNV, tenNV, maChucVu, soDienThoai) VALUES
 ('NV001', N'Trương Minh Hùng', 'QLY', '0901111345'),
 ('NV002', N'Nguyễn Thị Lan Anh', 'BHA', '0902222123'),
@@ -353,110 +338,69 @@ GO
 
 -- Chèn dữ liệu vào bảng LoThuoc
 INSERT INTO LoThuoc (maLo, maNSX) VALUES
-('LO001', 'NSX001'),
-('LO002', 'NSX002'),
-('LO003', 'NSX003'),
-('LO004', 'NSX004'),
-('LO005', 'NSX005'),
-('LO006', 'NSX006'),
-('LO007', 'NSX007'),
-('LO008', 'NSX008'),
-('LO009', 'NSX009'),
-('LO010', 'NSX010'),
-('LO011', 'NSX001'),
-('LO012', 'NSX002'),
-('LO013', 'NSX003'),
-('LO014', 'NSX004'),
-('LO015', 'NSX005'),
-('LO016', 'NSX006'),
-('LO017', 'NSX007'),
-('LO018', 'NSX008'),
-('LO019', 'NSX009'),
-('LO020', 'NSX010'),
-('LO021', 'NSX001'),
-('LO022', 'NSX002'),
-('LO023', 'NSX003'),
-('LO024', 'NSX004'),
-('LO025', 'NSX005'),
-('LO026', 'NSX001'),
-('LO027', 'NSX002'),
-('LO028', 'NSX003'),
-('LO029', 'NSX004'),
-('LO030', 'NSX005'),
-('LO031', 'NSX001'),
-('LO032', 'NSX002'),
-('LO033', 'NSX003'),
-('LO034', 'NSX004'),
-('LO035', 'NSX005'),
-('LO999', 'NSX001'); 
+('LO001', 'NSX001'), ('LO002', 'NSX002'), ('LO003', 'NSX003'), ('LO004', 'NSX004'),
+('LO005', 'NSX005'), ('LO006', 'NSX006'), ('LO007', 'NSX007'), ('LO008', 'NSX008'),
+('LO009', 'NSX009'), ('LO010', 'NSX010'), ('LO011', 'NSX001'), ('LO012', 'NSX002'),
+('LO013', 'NSX003'), ('LO014', 'NSX004'), ('LO015', 'NSX005'), ('LO016', 'NSX006'),
+('LO017', 'NSX007'), ('LO018', 'NSX008'), ('LO019', 'NSX009'), ('LO020', 'NSX010'),
+('LO021', 'NSX001'), ('LO022', 'NSX002'), ('LO023', 'NSX003'), ('LO024', 'NSX004'),
+('LO025', 'NSX005'), ('LO026', 'NSX001'), ('LO027', 'NSX002'), ('LO028', 'NSX003'),
+('LO029', 'NSX004'), ('LO030', 'NSX005'), ('LO031', 'NSX001'), ('LO032', 'NSX002'),
+('LO033', 'NSX003'), ('LO034', 'NSX004'), ('LO035', 'NSX005'), ('LO999', 'NSX001'); 
 GO
 
--- ===============================================
--- CHÈN DỮ LIỆU BẢNG THUOC
--- ===============================================
+-- Chèn dữ liệu bảng Thuoc
 INSERT INTO Thuoc (maThuoc, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive) VALUES
--- Lưu ý: soLuongTon sẽ được đặt lại bằng Trigger sau khi ChiTietLoThuoc được chèn.
--- Nhóm thuốc giảm đau, hạ sốt
 ('T001', N'Paracetamol 500mg', 0, 5000, N'Viên', 100, 'NSX001', 1),
 ('T002', N'Efferalgan 500mg', 0, 7500, N'Viên', 80, 'NSX001', 1),
 ('T003', N'Ibuprofen 400mg', 0, 8000, N'Viên', 60, 'NSX002', 1),
 ('T004', N'Aspirin 100mg', 0, 6500, N'Viên', 90, 'NSX002', 1),
 ('T005', N'Mobic 7.5mg', 0, 12000, N'Viên', 50, 'NSX003', 1),
--- Nhóm kháng sinh
 ('T006', N'Amoxicillin 500mg', 0, 15000, N'Viên', 70, 'NSX003', 1),
 ('T007', N'Augmentin 625mg', 0, 25000, N'Viên', 40, 'NSX004', 1),
 ('T008', N'Cefuroxime 500mg', 0, 22000, N'Viên', 35, 'NSX004', 1),
 ('T009', N'Azithromycin 250mg', 0, 18000, N'Viên', 45, 'NSX005', 1),
 ('T010', N'Ciprofloxacin 500mg', 0, 16000, N'Viên', 55, 'NSX005', 1),
--- Nhóm thuốc đau dạ dày
 ('T011', N'Omeprazole 20mg', 0, 14000, N'Viên', 60, 'NSX006', 1),
 ('T012', N'Nexium 40mg', 0, 32000, N'Viên', 40, 'NSX006', 1),
 ('T013', N'Pantoprazole 40mg', 0, 28000, N'Viên', 45, 'NSX007', 1),
 ('T014', N'Maalox', 0, 8500, N'Chai', 80, 'NSX007', 1),
 ('T015', N'Phosphalugel', 0, 9500, N'Gói', 70, 'NSX008', 1),
--- Nhóm thuốc trị tiêu chảy
 ('T016', N'Smecta', 0, 7000, N'Gói', 90, 'NSX008', 1),
 ('T017', N'Imodium 2mg', 0, 12500, N'Viên', 60, 'NSX009', 1),
 ('T018', N'Bioflora', 0, 11000, N'Gói', 50, 'NSX009', 1),
 ('T019', N'Lacteol Fort', 0, 9000, N'Gói', 70, 'NSX010', 1),
 ('T020', N'Enterogermina', 0, 10500, N'Ống', 65, 'NSX010', 1),
--- Nhóm vitamin và khoáng chất
 ('T021', N'Vitamin C 500mg', 0, 8000, N'Viên', 120, 'NSX001', 1),
 ('T022', N'Vitamin E 400UI', 0, 12000, N'Viên', 95, 'NSX001', 1),
 ('T023', N'Multivitamin', 0, 15000, N'Viên', 80, 'NSX002', 1),
 ('T024', N'Canxi D3', 0, 13500, N'Viên', 100, 'NSX002', 1),
 ('T025', N'Zinc 20mg', 0, 9500, N'Viên', 75, 'NSX003', 1),
--- Nhóm thuốc chống dị ứng
 ('T026', N'Loratadine 10mg', 0, 7500, N'Viên', 85, 'NSX003', 1),
 ('T027', N'Cetirizine 10mg', 0, 8000, N'Viên', 90, 'NSX004', 1),
 ('T028', N'Fexofenadine 60mg', 0, 12500, N'Viên', 70, 'NSX004', 1),
 ('T029', N'Claritine', 0, 14000, N'Viên', 60, 'NSX005', 1),
 ('T030', N'Telfast 180mg', 0, 18000, N'Viên', 50, 'NSX005', 1),
--- Nhóm thuốc huyết áp
 ('T031', N'Amlodipine 5mg', 0, 8500, N'Viên', 45, 'NSX006', 1),
 ('T032', N'Amlodipine 10mg', 0, 10500, N'Viên', 40, 'NSX006', 1),
 ('T033', N'Bisoprolol 2.5mg', 0, 12000, N'Viên', 35, 'NSX007', 1),
 ('T034', N'Enalapril 5mg', 0, 9500, N'Viên', 38, 'NSX007', 1),
 ('T035', N'Losartan 50mg', 0, 11000, N'Viên', 42, 'NSX008', 1),
--- Nhóm thuốc tiểu đường
 ('T036', N'Metformin 500mg', 0, 7000, N'Viên', 48, 'NSX008', 1),
 ('T037', N'Metformin 850mg', 0, 8500, N'Viên', 45, 'NSX009', 1),
 ('T038', N'Glibenclamide 5mg', 0, 6500, N'Viên', 40, 'NSX009', 1),
 ('T039', N'Acarbose 50mg', 0, 13000, N'Viên', 35, 'NSX010', 1),
 ('T040', N'Januvia 100mg', 0, 28000, N'Viên', 30, 'NSX010', 1),
--- Nhóm thuốc giảm mỡ máu
 ('T041', N'Atorvastatin 10mg', 0, 15000, N'Viên', 48, 'NSX001', 1),
 ('T042', N'Atorvastatin 20mg', 0, 19000, N'Viên', 45, 'NSX001', 1),
 ('T043', N'Rosuvastatin 10mg', 0, 22000, N'Viên', 42, 'NSX002', 1),
 ('T044', N'Simvastatin 20mg', 0, 14000, N'Viên', 40, 'NSX002', 1),
 ('T045', N'Lipitor 10mg', 0, 26000, N'Viên', 38, 'NSX003', 1),
--- Nhóm thuốc chống viêm
 ('T046', N'Meloxicam 7.5mg', 0, 11000, N'Viên', 50, 'NSX003', 1),
 ('T047', N'Diclofenac 50mg', 0, 8500, N'Viên', 55, 'NSX004', 1),
 ('T048', N'Celecoxib 200mg', 0, 16000, N'Viên', 45, 'NSX004', 1),
 ('T049', N'Methylprednisolone 16mg', 0, 18000, N'Viên', 40, 'NSX005', 1),
 ('T050', N'Prednisone 5mg', 0, 9500, N'Viên', 50, 'NSX005', 1),
--- Các thuốc khác
 ('T051', N'Salbutamol 2mg', 0, 7500, N'Viên', 60, 'NSX001', 1),
 ('T052', N'Ventolin inhaler', 0, 85000, N'Bình', 35, 'NSX001', 1),
 ('T053', N'Seretide 250mcg', 0, 145000, N'Bình', 30, 'NSX002', 1),
@@ -633,57 +577,36 @@ VALUES
 ('LO999', 'T001', '2025-10-15', '2027-10-15', 2000, 4800), -- Thêm 2000 viên Paracetamol
 ('LO999', 'T007', '2025-10-15', '2027-10-15', 500, 20000),
 
--- ===============================================
--- DỮ LIỆU LÔ THUỐC ĐÃ HẾT HẠN VÀ SẮP HẾT HẠN
--- ===============================================
--- Lô thuốc ĐÃ HẾT HẠN 40 ngày (19/09/2025)
+-- Lô thuốc ĐÃ HẾT HẠN và SẮP HẾT HẠN (Giữ nguyên như cũ)
 ('LO026', 'T001', '2024-09-19', '2025-09-19', 150, 4500),
 ('LO026', 'T021', '2024-09-19', '2025-09-19', 100, 7000),
-
--- Lô thuốc ĐÃ HẾT HẠN 30 ngày (29/09/2025)
 ('LO027', 'T003', '2024-09-29', '2025-09-29', 200, 7200),
 ('LO027', 'T011', '2024-09-29', '2025-09-29', 120, 12500),
 ('LO027', 'T026', '2024-09-29', '2025-09-29', 80, 6800),
-
--- Lô thuốc ĐÃ HẾT HẠN 10 ngày (19/10/2025)
 ('LO028', 'T006', '2024-10-19', '2025-10-19', 180, 13500),
 ('LO028', 'T016', '2024-10-19', '2025-10-19', 90, 6200),
 ('LO028', 'T031', '2024-10-19', '2025-10-19', 60, 7800),
-
--- Lô thuốc SẮP HẾT HẠN còn 10 ngày (08/11/2025)
 ('LO029', 'T002', '2024-11-08', '2025-11-08', 220, 6800),
 ('LO029', 'T012', '2024-11-08', '2025-11-08', 140, 28000),
 ('LO029', 'T027', '2024-11-08', '2025-11-08', 95, 7200),
-
--- Lô thuốc SẮP HẾT HẠN còn 20 ngày (18/11/2025)
 ('LO030', 'T007', '2024-11-18', '2025-11-18', 160, 22000),
 ('LO030', 'T017', '2024-11-18', '2025-11-18', 110, 11200),
 ('LO030', 'T032', '2024-11-18', '2025-11-18', 75, 9500),
 ('LO030', 'T041', '2024-11-18', '2025-11-18', 85, 13500),
-
--- Lô thuốc SẮP HẾT HẠN còn 50 ngày (18/12/2025)
 ('LO031', 'T008', '2024-12-18', '2025-12-18', 190, 19800),
 ('LO031', 'T018', '2024-12-18', '2025-12-18', 130, 9900),
 ('LO031', 'T033', '2024-12-18', '2025-12-18', 70, 10800),
-
--- Lô thuốc ĐÃ HẾT HẠN 40 ngày - Nhóm 2 (19/09/2025)
 ('LO032', 'T009', '2024-09-19', '2025-09-19', 170, 16200),
 ('LO032', 'T036', '2024-09-19', '2025-09-19', 140, 6300),
-
--- Lô thuốc ĐÃ HẾT HẠN 30 ngày - Nhóm 2 (29/09/2025)
 ('LO033', 'T010', '2024-09-29', '2025-09-29', 155, 14400),
 ('LO033', 'T037', '2024-09-29', '2025-09-29', 125, 7650),
-
--- Lô thuốc SẮP HẾT HẠN còn 10 ngày - Nhóm 2 (08/11/2025)
 ('LO034', 'T013', '2024-11-08', '2025-11-08', 135, 25200),
 ('LO034', 'T038', '2024-11-08', '2025-11-08', 115, 5850),
-
--- Lô thuốc SẮP HẾT HẠN còn 20 ngày - Nhóm 2 (18/11/2025)
 ('LO035', 'T014', '2024-11-18', '2025-11-18', 145, 7650),
 ('LO035', 'T039', '2024-11-18', '2025-11-18', 105, 11700); 
 GO
 
--- Chèn dữ liệu vào bảng HoaDon (Đã chỉnh sửa để dùng giaTriThue)
+-- -- Chèn dữ liệu vào bảng HoaDon (Đã chỉnh sửa để dùng giaTriThue)
 INSERT INTO HoaDon (maHoaDon, ngayBan, ghiChu, maNV, maKH, maKM, giaTriThue, tenLoaiThue) VALUES
 ('HD00001', '2025-05-02', N'Khách hàng mua thuốc cho gia đình', 'NV004', 'KH001', 'KM001', 0.05, N'VAT 5%'),
 ('HD00002', '2025-05-05', N'Khách hàng mua thuốc theo toa bác sĩ', 'NV009', 'KH005', 'KM001', 0.05, N'VAT 5%'),
@@ -1876,174 +1799,96 @@ INSERT INTO ChiTietHoaDon (maHoaDon, maThuoc, maLo, soLuong, donGia) VALUES
 ('HD00188', 'T031', 'LO016', 6, 8500);
 
 
-GO
--- Insert dữ liệu vào bảng PhieuDat (ĐÃ CẬP NHẬT)
-INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH, ghiChu) VALUES
-('PD001', 'NV004', '2025-09-01', 'KH001', N'Khách hẹn lấy sau 5h chiều'),
-('PD002', 'NV005', '2025-09-02', 'KH004', N'Gọi điện trước khi giao'),
-('PD003', 'NV009', '2025-09-03', 'KH007', N'Khách quen, giảm giá nếu có thể'),
-('PD004', 'NV010', '2025-09-05', 'KH012', NULL),
-('PD005', 'NV004', '2025-09-06', 'KH015', N'Đơn thuốc bác sĩ A'),
-('PD006', 'NV005', '2025-09-08', 'KH019', N'Lấy thuốc cho mẹ'),
-('PD007', 'NV009', '2025-09-10', 'KH024', NULL),
-('PD008', 'NV010', '2025-09-11', 'KH028', N'Giao hàng nhanh'),
-('PD009', 'NV004', '2025-09-13', 'KH002', NULL),
-('PD010', 'NV005', '2025-09-14', 'KH006', N'Kiểm tra lại thuốc dạ dày'),
-('PD011', 'NV009', '2025-09-16', 'KH010', N'Đơn đặt hàng tháng'),
-('PD012', 'NV010', '2025-09-17', 'KH014', NULL),
-('PD013', 'NV004', '2025-09-19', 'KH018', N'Khách hàng cần tư vấn thêm'),
-('PD014', 'NV005', '2025-09-20', 'KH022', NULL),
-('PD015', 'NV009', '2025-09-22', 'KH026', N'Giao cho người nhà tên B'),
-('PD016', 'NV010', '2025-09-23', 'KH030', NULL),
-('PD017', 'NV004', '2025-09-25', 'KH034', N'Thuốc tiểu đường, kiểm tra kỹ'),
-('PD018', 'NV005', '2025-09-26', 'KH003', N'Đơn thuốc hen'),
-('PD019', 'NV009', '2025-09-28', 'KH009', NULL),
-('PD020', 'NV010', '2025-09-29', 'KH016', N'Khách hàng VIP');
+-- ===============================================
+-- DỮ LIỆU PHIẾU ĐẶT (ĐÃ SỬA: isReceived = 1)
+-- ===============================================
+INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH, ghiChu, isReceived) VALUES
+('PD001', 'NV004', '2025-09-01', 'KH001', N'Khách hẹn lấy sau 5h chiều', 1),
+('PD002', 'NV005', '2025-09-02', 'KH004', N'Gọi điện trước khi giao', 1),
+('PD003', 'NV009', '2025-09-03', 'KH007', N'Khách quen, giảm giá nếu có thể', 1),
+('PD004', 'NV010', '2025-09-05', 'KH012', NULL, 1),
+('PD005', 'NV004', '2025-09-06', 'KH015', N'Đơn thuốc bác sĩ A', 1),
+('PD006', 'NV005', '2025-09-08', 'KH019', N'Lấy thuốc cho mẹ', 1),
+('PD007', 'NV009', '2025-09-10', 'KH024', NULL, 1),
+('PD008', 'NV010', '2025-09-11', 'KH028', N'Giao hàng nhanh', 1),
+('PD009', 'NV004', '2025-09-13', 'KH002', NULL, 1),
+('PD010', 'NV005', '2025-09-14', 'KH006', N'Kiểm tra lại thuốc dạ dày', 1),
+('PD011', 'NV009', '2025-09-16', 'KH010', N'Đơn đặt hàng tháng', 1),
+('PD012', 'NV010', '2025-09-17', 'KH014', NULL, 1),
+('PD013', 'NV004', '2025-09-19', 'KH018', N'Khách hàng cần tư vấn thêm', 1),
+('PD014', 'NV005', '2025-09-20', 'KH022', NULL, 1),
+('PD015', 'NV009', '2025-09-22', 'KH026', N'Giao cho người nhà tên B', 1),
+('PD016', 'NV010', '2025-09-23', 'KH030', NULL, 1),
+('PD017', 'NV004', '2025-09-25', 'KH034', N'Thuốc tiểu đường, kiểm tra kỹ', 1),
+('PD018', 'NV005', '2025-09-26', 'KH003', N'Đơn thuốc hen', 1),
+('PD019', 'NV009', '2025-09-28', 'KH009', NULL, 1),
+('PD020', 'NV010', '2025-09-29', 'KH016', N'Khách hàng VIP', 1);
 GO
 
--- Insert dữ liệu vào bảng ChiTietPhieuDat (ĐÃ CẬP NHẬT với maLo)
--- Phiếu đặt 1: Thuốc giảm đau và vitamin
+-- Insert dữ liệu vào bảng ChiTietPhieuDat
 INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
 ('PD001', 'T001', 'LO001', N'Paracetamol 500mg', 5),
 ('PD001', 'T021', 'LO011', N'Vitamin C 500mg', 3),
-('PD001', 'T026', 'LO013', N'Loratadine 10mg', 2);
-GO
-
--- Phiếu đặt 2: Kháng sinh và thuốc dạ dày
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD001', 'T026', 'LO013', N'Loratadine 10mg', 2),
 ('PD002', 'T006', 'LO003', N'Amoxicillin 500mg', 4),
 ('PD002', 'T011', 'LO006', N'Omeprazole 20mg', 3),
-('PD002', 'T014', 'LO007', N'Maalox', 2);
-GO
-
--- Phiếu đặt 3: Thuốc tiêu chảy
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD002', 'T014', 'LO007', N'Maalox', 2),
 ('PD003', 'T016', 'LO008', N'Smecta', 6),
 ('PD003', 'T017', 'LO009', N'Imodium 2mg', 2),
-('PD003', 'T019', 'LO010', N'Lacteol Fort', 3);
-GO
-
--- Phiếu đặt 4: Thuốc huyết áp và tim mạch
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD003', 'T019', 'LO010', N'Lacteol Fort', 3),
 ('PD004', 'T031', 'LO016', N'Amlodipine 5mg', 3),
 ('PD004', 'T033', 'LO017', N'Bisoprolol 2.5mg', 2),
-('PD004', 'T041', 'LO021', N'Atorvastatin 10mg', 2);
-GO
-
--- Phiếu đặt 5: Thuốc tiểu đường
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD004', 'T041', 'LO021', N'Atorvastatin 10mg', 2),
 ('PD005', 'T036', 'LO018', N'Metformin 500mg', 5),
 ('PD005', 'T038', 'LO019', N'Glibenclamide 5mg', 3),
-('PD005', 'T024', 'LO012', N'Canxi D3', 2);
-GO
-
--- Phiếu đặt 6: Thuốc chống dị ứng và vitamin
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD005', 'T024', 'LO012', N'Canxi D3', 2),
 ('PD006', 'T027', 'LO014', N'Cetirizine 10mg', 4),
 ('PD006', 'T029', 'LO015', N'Claritine', 2),
-('PD006', 'T022', 'LO011', N'Vitamin E 400UI', 3);
-GO
-
--- Phiếu đặt 7: Kháng sinh cao cấp
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD006', 'T022', 'LO011', N'Vitamin E 400UI', 3),
 ('PD007', 'T007', 'LO004', N'Augmentin 625mg', 3),
 ('PD007', 'T009', 'LO005', N'Azithromycin 250mg', 2),
-('PD007', 'T012', 'LO006', N'Nexium 40mg', 2);
-GO
-
--- Phiếu đặt 8: Thuốc ho và đường hô hấp
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD007', 'T012', 'LO006', N'Nexium 40mg', 2),
 ('PD008', 'T055', 'LO003', N'Bromhexine 8mg', 4),
 ('PD008', 'T056', 'LO003', N'Ambroxol 30mg', 3),
 ('PD008', 'T051', 'LO001', N'Salbutamol 2mg', 2),
-('PD008', 'T052', 'LO001', N'Ventolin inhaler', 1);
-GO
-
--- Phiếu đặt 9: Thuốc giảm đau và chống viêm
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD008', 'T052', 'LO001', N'Ventolin inhaler', 1),
 ('PD009', 'T003', 'LO002', N'Ibuprofen 400mg', 3),
 ('PD009', 'T046', 'LO023', N'Meloxicam 7.5mg', 2),
-('PD009', 'T047', 'LO024', N'Diclofenac 50mg', 3);
-GO
-
--- Phiếu đặt 10: Thuốc dạ dày cao cấp
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD009', 'T047', 'LO024', N'Diclofenac 50mg', 3),
 ('PD010', 'T012', 'LO006', N'Nexium 40mg', 2),
 ('PD010', 'T013', 'LO007', N'Pantoprazole 40mg', 2),
-('PD010', 'T101', 'LO001', N'Esomeprazole 20mg', 3);
-GO
-
--- Phiếu đặt 11: Vitamin tổng hợp
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD010', 'T101', 'LO001', N'Esomeprazole 20mg', 3),
 ('PD011', 'T023', 'LO012', N'Multivitamin', 5),
 ('PD011', 'T024', 'LO012', N'Canxi D3', 4),
-('PD011', 'T025', 'LO013', N'Zinc 20mg', 3);
-GO
-
--- Phiếu đặt 12: Thuốc giảm mỡ máu
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD011', 'T025', 'LO013', N'Zinc 20mg', 3),
 ('PD012', 'T042', 'LO021', N'Atorvastatin 20mg', 3),
 ('PD012', 'T043', 'LO022', N'Rosuvastatin 10mg', 2),
-('PD012', 'T044', 'LO022', N'Simvastatin 20mg', 2);
-GO
-
--- Phiếu đặt 13: Thuốc nấm và ký sinh trùng
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD012', 'T044', 'LO022', N'Simvastatin 20mg', 2),
 ('PD013', 'T059', 'LO005', N'Fluconazole 150mg', 2),
 ('PD013', 'T062', 'LO006', N'Albendazole 400mg', 4),
-('PD013', 'T063', 'LO007', N'Mebendazole 500mg', 3);
-GO
-
--- Phiếu đặt 14: Thuốc giảm đau hạ sốt
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD013', 'T063', 'LO007', N'Mebendazole 500mg', 3),
 ('PD014', 'T001', 'LO001', N'Paracetamol 500mg', 8),
 ('PD014', 'T002', 'LO001', N'Efferalgan 500mg', 5),
-('PD014', 'T004', 'LO002', N'Aspirin 100mg', 3);
-GO
-
--- Phiếu đặt 15: Thuốc lợi tiểu và tim mạch
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD014', 'T004', 'LO002', N'Aspirin 100mg', 3),
 ('PD015', 'T071', 'LO011', N'Furosemide 40mg', 3),
 ('PD015', 'T072', 'LO011', N'Spironolactone 25mg', 2),
-('PD015', 'T080', 'LO015', N'Atenolol 50mg', 2);
-GO
-
--- Phiếu đặt 16: Thuốc chống nôn
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD015', 'T080', 'LO015', N'Atenolol 50mg', 2),
 ('PD016', 'T064', 'LO007', N'Domperidone 10mg', 4),
 ('PD016', 'T065', 'LO008', N'Metoclopramide 10mg', 3),
-('PD016', 'T066', 'LO008', N'Ondansetron 8mg', 2);
-GO
-
--- Phiếu đặt 17: Thuốc tiểu đường combo
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD016', 'T066', 'LO008', N'Ondansetron 8mg', 2),
 ('PD017', 'T037', 'LO019', N'Metformin 850mg', 4),
 ('PD017', 'T039', 'LO020', N'Acarbose 50mg', 2),
-('PD017', 'T093', 'LO022', N'Gliclazide 30mg', 2);
-GO
-
--- Phiếu đặt 18: Thuốc hen suyễn
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD017', 'T093', 'LO022', N'Gliclazide 30mg', 2),
 ('PD018', 'T052', 'LO001', N'Ventolin inhaler', 2),
 ('PD018', 'T053', 'LO002', N'Seretide 250mcg', 1),
-('PD018', 'T054', 'LO002', N'Combivent', 1);
-GO
-
--- Phiếu đặt 19: Thuốc tiêu chảy và men vi sinh
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD018', 'T054', 'LO002', N'Combivent', 1),
 ('PD019', 'T016', 'LO008', N'Smecta', 8),
 ('PD019', 'T018', 'LO009', N'Bioflora', 4),
-('PD019', 'T020', 'LO010', N'Enterogermina', 3);
-GO
-
--- Phiếu đặt 20: Thuốc huyết áp combo
-INSERT INTO ChiTietPhieuDat (maPhieuDat, maThuoc, maLo, tenThuoc, soLuong) VALUES
+('PD019', 'T020', 'LO010', N'Enterogermina', 3),
 ('PD020', 'T032', 'LO016', N'Amlodipine 10mg', 3),
 ('PD020', 'T034', 'LO017', N'Enalapril 5mg', 2),
 ('PD020', 'T035', 'LO018', N'Losartan 50mg', 2),
 ('PD020', 'T041', 'LO021', N'Atorvastatin 10mg', 2);
-
-
 GO
 
 -- Insert dữ liệu vào bảng PhieuNhapThuoc (Không thay đổi)
@@ -2065,8 +1910,7 @@ INSERT INTO PhieuNhapThuoc (maPhieuNhapThuoc, maNV, ngayNhap) VALUES
 ('PNT015', 'NV001', '2025-09-26');
 GO
 
--- Insert dữ liệu vào bảng ChiTietPhieuNhap (Sử dụng lại dữ liệu ban đầu, nhưng thêm maThuoc)
--- Lưu ý: Dữ liệu này giả định rằng mỗi lô nhập có thể có nhiều loại thuốc, tương ứng với dữ liệu trong ChiTietLoThuoc
+-- Insert dữ liệu vào bảng ChiTietPhieuNhap
 INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, maThuoc, soLuong, donGia) VALUES
 ('PNT001', 'LO001', 'T001', 500, 3500),
 ('PNT001', 'LO011', 'T021', 600, 5500),
@@ -2112,7 +1956,6 @@ INSERT INTO ChiTietPhieuNhap (maPhieuNhapThuoc, maLo, maThuoc, soLuong, donGia) 
 ('PNT015', 'LO020', 'T090', 180, 20000);
 GO
 
-
 -- Insert dữ liệu vào bảng PhieuDoiTra
 INSERT INTO PhieuDoiTra (maPhieuDoiTra, ngayDoiTra, maNV, maKH) VALUES
 ('PDT001', '2025-09-03', 'NV002', 'KH001'),
@@ -2132,102 +1975,41 @@ INSERT INTO PhieuDoiTra (maPhieuDoiTra, ngayDoiTra, maNV, maKH) VALUES
 ('PDT015', '2025-09-30', 'NV008', 'KH026');
 GO
 
--- Insert dữ liệu vào bảng ChiTietPhieuDoiTra (Dữ liệu gốc đã có maLo, không cần sửa)
--- Phiếu đổi trả 1: Thuốc hết hạn
+-- Insert dữ liệu vào bảng ChiTietPhieuDoiTra
 INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
 ('PDT001', 'T001', 2, 5000, 'LO001', N'Thuốc sắp hết hạn sử dụng'),
-('PDT001', 'T021', 1, 8000, 'LO011', N'Thuốc sắp hết hạn sử dụng');
-GO
-
--- Phiếu đổi trả 2: Dị ứng thuốc
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
-('PDT002', 'T006', 1, 15000, 'LO003', N'Khách hàng bị dị ứng với thuốc');
-GO
-
--- Phiếu đổi trả 3: Thuốc không phù hợp
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT001', 'T021', 1, 8000, 'LO011', N'Thuốc sắp hết hạn sử dụng'),
+('PDT002', 'T006', 1, 15000, 'LO003', N'Khách hàng bị dị ứng với thuốc'),
 ('PDT003', 'T016', 2, 7000, 'LO008', N'Thuốc không có hiệu quả như mong đợi'),
-('PDT003', 'T017', 1, 12500, 'LO009', N'Bác sĩ đổi đơn thuốc');
-GO
-
--- Phiếu đổi trả 4: Mua nhầm thuốc
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT003', 'T017', 1, 12500, 'LO009', N'Bác sĩ đổi đơn thuốc'),
 ('PDT004', 'T031', 1, 8500, 'LO016', N'Khách hàng mua nhầm liều lượng'),
-('PDT004', 'T041', 1, 15000, 'LO021', N'Bác sĩ kê đơn thuốc khác');
-GO
-
--- Phiếu đổi trả 5: Thuốc bị lỗi
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
-('PDT005', 'T036', 2, 7000, 'LO018', N'Viên thuốc bị móp méo');
-GO
-
--- Phiếu đổi trả 6: Dị ứng và đổi thuốc
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT004', 'T041', 1, 15000, 'LO021', N'Bác sĩ kê đơn thuốc khác'),
+('PDT005', 'T036', 2, 7000, 'LO018', N'Viên thuốc bị móp méo'),
 ('PDT006', 'T027', 2, 8000, 'LO014', N'Khách hàng bị buồn ngủ sau khi uống'),
-('PDT006', 'T029', 1, 14000, 'LO015', N'Đổi sang thuốc chống dị ứng thế hệ mới');
-GO
-
--- Phiếu đổi trả 7: Mua thừa
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT006', 'T029', 1, 14000, 'LO015', N'Đổi sang thuốc chống dị ứng thế hệ mới'),
 ('PDT007', 'T007', 1, 25000, 'LO004', N'Khách hàng mua thừa, chưa sử dụng'),
-('PDT007', 'T012', 1, 32000, 'LO006', N'Mua trùng với đơn thuốc cũ');
-GO
-
--- Phiếu đổi trả 8: Thuốc không đúng chỉ định
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT007', 'T012', 1, 32000, 'LO006', N'Mua trùng với đơn thuốc cũ'),
 ('PDT008', 'T052', 1, 85000, 'LO001', N'Bác sĩ đổi phác đồ điều trị'),
-('PDT008', 'T055', 1, 6500, 'LO003', N'Thuốc không phù hợp với triệu chứng');
-GO
-
--- Phiếu đổi trả 9: Tác dụng phụ
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT008', 'T055', 1, 6500, 'LO003', N'Thuốc không phù hợp với triệu chứng'),
 ('PDT009', 'T003', 1, 8000, 'LO002', N'Khách hàng bị đau dạ dày sau khi uống'),
-('PDT009', 'T046', 1, 11000, 'LO023', N'Gây tác dụng phụ không mong muốn');
-GO
-
--- Phiếu đổi trả 10: Thuốc sắp hết hạn
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT009', 'T046', 1, 11000, 'LO023', N'Gây tác dụng phụ không mong muốn'),
 ('PDT010', 'T056', 2, 7000, 'LO003', N'Phát hiện thuốc còn hạn dùng ngắn'),
-('PDT010', 'T058', 1, 9500, 'LO004', N'Thuốc sắp hết hạn sử dụng');
-GO
-
--- Phiếu đổi trả 11: Mua nhầm
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT010', 'T058', 1, 9500, 'LO004', N'Thuốc sắp hết hạn sử dụng'),
 ('PDT011', 'T023', 2, 15000, 'LO012', N'Khách hàng mua nhầm loại vitamin'),
-('PDT011', 'T024', 1, 13500, 'LO012', N'Đổi sang sản phẩm phù hợp hơn');
-GO
-
--- Phiếu đổi trả 12: Không dung nạp thuốc
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT011', 'T024', 1, 13500, 'LO012', N'Đổi sang sản phẩm phù hợp hơn'),
 ('PDT012', 'T042', 1, 19000, 'LO021', N'Khách hàng bị đau cơ sau khi dùng'),
-('PDT012', 'T043', 1, 22000, 'LO022', N'Không dung nạp với thuốc');
-GO
-
--- Phiếu đổi trả 13: Bác sĩ thay đổi đơn
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT012', 'T043', 1, 22000, 'LO022', N'Không dung nạp với thuốc'),
 ('PDT013', 'T037', 2, 8500, 'LO019', N'Bác sĩ điều chỉnh liều lượng'),
-('PDT013', 'T039', 1, 13000, 'LO020', N'Thay đổi phác đồ điều trị tiểu đường');
-GO
-
--- Phiếu đổi trả 14: Thuốc bị lỗi bao bì
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT013', 'T039', 1, 13000, 'LO020', N'Thay đổi phác đồ điều trị tiểu đường'),
 ('PDT014', 'T011', 2, 14000, 'LO006', N'Bao bì thuốc bị rách'),
-('PDT014', 'T013', 1, 28000, 'LO007', N'Lọ thuốc bị vỡ seal niêm phong');
-GO
-
--- Phiếu đổi trả 15: Khách mua thừa và đổi trả
-INSERT INTO ChiTietPhieuDoiTra (maPhieuDoiTra, maThuoc, soLuong, donGia, maLo, lyDo) VALUES
+('PDT014', 'T013', 1, 28000, 'LO007', N'Lọ thuốc bị vỡ seal niêm phong'),
 ('PDT015', 'T026', 3, 7500, 'LO013', N'Khách hàng khỏi bệnh, còn thừa thuốc'),
 ('PDT015', 'T022', 1, 12000, 'LO011', N'Mua thừa, chưa mở hộp');
-
-
+GO
 
 -- ===============================================
--- CHẠY THỦ TỤC THỦ CÔNG ĐỂ TÍNH TỔNG LẦN ĐẦU
--- (Cần thiết vì Trigger chỉ chạy TỰ ĐỘNG sau khi được tạo)
+-- CẬP NHẬT SỐ LƯỢNG TỒN (THỦ CÔNG)
 -- ===============================================
--- Lần chạy script đầu tiên, do trigger được tạo SAU khi dữ liệu ChiTietLoThuoc được insert,
--- nên ta cần chạy lệnh UPDATE thủ công 1 lần để tính tổng ban đầu.
 UPDATE T
 SET T.soLuongTon = ISNULL(Sub.TotalQuantity, 0)
 FROM Thuoc T
@@ -2239,13 +2021,11 @@ LEFT JOIN (
     WHERE isActive = 1
     GROUP BY maThuoc
 ) AS Sub ON T.maThuoc = Sub.maThuoc;
-
 GO
 
-
---================================ TRIGGER ================================--
--- cập nhật số lượng tồn trong bảng Thuoc khi có thay đổi trong ChiTietLoThuoc
-GO
+-- ===============================================
+-- TRIGGER & PROCEDURES
+-- ===============================================
 
 CREATE TRIGGER tr_CapNhatSoLuongTon
 ON ChiTietLoThuoc
@@ -2254,7 +2034,6 @@ AS
 BEGIN
     SET NOCOUNT ON;
     
-    -- Lấy danh sách thuốc bị ảnh hưởng
     DECLARE @AffectedMaThuoc TABLE (maThuoc VARCHAR(50));
     
     INSERT INTO @AffectedMaThuoc (maThuoc)
@@ -2262,7 +2041,6 @@ BEGIN
     UNION
     SELECT DISTINCT maThuoc FROM DELETED;
 
-    -- Cập nhật tổng số lượng tồn
     UPDATE Thuoc
     SET soLuongTon = ISNULL((
         SELECT SUM(soLuong)
@@ -2273,16 +2051,13 @@ BEGIN
     WHERE maThuoc IN (SELECT maThuoc FROM @AffectedMaThuoc);
 END
 GO
--- Trigger cập nhật điểm tích lũy cho khách hàng khi có hóa đơn mới
+
 CREATE TRIGGER tr_CapNhatDiemTichLuy
 ON HoaDon
 AFTER INSERT
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    -- Cập nhật điểm tích lũy cho khách hàng
-    -- Chỉ cập nhật nếu hóa đơn có mã khách hàng (không null)
     UPDATE KhachHang
     SET diemTichLuy = ISNULL(diemTichLuy, 0) + ISNULL((
         SELECT FLOOR(SUM(ct.soLuong * ct.donGia) / 1000)
@@ -2302,69 +2077,39 @@ AFTER UPDATE
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    -- Khi ẩn nhân viên (isActive = 0), tự động ẩn tài khoản của nhân viên đó
     UPDATE TaiKhoan
     SET isActive = 0
     FROM TaiKhoan tk
     INNER JOIN INSERTED i ON tk.maNV = i.maNV
-    WHERE i.isActive = 0
-      AND tk.isActive = 1;
+    WHERE i.isActive = 0 AND tk.isActive = 1;
     
-    -- Khi kích hoạt lại nhân viên (isActive = 1), tự động kích hoạt lại tài khoản
     UPDATE TaiKhoan
     SET isActive = 1
     FROM TaiKhoan tk
     INNER JOIN INSERTED i ON tk.maNV = i.maNV
-    WHERE i.isActive = 1
-      AND tk.isActive = 0;
+    WHERE i.isActive = 1 AND tk.isActive = 0;
 END
 GO
 
-
-
-
---================================ PROCEDURE ================================--
-USE QuanLyNhaThuoc;
-GO
-
--- ===============================================
 -- PROCEDURE: Cập nhật thuốc hết hạn sử dụng
--- Mô tả: Đặt isActive = 0 cho các lô thuốc đã hết hạn
--- ===============================================
-
 CREATE PROCEDURE sp_CapNhatThuocHetHan
 AS
 BEGIN
     SET NOCOUNT ON;
-    
     BEGIN TRY
-    
         BEGIN TRANSACTION;
-        -- Cập nhật isActive = 0 cho các lô thuốc đã hết hạn
         UPDATE ChiTietLoThuoc
         SET isActive = 0
-        WHERE hanSuDung < GETDATE()
-          AND isActive = 1;
-        
+        WHERE hanSuDung < GETDATE() AND isActive = 1;
         COMMIT TRANSACTION;
-
     END TRY
     BEGIN CATCH
-        IF @@TRANCOUNT > 0
-            ROLLBACK TRANSACTION;
-        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
-        DECLARE @ErrorSeverity INT = ERROR_SEVERITY();
-        DECLARE @ErrorState INT = ERROR_STATE();
-        
-        RAISERROR(@ErrorMessage, @ErrorSeverity, @ErrorState);
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
     END CATCH
 END;
 GO
 
--- PROCEDURE Tính doanh thu của nhà thuốc theo tháng của năm 
--- Param truyền vào là năm
-GO
+-- Các Procedure thống kê khác (Giữ nguyên)
 CREATE PROCEDURE sp_ThongKeDoanhThuTheoThang
     @Nam INT
 AS
@@ -2374,29 +2119,20 @@ BEGIN
         SUM(ct.soLuong * ct.donGia) AS DoanhThu
     FROM HoaDon hd
     INNER JOIN ChiTietHoaDon ct ON hd.maHoaDon = ct.maHoaDon
-    WHERE YEAR(ngayBan) = @Nam 
-        AND hd.isActive = 1 
-        AND ct.isActive = 1
+    WHERE YEAR(ngayBan) = @Nam AND hd.isActive = 1 AND ct.isActive = 1
     GROUP BY MONTH(ngayBan)
     ORDER BY Thang;
 END
 GO
 
-
-
--- PROCEDURE Tính doanh thu và số hóa đơn đã lập của 1 nhân viên nào đó
--- Param truyền vào là mã nhân viên và năm
--- Return số hóa đơn đã lập + doanh thu của tháng 
 CREATE PROCEDURE sp_ThongKeDoanhThuNhanVien
     @MaNV VARCHAR(50),
     @Nam INT
 AS
 BEGIN
-    -- Tạo bảng tạm chứa 12 tháng trong năm
     DECLARE @Thang TABLE (Thang INT);
     INSERT INTO @Thang VALUES (1),(2),(3),(4),(5),(6),(7),(8),(9),(10),(11),(12);
 
-    -- Lấy thông tin nhân viên
     SELECT 
         nv.maNV,
         nv.tenNV,
@@ -2415,14 +2151,6 @@ BEGIN
 END
 GO
 
-
-
-
-
--- PROCEDURE Tính thuế đã thu theo tháng trong năm
--- Param truyền vào là năm
--- Return giá trị thuế đã thu theo tháng
-GO
 CREATE PROCEDURE sp_ThongKeThueTrongNam
     @Nam INT
 AS
@@ -2432,63 +2160,34 @@ BEGIN
         SUM(hd.giaTriThue * (cthd.soLuong * cthd.donGia)) AS [giaTriThue]
     FROM HoaDon hd
     INNER JOIN ChiTietHoaDon cthd ON hd.maHoaDon = cthd.maHoaDon
-    WHERE YEAR(hd.ngayBan) = @Nam 
-      AND hd.isActive = 1 
-      AND cthd.isActive = 1
+    WHERE YEAR(hd.ngayBan) = @Nam AND hd.isActive = 1 AND cthd.isActive = 1
     GROUP BY MONTH(hd.ngayBan)
     ORDER BY [Thang];
 END
 GO
 
-
-
-
---==============================  HÓA ĐƠN ==============================--
-
--- PROCEDURE Thống kê số lượng hóa đơn đã lập theo năm
--- Return: Năm, Số hóa đơn
-GO
 CREATE PROCEDURE sp_GetSoHoaDonTheoNam
 	@Nam int
 AS
 BEGIN
-    SELECT
-        YEAR(ngayBan) AS [Nam],
-        COUNT(maHoaDon) AS [SoHoaDon]
-    FROM HoaDon
-      WhERE isActive = 1 and YEAR(ngayBan) = @Nam
+    SELECT YEAR(ngayBan) AS [Nam], COUNT(maHoaDon) AS [SoHoaDon]
+    FROM HoaDon WhERE isActive = 1 and YEAR(ngayBan) = @Nam
     GROUP BY YEAR(ngayBan)
 END
 GO
 
-
-
--- PROCEDURE Thống kê số lượng hóa đơn đã lập theo tháng trong năm
--- Param truyền vào là năm
--- Return: Tháng, Năm, Số hóa đơn
-GO
 CREATE PROCEDURE sp_GetSoHoaDonTheoThang
     @Thang INT, @Nam INT
 AS
 BEGIN
-    SELECT
-        MONTH(ngayBan) AS [Thang],
-        YEAR(ngayBan) AS [Nam],
-        COUNT(maHoaDon) AS [SoHoaDon]
+    SELECT MONTH(ngayBan) AS [Thang], YEAR(ngayBan) AS [Nam], COUNT(maHoaDon) AS [SoHoaDon]
     FROM HoaDon
-    WHERE YEAR(ngayBan) = @Nam 
-      AND isActive = 1 AND MONTH(ngayBan) = @Thang
+    WHERE YEAR(ngayBan) = @Nam AND isActive = 1 AND MONTH(ngayBan) = @Thang
     GROUP BY MONTH(ngayBan), YEAR(ngayBan)
     ORDER BY [Thang];
 END
 GO
 
-
-
-
--- PROCEDURE Thống kê số lượng hóa đơn đã lập theo ngày trong tháng
--- Param truyền vào là tháng và năm
--- Return: Tháng, Năm, Ngày và Số hóa đơn
 CREATE PROCEDURE sp_ThongKeDoanhThuTheoNgay
     @Thang INT, @Nam INT
 AS
@@ -2499,17 +2198,12 @@ BEGIN
         YEAR(ngayBan) AS [Nam],
         SUM(soLuong * donGia) AS [doanhThu]
     FROM HoaDon HD JOIN ChiTietHoaDon CTHD on HD.maHoaDon = CTHD.maHoaDon	
-    WHERE YEAR(ngayBan) = @Nam and MONTH(ngayBan) = @Thang
-      AND HD.isActive = 1
+    WHERE YEAR(ngayBan) = @Nam and MONTH(ngayBan) = @Thang AND HD.isActive = 1
     GROUP BY DAY(ngayBan), MONTH(ngayBan), YEAR(ngayBan)
     ORDER BY [Ngay];
 END
 GO
 
--- PROCEDURE Lấy tổng doanh thu của cả năm
--- Param: Năm cần thống kê
--- Return: Năm, Tổng doanh thu
-GO
 CREATE PROCEDURE sp_GetDoanhThuCuaNam
     @Nam INT
 AS
@@ -2519,33 +2213,20 @@ BEGIN
         ISNULL(SUM(cthd.soLuong * cthd.donGia), 0) AS [TongDoanhThu]
     FROM HoaDon hd
     INNER JOIN ChiTietHoaDon cthd ON hd.maHoaDon = cthd.maHoaDon
-    WHERE YEAR(hd.ngayBan) = @Nam 
-      AND hd.isActive = 1 
-      AND cthd.isActive = 1;
+    WHERE YEAR(hd.ngayBan) = @Nam AND hd.isActive = 1 AND cthd.isActive = 1;
 END
 GO
--- Test procedure
 
-
--- PROCEDURE Lấy tổng doanh thu của tháng
--- Param: Tháng và Năm cần thống kê
--- Return: Tháng, Năm, Tổng doanh thu
-GO
 CREATE PROCEDURE sp_GetDoanhThuCuaThang
-    @Thang INT,
-    @Nam INT
+    @Thang INT, @Nam INT
 AS
 BEGIN
     SELECT
-        @Thang AS [Thang],
-        @Nam AS [Nam],
+        @Thang AS [Thang], @Nam AS [Nam],
         ISNULL(SUM(cthd.soLuong * cthd.donGia), 0) AS [TongDoanhThu]
     FROM HoaDon hd
     INNER JOIN ChiTietHoaDon cthd ON hd.maHoaDon = cthd.maHoaDon
-    WHERE YEAR(hd.ngayBan) = @Nam 
-      AND MONTH(hd.ngayBan) = @Thang
-      AND hd.isActive = 1 
-      AND cthd.isActive = 1;
+    WHERE YEAR(hd.ngayBan) = @Nam AND MONTH(hd.ngayBan) = @Thang AND hd.isActive = 1 AND cthd.isActive = 1;
 END
 GO
 
@@ -2572,189 +2253,86 @@ CREATE PROCEDURE sp_GetSoKhachHangCuaNam
     @Nam INT
 AS
 BEGIN
-    SELECT
-        @Nam AS [Nam],
-        COUNT(DISTINCT hd.maKH) AS [SoKhachHang]
+    SELECT @Nam AS [Nam], COUNT(DISTINCT hd.maKH) AS [SoKhachHang]
     FROM HoaDon hd
-    WHERE YEAR(hd.ngayBan) = @Nam 
-      AND hd.isActive = 1
-      AND hd.maKH IS NOT NULL;
+    WHERE YEAR(hd.ngayBan) = @Nam AND hd.isActive = 1 AND hd.maKH IS NOT NULL;
 END
 GO
 
-
-
--- PROCEDURE Thống kê số lượng khách hàng đã mua hàng trong tháng
--- Param: Tháng và Năm cần thống kê
--- Return: Tháng, Năm, Số khách hàng (đếm khách hàng duy nhất)
-GO
 CREATE PROCEDURE sp_GetSoKhachHangCuaThang
-    @Thang INT,
-    @Nam INT
+    @Thang INT, @Nam INT
 AS
 BEGIN
-    SELECT
-        @Thang AS [Thang],
-        @Nam AS [Nam],
-        COUNT(DISTINCT hd.maKH) AS [SoKhachHang]
+    SELECT @Thang AS [Thang], @Nam AS [Nam], COUNT(DISTINCT hd.maKH) AS [SoKhachHang]
     FROM HoaDon hd
-    WHERE YEAR(hd.ngayBan) = @Nam 
-      AND MONTH(hd.ngayBan) = @Thang
-      AND hd.isActive = 1
-      AND hd.maKH IS NOT NULL;
+    WHERE YEAR(hd.ngayBan) = @Nam AND MONTH(hd.ngayBan) = @Thang AND hd.isActive = 1 AND hd.maKH IS NOT NULL;
 END
 GO
 
-
---= =============================  DOANH THU ==============================--
-
-
-
-
--- PROCEDURE Tính doanh thu trung bình của 1 ngày trong tháng
--- Param: Tháng và Năm cần thống kê
--- Return: Tháng, Năm, Doanh thu trung bình mỗi ngày
-GO
 CREATE PROCEDURE sp_GetDoanhThuTrungBinhTheoNgay
-    @Thang INT,
-    @Nam INT
+    @Thang INT, @Nam INT
 AS
 BEGIN
     DECLARE @TongDoanhThu FLOAT;
     DECLARE @SoNgayTrongThang INT;
     
-    -- Lấy tổng doanh thu của tháng
     SELECT @TongDoanhThu = ISNULL(SUM(cthd.soLuong * cthd.donGia), 0)
     FROM HoaDon hd
     INNER JOIN ChiTietHoaDon cthd ON hd.maHoaDon = cthd.maHoaDon
-    WHERE YEAR(hd.ngayBan) = @Nam 
-      AND MONTH(hd.ngayBan) = @Thang
-      AND hd.isActive = 1 
-      AND cthd.isActive = 1;
+    WHERE YEAR(hd.ngayBan) = @Nam AND MONTH(hd.ngayBan) = @Thang AND hd.isActive = 1 AND cthd.isActive = 1;
     
-    -- Tính số ngày trong tháng
     SET @SoNgayTrongThang = DAY(EOMONTH(DATEFROMPARTS(@Nam, @Thang, 1)));
     
-    -- Trả về kết quả
-    SELECT
-        @Thang AS [Thang],
-        @Nam AS [Nam],
-        @SoNgayTrongThang AS [SoNgayTrongThang],
-        @TongDoanhThu AS [TongDoanhThu],
-        CASE 
-            WHEN @SoNgayTrongThang > 0 THEN @TongDoanhThu / @SoNgayTrongThang
-            ELSE 0
-        END AS [DoanhThuTrungBinhMoiNgay];
+    SELECT @Thang AS [Thang], @Nam AS [Nam], @SoNgayTrongThang AS [SoNgayTrongThang], @TongDoanhThu AS [TongDoanhThu],
+        CASE WHEN @SoNgayTrongThang > 0 THEN @TongDoanhThu / @SoNgayTrongThang ELSE 0 END AS [DoanhThuTrungBinhMoiNgay];
 END
 GO
 
-
-
--- PROCEDURE Tính doanh thu trung bình của mỗi tháng trong năm
--- Param: Năm cần thống kê
--- Return: Năm, Số tháng đã qua, Doanh thu trung bình mỗi tháng
-GO
 CREATE PROCEDURE sp_GetDoanhThuTrungBinhTheoThang
     @Nam INT
 AS
 BEGIN
     DECLARE @TongDoanhThu FLOAT;
     DECLARE @SoThangDaQua INT;
-    DECLARE @ThangHienTai INT;
-    DECLARE @NamHienTai INT;
+    DECLARE @ThangHienTai INT = MONTH(GETDATE());
+    DECLARE @NamHienTai INT = YEAR(GETDATE());
     
-    -- Lấy tháng và năm hiện tại
-    SET @ThangHienTai = MONTH(GETDATE());
-    SET @NamHienTai = YEAR(GETDATE());
+    IF @Nam < @NamHienTai SET @SoThangDaQua = 12;
+    ELSE IF @Nam = @NamHienTai SET @SoThangDaQua = @ThangHienTai;
+    ELSE SET @SoThangDaQua = 0;
     
-    -- Tính số tháng đã qua trong năm
-    IF @Nam < @NamHienTai
-        SET @SoThangDaQua = 12; -- Năm đã qua hết
-    ELSE IF @Nam = @NamHienTai
-        SET @SoThangDaQua = @ThangHienTai; -- Năm hiện tại, đếm đến tháng hiện tại
-    ELSE
-        SET @SoThangDaQua = 0; -- Năm chưa đến
-    
-    -- Lấy tổng doanh thu của năm
     SELECT @TongDoanhThu = ISNULL(SUM(cthd.soLuong * cthd.donGia), 0)
     FROM HoaDon hd
     INNER JOIN ChiTietHoaDon cthd ON hd.maHoaDon = cthd.maHoaDon
-    WHERE YEAR(hd.ngayBan) = @Nam 
-      AND hd.isActive = 1 
-      AND cthd.isActive = 1;
+    WHERE YEAR(hd.ngayBan) = @Nam AND hd.isActive = 1 AND cthd.isActive = 1;
     
-    -- Trả về kết quả
-    SELECT
-        @Nam AS [Nam],
-        @SoThangDaQua AS [SoThangDaQua],
-        @TongDoanhThu AS [TongDoanhThu],
-        CASE 
-            WHEN @SoThangDaQua > 0 THEN @TongDoanhThu / @SoThangDaQua
-            ELSE 0
-        END AS [DoanhThuTrungBinhMoiThang];
+    SELECT @Nam AS [Nam], @SoThangDaQua AS [SoThangDaQua], @TongDoanhThu AS [TongDoanhThu],
+        CASE WHEN @SoThangDaQua > 0 THEN @TongDoanhThu / @SoThangDaQua ELSE 0 END AS [DoanhThuTrungBinhMoiThang];
 END
 GO
 
-
-
-
-
-
-
---= =============================  HẠN SỬ DỤNG ==============================--
-
-
--- PROCEDURE Lấy danh sách các lô thuốc đã hết hạn sử dụng
--- Param: Không có (sử dụng ngày hiện tại để so sánh)
--- Return: Danh sách các lô thuốc đã hết hạn với đầy đủ thông tin
-GO
 CREATE PROCEDURE sp_GetLoThuocDaHetHan
 AS
 BEGIN
-        SELECT
-        ct.maLo AS 'maLo',
-        t.maThuoc AS 'maThuoc',
-        t.tenThuoc AS 'tenThuoc',
-        ct.ngaySanXuat AS 'ngaySanXuat',
-        ct.hanSuDung AS 'hanSuDung',
-        ct.soLuong AS 'soLuongTon',
-        DATEDIFF(DAY, ct.hanSuDung, Getdate()) AS 'soNgayDaHetHan'
-        FROM ChiTietLoThuoc ct
-        INNER JOIN Thuoc t ON ct.maThuoc = t.maThuoc
-        WHERE ct.hanSuDung < getdate()
-        AND ct.isActive = 0
-        ORDER BY ct.hanSuDung ASC;
+    SELECT ct.maLo, t.maThuoc, t.tenThuoc, ct.ngaySanXuat, ct.hanSuDung, ct.soLuong AS 'soLuongTon', DATEDIFF(DAY, ct.hanSuDung, Getdate()) AS 'soNgayDaHetHan'
+    FROM ChiTietLoThuoc ct
+    INNER JOIN Thuoc t ON ct.maThuoc = t.maThuoc
+    WHERE ct.hanSuDung < getdate() AND ct.isActive = 0
+    ORDER BY ct.hanSuDung ASC;
 END
 GO
 
-
--- PROCEDURE Lấy danh sách các lô thuốc sắp hết hạn (trong vòng X ngày)
--- Param: @SoNgay - Số ngày để kiểm tra (mặc định 30 ngày)
--- Return: Danh sách các lô thuốc sắp hết hạn
-GO
 CREATE PROCEDURE sp_GetLoThuocSapHetHan
     @SoNgay INT = 30
 AS
 BEGIN
-    DECLARE @NgayHienTai DATE = CAST(GETDATE() AS DATE); -- cast để bỏ qua phần giờ phút giây
-    DECLARE @NgayKiemTra DATE = DATEADD(DAY, @SoNgay, @NgayHienTai); -- day là đơn vị cộng thêm, ngày + int 
+    DECLARE @NgayHienTai DATE = CAST(GETDATE() AS DATE);
+    DECLARE @NgayKiemTra DATE = DATEADD(DAY, @SoNgay, @NgayHienTai);
     
-    SELECT
-        ct.maLo AS 'maLo',
-        t.maThuoc AS 'maThuoc',
-        t.tenThuoc AS 'tenThuoc',
-        ct.ngaySanXuat AS 'ngaySanXuat',
-        ct.hanSuDung AS 'hanSuDung',
-        ct.soLuong AS 'soLuongTon',
-        DATEDIFF(DAY, @NgayHienTai, ct.hanSuDung) AS [soNgayConLai]
+    SELECT ct.maLo, t.maThuoc, t.tenThuoc, ct.ngaySanXuat, ct.hanSuDung, ct.soLuong AS 'soLuongTon', DATEDIFF(DAY, @NgayHienTai, ct.hanSuDung) AS [soNgayConLai]
     FROM ChiTietLoThuoc ct
     INNER JOIN Thuoc t ON ct.maThuoc = t.maThuoc
-    INNER JOIN LoThuoc lo ON ct.maLo = lo.maLo
-    WHERE ct.hanSuDung >= @NgayHienTai              
-      AND ct.hanSuDung <= @NgayKiemTra               
-      AND ct.isActive = 1                     
-      AND ct.soLuong > 0                            
-      AND t.isActive = 1                            
+    WHERE ct.hanSuDung >= @NgayHienTai AND ct.hanSuDung <= @NgayKiemTra AND ct.isActive = 1 AND ct.soLuong > 0 AND t.isActive = 1                            
     ORDER BY ct.hanSuDung ASC, ct.maThuoc;         
 END
 GO
