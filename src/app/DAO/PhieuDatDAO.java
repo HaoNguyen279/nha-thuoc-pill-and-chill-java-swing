@@ -28,7 +28,8 @@ public class PhieuDatDAO {
             rs.getDate("ngayDat"),
             rs.getString("maKH"),
             rs.getString("ghiChu"), 
-            rs.getBoolean("isActive")
+            rs.getBoolean("isActive"),
+            rs.getBoolean("isReceived")
         );
     }
 
@@ -38,10 +39,10 @@ public class PhieuDatDAO {
      */
     public ArrayList<PhieuDat> getAllPhieuDat() {
         ArrayList<PhieuDat> dsPhieuDat = new ArrayList<>();
-        // Giả định bảng PhieuDat đã có cột ghiChu
+        // Giả định bảng PhieuDat đã có cột ghiChu và isReceived
         String sql = "SELECT * FROM PhieuDat WHERE isActive = 1 ORDER BY ngayDat DESC";
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -61,11 +62,11 @@ public class PhieuDatDAO {
      * @return A PhieuDat object if found, otherwise null.
      */
     public PhieuDat getPhieuDatById(String id) {
-        // Giả định bảng PhieuDat đã có cột ghiChu
+        // Giả định bảng PhieuDat đã có cột ghiChu và isReceived
         String sql = "SELECT * FROM PhieuDat WHERE maPhieuDat = ?";
         PhieuDat pd = null;
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setString(1, id);
@@ -89,7 +90,7 @@ public class PhieuDatDAO {
      */
     public boolean addPhieuDat(PhieuDat phieuDat) {
         // Cập nhật SQL và tham số
-        String sql = "INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH, ghiChu, isActive) VALUES (?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO PhieuDat (maPhieuDat, maNV, ngayDat, maKH, ghiChu, isActive, isReceived) VALUES (?, ?, ?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -106,7 +107,8 @@ public class PhieuDatDAO {
             
             stmt.setString(4, phieuDat.getMaKH());
             stmt.setString(5, phieuDat.getGhiChu()); 
-            stmt.setBoolean(6, phieuDat.isIsActive()); // <-- Chỉ số tăng 1
+            stmt.setBoolean(6, phieuDat.isIsActive());
+            stmt.setBoolean(7, phieuDat.isReceived());
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -122,7 +124,7 @@ public class PhieuDatDAO {
      */
     public boolean updatePhieuDat(PhieuDat phieuDat) {
         // Cập nhật SQL và tham số
-        String sql = "UPDATE PhieuDat SET maNV = ?, ngayDat = ?, maKH = ?, ghiChu = ?, isActive = ? WHERE maPhieuDat = ?";
+        String sql = "UPDATE PhieuDat SET maNV = ?, ngayDat = ?, maKH = ?, ghiChu = ?, isActive = ?, isReceived = ? WHERE maPhieuDat = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -138,8 +140,9 @@ public class PhieuDatDAO {
 
             stmt.setString(3, phieuDat.getMaKH());
             stmt.setString(4, phieuDat.getGhiChu()); 
-            stmt.setBoolean(5, phieuDat.isIsActive()); // <-- Chỉ số tăng 1
-            stmt.setString(6, phieuDat.getMaPhieuDat()); // <-- Chỉ số tăng 1
+            stmt.setBoolean(5, phieuDat.isIsActive());
+            stmt.setBoolean(6, phieuDat.isReceived());
+            stmt.setString(7, phieuDat.getMaPhieuDat());
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -208,18 +211,41 @@ public class PhieuDatDAO {
         }
         return n > 0;
     }
+
+    /**
+     * Cập nhật trạng thái đã nhận hàng cho một phiếu đặt
+     * @param maPhieuDat mã phiếu đặt cần cập nhật
+     * @param isReceived true = đã nhận hàng, false = chưa nhận hàng
+     * @return true nếu cập nhật thành công, false nếu có lỗi
+     */
+    public boolean updateReceivedStatus(String maPhieuDat, boolean isReceived) {
+        String sql = "UPDATE PhieuDat SET isReceived = ? WHERE maPhieuDat = ?";
+        int n = 0;
+        
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setBoolean(1, isReceived);
+            stmt.setString(2, maPhieuDat);
+            
+            n = stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return n > 0;
+    }
     
     
     //lala
     public ArrayList<PhieuDat> getAllPhieuDat5Field() {
         ArrayList<PhieuDat> dsPhieuDat = new ArrayList<>();
-        // Giả định bảng PhieuDat đã có cột ghiChu
-        String sql = "SELECT maPhieuDat, tenNV, ngayDat, tenKH, ghiChu, pd.isActive \n"
+        // Giả định bảng PhieuDat đã có cột ghiChu và isReceived
+        String sql = "SELECT maPhieuDat, tenNV, ngayDat, tenKH, ghiChu, pd.isActive, pd.isReceived \n"
         		+ "FROM PhieuDat pd JOIN NhanVien nv ON pd.maNV = nv.maNV\n"
         		+ "	JOIN KhachHang kh ON kh.maKH = pd.maKH\n"
         		+ "ORDER BY maPhieuDat DESC ";
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              Statement stmt = con.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
@@ -241,20 +267,21 @@ public class PhieuDatDAO {
             rs.getDate("ngayDat"),
             rs.getString("tenKH"),
             rs.getString("ghiChu"), 
-            rs.getBoolean("isActive")
+            rs.getBoolean("isActive"),
+            rs.getBoolean("isReceived")
         );
     }
     
   //lala
     public ArrayList<PhieuDat> findPhieuDatByThangNam(int thang, int nam) {
         ArrayList<PhieuDat> dsPhieuDat = new ArrayList<>();
-        String sql = "SELECT maPhieuDat, tenNV, ngayDat, tenKH, ghiChu, pd.isActive\n"
+        String sql = "SELECT maPhieuDat, tenNV, ngayDat, tenKH, ghiChu, pd.isActive, pd.isReceived\n"
         		+ "FROM PhieuDat pd JOIN NhanVien nv ON pd.maNV = nv.maNV\n"
         		+ "	JOIN KhachHang kh ON kh.maKH = pd.maKH\n"
         		+ "WHERE pd.isActive = 1 AND MONTH(ngayDat) = ? AND YEAR(ngayDat) = ?\n"
         		+ "ORDER BY ngayDat DESC, maPhieuDat DESC";
 
-        try (Connection con = ConnectDB.getInstance().getConnection();
+        try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
             stmt.setInt(1, thang);

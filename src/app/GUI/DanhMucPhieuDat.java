@@ -95,7 +95,7 @@ public class DanhMucPhieuDat extends JPanel implements ActionListener, MouseList
 	public DanhMucPhieuDat() {
 		
         // Table init
-        String[] colsPhieuDat = {"Mã phiếu đặt", "Tên NV", "Tên KH", "Ngày lập", "Ghi chú"};
+        String[] colsPhieuDat = {"Mã phiếu đặt", "Tên NV", "Tên KH", "Ngày lập", "Đã nhận", "Ghi chú"};
         dtmPhieuDat = new DefaultTableModel(colsPhieuDat, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -299,18 +299,20 @@ public class DanhMucPhieuDat extends JPanel implements ActionListener, MouseList
 	}
 	
 	public void loadPhieuDatData() {
-		ConnectDB.getInstance().connect();
+		ConnectDB.connect();
 		PhieuDatDAO pdDAO = new PhieuDatDAO();
-		dsPhieuDat = pdDAO.getAllPhieuDat5Field();
+		dsPhieuDat = pdDAO.getAllPhieuDat();
 		dtmPhieuDat.setRowCount(0);
 		dtmChiTietPhieuDat.setRowCount(0);
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		for(PhieuDat pd : dsPhieuDat) {
+			String trangThaiNhan = pd.isReceived() ? "Đã nhận" : "Chưa nhận";
 			Object[] rowData = {
 					pd.getMaPhieuDat(),
 					pd.getMaNV(),
 					pd.getMaKH(),
 					sdf.format(pd.getNgayDat()),
+					trangThaiNhan,
 					pd.getGhiChu()
 			};
 			dtmPhieuDat.addRow(rowData);
@@ -318,7 +320,7 @@ public class DanhMucPhieuDat extends JPanel implements ActionListener, MouseList
 	}
 	
 	public void loadChiTietPhieuDatData(String mapd) {
-		ConnectDB.getInstance().connect();
+		ConnectDB.connect();
 		ChiTietPhieuDatDAO ctDAO = new ChiTietPhieuDatDAO();
 		dsChiTietPhieuDat = ctDAO.getAllByPhieuDatId(mapd);
 		dtmChiTietPhieuDat.setRowCount(0);
@@ -334,7 +336,7 @@ public class DanhMucPhieuDat extends JPanel implements ActionListener, MouseList
 	}
 	
 	public void timKiemPhieuDatTheoThangNam() {
-		ConnectDB.getInstance().connect();
+		ConnectDB.connect();
         PhieuDatDAO hdDAO = new PhieuDatDAO();
         String txtNam = (String) cboNam.getSelectedItem();
 		int nam = Integer.parseInt(txtNam);
@@ -343,11 +345,13 @@ public class DanhMucPhieuDat extends JPanel implements ActionListener, MouseList
         dtmChiTietPhieuDat.setRowCount(0);
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		for(PhieuDat pd : dsPhieuDat) {
+			String trangThaiNhan = pd.isReceived() ? "Đã nhận" : "Chưa nhận";
 			Object[] rowData = {
 					pd.getMaPhieuDat(),
 					pd.getMaNV(),
 					pd.getMaKH(),
 					sdf.format(pd.getNgayDat()),
+					trangThaiNhan,
 					pd.getGhiChu()
 			};
 			dtmPhieuDat.addRow(rowData);
@@ -361,11 +365,13 @@ public class DanhMucPhieuDat extends JPanel implements ActionListener, MouseList
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		for(PhieuDat pd : dsPhieuDat) {
 			if(pd.getMaPhieuDat().equals(maPhieuDat)) {
+				String trangThaiNhan = pd.isReceived() ? "Đã nhận" : "Chưa nhận";
 				Object[] rowData = {
 						pd.getMaPhieuDat(),
 						pd.getMaNV(),
 						pd.getMaKH(),
 						sdf.format(pd.getNgayDat()),
+						trangThaiNhan,
 						pd.getGhiChu()
 				};
 				dtmPhieuDat.addRow(rowData);
@@ -380,11 +386,13 @@ public class DanhMucPhieuDat extends JPanel implements ActionListener, MouseList
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		for(PhieuDat pd : dsPhieuDat) {
 			if(tenNhanVien != null && pd.getMaNV().toLowerCase().matches(".*"+tenNhanVien+".*")) {
+				String trangThaiNhan = pd.isReceived() ? "Đã nhận" : "Chưa nhận";
 				Object[] rowData = {
 						pd.getMaPhieuDat(),
 						pd.getMaNV(),
 						pd.getMaKH(),
 						sdf.format(pd.getNgayDat()),
+						trangThaiNhan,
 						pd.getGhiChu()
 				};
 				dtmPhieuDat.addRow(rowData);
@@ -399,11 +407,13 @@ public class DanhMucPhieuDat extends JPanel implements ActionListener, MouseList
 		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 		for(PhieuDat pd : dsPhieuDat) {
 			if(tenKhachHang != null && pd.getMaKH().toLowerCase().matches(".*"+tenKhachHang+".*")) {
+				String trangThaiNhan = pd.isReceived() ? "Đã nhận" : "Chưa nhận";
 				Object[] rowData = {
 						pd.getMaPhieuDat(),
 						pd.getMaNV(),
 						pd.getMaKH(),
 						sdf.format(pd.getNgayDat()),
+						trangThaiNhan,
 						pd.getGhiChu()
 				};
 				dtmPhieuDat.addRow(rowData);

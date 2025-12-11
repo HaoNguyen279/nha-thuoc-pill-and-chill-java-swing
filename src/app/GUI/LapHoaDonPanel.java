@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import app.ConnectDB.ConnectDB;
 import app.DAO.ThuocDAO;
 import app.DAO.HoaDonDAO;
+import app.DAO.TonKhoDAO;
 import app.Entity.Thuoc;
 
 public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCallback {
@@ -384,12 +385,27 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
             // Xóa dữ liệu cũ trong bảng
             modelThuoc.setRowCount(0);
             
-            // Thêm dữ liệu mới vào bảng
+            // Tạo TonKhoDAO để tính available stock
+            TonKhoDAO tonKhoDAO = new TonKhoDAO();
+            
+            // Thêm dữ liệu mới vào bảng với available stock
             for (Thuoc thuoc : dsThuoc) {
+                int onHand = thuoc.getSoLuongTon();
+                int available = tonKhoDAO.getSoLuongAvailable(thuoc.getMaThuoc());
+                
+                String displayStock;
+                if (onHand == 0) {
+                    displayStock = "Hết hàng";
+                } else if (available == 0) {
+                    displayStock = "Không khả dụng (đã đặt hết)";
+                } else {
+                    displayStock = String.valueOf(available);
+                }
+                
                 Object[] row = {
                         thuoc.getMaThuoc(),
                         thuoc.getTenThuoc(),
-                        thuoc.getSoLuongTon() == 0 ? "Hết hàng" : thuoc.getSoLuongTon(),
+                        displayStock,
                         String.format("%,.0f VNĐ", thuoc.getGiaBan()),
                         thuoc.getDonVi()
                 };
@@ -456,13 +472,28 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         modelThuoc.setRowCount(0);
         int count = 0;
         
+        TonKhoDAO tonKhoDAO = new TonKhoDAO();
+        
         for (Thuoc thuoc : dsThuoc) {
             if (thuoc.getMaThuoc().toLowerCase().contains(keyword) || 
                 thuoc.getTenThuoc().toLowerCase().contains(keyword)) {
+                
+                int onHand = thuoc.getSoLuongTon();
+                int available = tonKhoDAO.getSoLuongAvailable(thuoc.getMaThuoc());
+                
+                String displayStock;
+                if (onHand == 0) {
+                    displayStock = "Hết hàng";
+                } else if (available == 0) {
+                    displayStock = "Không khả dụng (đã đặt hết)";
+                } else {
+                    displayStock = String.valueOf(available);
+                }
+                
                 Object[] row = {
                     thuoc.getMaThuoc(),
                     thuoc.getTenThuoc(),
-                    thuoc.getSoLuongTon() == 0 ? "Hết hàng" : thuoc.getSoLuongTon(),
+                    displayStock,
                     String.format("%,.0f VNĐ", thuoc.getGiaBan()),
                     thuoc.getDonVi()
                 };
@@ -498,19 +529,50 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         Object slTonObj = modelThuoc.getValueAt(selectedRow, 2);
         String donGiaStr = modelThuoc.getValueAt(selectedRow, 3).toString();
         
-        // Kiểm tra hết hàng
+        // Kiểm tra hết hàng hoặc không khả dụng
         if (slTonObj.toString().equals("Hết hàng")) {
             CustomJOptionPane a = new CustomJOptionPane(this, "Thuốc này đã hết hàng!", false);
             a.show();
             return;
         }
         
-        int soLuongTon = Integer.parseInt(slTonObj.toString());
+        if (slTonObj.toString().equals("Không khả dụng (đã đặt hết)")) {
+            TonKhoDAO tonKhoDAO = new TonKhoDAO();
+            int onHand = tonKhoDAO.getSoLuongTonKho(maThuoc);
+            int reserved = tonKhoDAO.getSoLuongReserved(maThuoc);
+            
+            String message = "Thuốc này hiện không khả dụng để bán!\n\n" +
+                           "Tồn kho thực tế: " + onHand + " viên\n" +
+                           "Đã đặt trước: " + reserved + " viên\n" +
+                           "Khả dụng: 0 viên\n\n" +
+                           "Lý do: Toàn bộ tồn kho đã được khách khác đặt trước.";
+            
+            CustomJOptionPane a = new CustomJOptionPane(this, message, false);
+            a.show();
+            return;
+        }
+        
+        int soLuongAvailable = Integer.parseInt(slTonObj.toString());
         int soLuongMua = (int) spnQuantityTop.getValue();
         
-        // Kiểm tra số lượng
-        if (soLuongMua > soLuongTon) {
-            CustomJOptionPane a = new CustomJOptionPane(this, "Số lượng mua vượt quá số lượng tồn kho!\nSố lượng tồn: " + soLuongTon, false);
+        // Kiểm tra số lượng với available stock
+        if (soLuongMua > soLuongAvailable) {
+            TonKhoDAO tonKhoDAO = new TonKhoDAO();
+            int onHand = tonKhoDAO.getSoLuongTonKho(maThuoc);
+            int reserved = tonKhoDAO.getSoLuongReserved(maThuoc);
+            
+            String message = "Số lượng mua vượt quá số lượng khả dụng!\n\n" +
+                           "Tồn kho thực tế: " + onHand + " viên\n" +
+                           "Đã đặt trước: " + reserved + " viên\n" +
+                           "Khả dụng: " + soLuongAvailable + " viên\n\n" +
+                           "Bạn muốn mua: " + soLuongMua + " viên\n" +
+                           "Chỉ có thể mua tối đa: " + soLuongAvailable + " viên";
+            
+            if (reserved > 0) {
+                message += "\n\n" + reserved + " viên đã được khách khác đặt trước.";
+            }
+            
+            CustomJOptionPane a = new CustomJOptionPane(this, message, false);
             a.show();
             return;
         }
@@ -527,8 +589,21 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
                 int soLuongCu = Integer.parseInt(modelGioHang.getValueAt(i, 2).toString());
                 int soLuongMoi = soLuongCu + soLuongMua;
                 
-                if (soLuongMoi > soLuongTon) {
-                    CustomJOptionPane a = new CustomJOptionPane(this, "Tổng số lượng vượt quá số lượng tồn kho!\nSố lượng tồn: " + soLuongTon, false);
+                if (soLuongMoi > soLuongAvailable) {
+                    TonKhoDAO tonKhoDAO = new TonKhoDAO();
+                    int onHand = tonKhoDAO.getSoLuongTonKho(maThuoc);
+                    int reserved = tonKhoDAO.getSoLuongReserved(maThuoc);
+                    
+                    String message = "Tổng số lượng vượt quá số lượng khả dụng!\n\n" +
+                                   "Tồn kho thực tế: " + onHand + " viên\n" +
+                                   "Đã đặt trước: " + reserved + " viên\n" +
+                                   "Khả dụng: " + soLuongAvailable + " viên\n\n" +
+                                   "Đã có trong giỏ: " + soLuongCu + " viên\n" +
+                                   "Muốn thêm: " + soLuongMua + " viên\n" +
+                                   "Tổng sẽ là: " + soLuongMoi + " viên\n" +
+                                   "Tối đa có thể mua: " + soLuongAvailable + " viên";
+                    
+                    CustomJOptionPane a = new CustomJOptionPane(this, message, false);
                     a.show();
                     return;
                 }
