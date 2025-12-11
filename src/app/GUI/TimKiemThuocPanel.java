@@ -6,22 +6,26 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
 import com.formdev.flatlaf.FlatLightLaf;
-import com.itextpdf.text.log.SysoCounter;
 
-import app.ConnectDB.ConnectDB;
-import app.DAO.NhaSanXuatDAO;
+
+import app.ConnectDB. ConnectDB;
+import app. DAO.NhaSanXuatDAO;
 import app.DAO.ThuocDAO;
-import app.Entity.NhaSanXuat;
+import app. Entity.NhaSanXuat;
 import app.Entity.Thuoc;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
+import java. awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java. util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TimKiemThuocPanel extends JPanel implements ActionListener{ 
+public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseListener{ 
+	
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
 	private JLabel lblTieuDe;
 	private JLabel lblMaThuoc;
 	private JLabel lblTenThuoc;
@@ -35,21 +39,13 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener{
 	private JTextField txtSoLuongTon;
 	private JTextField txtGiaBan;
 	private JComboBox<String> cboDonVi;
-//	private JTextField txtSoLuongToiThieu;
 	private JComboBox<String> cboNhaSanXuat;
-
 
 	private JButton btnXoaTrang;
 	private JButton btnTimKiem;
 	
 	private DefaultTableModel dtm;
 	private JTable tblThuoc;
-	
-
-	
-	
-	
-	
 	
     private DefaultTableModel dtmTable;
     private ArrayList<Thuoc> dsThuoc;
@@ -63,17 +59,13 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener{
 	private ArrayList<NhaSanXuat> dsNhaSanXuat;
 	private NhaSanXuatDAO nsxDAO = new NhaSanXuatDAO();
 	private HashMap mapNhaSanXuat;
+	
     public TimKiemThuocPanel() {
     	
     	FlatLightLaf.setup();
         setLayout(new BorderLayout());
         
-        
-     
-        
-        
-        
-        ConnectDB.getInstance().connect();
+        ConnectDB. getInstance().connect();
         
         nsxDAO = new NhaSanXuatDAO();
         mapNhaSanXuat = new HashMap<>();
@@ -81,10 +73,8 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener{
         dsThuoc = thuocdao.getAllThuocCoTenNSX();
         JPanel topPanel = createTopPanel();
 
-       
         JPanel mainPanel = new JPanel(new BorderLayout());
 
-        
         JPanel centerPanel = taoCenterPanel();
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         
@@ -96,32 +86,28 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener{
         getActionMap().put("clickLogin", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                btnTim.doClick();
+                btnTim. doClick();
             }
         });
         loadNhaSanXuatData();
         setVisible(true);
     }
     
-public JPanel createTopPanel() {
+	public JPanel createTopPanel() {
 		
 		JPanel pnlMain = new JPanel(new BorderLayout());
 		JPanel pnlTopOfMain = new JPanel();
-		JPanel pnlCenterOfMain = new JPanel(new GridLayout(3,2,10,10));
+		JPanel pnlCenterOfMain = new JPanel(new GridLayout(3,2,10,5));
 		JPanel pnlBottomOfMain = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		
-
-		
 		lblTieuDe = new JLabel("TÌM KIẾM THUỐC", SwingConstants.CENTER);
-        lblTieuDe.setFont(new Font("Arial", Font.BOLD, 24));
+        lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblTieuDe.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
 		pnlMain.setBorder(BorderFactory.createEmptyBorder(0,30,0,30));
 		pnlTopOfMain.add(lblTieuDe);
-
-		
         
         lblMaThuoc = new JLabel("Mã thuốc:");
-        lblMaThuoc.setOpaque(true);
+        lblMaThuoc. setOpaque(true);
         lblTenThuoc = new JLabel("Tên thuốc:");
         lblSoLuongTon = new JLabel("Số lượng:");
         lblGiaBan = new JLabel("Giá bán:");
@@ -133,11 +119,11 @@ public JPanel createTopPanel() {
         txtSoLuongTon = new JTextField(15);
         txtGiaBan = new JTextField(15);
         
-        
         cboDonVi = new JComboBox<>();
     	cboNhaSanXuat = new JComboBox<>();
     	
     	// Thêm các đơn vị phổ biến
+    	cboDonVi.addItem("");
     	cboDonVi.addItem("Viên");
     	cboDonVi.addItem("Hộp");
     	cboDonVi.addItem("Vỉ");
@@ -146,28 +132,15 @@ public JPanel createTopPanel() {
     	cboDonVi.addItem("Tuýp");
     	cboDonVi.addItem("Gói");
     	
-       
-      
         btnXoaTrang = new JButton("Xóa trắng");
         btnTimKiem = new JButton("Tìm kiếm");
 		
-//		JLabel[] labelList = {lblTenThuoc,lblDonVi,lblGiaBan,lblMaThuoc,lblNhaSanXuat,lblSoLuongTon};
-//		for(JLabel item : labelList) {
-//			item.setOpaque(true);
-//			item.setBackground(Color.white);
-//		}
-		
-		
-		
-		
 		pnlMain.setBorder(BorderFactory.createEmptyBorder(0,30,0,30));
-//		pnlTopOfMain.add(lblTieuDe);
 		
 		JPanel pnlr1 = new JPanel(new BorderLayout());
-		pnlr1.add(lblMaThuoc, BorderLayout.WEST);
+		pnlr1.add(lblMaThuoc, BorderLayout. WEST);
 		pnlr1.add(txtMaThuoc);
 		pnlr1.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
-
 		
 		JPanel pnlr3 = new JPanel(new BorderLayout());
 		pnlr3.add(lblTenThuoc, BorderLayout.WEST);
@@ -177,7 +150,7 @@ public JPanel createTopPanel() {
 		JPanel pnlr4 = new JPanel(new BorderLayout());
 		pnlr4.add(lblSoLuongTon, BorderLayout.WEST);
 		pnlr4.add(txtSoLuongTon);
-		pnlr4.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
+		pnlr4.setBorder(BorderFactory. createEmptyBorder(0,10,0,10));
 		
 		JPanel pnlr5 = new JPanel(new BorderLayout());
 		pnlr5.add(lblGiaBan, BorderLayout.WEST);
@@ -185,7 +158,7 @@ public JPanel createTopPanel() {
 		pnlr5.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 
 		JPanel pnlr6 = new JPanel(new BorderLayout());
-		pnlr6.add(lblDonVi, BorderLayout.WEST);
+		pnlr6.add(lblDonVi, BorderLayout. WEST);
 		pnlr6.add(cboDonVi);
 		pnlr6.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
 
@@ -196,104 +169,94 @@ public JPanel createTopPanel() {
 		
 		pnlCenterOfMain.add(pnlr1);
 		pnlCenterOfMain.add(pnlr3);
-		pnlCenterOfMain.add(pnlr4);
+		pnlCenterOfMain. add(pnlr4);
 		pnlCenterOfMain.add(pnlr5);
 		pnlCenterOfMain.add(pnlr6);
 		pnlCenterOfMain.add(pnlr8);
 		
-
-		
-		
 		// JButton, JLabel, JTextField customization
 		JButton[] btnList = {btnXoaTrang,btnTimKiem};
 		for(JButton item : btnList) {
-			item.setFont(new Font("Arial", Font.BOLD, 16));
+			item.setFont(new Font("Segoe UI", Font.BOLD, 16));
 			item.setForeground(Color.WHITE);
 			item.setBorder(BorderFactory.createCompoundBorder(
-				BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+				BorderFactory.createLineBorder(Color. LIGHT_GRAY),
 				BorderFactory.createEmptyBorder(15,45,15,45)
 			));
 			item.setFocusPainted(false);
 			item.setCursor(new Cursor(Cursor.HAND_CURSOR));
 			item.addActionListener(this);
-			
 		}
 		btnXoaTrang.setForeground(Color.BLACK);
 		btnTimKiem.setForeground(Color.black);
+		
 		JLabel[] lblItems = { 
 			    lblMaThuoc, lblTenThuoc, lblSoLuongTon,
 			    lblGiaBan, lblDonVi, lblNhaSanXuat
 			};
         for(JLabel item : lblItems) {
-        	item.setFont(new Font("Arial", Font.PLAIN, 15));
+        	item.setFont(new Font("Segoe UI", Font. PLAIN, 15));
         	item.setPreferredSize(new Dimension(100,0));
         }
+        
         JTextField[] txtItems = {
         	    txtMaThuoc, txtTenThuoc, txtSoLuongTon,
         	    txtGiaBan
         	};
         for(JTextField item : txtItems) {
-        	item.setFont(new Font("Arial", Font.ITALIC, 16));
-        	item.setForeground(Color.BLUE);
+        	item.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         	item.setBackground(new Color(245, 245, 245));
-        	item.setPreferredSize(new Dimension(200,20));
+        	item.setPreferredSize(new Dimension(200,30));
         	item.setBorder(BorderFactory.createCompoundBorder(
             	BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-        		BorderFactory.createEmptyBorder(5,10,5,10)
+        		BorderFactory.createEmptyBorder(3,10,3,10)
         	));
         }
-        cboNhaSanXuat.setFont(new Font("Arial", Font.ITALIC, 16));
+        
+        cboNhaSanXuat.setFont(new Font("Segoe UI", Font.ITALIC, 14));
         cboNhaSanXuat.setForeground(Color.BLUE);
         cboNhaSanXuat.setBackground(new Color(245, 245, 245));
-        cboNhaSanXuat.setPreferredSize(new Dimension(200,20));
+        cboNhaSanXuat.setPreferredSize(new Dimension(200,30));
+        cboNhaSanXuat.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         
-        cboDonVi.setFont(new Font("Arial", Font.ITALIC, 16));
-        cboDonVi.setForeground(Color.BLUE);
+        cboDonVi.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+        cboDonVi. setForeground(Color. BLUE);
         cboDonVi.setBackground(new Color(245, 245, 245));
-        cboDonVi.setPreferredSize(new Dimension(200,20));
+        cboDonVi. setPreferredSize(new Dimension(200,30));
         cboDonVi.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
         
-		txtMaThuoc.setDisabledTextColor(Color.GRAY);
+		txtMaThuoc.setDisabledTextColor(Color. GRAY);
 		txtSoLuongTon.setDisabledTextColor(Color.GRAY);
 		
 		pnlBottomOfMain.add(btnXoaTrang);
-	
 		pnlBottomOfMain.add(Box.createHorizontalStrut(10));
 		pnlBottomOfMain.add(btnTimKiem);
 		pnlBottomOfMain.add(Box.createHorizontalStrut(10));
-
 		
 		pnlMain.add(pnlTopOfMain,BorderLayout.NORTH);
-		pnlCenterOfMain.setPreferredSize(new Dimension(0,120)); //important
+		pnlCenterOfMain.setPreferredSize(new Dimension(0,110));
 		pnlMain.add(pnlCenterOfMain, BorderLayout.CENTER);
 		pnlBottomOfMain.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
-		pnlMain.add(pnlBottomOfMain, BorderLayout.SOUTH);
+		pnlMain.add(pnlBottomOfMain, BorderLayout. SOUTH);
 		
 		return pnlMain;
 	}
     
-public void loadNhaSanXuatData() {
-    dsNhaSanXuat = nsxDAO.getAllNhaSanXuat();
-    cboNhaSanXuat.addItem("");
-    for(NhaSanXuat item : dsNhaSanXuat) {
-        cboNhaSanXuat.addItem(item.getTenNSX());
-        mapNhaSanXuat.put( item.getTenNSX(),item.getMaNSX());
-    }
-}
+	public void loadNhaSanXuatData() {
+	    dsNhaSanXuat = nsxDAO.getAllNhaSanXuat();
+	    cboNhaSanXuat.addItem("");
+	    for(NhaSanXuat item : dsNhaSanXuat) {
+	        cboNhaSanXuat.addItem(item.getTenNSX());
+	        mapNhaSanXuat. put(item.getTenNSX(),item. getMaNSX());
+	    }
+	}
 
     private JPanel taoCenterPanel() {
         JPanel centerPanel = new JPanel(new BorderLayout(0, 20));
-       
         centerPanel.setBorder(new EmptyBorder(20, 40, 20, 40));
-        
-        // Title Panel
-        JPanel titlePanel = new JPanel(new BorderLayout());
-   
-   
         
         // Table Panel
         JPanel panel = new JPanel(new BorderLayout());
-        
 
         String[] cols = {"Mã thuốc", "Tên thuốc", "Số lượng", 
                         "Giá bán", "Đơn vị", "NSX"};
@@ -306,49 +269,54 @@ public void loadNhaSanXuatData() {
         };
         loadData_Thuoc(dsThuoc);
         
-        table = new JTable(dtmTable);
-        
-        // Style table header
-        JTableHeader header = table.getTableHeader();
-        header.setBackground(new Color(144, 238, 144));
-        header.setForeground(new Color(51, 51, 51));
-        header.setFont(new Font("Arial", Font.BOLD, 14));
-        header.setPreferredSize(new Dimension(header.getWidth(), 40));
-        header.setBorder(BorderFactory.createLineBorder(new Color(180, 180, 180)));
+        table = new JTable(dtmTable) {
+        	@Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };
         
         // Style table
-        table.setBackground(Color.WHITE);
-        table.setGridColor(new Color(200, 200, 200));
-        table.setFont(new Font("Arial", Font.PLAIN, 13));
         table.setRowHeight(35);
-        table.setSelectionBackground(new Color(220, 255, 220));
-        table.setSelectionForeground(Color.BLACK);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setFillsViewportHeight(true);
         table.setShowGrid(true);
-        table.setIntercellSpacing(new Dimension(1, 1));
+        table.setGridColor(new Color(224, 224, 224));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionBackground(new Color(178, 223, 219));
+        table.setSelectionForeground(Color.BLACK);
         
-        // Center align cells
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(Color.WHITE);
+        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setReorderingAllowed(false);
+        
+        DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
-        }
+
+        table.addMouseListener(this);
         
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(180, 180, 180)));
+        scrollPane. setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         scrollPane.getViewport().setBackground(Color.WHITE);
         
         panel.add(scrollPane, BorderLayout.CENTER);
         
         lblTongSoBanGhi = new JLabel("Tổng số bản ghi: " + dsThuoc.size());
-        lblTongSoBanGhi.setFont(new Font("Arial", Font.PLAIN, 14));
+        lblTongSoBanGhi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lblTongSoBanGhi.setBorder(new EmptyBorder(15, 0, 0, 0));
         
         centerPanel.add(panel, BorderLayout.CENTER);
-        centerPanel.add(lblTongSoBanGhi, BorderLayout.SOUTH);
+        centerPanel.add(lblTongSoBanGhi, BorderLayout. SOUTH);
         return centerPanel;
     }
     
-   
     public void loadData_Thuoc(ArrayList<Thuoc> dsThuoc) {
         dtmTable.setRowCount(0);
         for(Thuoc thuoc : dsThuoc) {
@@ -356,15 +324,14 @@ public void loadNhaSanXuatData() {
             Object[] rowData = {
                 thuoc.getMaThuoc(),
                 thuoc.getTenThuoc(),
-                thuoc.getSoLuongTon() == 0 ? "Hết hàng" : thuoc.getSoLuongTon(),
+                thuoc. getSoLuongTon() == 0 ? "Hết hàng" : thuoc.getSoLuongTon(),
                 thuoc.getGiaBan(),
                 thuoc.getDonVi(),
-               
                 thuoc.getMaNSX()
             };
             dtmTable.addRow(rowData);
         }
-        lblTongSoBanGhi.setText("Tổng số bản ghi: " + dsThuoc.size());
+        lblTongSoBanGhi. setText("Tổng số bản ghi: " + dsThuoc.size());
     }
 
     @Override
@@ -374,21 +341,20 @@ public void loadNhaSanXuatData() {
             ArrayList<Thuoc> ketQuaTim = new ArrayList<Thuoc>();
             String timString = txtTim.getText().toLowerCase().trim();
             
-            if(timString.equals("nhập từ khóa tìm kiếm...") || timString.isBlank()) {
+            if(timString.equals("nhập từ khóa tìm kiếm... ") || timString.isBlank()) {
                 loadData_Thuoc(dsThuoc);
             }
             else {
                 if(tieuChi.equals("Mã thuốc")) {
-                    for(Thuoc thuoc: dsThuoc) {
+                    for(Thuoc thuoc:  dsThuoc) {
                         if(thuoc.getMaThuoc().toLowerCase().matches("^" + timString + ".*")) {
-                            ketQuaTim.add(thuoc);
+                            ketQuaTim. add(thuoc);
                         }
                     }
                 }
-                
                 else { // Tên thuốc
                     for(Thuoc thuoc: dsThuoc) {
-                        if(thuoc.getTenThuoc().toLowerCase().matches("^" + timString + ".*")) {
+                        if(thuoc. getTenThuoc().toLowerCase().matches("^" + timString + ".*")) {
                             ketQuaTim.add(thuoc);
                         }
                     }
@@ -396,54 +362,55 @@ public void loadNhaSanXuatData() {
                 
                 if(ketQuaTim.isEmpty()) {
                     JOptionPane.showMessageDialog(this,
-                        "Không tìm thấy kết quả nào!",
+                        "Không tìm thấy kết quả nào! ",
                         "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                     loadData_Thuoc(dsThuoc);
                     txtTim.setText("Nhập từ khóa tìm kiếm...");
                     txtTim.setForeground(Color.GRAY);
-                    txtTim.setFont(new Font("Arial", Font.ITALIC, 14));
+                    txtTim. setFont(new Font("Segoe UI", Font.ITALIC, 14));
                 } else {
                     loadData_Thuoc(ketQuaTim);
                 }
             }
         }
         else if(o == btnXoaTrang) {
-
+        	txtMaThuoc.setText("");
+            txtTenThuoc.setText("");
+            txtSoLuongTon.setText("");
+            txtGiaBan.setText("");
+            cboDonVi.setSelectedIndex(0);
+            cboNhaSanXuat.setSelectedIndex(0);
             loadData_Thuoc(dsThuoc);
-       
         }
         else if (o == btnTimKiem) {
-            // Lấy dữ liệu từ các ô nhập
-            String maThuocTim   = txtMaThuoc.getText().trim().toLowerCase();
-            String tenThuocTim  = txtTenThuoc.getText().trim().toLowerCase();
-            String soLuongStr   = txtSoLuongTon.getText().trim();
-            String giaBanStr    = txtGiaBan.getText().trim();
-            String donViTim     = (String) cboDonVi.getSelectedItem();
-            String nsxTim       = (String) cboNhaSanXuat.getSelectedItem();
+            String maThuocTim = txtMaThuoc. getText().trim().toLowerCase();
+            String tenThuocTim = txtTenThuoc.getText().trim().toLowerCase();
+            String soLuongStr = txtSoLuongTon.getText().trim();
+            String giaBanStr = txtGiaBan.getText().trim();
+            String donViTim = (String) cboDonVi.getSelectedItem();
+            String nsxTim = (String) cboNhaSanXuat. getSelectedItem();
 
             Integer soLuongTim = null;
-            Double giaBanTim   = null;
-
-            // Parse số lượng nếu có nhập
-            if (!soLuongStr.isEmpty()) {
+            Double giaBanTim = null;
+        
+            if (! soLuongStr.isEmpty()) {
                 try {
                     soLuongTim = Integer.parseInt(soLuongStr);
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this,
-                            "Số lượng phải là số nguyên!",
+                            "Số lượng phải là số nguyên! ",
                             "Lỗi", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
             }
 
-            // Parse giá bán nếu có nhập
-            if (!giaBanStr.isEmpty()) {
+            if (!giaBanStr. isEmpty()) {
                 try {
                     giaBanTim = Double.parseDouble(giaBanStr);
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(this,
                             "Giá bán phải là số!",
-                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                            "Lỗi", JOptionPane. ERROR_MESSAGE);
                     return;
                 }
             }
@@ -453,41 +420,32 @@ public void loadNhaSanXuatData() {
             for (Thuoc t : dsThuoc) {
                 boolean match = true;
 
-                // Mã thuốc
-                if (!maThuocTim.isEmpty() &&
+                if (! maThuocTim.isEmpty() &&
                         !t.getMaThuoc().toLowerCase().contains(maThuocTim)) {
                     match = false;
                 }
 
-                // Tên thuốc
                 if (match && !tenThuocTim.isEmpty() &&
                         !t.getTenThuoc().toLowerCase().contains(tenThuocTim)) {
                     match = false;
                 }
 
-                // Số lượng (>=)
                 if (match && soLuongTim != null &&
                         t.getSoLuongTon() < soLuongTim) {
                     match = false;
                 }
 
-                // Giá bán (>=)
                 if (match && giaBanTim != null &&
                         t.getGiaBan() < giaBanTim) {
                     match = false;
                 }
 
-                // Đơn vị (bỏ qua nếu null)
-                if (match && donViTim != null && !donViTim.isEmpty() &&
-                        !t.getDonVi().equalsIgnoreCase(donViTim)) {
+                if (match && donViTim != null && ! donViTim.isEmpty() &&
+                        !t. getDonVi().equalsIgnoreCase(donViTim)) {
                     match = false;
                 }
 
-                // Nhà sản xuất (bỏ qua nếu null hoặc rỗng)
-                if (match && nsxTim != null && !nsxTim.isEmpty()) {
-                    // Ở loadData_Thuoc bạn đang hiển thị mã NSX,
-                    // nếu muốn so theo tên NSX thì lấy thêm tên NSX cho đối tượng Thuoc,
-                    // hoặc dùng mapNhaSanXuat để đổi mã -> tên.
+                if (match && nsxTim != null && !nsxTim. isEmpty()) {
                     String tenNSXThuoc = t.getMaNSX();
                     if (tenNSXThuoc == null ||
                             !tenNSXThuoc.equalsIgnoreCase(nsxTim)) {
@@ -501,13 +459,11 @@ public void loadNhaSanXuatData() {
             }
 
             if (ketQua.isEmpty()) {
-            	 
                 JOptionPane.showMessageDialog(this,
                         "Không tìm thấy kết quả phù hợp!",
                         "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 loadData_Thuoc(dsThuoc);
-                // Nếu muốn, có thể load lại toàn bộ:
-                
+                return;
             }
 
             loadData_Thuoc(ketQua);
@@ -517,4 +473,24 @@ public void loadNhaSanXuatData() {
             System.out.println(tieuChi);
         }
     }
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+	}
 }

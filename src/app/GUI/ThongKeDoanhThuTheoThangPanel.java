@@ -56,6 +56,8 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
     public ThongKeDoanhThuTheoThangPanel() {
         initData();
         initComponents();
+        initCombobox();
+
     }
 
     private void initData() {
@@ -83,7 +85,6 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
 
         add(pnlCenter, BorderLayout.CENTER);
 
-        updateTongDoanhThu();
     }
 
     private JPanel createHeaderPanel() {
@@ -272,7 +273,26 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
         refreshStatsPanel();
     }
 
-    private void updateTongDoanhThu() {
+    private void updateThangComboBox(int namDuocChon) {
+    	HoaDonDAO hdDAO = new HoaDonDAO();
+    	ArrayList<Integer> listThang =  hdDAO.getThangCoHoaDonTrongNam(namDuocChon);
+		cboThang.removeAllItems();
+    	for(int i : listThang) {
+    		cboThang.addItem(i);
+    	}
+    	cboThang.setSelectedIndex(0);
+    }
+    
+    private void initCombobox() {
+    	HoaDonDAO hdDAO = new HoaDonDAO();
+    	ArrayList<Integer> listNam =  hdDAO.getNamCoHoaDon();
+		cboNam.removeAllItems();
+    	for(int i : listNam) {
+    		cboNam.addItem(i);
+    	}
+    	cboNam.setSelectedIndex(0);
+        namDuocChon = (Integer) cboNam.getSelectedItem();
+        updateThangComboBox(namDuocChon);
     }
 
     public void refresh() {
@@ -297,6 +317,9 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
     public void actionPerformed(ActionEvent e) {
         if (e.getSource() == cboNam) {
             namDuocChon = (Integer) cboNam.getSelectedItem();
+            updateThangComboBox(namDuocChon);
+            thangDuocChon = (Integer) cboThang.getSelectedItem();
+            // check later
             updateChart(thangDuocChon, namDuocChon);
         } else if (e.getSource() == cboThang) {
             thangDuocChon = (Integer) cboThang.getSelectedItem();

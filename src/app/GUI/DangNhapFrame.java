@@ -55,7 +55,7 @@ public class DangNhapFrame extends JFrame {
         ImageIcon logo;
         try {
             // Đường dẫn đúng đến file logo
-            URL logoUrl = getClass().getResource("/image/logo.png");
+            URL logoUrl = getClass().getResource("/resources/image/logo.png");
             if (logoUrl != null) {
                 logo = new ImageIcon(logoUrl);
                 Image img = logo.getImage();

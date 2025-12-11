@@ -43,7 +43,7 @@ import app.DAO.ThuocDAO;
 import app.Entity.NhaSanXuat;
 import app.Entity.Thuoc;
 
-public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseListener {
+public class CapNhatThuocSubPanel extends JPanel implements ActionListener, MouseListener {
     
     private final Color PRIMARY_COLOR = new Color(0, 150, 136);
     private final Color ACCENT_COLOR = new Color(255, 255, 255);
@@ -70,11 +70,10 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     private JComboBox<String> cboDonVi;
     private JComboBox<String> cboNhaSanXuat;
 
-    private JButton btnXoa;
-    private JButton btnSua;
-    private JButton btnThem;
-    private JButton btnXoaTrang;
-    private JButton btnSuaTrangThai;
+
+    private JButton btnKhoiPhuc;
+    private JButton btnQuayLai;
+    
     
     private DefaultTableModel dtm;
     private JTable tblThuoc;
@@ -85,13 +84,17 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     private Map<String, String> mapNhaSanXuat;
 	private CardLayout cardLayout;
 	private JPanel mainContainer;
-
+	private CapNhatThuocPanel pnlCapNhatThuoc;
+	private ThuocDAO thuocDAO;
     
-    public CapNhatThuocPanel() {
+    public CapNhatThuocSubPanel(CapNhatThuocPanel pnlCapNhatThuoc) {
+    	
+    	this.pnlCapNhatThuoc = pnlCapNhatThuoc;
     	FlatLightLaf.setup();
         ConnectDB.getInstance().connect();
         nsxDAO = new NhaSanXuatDAO();
         mapNhaSanXuat = new HashMap<>();
+        thuocDAO = new ThuocDAO();
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
         
@@ -130,7 +133,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     }
 
     private void initHeader() {
-        lblTieuDe = new JLabel("QUẢN LÝ THUỐC", SwingConstants.CENTER);
+        lblTieuDe = new JLabel("Quản lý thuốc đã xóa", SwingConstants.CENTER);
         lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblTieuDe.setForeground(PRIMARY_COLOR);
     }
@@ -224,18 +227,15 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     }
 
     private void initButtons() {
-        btnThem = createStyledButton("Thêm", BTN_ADD_COLOR);
-        btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
-        btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
-        btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
-        btnSuaTrangThai = createStyledButton("Thuốc đã xóa", BTN_EDIT_COLOR);
-        btnSuaTrangThai.setPreferredSize(new Dimension(150,40));
+        btnKhoiPhuc = createStyledButton("Khôi phục", BTN_ADD_COLOR);
+       
+        btnQuayLai = createStyledButton("Quay Lại", BTN_CLEAR_COLOR);
+      
         
-        btnThem.addActionListener(this);
-        btnSua.addActionListener(this);
-        btnXoa.addActionListener(this);
-        btnXoaTrang.addActionListener(this);
-        btnSuaTrangThai.addActionListener(this);
+        btnKhoiPhuc.addActionListener(this);
+    
+        btnQuayLai.addActionListener(this);
+  
     }
 
     private JButton createStyledButton(String text, Color bgColor) {
@@ -253,11 +253,9 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     private JPanel createButtonPanel() {
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         pnlButtons.setBackground(BG_COLOR);
-        pnlButtons.add(btnThem);
-        pnlButtons.add(btnSua);
-        pnlButtons.add(btnXoa);
-        pnlButtons.add(btnXoaTrang);
-        pnlButtons.add(btnSuaTrangThai);
+        pnlButtons.add(btnKhoiPhuc);
+
+        pnlButtons.add(btnQuayLai);
         return pnlButtons;
     }
     
@@ -305,7 +303,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     
     public void loadThuocData() {
         ThuocDAO thuocDAO = new ThuocDAO();
-        dsThuoc = thuocDAO.getAllThuocCoTenNSX();
+        dsThuoc = thuocDAO.getAllInactiveThuoc();
         dtm.setRowCount(0);
         for(Thuoc thuoc : dsThuoc) {
             Object[] rowData = {
@@ -343,117 +341,88 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
-        if(o == btnXoa) {
-            int selectedRow = tblThuoc.getSelectedRow();
-            if(selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn thuốc cần xóa!");
-                return;
-            }
-            String maThuoc = tblThuoc.getValueAt(selectedRow, 0).toString();
-            String maLo = tblThuoc.getValueAt(selectedRow, 1).toString();
-            
+//        if(o == btnXoa) {
+//            int selectedRow = tblThuoc.getSelectedRow();
+//            if(selectedRow == -1) {
+//                JOptionPane.showMessageDialog(this, "Vui lòng chọn thuốc cần xóa!");
+//                return;
+//            }
+//            String maThuoc = tblThuoc.getValueAt(selectedRow, 0).toString();
+//            String maLo = tblThuoc.getValueAt(selectedRow, 1).toString();
+//            
+//            int option = JOptionPane.showConfirmDialog(this, 
+//                    "Có chắc muốn xóa thuốc " + maThuoc + " - Lô " + maLo + "?", 
+//                    "Xác nhận", 
+//                    JOptionPane.YES_NO_OPTION);
+//            
+//            if(option == JOptionPane.YES_OPTION) {
+//                ThuocDAO thuocDAO = new ThuocDAO();
+//                boolean result = thuocDAO.deleteThuoc(maThuoc);
+//                if(result) {
+//                    JOptionPane.showMessageDialog(this, "Xóa thuốc thành công!");
+//                    loadThuocData();
+//                    xoaTrang();
+//                } else {
+//                    JOptionPane.showMessageDialog(this, "Xóa thuốc không thành công!");
+//                }
+//            }
+//        }
+        if(o == btnKhoiPhuc) {
+        	
+        	String maThuoc = txtMaThuoc.getText().trim();
+           
             int option = JOptionPane.showConfirmDialog(this, 
-                    "Có chắc muốn xóa thuốc " + maThuoc + " - Lô " + maLo + "?", 
+                    "Có chắc muốn khôi phục thuốc " + maThuoc + "?", 
                     "Xác nhận", 
                     JOptionPane.YES_NO_OPTION);
             
             if(option == JOptionPane.YES_OPTION) {
-                ThuocDAO thuocDAO = new ThuocDAO();
-                boolean result = thuocDAO.deleteThuoc(maThuoc);
+        
+                boolean result = thuocDAO.reactivateThuoc(maThuoc);
                 if(result) {
-                    JOptionPane.showMessageDialog(this, "Xóa thuốc thành công!");
+                    JOptionPane.showMessageDialog(this, "Khôi phục thuốc thành công!");
                     loadThuocData();
                     xoaTrang();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Xóa thuốc không thành công!");
+                    JOptionPane.showMessageDialog(this, "Khôi phục thuốc không thành công!");
                 }
             }
         }
-        else if(o == btnThem) {
-            if(validateInput(true)) {
-                String maThuoc = txtMaThuoc.getText().trim();
-                String tenThuoc = txtTenThuoc.getText().trim();
-                int soLuongTon = 0;
-                double giaBan = Double.parseDouble(txtGiaBan.getText().trim());
-                String donVi = cboDonVi.getSelectedItem().toString();
-                int soLuongToiThieu = 0;
-                
-                String tenNSX = cboNhaSanXuat.getSelectedItem().toString();
-                String maNSX = "";
-                for (Map.Entry<String, String> item : mapNhaSanXuat.entrySet()) {
-                    if(tenNSX.equalsIgnoreCase(item.getValue())) {
-                        maNSX = item.getKey();
-                        break;
-                    }
-                }
-                
-                ThuocDAO thuocDAO = new ThuocDAO();
-                Thuoc thuocNew = new Thuoc(maThuoc, tenThuoc, soLuongTon, giaBan, 
-                                           donVi, soLuongToiThieu, maNSX, true);
-                boolean result = thuocDAO.addThuoc(thuocNew);
-                if(result) {
-                    JOptionPane.showMessageDialog(this, "Thêm thuốc thành công!");
-                    loadThuocData();
-                    xoaTrang();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Thêm thuốc không thành công!");
-                }
-            }
+//        else if(o == btnSua) {
+//            if(validateInput(false)) {
+//                String maThuoc = txtMaThuoc.getText().trim();
+//                String tenThuoc = txtTenThuoc.getText().trim();
+//                int soLuongTon = Integer.parseInt(txtSoLuongTon.getText().trim());
+//                double giaBan = Double.parseDouble(txtGiaBan.getText().trim());
+//                String donVi = cboDonVi.getSelectedItem().toString();
+//                int soLuongToiThieu = 0;
+//                
+//                String tenNSX = cboNhaSanXuat.getSelectedItem().toString();
+//                String maNSX = "";
+//                for (Map.Entry<String, String> item : mapNhaSanXuat.entrySet()) {
+//                    if(tenNSX.equals(item.getValue())) {
+//                        maNSX = item.getKey();
+//                        break;
+//                    }
+//                }
+//                
+//                ThuocDAO thuocDAO = new ThuocDAO();
+//                Thuoc thuocUpdate = new Thuoc(maThuoc, tenThuoc, soLuongTon, giaBan, 
+//                                              donVi, soLuongToiThieu, maNSX, true);
+//                boolean result = thuocDAO.updateThuoc(thuocUpdate);
+//                if(result) {
+//                    JOptionPane.showMessageDialog(this, "Cập nhật thuốc thành công!");
+//                    loadThuocData();
+//                    xoaTrang();
+//                } else {
+//                    JOptionPane.showMessageDialog(this, "Cập nhật thuốc không thành công!");
+//                }
+//            }
+//        }
+        else if(o == btnQuayLai) {
+           pnlCapNhatThuoc.quayLaiDanhSach();
         }
-        else if(o == btnSua) {
-            if(validateInput(false)) {
-                String maThuoc = txtMaThuoc.getText().trim();
-                String tenThuoc = txtTenThuoc.getText().trim();
-                int soLuongTon = Integer.parseInt(txtSoLuongTon.getText().trim());
-                double giaBan = Double.parseDouble(txtGiaBan.getText().trim());
-                String donVi = cboDonVi.getSelectedItem().toString();
-                int soLuongToiThieu = 0;
-                
-                String tenNSX = cboNhaSanXuat.getSelectedItem().toString();
-                String maNSX = "";
-                for (Map.Entry<String, String> item : mapNhaSanXuat.entrySet()) {
-                    if(tenNSX.equals(item.getValue())) {
-                        maNSX = item.getKey();
-                        break;
-                    }
-                }
-                
-                ThuocDAO thuocDAO = new ThuocDAO();
-                Thuoc thuocUpdate = new Thuoc(maThuoc, tenThuoc, soLuongTon, giaBan, 
-                                              donVi, soLuongToiThieu, maNSX, true);
-                boolean result = thuocDAO.updateThuoc(thuocUpdate);
-                if(result) {
-                    JOptionPane.showMessageDialog(this, "Cập nhật thuốc thành công!");
-                    loadThuocData();
-                    xoaTrang();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Cập nhật thuốc không thành công!");
-                }
-            }
-        }
-        else if(o == btnXoaTrang) {
-            xoaTrang();
-        }
-        else if(o == btnSuaTrangThai) {
-        	System.out.println("cc");
-        	
-            
-            JPanel pnlThuocDaXoa = new CapNhatThuocSubPanel(this);
-            
-            try {
-                mainContainer.remove(mainContainer.getComponent(1));
-            } catch (Exception ex) {
-                // Không có panel chi tiết cũ
-            }
-            
-            mainContainer.add(pnlThuocDaXoa, "ChiTiet");
-            cardLayout.show(mainContainer, "ChiTiet");
-        }
-    }
-    
-    public void quayLaiDanhSach() {
-        cardLayout.show(mainContainer, "DanhSach");
-        loadThuocData();
+        
     }
     
     private boolean validateInput(boolean isAddingNew) {

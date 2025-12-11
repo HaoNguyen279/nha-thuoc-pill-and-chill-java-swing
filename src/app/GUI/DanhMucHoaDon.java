@@ -2,6 +2,7 @@ package app.GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.Dimension;
@@ -34,7 +35,9 @@ import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
@@ -63,6 +66,10 @@ import app.Entity.NhanVien;
 import app.Entity.Thuoc;
 
 public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListener{
+
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
+    private final Color BG_COLOR = new Color(245, 245, 245);
+    private final Color ACCENT_COLOR = new Color(255, 255, 255);
 
 	private JButton btnXuatHoaDon;
 	
@@ -111,14 +118,15 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
         
         // Frame
         setLayout(new GridLayout(2,1,10,10));
+        setBackground(BG_COLOR);
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
         add(createTopPanel());
         add(createBotPanel());
         
         loadHoaDonData();
         //timKiemHoaDonTheoThangNam();
         
-
-        setBackground(new Color(248, 248, 248));
         setVisible(true);
 
         
@@ -127,37 +135,61 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
 	public JPanel createBotPanel() {
 		JPanel pnlBot = new JPanel();
 		pnlBot.setLayout(new BorderLayout());
+		pnlBot.setBackground(BG_COLOR);
 		
-		tblChiTietHoaDon = new JTable(dtmChiTietHoaDon);        
-		tblChiTietHoaDon.setBackground(new Color(240, 240, 245));
-		tblChiTietHoaDon.setGridColor(Color.LIGHT_GRAY);
-		tblChiTietHoaDon.setFont(new Font("Arial", Font.PLAIN, 15));
-		tblChiTietHoaDon.setRowHeight(40);
-        tblChiTietHoaDon.setSelectionBackground(new Color(220, 255, 220));
+		tblChiTietHoaDon = new JTable(dtmChiTietHoaDon) {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };        
+		tblChiTietHoaDon.setRowHeight(35);
+		tblChiTietHoaDon.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		tblChiTietHoaDon.setFillsViewportHeight(true);
+		tblChiTietHoaDon.setShowGrid(true);
+		tblChiTietHoaDon.setGridColor(new Color(224, 224, 224));
+		tblChiTietHoaDon.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblChiTietHoaDon.setSelectionBackground(new Color(178, 223, 219));
+        tblChiTietHoaDon.setSelectionForeground(Color.BLACK);
+        
         JTableHeader header = tblChiTietHoaDon.getTableHeader();
-        header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(144, 238, 144));
-        header.setFont(new Font("Arial", Font.BOLD, 15));
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(Color.WHITE);
+        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setReorderingAllowed(false);
+        
+        DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        
         JScrollPane scrollPane = new JScrollPane(tblChiTietHoaDon);
-        scrollPane.setBorder(BorderFactory.createCompoundBorder(
-    		BorderFactory.createEmptyBorder(00,50,5,50),
-    		BorderFactory.createLineBorder(Color.GRAY, 2)
-        ));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
         
         lblHoaDon = new JLabel("CHI TIẾT HÓA ĐƠN", SwingConstants.CENTER);
-        lblHoaDon.setFont(new Font("Arial", Font.BOLD, 24));
+        lblHoaDon.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblHoaDon.setForeground(PRIMARY_COLOR);
         lblHoaDon.setBorder(BorderFactory.createEmptyBorder(0,0,10,0));
         pnlBot.add(lblHoaDon, BorderLayout.NORTH);
         pnlBot.add(scrollPane, BorderLayout.CENTER);
         
         JPanel pnlButton = new JPanel(new FlowLayout(FlowLayout.RIGHT)); 
+        pnlButton.setBackground(BG_COLOR);
         btnXuatHoaDon = new JButton("Xuất hóa đơn");
-        btnXuatHoaDon.setBackground(new Color(224, 248, 228));
-        btnXuatHoaDon.setPreferredSize(new Dimension(200, 50));
+        btnXuatHoaDon.setBackground(new Color(46, 204, 113));
+        btnXuatHoaDon.setForeground(Color.WHITE);
+        btnXuatHoaDon.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnXuatHoaDon.setPreferredSize(new Dimension(150, 40));
         btnXuatHoaDon.setFocusPainted(false);
+        btnXuatHoaDon.setBorderPainted(false);
+        btnXuatHoaDon.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         pnlButton.add(btnXuatHoaDon);
-        pnlButton.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 50));
+        pnlButton.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         pnlBot.add(pnlButton, BorderLayout.SOUTH);
         
         btnXuatHoaDon.addActionListener(this);
@@ -167,16 +199,18 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
 	
 	private JPanel createSearchPanel() {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 15));
+        searchPanel.setBackground(BG_COLOR);
 
         searchField = new JTextField(25);
         searchField.setText("Nhập từ khóa...");
         searchField.setForeground(Color.GRAY);
-        searchField.setFont(new Font("Arial", Font.ITALIC, 13));
-        searchField.setBackground(new Color(245, 245, 245));
+        searchField.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+        searchField.setBackground(Color.WHITE);
         searchField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.GRAY),
+                BorderFactory.createLineBorder(new Color(220, 220, 220)),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
+        searchField.setPreferredSize(new Dimension(250, 35));
         
         //PlaceHolder
         searchField.addFocusListener(new FocusListener() {
@@ -198,10 +232,11 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
 		});
 
         searchButton = new JButton("Tìm");
-        searchButton.setFont(new Font("Arial", Font.PLAIN, 13));
-        searchButton.setPreferredSize(new Dimension(80, 30));
-        searchButton.setBackground(Color.WHITE);
-        searchButton.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        searchButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        searchButton.setPreferredSize(new Dimension(80, 35));
+        searchButton.setBackground(PRIMARY_COLOR);
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setBorderPainted(false);
         searchButton.setFocusPainted(false);
         searchButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
@@ -209,32 +244,33 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
         String[] kieuTimKiem = {"Theo mã hóa đơn", "Theo tên nhân viên", "Theo tên khách hàng"};
         cboTimKiem = new JComboBox<>(kieuTimKiem);
         cboTimKiem.setSelectedIndex(0);
-        cboTimKiem.setPreferredSize(new Dimension(160, 30));
+        cboTimKiem.setPreferredSize(new Dimension(180, 35));
         cboTimKiem.setBackground(Color.WHITE);
-        cboTimKiem.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        cboTimKiem.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         //ComboBox Date
         JLabel lblThang = new JLabel("Tháng: ");
-        lblThang.setFont(new Font("Arial", Font.BOLD, 16));
+        lblThang.setFont(new Font("Segoe UI", Font.BOLD, 14));
         String[] thang = "1 2 3 4 5 6 7 8 9 10 11 12".split(" ");
         cboThang = new JComboBox<>(thang);
         LocalDate today = LocalDate.now();
         cboThang.setSelectedIndex(today.getMonthValue() - 1);
-        cboThang.setPreferredSize(new Dimension(60, 30));
+        cboThang.setPreferredSize(new Dimension(60, 35));
         cboThang.setBackground(Color.WHITE);
-        cboThang.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        cboThang.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         
         JLabel lblNam = new JLabel("Năm: ");
-        lblNam.setFont(new Font("Arial", Font.BOLD, 16));
+        lblNam.setFont(new Font("Segoe UI", Font.BOLD, 14));
         String[] nam = "2024 2025".split(" ");
         cboNam = new JComboBox<>(nam);
         cboNam.setSelectedIndex(1);
-        cboNam.setPreferredSize(new Dimension(60, 30));
+        cboNam.setPreferredSize(new Dimension(80, 35));
         cboNam.setBackground(Color.WHITE);
-        cboNam.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        cboNam.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         
         radTimKiemThangNam = new JRadioButton("Lọc theo Tháng/Năm");
-        radTimKiemThangNam.setFont(new Font("Arial", Font.BOLD, 16));
+        radTimKiemThangNam.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        radTimKiemThangNam.setBackground(BG_COLOR);
         
         searchPanel.add(Box.createHorizontalStrut(15));
         searchPanel.add(searchField);
@@ -259,29 +295,48 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
 		
 		JPanel pnlTop = new JPanel();
 		pnlTop.setLayout(new BorderLayout());
+		pnlTop.setBackground(BG_COLOR);
 		
-		tblHoaDon = new JTable(dtmHoaDon);        
-        tblHoaDon.setBackground(new Color(240, 240, 245));
-        tblHoaDon.setGridColor(Color.LIGHT_GRAY);
-        tblHoaDon.setFont(new Font("Arial", Font.PLAIN, 15));
-        tblHoaDon.setRowHeight(40);
-        tblHoaDon.setGridColor(Color.LIGHT_GRAY);
-        tblHoaDon.setSelectionBackground(new Color(220, 255, 220));
+		tblHoaDon = new JTable(dtmHoaDon) {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };        
+        tblHoaDon.setRowHeight(35);
+        tblHoaDon.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tblHoaDon.setFillsViewportHeight(true);
+        tblHoaDon.setShowGrid(true);
+        tblHoaDon.setGridColor(new Color(224, 224, 224));
+        tblHoaDon.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblHoaDon.setSelectionBackground(new Color(178, 223, 219));
+        tblHoaDon.setSelectionForeground(Color.BLACK);
+        
         JTableHeader header = tblHoaDon.getTableHeader();
-        header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(144, 238, 144));
-        header.setFont(new Font("Arial", Font.BOLD, 15));
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(Color.WHITE);
+        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setReorderingAllowed(false);
+        
+        DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        
         JScrollPane scrollPane = new JScrollPane(tblHoaDon);
-        scrollPane.setBorder(BorderFactory.createCompoundBorder(
-    		BorderFactory.createEmptyBorder(0,50,5,50),
-    		BorderFactory.createLineBorder(Color.GRAY, 2)
-        ));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
         
         lblHoaDon = new JLabel("HÓA ĐƠN", SwingConstants.CENTER);
-        lblHoaDon.setFont(new Font("Arial", Font.BOLD, 24));
+        lblHoaDon.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        lblHoaDon.setForeground(PRIMARY_COLOR);
         lblHoaDon.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
         
         JPanel pnlTieuDe = new JPanel(new GridLayout(2,1,0,0));
+        pnlTieuDe.setBackground(BG_COLOR);
         pnlTieuDe.add(lblHoaDon);
         pnlTieuDe.add(createSearchPanel());
         

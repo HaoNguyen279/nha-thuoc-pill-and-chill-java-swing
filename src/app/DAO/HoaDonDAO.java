@@ -808,8 +808,7 @@ public class HoaDonDAO {
             stmt = con.createStatement();
             rs = stmt.executeQuery(sql);
             while (rs.next()) {
-                int nam = rs.getInt("nam");
-                res.add(nam);
+                res.add(rs.getInt("nam"));
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -820,6 +819,28 @@ public class HoaDonDAO {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+        }
+    	return res;
+    }
+    /**
+     * Lấy list tháng có hóa đơn trong năm
+     * Hao
+     */
+    public ArrayList<Integer> getThangCoHoaDonTrongNam(int nam) {
+        ArrayList<Integer> res = new ArrayList<>();
+        String sql = "select distinct month(ngayBan) as thang from HoaDon where year(ngayBan) = ?";
+        
+        try {
+            Connection con = ConnectDB.getInstance().getConnection();
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, nam);
+            ResultSet rs = stmt.executeQuery();
+            
+            while(rs.next()) {
+            	res.add(rs.getInt("thang"));
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
         }
     	return res;
     }

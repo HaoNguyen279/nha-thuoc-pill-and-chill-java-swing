@@ -108,6 +108,9 @@ public class ThuocDAO {
         }
         return dsThuoc;
     }
+    
+    
+    
 
     /**
      * Retrieves a single drug by its ID.
@@ -317,7 +320,7 @@ public class ThuocDAO {
      * @return true if the deletion was successful, false otherwise.
      */
     public boolean deleteThuoc(String id) {
-        String sql = "UPDATE Thuoc SET soLuongTon = 0,isActive = 0 WHERE maThuoc = ?";
+        String sql = "UPDATE Thuoc SET isActive = 0 WHERE maThuoc = ?";
         int n = 0;
         ChiTietLoThuocDAO ctltDao = new ChiTietLoThuocDAO();
         ctltDao.softDelete(id);

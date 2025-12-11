@@ -9,7 +9,7 @@ public class ChucVuDAO {
     private Connection conn;
     
     public ChucVuDAO() {
-    	this.conn = ConnectDB.getInstance().getConnection();
+//    	this.conn = ConnectDB.getInstance().getConnection();
     }
    
     
@@ -19,9 +19,13 @@ public class ChucVuDAO {
     public ArrayList<ChucVu> getAllChucVu() {
         ArrayList<ChucVu> danhSachChucVu = new ArrayList<>();
         String sql = "SELECT * FROM ChucVu WHERE isActive = 1";
-        
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery()) {
+        Connection con = ConnectDB.getInstance().getConnection();
+        Statement stmt = null;
+        ResultSet rs = null;
+        try 
+            {
+        	stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
             
             while (rs.next()) {
                 ChucVu chucVu = new ChucVu();
@@ -63,8 +67,8 @@ public class ChucVuDAO {
     
     public ChucVu getByName(String chucVU) {
         String sql = "SELECT * FROM ChucVu WHERE tenChucVu = ? and isActive = 1";
-        
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection con = ConnectDB.getInstance().getConnection();
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, chucVU);
             
             try (ResultSet rs = stmt.executeQuery()) {

@@ -1,81 +1,197 @@
 package app.GUI;
+
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.table.DefaultTableModel;
+import javax. swing.table.DefaultTableModel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
-import app.ConnectDB.ConnectDB;
-import app.DAO.KhachHangDAO;
+import com.formdev.flatlaf.FlatLightLaf;
+
+import app.ConnectDB. ConnectDB;
+import app. DAO.KhachHangDAO;
 import app.Entity.KhachHang;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event. ActionListener;
 import java.util.ArrayList;
 
-public class TimKiemKhachHangPanel extends JPanel implements ActionListener{ 
+public class TimKiemKhachHangPanel extends JPanel implements ActionListener {
+
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
+
+    // Label
+    private JLabel lblTieuDe;
+    private JLabel lblMaKH;
+    private JLabel lblTenKH;
+    private JLabel lblSoDienThoai;
+    private JLabel lblDiemTichLuy;
+
+    // TextField
+    private JTextField txtMaKH;
+    private JTextField txtTenKH;
+    private JTextField txtSoDienThoai;
+    private JTextField txtDiemTichLuy;
+
+    // Button
+    private JButton btnXoaTrang;
+    private JButton btnTimKiem;
+
+    // Table
     private DefaultTableModel dtmTable;
-    private ArrayList<KhachHang> dsKhachHang;
-    private JButton btnTim;
-    private JButton btnReset;
-    private JTextField txtTim;
-    private String tieuChi = "Số điện thoại";
-    private JComboBox<String> cboTieuChi;
     private JTable table;
     private JLabel lblTongSoBanGhi = new JLabel("");
-    
-    public TimKiemKhachHangPanel(){
+
+    // Data
+    private ArrayList<KhachHang> dsKhachHang;
+    private KhachHangDAO khachHangDao = new KhachHangDAO();
+
+    public TimKiemKhachHangPanel() {
+    	FlatLightLaf. setup();
         setLayout(new BorderLayout());
-        
+
         ConnectDB.getInstance().connect();
-        KhachHangDAO khachHangDao = new KhachHangDAO();
         dsKhachHang = khachHangDao.getAllKhachHang();
-        
+
+        JPanel topPanel = createTopPanel();
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(Color.WHITE);
-        
         JPanel centerPanel = taoCenterPanel();
-        mainPanel.add(centerPanel, BorderLayout.CENTER);
-        
+
+        mainPanel. add(centerPanel, BorderLayout. CENTER);
+
+        add(topPanel, BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
-        
-        getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
-            .put(KeyStroke.getKeyStroke("ENTER"), "clickLogin");
-        getActionMap().put("clickLogin", new AbstractAction() {
+
+        // Enter = click tìm kiếm
+        getInputMap(JComponent. WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
+                .put(KeyStroke.getKeyStroke("ENTER"), "clickSearch");
+        getActionMap().put("clickSearch", new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                btnTim.doClick();
+                btnTimKiem.doClick();
             }
         });
+
         setVisible(true);
     }
-    
+
+    private JPanel createTopPanel() {
+        JPanel pnlMain = new JPanel(new BorderLayout());
+        JPanel pnlTopOfMain = new JPanel();
+        JPanel pnlCenterOfMain = new JPanel(new GridLayout(2, 2, 10, 5));
+        JPanel pnlBottomOfMain = new JPanel(new FlowLayout(FlowLayout. RIGHT));
+
+        // Tiêu đề
+        lblTieuDe = new JLabel("TÌM KIẾM KHÁCH HÀNG", SwingConstants.CENTER);
+        lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 24));
+        lblTieuDe.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        pnlMain.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 30));
+        pnlTopOfMain. add(lblTieuDe);
+
+        // Label
+        lblMaKH = new JLabel("Mã khách hàng:");
+        lblTenKH = new JLabel("Tên khách hàng:");
+        lblSoDienThoai = new JLabel("Số điện thoại:");
+        lblDiemTichLuy = new JLabel("Điểm tích lũy tối thiểu:");
+
+        // TextField
+        txtMaKH = new JTextField();
+        txtTenKH = new JTextField();
+        txtSoDienThoai = new JTextField();
+        txtDiemTichLuy = new JTextField();
+
+        // Button
+        btnXoaTrang = new JButton("Xóa trắng");
+        btnTimKiem = new JButton("Tìm kiếm");
+
+        // Panel dòng nhập
+        JPanel pnlr1 = new JPanel(new BorderLayout());
+        pnlr1.add(lblMaKH, BorderLayout. WEST);
+        pnlr1.add(txtMaKH);
+        pnlr1.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+
+        JPanel pnlr2 = new JPanel(new BorderLayout());
+        pnlr2.add(lblTenKH, BorderLayout.WEST);
+        pnlr2.add(txtTenKH);
+        pnlr2.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+
+        JPanel pnlr3 = new JPanel(new BorderLayout());
+        pnlr3.add(lblSoDienThoai, BorderLayout. WEST);
+        pnlr3.add(txtSoDienThoai);
+        pnlr3.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 10));
+
+        JPanel pnlr4 = new JPanel(new BorderLayout());
+        pnlr4.add(lblDiemTichLuy, BorderLayout.WEST);
+        pnlr4.add(txtDiemTichLuy);
+        pnlr4.setBorder(BorderFactory. createEmptyBorder(0, 10, 0, 10));
+
+        pnlCenterOfMain.add(pnlr1);
+        pnlCenterOfMain.add(pnlr2);
+        pnlCenterOfMain. add(pnlr3);
+        pnlCenterOfMain.add(pnlr4);
+
+        // Style button
+        JButton[] btnList = {btnXoaTrang, btnTimKiem};
+        for (JButton item : btnList) {
+            item.setFont(new Font("Segoe UI", Font.BOLD, 16));
+            item.setForeground(Color.BLACK);
+            item.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                    BorderFactory.createEmptyBorder(15, 45, 15, 45)
+            ));
+            item.setFocusPainted(false);
+            item.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            item.addActionListener(this);
+        }
+
+        // Style label
+        JLabel[] lblItems = {
+                lblMaKH, lblTenKH, lblSoDienThoai, lblDiemTichLuy
+        };
+        for (JLabel item : lblItems) {
+        	 item.setFont(new Font("Segoe UI", Font. PLAIN, 15));
+            item.setPreferredSize(new Dimension(130, 0));
+        }
+
+        // Style textfield
+        JTextField[] txtItems = {
+                txtMaKH, txtTenKH, txtSoDienThoai, txtDiemTichLuy
+        };
+        for (JTextField item : txtItems) {
+            item.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            item.setBackground(new Color(245, 245, 245));
+            item.setPreferredSize(new Dimension(200, 30));
+            item.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(Color.LIGHT_GRAY),
+                    BorderFactory.createEmptyBorder(3, 10, 3, 10)
+            ));
+        }
+
+        // Bottom buttons
+        pnlBottomOfMain.add(btnXoaTrang);
+        pnlBottomOfMain.add(Box.createHorizontalStrut(10));
+        pnlBottomOfMain.add(btnTimKiem);
+        pnlBottomOfMain.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+
+        // Add vào main
+        pnlMain.add(pnlTopOfMain, BorderLayout.NORTH);
+        pnlCenterOfMain.setPreferredSize(new Dimension(0, 80));
+        pnlMain.add(pnlCenterOfMain, BorderLayout.CENTER);
+        pnlMain.add(pnlBottomOfMain, BorderLayout.SOUTH);
+
+        return pnlMain;
+    }
+
     private JPanel taoCenterPanel() {
         JPanel centerPanel = new JPanel(new BorderLayout(0, 20));
-        centerPanel.setBackground(Color.WHITE);
         centerPanel.setBorder(new EmptyBorder(20, 40, 20, 40));
-        
-        // Title Panel
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setBackground(Color.WHITE);
-        JLabel titleLabel = new JLabel("TÌM KIẾM KHÁCH HÀNG", SwingConstants.CENTER);
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 28));
-        titleLabel.setForeground(new Color(51, 51, 51));
-        titleLabel.setBorder(new EmptyBorder(0, 0, 20, 0));
-        titlePanel.add(titleLabel, BorderLayout.CENTER);
-        
-        JPanel searchPanel = taoSearchPanel();
-        titlePanel.add(searchPanel, BorderLayout.SOUTH);
-        
-        centerPanel.add(titlePanel, BorderLayout.NORTH);
-        
+
         // Table Panel
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
 
         String[] cols = {"Mã khách hàng", "Tên khách hàng", "Số điện thoại", "Điểm tích lũy"};
-        
+
         dtmTable = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -83,195 +199,145 @@ public class TimKiemKhachHangPanel extends JPanel implements ActionListener{
             }
         };
         load_dataKhachHang(dsKhachHang);
-        
-        table = new JTable(dtmTable);
-        
-        // Style table header
-        JTableHeader header = table.getTableHeader();
-        header.setBackground(new Color(144, 238, 144));
-        header.setForeground(new Color(51, 51, 51));
-        header.setFont(new Font("Arial", Font.BOLD, 14));
-        header.setPreferredSize(new Dimension(header.getWidth(), 40));
-        header.setBorder(BorderFactory.createLineBorder(new Color(180, 180, 180)));
-        
+
+        table = new JTable(dtmTable) {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (! isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };
+
         // Style table
-        table.setBackground(Color.WHITE);
-        table.setGridColor(new Color(200, 200, 200));
-        table.setFont(new Font("Arial", Font.PLAIN, 13));
         table.setRowHeight(35);
-        table.setSelectionBackground(new Color(220, 255, 220));
-        table.setSelectionForeground(Color.BLACK);
+        table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        table.setFillsViewportHeight(true);
         table.setShowGrid(true);
-        table.setIntercellSpacing(new Dimension(1, 1));
-        
-        // Center align cells
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+        table.setGridColor(new Color(224, 224, 224));
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        table.setSelectionBackground(new Color(178, 223, 219));
+        table.setSelectionForeground(Color.BLACK);
+
+        JTableHeader header = table.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(Color.WHITE);
+        header.setPreferredSize(new Dimension(header. getWidth(), 40));
+        header.setReorderingAllowed(false);
+
+        DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        // Center align cell content
+        DefaultTableCellRenderer cellCenter = new DefaultTableCellRenderer();
+        cellCenter.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            table.getColumnModel().getColumn(i).setCellRenderer(cellCenter);
         }
-        
+
         JScrollPane scrollPane = new JScrollPane(table);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(180, 180, 180)));
-        scrollPane.getViewport().setBackground(Color.WHITE);
-        
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color. WHITE);
+
         panel.add(scrollPane, BorderLayout.CENTER);
-        
+
         lblTongSoBanGhi = new JLabel("Tổng số bản ghi: " + dsKhachHang.size());
-        lblTongSoBanGhi.setFont(new Font("Arial", Font.PLAIN, 14));
-        lblTongSoBanGhi.setBorder(new EmptyBorder(15, 0, 0, 0));
-        
+        lblTongSoBanGhi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        lblTongSoBanGhi. setBorder(new EmptyBorder(15, 0, 0, 0));
+
         centerPanel.add(panel, BorderLayout.CENTER);
-        centerPanel.add(lblTongSoBanGhi, BorderLayout.SOUTH);
+        centerPanel.add(lblTongSoBanGhi, BorderLayout. SOUTH);
         return centerPanel;
     }
-    
-    private JPanel taoSearchPanel() {
-        JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
-        searchPanel.setBackground(Color.WHITE);
-        
-        // Text field
-        txtTim = new JTextField(25);
-        txtTim.setText("Nhập từ khóa tìm kiếm...");
-        txtTim.setForeground(Color.GRAY);
-        txtTim.setFont(new Font("Arial", Font.ITALIC, 14));
-        txtTim.setBackground(Color.WHITE);
-        txtTim.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(150, 150, 150), 1),
-            BorderFactory.createEmptyBorder(8, 12, 8, 12)
-        ));
-        
-        // Add focus listener for placeholder text
-        txtTim.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
-                if (txtTim.getText().equals("Nhập từ khóa tìm kiếm...")) {
-                    txtTim.setText("");
-                    txtTim.setForeground(Color.BLACK);
-                    txtTim.setFont(new Font("Arial", Font.PLAIN, 14));
-                }
-            }
-            public void focusLost(java.awt.event.FocusEvent evt) {
-                if (txtTim.getText().isEmpty()) {
-                    txtTim.setText("Nhập từ khóa tìm kiếm...");
-                    txtTim.setForeground(Color.GRAY);
-                    txtTim.setFont(new Font("Arial", Font.ITALIC, 14));
-                }
-            }
-        });
-        
-        // Button Tìm - Green style
-        btnTim = new JButton("Tìm");
-        btnTim.setFont(new Font("Arial", Font.BOLD, 14));
-        btnTim.setPreferredSize(new Dimension(90, 40));
-        btnTim.setBackground(new Color(144, 238, 144));
-        btnTim.setForeground(new Color(51, 51, 51));
-        btnTim.setBorder(BorderFactory.createLineBorder(new Color(100, 200, 100), 1));
-        btnTim.setFocusPainted(false);
-        btnTim.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnTim.addActionListener(this);
-        
-        // Button Reset - White style
-        btnReset = new JButton("Làm mới");
-        btnReset.setFont(new Font("Arial", Font.PLAIN, 14));
-        btnReset.setPreferredSize(new Dimension(90, 40));
-        btnReset.setBackground(Color.WHITE);
-        btnReset.setForeground(new Color(51, 51, 51));
-        btnReset.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150), 1));
-        btnReset.setFocusPainted(false);
-        btnReset.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btnReset.addActionListener(this);
-        
-        // ComboBox
-        String[] tieuChiTim = {"Số điện thoại", "Mã khách hàng", "Tên khách hàng"};
-        cboTieuChi = new JComboBox<String>(tieuChiTim);
-        cboTieuChi.setFont(new Font("Arial", Font.PLAIN, 14));
-        cboTieuChi.setBackground(Color.WHITE);
-        cboTieuChi.setForeground(new Color(51, 51, 51));
-        cboTieuChi.setFocusable(false);
-        cboTieuChi.setPreferredSize(new Dimension(150, 40));
-        cboTieuChi.setBorder(BorderFactory.createLineBorder(new Color(150, 150, 150), 1));
-        cboTieuChi.addActionListener(this);
-        
-        searchPanel.add(txtTim);
-        searchPanel.add(btnTim);
-        searchPanel.add(btnReset);
-        searchPanel.add(cboTieuChi);
-        
-        return searchPanel;
-    }
-   
+
     public void load_dataKhachHang(ArrayList<KhachHang> dsKhachHang) {
         dtmTable.setRowCount(0);
-        for(KhachHang khach : dsKhachHang) {
+        for (KhachHang khach : dsKhachHang) {
             Object[] rowData = {
-                khach.getMaKH(),
-                khach.getTenKH(),
-                khach.getSoDienThoai(),
-                khach.getDiemTichLuy()
+                    khach.getMaKH(),
+                    khach.getTenKH(),
+                    khach.getSoDienThoai(),
+                    khach.getDiemTichLuy()
             };
             dtmTable.addRow(rowData);
         }
-        lblTongSoBanGhi.setText("Tổng số bản ghi: " + dsKhachHang.size());
+        lblTongSoBanGhi. setText("Tổng số bản ghi: " + dsKhachHang.size());
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
-        if(o == btnTim) {
-            ArrayList<KhachHang> ketQuaTim = new ArrayList<KhachHang>();
-            String timString = txtTim.getText().toLowerCase().trim();
-            
-            if(timString.equals("nhập từ khóa tìm kiếm...") || timString.isBlank()) {
-                load_dataKhachHang(dsKhachHang);
-            }
-            else {
-                if(tieuChi.equals("Mã khách hàng")) {
-                    for(KhachHang khachhang : dsKhachHang) {
-                        if(khachhang.getMaKH().toLowerCase().matches("^.*" + timString + ".*")) {
-                            ketQuaTim.add(khachhang);
-                        }
-                    }
-                }
-                else if(tieuChi.equals("Tên khách hàng")) {
-                    for(KhachHang khachhang : dsKhachHang) {
-                        if(khachhang.getTenKH().toLowerCase().matches("^.*" + timString + ".*")) {
-                            ketQuaTim.add(khachhang);
-                        }
-                    }
-                }
-                else { // Số điện thoại
-                    for(KhachHang khachhang : dsKhachHang) {
-                        if(khachhang.getSoDienThoai().toLowerCase().matches("^.*" + timString + ".*")) {
-                            ketQuaTim.add(khachhang);
-                        }
-                    }
-                }
-                
-                if(ketQuaTim.isEmpty()) {
-                    JOptionPane.showMessageDialog(this,
-                        "Không tìm thấy kết quả nào!",
-                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
-                    load_dataKhachHang(dsKhachHang);
-                    txtTim.setText("Nhập từ khóa tìm kiếm...");
-                    txtTim.setForeground(Color.GRAY);
-                    txtTim.setFont(new Font("Arial", Font.ITALIC, 14));
-                } else {
-                    load_dataKhachHang(ketQuaTim);
-                }
-            }
-        }
-        else if(o == btnReset) {
-            txtTim.setText("Nhập từ khóa tìm kiếm...");
-            txtTim.setForeground(Color.GRAY);
-            txtTim.setFont(new Font("Arial", Font.ITALIC, 14));
-            cboTieuChi.setSelectedIndex(0);
-            tieuChi = "Số điện thoại";
+
+        if (o == btnXoaTrang) {
+            txtMaKH.setText("");
+            txtTenKH.setText("");
+            txtSoDienThoai.setText("");
+            txtDiemTichLuy. setText("");
             load_dataKhachHang(dsKhachHang);
-            txtTim.requestFocus();
-        }
-        else if(o == cboTieuChi) {
-            tieuChi = cboTieuChi.getSelectedItem().toString();
-            System.out.println(tieuChi);
+        } else if (o == btnTimKiem) {
+
+            String maKHTim = txtMaKH. getText().trim().toLowerCase();
+            String tenKHTim = txtTenKH.getText().trim().toLowerCase();
+            String sdtTim = txtSoDienThoai.getText().trim().toLowerCase();
+            String diemStr = txtDiemTichLuy.getText().trim();
+
+            Integer diemTim = null;
+
+            if (! diemStr.isEmpty()) {
+                try {
+                    diemTim = Integer.parseInt(diemStr);
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(this,
+                            "Điểm tích lũy phải là số nguyên! ",
+                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+            }
+
+            ArrayList<KhachHang> ketQua = new ArrayList<>();
+
+            for (KhachHang kh : dsKhachHang) {
+                boolean match = true;
+
+                if (! maKHTim.isEmpty() &&
+                        !kh.getMaKH().toLowerCase().contains(maKHTim)) {
+                    match = false;
+                }
+
+                if (match && !tenKHTim.isEmpty() &&
+                        !kh. getTenKH().toLowerCase().contains(tenKHTim)) {
+                    match = false;
+                }
+
+                if (match && ! sdtTim.isEmpty() &&
+                        (kh.getSoDienThoai() == null ||
+                                !kh.getSoDienThoai().toLowerCase().contains(sdtTim))) {
+                    match = false;
+                }
+
+                // Tìm khách có điểm tích lũy >= giá trị nhập
+                if (match && diemTim != null &&
+                        (kh.getDiemTichLuy() == 0 || kh.getDiemTichLuy() < diemTim)) {
+                    match = false;
+                }
+
+                if (match) {
+                    ketQua.add(kh);
+                }
+            }
+
+            if (ketQua.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Không tìm thấy kết quả phù hợp!",
+                        "Thông báo", JOptionPane. INFORMATION_MESSAGE);
+                load_dataKhachHang(dsKhachHang);
+                return;
+            }
+
+            load_dataKhachHang(ketQua);
         }
     }
 }
