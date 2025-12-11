@@ -38,6 +38,7 @@ import javax.swing.table.JTableHeader;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import app.ConnectDB.ConnectDB;
+import app.DAO.HoaDonDAO;
 import app.DAO.NhaSanXuatDAO;
 import app.DAO.ThuocDAO;
 import app.Entity.NhaSanXuat;

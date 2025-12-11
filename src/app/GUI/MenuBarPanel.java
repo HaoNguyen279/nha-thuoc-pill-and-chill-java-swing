@@ -199,9 +199,9 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniCapNhatKhachHang = createItem("Khách hàng", "/resources/icon/customer_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_K, ActionEvent.CTRL_MASK));
         mniCapNhatNhanVien = createItem("Nhân viên", "/resources/icon/employee_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.CTRL_MASK));
         mniCapNhatKhuyenMai = createItem("Khuyến mãi", "/resources/icon/sale_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
-        mniCapNhatChucVu = createItem("Chức vụ", "/resources/icon/position_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK));
-        mniCapNhatDonVi = createItem("Đơn vị", "/resources/icon/position_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.CTRL_MASK));
-        mniXemPhieuNhap = createItem("Phiếu nhập", "/resources/icon/import_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
+        mniCapNhatChucVu = createItem("Chức vụ", "/resources/icon/suitcase_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK));
+        mniCapNhatDonVi = createItem("Đơn vị", "/resources/icon/unit_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.CTRL_MASK));
+       
 
         // TÌM KIẾM
         mniTimKiemThuoc = createItem("Thuốc", "/resources/icon/drug_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.ALT_MASK));
@@ -210,7 +210,8 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniHoaDon = createItem("Hóa đơn", "/resources/icon/bill_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK));
         mniPhieuDatThuoc = createItem("Phiếu đặt thuốc", "/resources/icon/order_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK));
         mniPhieuDoiTra = createItem("Phiếu đổi trả", "/resources/icon/cash_back_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
-
+        mniXemPhieuNhap = createItem("Phiếu nhập", "/resources/icon/import_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_I, ActionEvent.ALT_MASK));
+        
         // XỬ LÝ
         mniLapHoaDon = createItem("Lập hóa đơn", "/resources/icon/bill_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.CTRL_MASK));
         mniLapPhieuDatThuoc = createItem("Lập phiếu đặt thuốc", "/resources/icon/order_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.CTRL_MASK));

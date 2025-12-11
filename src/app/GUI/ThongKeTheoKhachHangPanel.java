@@ -2,6 +2,7 @@ package app.GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -30,6 +31,11 @@ import app.Entity.HoaDon;
 import app.Entity.KhachHang;
 
 public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener{
+
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
+    private final Color BG_COLOR = new Color(245, 245, 245);
+    private final Color ACCENT_COLOR = new Color(255, 255, 255);
+    private final Color TEXT_COLOR = new Color(51, 51, 51);
 
 	private DefaultTableModel dtmThongKe;
 	private JTextField searchField;
@@ -61,7 +67,7 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener{
         loadKhachHangData();
         
 
-        setBackground(new Color(248, 248, 248));
+        setBackground(BG_COLOR);
         setVisible(true);
 
         
@@ -70,14 +76,15 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener{
 
 	private JPanel createSearchPanel() {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 20, 15));
+        searchPanel.setBackground(BG_COLOR);
 
         searchField = new JTextField(25);
         searchField.setText("Nhập từ khóa...");
         searchField.setForeground(Color.GRAY);
-        searchField.setFont(new Font("Arial", Font.ITALIC, 13));
-        searchField.setBackground(new Color(245, 245, 245));
+        searchField.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+        searchField.setBackground(Color.WHITE);
         searchField.setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createLineBorder(Color.GRAY),
+                BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
                 BorderFactory.createEmptyBorder(5, 10, 5, 10)
         ));
         
@@ -88,6 +95,8 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener{
 			public void focusGained(FocusEvent e) {
 				if(searchField.getText().equals("Nhập từ khóa...")) {
 					searchField.setText("");
+                    searchField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+                    searchField.setForeground(TEXT_COLOR);
 				}
 			}
         	
@@ -95,16 +104,19 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener{
 			public void focusLost(FocusEvent e) {
 				if(searchField.getText().equals("")) {
 					searchField.setText("Nhập từ khóa...");
+                    searchField.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+                    searchField.setForeground(Color.GRAY);
 				}
 			}
 			
 		});
 
         searchButton = new JButton("Tìm");
-        searchButton.setFont(new Font("Arial", Font.PLAIN, 13));
-        searchButton.setPreferredSize(new Dimension(80, 30));
-        searchButton.setBackground(Color.WHITE);
-        searchButton.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        searchButton.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        searchButton.setPreferredSize(new Dimension(100, 40));
+        searchButton.setBackground(PRIMARY_COLOR);
+        searchButton.setForeground(Color.WHITE);
+        searchButton.setBorderPainted(false);
         searchButton.setFocusPainted(false);
         searchButton.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
@@ -112,32 +124,37 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener{
         String[] kieuTimKiem = {"Theo mã khách hàng", "Theo tên khách hàng", "Theo SĐT khách hàng"};
         cboTimKiem = new JComboBox<>(kieuTimKiem);
         cboTimKiem.setSelectedIndex(0);
-        cboTimKiem.setPreferredSize(new Dimension(160, 30));
+        cboTimKiem.setPreferredSize(new Dimension(180, 40));
         cboTimKiem.setBackground(Color.WHITE);
-        cboTimKiem.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        cboTimKiem.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboTimKiem.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
 
         //ComboBox Date
         JLabel lblThang = new JLabel("Tháng: ");
-        lblThang.setFont(new Font("Arial", Font.BOLD, 16));
+        lblThang.setFont(new Font("Segoe UI", Font.BOLD, 14));
         String[] thang = "1 2 3 4 5 6 7 8 9 10 11 12".split(" ");
         cboThang = new JComboBox<>(thang);
         LocalDate today = LocalDate.now();
         cboThang.setSelectedIndex(today.getMonthValue() - 1);
-        cboThang.setPreferredSize(new Dimension(60, 30));
+        cboThang.setPreferredSize(new Dimension(70, 40));
         cboThang.setBackground(Color.WHITE);
-        cboThang.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        cboThang.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboThang.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
         
         JLabel lblNam = new JLabel("Năm: ");
-        lblNam.setFont(new Font("Arial", Font.BOLD, 16));
+        lblNam.setFont(new Font("Segoe UI", Font.BOLD, 14));
         String[] nam = "2024 2025".split(" ");
         cboNam = new JComboBox<>(nam);
         cboNam.setSelectedIndex(1);
-        cboNam.setPreferredSize(new Dimension(60, 30));
+        cboNam.setPreferredSize(new Dimension(80, 40));
         cboNam.setBackground(Color.WHITE);
-        cboNam.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        cboNam.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        cboNam.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
         
         radTimKiemThangNam = new JRadioButton("Lọc theo Tháng/Năm");
-        radTimKiemThangNam.setFont(new Font("Arial", Font.BOLD, 16));
+        radTimKiemThangNam.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        radTimKiemThangNam.setBackground(BG_COLOR);
+        radTimKiemThangNam.setFocusPainted(false);
         
         searchPanel.add(Box.createHorizontalStrut(15));
         searchPanel.add(searchField);
@@ -161,29 +178,48 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener{
 		
 		JPanel pnlTop = new JPanel();
 		pnlTop.setLayout(new BorderLayout());
+        pnlTop.setBackground(BG_COLOR);
 		
-		tblThongKe = new JTable(dtmThongKe);        
-		tblThongKe.setBackground(new Color(240, 240, 245));
-		tblThongKe.setGridColor(Color.LIGHT_GRAY);
-		tblThongKe.setFont(new Font("Arial", Font.PLAIN, 15));
-		tblThongKe.setRowHeight(40);
-		tblThongKe.setGridColor(Color.LIGHT_GRAY);
-		tblThongKe.setSelectionBackground(new Color(100, 149, 237));
+		tblThongKe = new JTable(dtmThongKe) {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };        
+		tblThongKe.setBackground(Color.WHITE);
+		tblThongKe.setGridColor(new Color(224, 224, 224));
+		tblThongKe.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		tblThongKe.setRowHeight(35);
+		tblThongKe.setSelectionBackground(new Color(178, 223, 219));
+        tblThongKe.setSelectionForeground(Color.BLACK);
+        tblThongKe.setShowGrid(true);
+        tblThongKe.setIntercellSpacing(new Dimension(1, 1));
+
         JTableHeader header = tblThongKe.getTableHeader();
-        header.setPreferredSize(new Dimension(header.getWidth(), 35));
-        header.setBackground(new Color(192, 232, 246));
-        header.setFont(new Font("Arial", Font.BOLD, 15));
+        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(Color.WHITE);
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setReorderingAllowed(false);
+
         JScrollPane scrollPane = new JScrollPane(tblThongKe);
         scrollPane.setBorder(BorderFactory.createCompoundBorder(
     		BorderFactory.createEmptyBorder(0,50,5,50),
-    		BorderFactory.createLineBorder(Color.GRAY, 2)
+    		BorderFactory.createLineBorder(new Color(220, 220, 220))
         ));
+        scrollPane.getViewport().setBackground(Color.WHITE);
         
-        JLabel lblThongKe = new JLabel("Thống kê doanh thu theo Khách hàng", SwingConstants.CENTER);
-        lblThongKe.setFont(new Font("Arial", Font.BOLD, 24));
+        JLabel lblThongKe = new JLabel("THỐNG KÊ DOANH THU THEO KHÁCH HÀNG", SwingConstants.CENTER);
+        lblThongKe.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblThongKe.setForeground(PRIMARY_COLOR);
         lblThongKe.setBorder(BorderFactory.createEmptyBorder(10,0,10,0));
         
         JPanel pnlTieuDe = new JPanel(new GridLayout(2,1,0,0));
+        pnlTieuDe.setBackground(BG_COLOR);
         pnlTieuDe.add(lblThongKe);
         pnlTieuDe.add(createSearchPanel());
         

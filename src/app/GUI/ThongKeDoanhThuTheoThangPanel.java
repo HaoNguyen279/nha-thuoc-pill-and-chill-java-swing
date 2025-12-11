@@ -11,6 +11,8 @@ import java.text.DecimalFormat;
 import java.time.YearMonth;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -53,6 +55,9 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
     
     private JButton btnDetail;
     private XemChiTietDoanhThuTheoThangFrame xemChiTietDoanhThuTheoThangFrame;
+    private boolean isInitializing = true;
+    private Map<Integer, ArrayList<Integer>> mapListThangCuaNam = new HashMap<Integer, ArrayList<Integer>>();
+    
     public ThongKeDoanhThuTheoThangPanel() {
         initData();
         initComponents();
@@ -274,25 +279,31 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
     }
 
     private void updateThangComboBox(int namDuocChon) {
-    	HoaDonDAO hdDAO = new HoaDonDAO();
-    	ArrayList<Integer> listThang =  hdDAO.getThangCoHoaDonTrongNam(namDuocChon);
+        isInitializing = true;
+    	ArrayList<Integer> listThang = mapListThangCuaNam.get(namDuocChon);
 		cboThang.removeAllItems();
     	for(int i : listThang) {
     		cboThang.addItem(i);
     	}
+    	cboThang.revalidate();
+    	cboThang.repaint();
     	cboThang.setSelectedIndex(0);
+    	isInitializing = false;
     }
     
     private void initCombobox() {
-    	HoaDonDAO hdDAO = new HoaDonDAO();
     	ArrayList<Integer> listNam =  hdDAO.getNamCoHoaDon();
+
 		cboNam.removeAllItems();
     	for(int i : listNam) {
+    		mapListThangCuaNam.put(i, hdDAO.getThangCoHoaDonTrongNam(i));
     		cboNam.addItem(i);
     	}
     	cboNam.setSelectedIndex(0);
         namDuocChon = (Integer) cboNam.getSelectedItem();
         updateThangComboBox(namDuocChon);
+        isInitializing = false;
+        
     }
 
     public void refresh() {
@@ -315,11 +326,11 @@ public class ThongKeDoanhThuTheoThangPanel extends JPanel implements ActionListe
 
     @Override
     public void actionPerformed(ActionEvent e) {
+    	if(isInitializing) return;
         if (e.getSource() == cboNam) {
             namDuocChon = (Integer) cboNam.getSelectedItem();
             updateThangComboBox(namDuocChon);
             thangDuocChon = (Integer) cboThang.getSelectedItem();
-            // check later
             updateChart(thangDuocChon, namDuocChon);
         } else if (e.getSource() == cboThang) {
             thangDuocChon = (Integer) cboThang.getSelectedItem();

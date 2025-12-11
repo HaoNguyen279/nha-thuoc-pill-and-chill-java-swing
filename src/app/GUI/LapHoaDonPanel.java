@@ -16,6 +16,11 @@ import app.Entity.Thuoc;
 
 public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCallback {
     
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
+    private final Color BG_COLOR = new Color(245, 245, 245);
+    private final Color ACCENT_COLOR = new Color(255, 255, 255);
+    private final Color TEXT_COLOR = new Color(51, 51, 51);
+
     private DefaultTableModel modelThuoc; // Model cho bảng danh sách thuốc
     private DefaultTableModel modelGioHang; // Model cho bảng giỏ hàng
     private JTable tblThuoc;
@@ -43,7 +48,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
     public LapHoaDonPanel(String maNhanVien) {
         this.maNhanVien = maNhanVien;
         setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
+        setBackground(BG_COLOR);
         
         // Khởi tạo kết nối database và DAO
         ConnectDB.connect();
@@ -64,14 +69,15 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
 
     private JPanel createCenterPanel() {
         JPanel centerPanel = new JPanel(new BorderLayout(0, 20));
-        centerPanel.setBackground(Color.WHITE);
+        centerPanel.setBackground(BG_COLOR);
         centerPanel.setBorder(new EmptyBorder(20, 40, 20, 40));
 
         // Panel tiêu đề
         JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.setBackground(Color.WHITE);
+        titlePanel.setBackground(BG_COLOR);
         JLabel lblTitle = new JLabel("LẬP HÓA ĐƠN", SwingConstants.CENTER);
-        lblTitle.setFont(new Font("Arial", Font.BOLD, 24));
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        lblTitle.setForeground(PRIMARY_COLOR);
         titlePanel.add(lblTitle, BorderLayout.CENTER);
 
         // Panel tìm kiếm
@@ -82,7 +88,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
 
         // Panel giữa chứa 2 bảng
         JPanel pnlTable = new JPanel(new GridLayout(2, 1, 0, 20));
-        pnlTable.setBackground(Color.WHITE);
+        pnlTable.setBackground(BG_COLOR);
 
         // Bảng trên - Danh sách thuốc để chọn
         JPanel topTablePanel = createTopTablePanel();
@@ -99,15 +105,15 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
 
     private JPanel createSearchPanel() {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
-        searchPanel.setBackground(Color.WHITE);
+        searchPanel.setBackground(BG_COLOR);
 
         txtSearch = new JTextField(25);
         txtSearch.setForeground(Color.GRAY);
-        txtSearch.setFont(new Font("Arial", Font.ITALIC, 13));
-        txtSearch.setBackground(new Color(245, 245, 245));
+        txtSearch.setFont(new Font("Segoe UI", Font.ITALIC, 14));
+        txtSearch.setBackground(Color.WHITE);
         txtSearch.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(Color.LIGHT_GRAY),
-            BorderFactory.createEmptyBorder(5, 10, 5, 10)
+            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
+            BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
         
         // Gán placeholder lúc đầu
@@ -119,8 +125,8 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
             public void focusGained(java.awt.event.FocusEvent e) {
                 if (txtSearch.getText().equals(SEARCH_PLACEHOLDER)) {
                     txtSearch.setText("");
-                    txtSearch.setForeground(Color.BLACK);
-                    txtSearch.setFont(new Font("Arial", Font.PLAIN, 13));
+                    txtSearch.setForeground(TEXT_COLOR);
+                    txtSearch.setFont(new Font("Segoe UI", Font.PLAIN, 14));
                 }
             }
 
@@ -129,34 +135,37 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
                 if (txtSearch.getText().isEmpty()) {
                     txtSearch.setText(SEARCH_PLACEHOLDER);
                     txtSearch.setForeground(Color.GRAY);
-                    txtSearch.setFont(new Font("Arial", Font.ITALIC, 13));
+                    txtSearch.setFont(new Font("Segoe UI", Font.ITALIC, 14));
                 }
             }
         });
 
         btnSearch = new JButton("Tìm");
-        btnSearch.setFont(new Font("Arial", Font.PLAIN, 13));
-        btnSearch.setPreferredSize(new Dimension(80, 30));
-        btnSearch.setBackground(new Color(240, 250, 240)); // Màu xanh nhạt
-        btnSearch.setBorder(BorderFactory.createLineBorder(new Color(34, 139, 34))); // Viền xanh đậm
+        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnSearch.setPreferredSize(new Dimension(90, 40));
+        btnSearch.setBackground(PRIMARY_COLOR);
+        btnSearch.setForeground(Color.WHITE);
+        btnSearch.setBorderPainted(false);
         btnSearch.setFocusPainted(false);
         btnSearch.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnSearch.addActionListener(this);
         
         btnResetSearch = new JButton("Làm mới");
-        btnResetSearch.setFont(new Font("Arial", Font.PLAIN, 13));
-        btnResetSearch.setPreferredSize(new Dimension(80, 30));
-        btnResetSearch.setBackground(Color.WHITE);
-        btnResetSearch.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        btnResetSearch.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnResetSearch.setPreferredSize(new Dimension(100, 40));
+        btnResetSearch.setBackground(new Color(149, 165, 166));
+        btnResetSearch.setForeground(Color.WHITE);
+        btnResetSearch.setBorderPainted(false);
         btnResetSearch.setFocusPainted(false);
         btnResetSearch.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnResetSearch.addActionListener(this);
 
         btnXuatHoaDonChoPhieuDat = new JButton("Xuất hóa đơn cho phiếu đặt");
-        btnXuatHoaDonChoPhieuDat.setFont(new Font("Arial", Font.PLAIN, 13));
-        btnXuatHoaDonChoPhieuDat.setPreferredSize(new Dimension(180, 30));
-        btnXuatHoaDonChoPhieuDat.setBackground(new Color(240, 250, 240)); // Màu xanh nhạt
-        btnXuatHoaDonChoPhieuDat.setBorder(BorderFactory.createLineBorder(new Color(34, 139, 34))); // Viền xanh đậm
+        btnXuatHoaDonChoPhieuDat.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnXuatHoaDonChoPhieuDat.setPreferredSize(new Dimension(220, 40));
+        btnXuatHoaDonChoPhieuDat.setBackground(new Color(46, 204, 113));
+        btnXuatHoaDonChoPhieuDat.setForeground(Color.WHITE);
+        btnXuatHoaDonChoPhieuDat.setBorderPainted(false);
         btnXuatHoaDonChoPhieuDat.setFocusPainted(false);
         btnXuatHoaDonChoPhieuDat.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnXuatHoaDonChoPhieuDat.addActionListener(this);
@@ -184,20 +193,35 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
             }
         };
 
-        tblThuoc = new JTable(modelThuoc);
-        tblThuoc.setRowHeight(30);
-        tblThuoc.setBackground(Color.WHITE); // Nền trắng cho các dòng
-        tblThuoc.setGridColor(Color.LIGHT_GRAY);
-        tblThuoc.setFont(new Font("Arial", Font.PLAIN, 12));
+        tblThuoc = new JTable(modelThuoc) {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };
+        tblThuoc.setRowHeight(35);
+        tblThuoc.setBackground(Color.WHITE);
+        tblThuoc.setGridColor(new Color(224, 224, 224));
+        tblThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tblThuoc.setSelectionBackground(new Color(178, 223, 219));
+        tblThuoc.setSelectionForeground(Color.BLACK);
+        tblThuoc.setShowGrid(true);
+        tblThuoc.setIntercellSpacing(new Dimension(1, 1));
         
         // Chỉ tô màu header
-        tblThuoc.getTableHeader().setFont(new Font("Arial", Font.BOLD, 13));
-        tblThuoc.getTableHeader().setBackground(new Color(240, 250, 240)); // Màu xanh nhạt cho header
-        tblThuoc.getTableHeader().setForeground(Color.BLACK);
+        tblThuoc.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tblThuoc.getTableHeader().setBackground(PRIMARY_COLOR);
+        tblThuoc.getTableHeader().setForeground(Color.WHITE);
+        tblThuoc.getTableHeader().setPreferredSize(new Dimension(tblThuoc.getTableHeader().getWidth(), 40));
 
         JScrollPane scrollPane = new JScrollPane(tblThuoc);
         scrollPane.setPreferredSize(new Dimension(0, 200));
-        scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
 
         panel.add(scrollPane, BorderLayout.CENTER);
 
@@ -206,16 +230,18 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         controlPanel.setBackground(Color.WHITE);
 
         JLabel quantityLabel = new JLabel("Số lượng:");
-        quantityLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        quantityLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         spnQuantityTop = new JSpinner(new SpinnerNumberModel(1, 1, 10000, 1));
-        spnQuantityTop.setPreferredSize(new Dimension(60, 25));
+        spnQuantityTop.setPreferredSize(new Dimension(80, 30));
+        spnQuantityTop.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         btnAddToCart = new JButton("Thêm vào giỏ hàng");
-        btnAddToCart.setFont(new Font("Arial", Font.PLAIN, 13));
-        btnAddToCart.setPreferredSize(new Dimension(160, 35));
-        btnAddToCart.setBackground(new Color(240, 250, 240));
-        btnAddToCart.setBorder(BorderFactory.createLineBorder(new Color(34, 139, 34))); // Viền xanh đậm
+        btnAddToCart.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnAddToCart.setPreferredSize(new Dimension(180, 40));
+        btnAddToCart.setBackground(PRIMARY_COLOR);
+        btnAddToCart.setForeground(Color.WHITE);
+        btnAddToCart.setBorderPainted(false);
         btnAddToCart.setFocusPainted(false);
         btnAddToCart.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnAddToCart.addActionListener(this);
@@ -238,7 +264,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 10));
         titlePanel.setBackground(Color.WHITE);
         JLabel lblCartTitle = new JLabel("GIỎ HÀNG");
-        lblCartTitle.setFont(new Font("Arial", Font.BOLD, 16));
+        lblCartTitle.setFont(new Font("Segoe UI", Font.BOLD, 16));
         titlePanel.add(lblCartTitle);
         panel.add(titlePanel, BorderLayout.NORTH);
 
@@ -252,20 +278,35 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
             }
         };
 
-        tblGioHang = new JTable(modelGioHang);
-        tblGioHang.setRowHeight(30);
-        tblGioHang.setBackground(Color.WHITE); // Nền trắng cho các dòng
-        tblGioHang.setGridColor(Color.LIGHT_GRAY);
-        tblGioHang.setFont(new Font("Arial", Font.PLAIN, 12));
+        tblGioHang = new JTable(modelGioHang) {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };
+        tblGioHang.setRowHeight(35);
+        tblGioHang.setBackground(Color.WHITE);
+        tblGioHang.setGridColor(new Color(224, 224, 224));
+        tblGioHang.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tblGioHang.setSelectionBackground(new Color(178, 223, 219));
+        tblGioHang.setSelectionForeground(Color.BLACK);
+        tblGioHang.setShowGrid(true);
+        tblGioHang.setIntercellSpacing(new Dimension(1, 1));
         
         // Chỉ tô màu header
-        tblGioHang.getTableHeader().setFont(new Font("Arial", Font.BOLD, 13));
-        tblGioHang.getTableHeader().setBackground(new Color(240, 250, 240)); // Màu xanh nhạt cho header
-        tblGioHang.getTableHeader().setForeground(Color.BLACK);
+        tblGioHang.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tblGioHang.getTableHeader().setBackground(PRIMARY_COLOR);
+        tblGioHang.getTableHeader().setForeground(Color.WHITE);
+        tblGioHang.getTableHeader().setPreferredSize(new Dimension(tblGioHang.getTableHeader().getWidth(), 40));
 
         JScrollPane scrollPane = new JScrollPane(tblGioHang);
         scrollPane.setPreferredSize(new Dimension(0, 200));
-        scrollPane.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
 
         panel.add(scrollPane, BorderLayout.CENTER);
 
@@ -274,25 +315,28 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         controlPanel.setBackground(Color.WHITE);
 
         JLabel quantityLabel = new JLabel("Số lượng:");
-        quantityLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        quantityLabel.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         spnQuantityBottom = new JSpinner(new SpinnerNumberModel(1, 1, 1000, 1));
-        spnQuantityBottom.setPreferredSize(new Dimension(60, 25));
+        spnQuantityBottom.setPreferredSize(new Dimension(80, 30));
+        spnQuantityBottom.setFont(new Font("Segoe UI", Font.PLAIN, 14));
 
         btnRemove = new JButton("Xóa khỏi giỏ hàng");
-        btnRemove.setFont(new Font("Arial", Font.PLAIN, 13));
-        btnRemove.setPreferredSize(new Dimension(160, 35));
-        btnRemove.setBackground(new Color(255, 240, 240));
-        btnRemove.setBorder(BorderFactory.createLineBorder(Color.RED));
+        btnRemove.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnRemove.setPreferredSize(new Dimension(180, 40));
+        btnRemove.setBackground(new Color(231, 76, 60));
+        btnRemove.setForeground(Color.WHITE);
+        btnRemove.setBorderPainted(false);
         btnRemove.setFocusPainted(false);
         btnRemove.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnRemove.addActionListener(this);
 
         btnReset = new JButton("Làm mới giỏ hàng");
-        btnReset.setFont(new Font("Arial", Font.PLAIN, 13));
-        btnReset.setPreferredSize(new Dimension(140, 35));
-        btnReset.setBackground(Color.WHITE);
-        btnReset.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+        btnReset.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnReset.setPreferredSize(new Dimension(180, 40));
+        btnReset.setBackground(new Color(149, 165, 166));
+        btnReset.setForeground(Color.WHITE);
+        btnReset.setBorderPainted(false);
         btnReset.setFocusPainted(false);
         btnReset.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnReset.addActionListener(this);
@@ -309,28 +353,28 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
 
     private JPanel createBottomPanel() {
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 40, 15));
-        bottomPanel.setBackground(Color.WHITE);
-        bottomPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, Color.LIGHT_GRAY));
+        bottomPanel.setBackground(BG_COLOR);
+        bottomPanel.setBorder(BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(220, 220, 220)));
 
         // Label và textfield tổng tiền
         JLabel lblTongTienLabel = new JLabel("Tổng tiền:");
-        lblTongTienLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        lblTongTienLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         
         txtTongTien = new JTextField("0 VNĐ");
-        txtTongTien.setFont(new Font("Arial", Font.BOLD, 14));
+        txtTongTien.setFont(new Font("Segoe UI", Font.BOLD, 16));
         txtTongTien.setPreferredSize(new Dimension(200, 40));
         txtTongTien.setHorizontalAlignment(JTextField.RIGHT);
         txtTongTien.setEditable(false);
         txtTongTien.setBackground(Color.WHITE);
-        txtTongTien.setBorder(BorderFactory.createLineBorder(Color.LIGHT_GRAY));
+        txtTongTien.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         txtTongTien.setForeground(new Color(0, 128, 0)); // Màu xanh cho số tiền
 
         btnConfirm = new JButton("Xác nhận");
-        btnConfirm.setFont(new Font("Arial", Font.PLAIN, 14));
+        btnConfirm.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnConfirm.setPreferredSize(new Dimension(150, 40));
-        btnConfirm.setBackground(new Color(240, 240, 240)); // Màu xám nhạt
-        btnConfirm.setForeground(Color.BLACK); // Chữ màu đen
-        btnConfirm.setBorder(BorderFactory.createLineBorder(Color.GRAY)); // Viền màu xám
+        btnConfirm.setBackground(PRIMARY_COLOR);
+        btnConfirm.setForeground(Color.WHITE);
+        btnConfirm.setBorderPainted(false);
         btnConfirm.setFocusPainted(false);
         btnConfirm.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnConfirm.addActionListener(this);
