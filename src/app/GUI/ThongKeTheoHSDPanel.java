@@ -21,6 +21,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -258,15 +259,13 @@ public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, Mouse
             try {
                 int soNgay = Integer.parseInt(txtSoNgay.getText().trim());
                 if(soNgay <= 0) {
-                    CustomJOptionPane errorPane = new CustomJOptionPane(this, "Số ngày phải lớn hơn 0!", false);
-                    errorPane.show();
+                    JOptionPane.showMessageDialog(this, "Số ngày phải lớn hơn 0!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     txtSoNgay.requestFocus();
                     return;
                 }
                 loadLoThuocSapHetHan(soNgay);
             } catch(NumberFormatException ex) {
-                CustomJOptionPane errorPane = new CustomJOptionPane(this, "Vui lòng nhập số ngày hợp lệ!", false);
-                errorPane.show();
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập số ngày hợp lệ!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 txtSoNgay.requestFocus();
             }
         }
@@ -283,8 +282,7 @@ public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, Mouse
         int selectedRow = tblLoThuoc.getSelectedRow();
         
         if(selectedRow == -1) {
-            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng chọn lô thuốc cần xóa!", false);
-            warningPane.show();
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn lô thuốc cần xóa!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -312,7 +310,7 @@ public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, Mouse
             trangThaiHSD = "Không xác định được hạn sử dụng";
         }
         
-        CustomJOptionPane confirmPane = new CustomJOptionPane(this, 
+        int confirm = JOptionPane.showConfirmDialog(this, 
             "Bạn có chắc chắn muốn XÓA VĨNH VIỄN chi tiết lô thuốc này?\n\n" +
             "Mã lô: " + maLo + "\n" +
             "Mã thuốc: " + maThuoc + "\n" +
@@ -321,19 +319,17 @@ public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, Mouse
             "Hạn sử dụng: " + hanSuDungStr + "\n" +
             "Số lượng tồn: " + soLuongTon + "\n\n" +
             trangThaiHSD + "\n\n" ,
-            true);
-        int confirm = confirmPane.show();
+            "Xác nhận", JOptionPane.YES_NO_OPTION);
         
         if(confirm == javax.swing.JOptionPane.YES_OPTION) {
             boolean success = loThuocDAO.xoaChiTietLoThuoc(maLo, maThuoc);
             
             if(success) {
-                CustomJOptionPane successPane = new CustomJOptionPane(this, 
+                JOptionPane.showMessageDialog(this, 
                     "Đã xóa vĩnh viễn chi tiết lô thuốc thành công!\n\n" +
                     "Mã lô: " + maLo + "\n" +
                     "Mã thuốc: " + maThuoc, 
-                    false);
-                successPane.show();
+                    "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 
                 // Refresh lại dữ liệu
                 String loaiThongKe = (String) cboLoaiThongKe.getSelectedItem();
@@ -348,10 +344,9 @@ public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, Mouse
                     }
                 }
             } else {
-                CustomJOptionPane errorPane = new CustomJOptionPane(this, 
+                JOptionPane.showMessageDialog(this, 
                     "Xóa chi tiết lô thuốc thất bại!\n\n" , 
-                    false);
-                errorPane.show();
+                    "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         }
     }

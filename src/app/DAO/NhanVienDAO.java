@@ -56,6 +56,43 @@ public class NhanVienDAO {
         }
         return dsNhanVien;
     }
+    
+    
+    
+    public ArrayList<NhanVien> getAllNhanVienInActive() {
+        ArrayList<NhanVien> dsNhanVien = new ArrayList<>();
+        String sql = "SELECT maNV, tenNV, maChucVu, soDienThoai, isActive FROM NhanVien WHERE isActive = 0"; 
+        Connection con = ConnectDB.getInstance().getConnection();
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            ChucVuDAO cvDAO = new ChucVuDAO();
+
+            
+            while (rs.next()) {
+                String maNV = rs.getString("maNV");
+                String tenNV = rs.getString("tenNV");
+                String maChucVu = rs.getString("maChucVu");
+                String soDienThoai = rs.getString("soDienThoai");
+                boolean isActive = rs.getBoolean("isActive");
+                
+                NhanVien nv = new NhanVien(maNV, tenNV, maChucVu, soDienThoai, isActive);
+                dsNhanVien.add(nv);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return dsNhanVien;
+    }
 
     /**
      * Lấy thông tin một nhân viên dựa vào mã nhân viên (ID).
@@ -202,6 +239,22 @@ public class NhanVienDAO {
             }
         }
         return n > 0;
+    }
+    
+    public boolean reactiveNhanVien(String id) {
+    	String sql = "UPDATE NhanVien SET isActive = 1 WHERE maNV = ?";
+        Connection con = ConnectDB.getConnection();
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1,id);
+            int n = stmt.executeUpdate();
+            System.out.println("   → Reactivated Thuoc: " + id + " (rows: " + n + ")");
+            return n > 0;
+        } catch (SQLException e) {
+            System.err.println("   ❌ Error reactivating Thuoc: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
     
     

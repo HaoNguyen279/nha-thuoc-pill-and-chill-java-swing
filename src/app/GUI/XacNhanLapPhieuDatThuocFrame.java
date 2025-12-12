@@ -405,13 +405,11 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
     private void timKhachHang() {
         String sdt = txtSDTKhachHang.getText().trim();
         if (sdt.isEmpty()) {
-            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng nhập số điện thoại khách hàng!", false);
-            warningPane.show();
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại khách hàng!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         if (!sdt.matches("^0\\d{9}$")) {
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Số điện thoại không hợp lệ! (Phải có 10 số và bắt đầu bằng 0)", false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ! (Phải có 10 số và bắt đầu bằng 0)", "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         try {
@@ -420,10 +418,10 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                 txtTenKhachHang.setText(kh.getTenKH());
             } else {
                 txtTenKhachHang.setText("");
-                CustomJOptionPane confirmPane = new CustomJOptionPane(this, 
+                int confirm = JOptionPane.showConfirmDialog(this, 
                     "Không tìm thấy khách hàng với số điện thoại đã nhập.\nBạn có muốn thêm khách hàng mới không?", 
-                    true);
-                int confirm = confirmPane.show();
+                    "Xác nhận", 
+                    JOptionPane.YES_NO_OPTION);
                 
                 if (confirm == JOptionPane.YES_OPTION) {
 
@@ -435,8 +433,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             }
         } catch (Exception e) {
             e.printStackTrace();
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi tìm kiếm khách hàng: " + e.getMessage(), false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, "Lỗi khi tìm kiếm khách hàng: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -444,16 +441,14 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         // Kiểm tra số điện thoại
         String sdt = txtSDTKhachHang.getText().trim();
         if (sdt.isEmpty()) {
-            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng nhập số điện thoại khách hàng!", false);
-            warningPane.show();
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập số điện thoại khách hàng!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             txtSDTKhachHang.requestFocus();
             return;
         }
         
         // Kiểm tra định dạng số điện thoại
         if (!sdt.matches("^0\\d{9}$")) {
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Số điện thoại không hợp lệ! (Phải có 10 số và bắt đầu bằng 0)", false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, "Số điện thoại không hợp lệ! (Phải có 10 số và bắt đầu bằng 0)", "Lỗi", JOptionPane.ERROR_MESSAGE);
             txtSDTKhachHang.requestFocus();
             return;
         }
@@ -461,8 +456,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         // Kiểm tra khách hàng đã được tìm kiếm
         String tenKH = txtTenKhachHang.getText().trim();
         if (tenKH.isEmpty()) {
-            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Vui lòng tìm kiếm thông tin khách hàng trước khi xác nhận!", false);
-            warningPane.show();
+            JOptionPane.showMessageDialog(this, "Vui lòng tìm kiếm thông tin khách hàng trước khi xác nhận!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             btnTim.requestFocus();
             return;
         }
@@ -471,13 +465,11 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         try {
             KhachHang kh = khachHangDAO.findKhachHangByPhone(sdt);
             if (kh == null) {
-                CustomJOptionPane errorPane = new CustomJOptionPane(this, "Khách hàng không tồn tại trong hệ thống!\nVui lòng thêm khách hàng mới trước.", false);
-                errorPane.show();
+                JOptionPane.showMessageDialog(this, "Khách hàng không tồn tại trong hệ thống!\nVui lòng thêm khách hàng mới trước.", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
         } catch (Exception ex) {
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi kiểm tra thông tin khách hàng: " + ex.getMessage(), false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, "Lỗi khi kiểm tra thông tin khách hàng: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             return;
         }
         
@@ -513,16 +505,14 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
         Date ngayToiDa = calToiDa.getTime();
         
         if (ngayGiaoClean.before(ngayMai)) {
-            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Ngày giao hàng phải từ " + 
-                new SimpleDateFormat("dd/MM/yyyy").format(ngayMai) + " trở đi!", false);
-            warningPane.show();
+            JOptionPane.showMessageDialog(this, "Ngày giao hàng phải từ " + 
+                new SimpleDateFormat("dd/MM/yyyy").format(ngayMai) + " trở đi!", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
         if (ngayGiaoClean.after(ngayToiDa)) {
-            CustomJOptionPane warningPane = new CustomJOptionPane(this, "Ngày giao hàng không được quá " + 
-                new SimpleDateFormat("dd/MM/yyyy").format(ngayToiDa) + "!\nChỉ cho phép đặt thuốc trong vòng 7 ngày.", false);
-            warningPane.show();
+            JOptionPane.showMessageDialog(this, "Ngày giao hàng không được quá " + 
+                new SimpleDateFormat("dd/MM/yyyy").format(ngayToiDa) + "!\nChỉ cho phép đặt thuốc trong vòng 7 ngày.", "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -530,8 +520,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             // Lấy thông tin khách hàng từ database
             KhachHang khachHang = khachHangDAO.findKhachHangByPhone(sdt);
             if (khachHang == null) {
-                CustomJOptionPane errorPane = new CustomJOptionPane(this, "Khách hàng không tồn tại trong hệ thống!\nVui lòng thêm khách hàng mới trước.", false);
-                errorPane.show();
+                JOptionPane.showMessageDialog(this, "Khách hàng không tồn tại trong hệ thống!\nVui lòng thêm khách hàng mới trước.", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 return;
             }
             
@@ -564,10 +553,9 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                     String ghiChuText = ghiChuDisplay.isEmpty() ? "(Không có ghi chú)" : ghiChuDisplay;
                     
                     // Hỏi người dùng có muốn xuất phiếu đặt PDF không
-                    CustomJOptionPane confirmPane = new CustomJOptionPane(this,
+                    int printOption = JOptionPane.showConfirmDialog(this,
                         "Lập phiếu đặt thành công!\nMã phiếu đặt: " + maPhieuDat + "\nKhách hàng: " + tenKH + "\nSĐT: " + sdt + "\nNgày giao: " + new SimpleDateFormat("dd/MM/yyyy").format(ngayGiao) + "\nGhi chú: " + ghiChuText + "\n\nBạn có muốn xuất phiếu đặt PDF không?",
-                        true);
-                    int printOption = confirmPane.show();
+                        "Xác nhận", JOptionPane.YES_NO_OPTION);
                         
                     if (printOption == JOptionPane.YES_OPTION) {
                         // Xuất phiếu đặt PDF
@@ -581,18 +569,15 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
                     
                     dispose();
                 } else {
-                    CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi lưu chi tiết phiếu đặt!", false);
-                    errorPane.show();
+                    JOptionPane.showMessageDialog(this, "Lỗi khi lưu chi tiết phiếu đặt!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             } else {
-                CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi lưu phiếu đặt!", false);
-                errorPane.show();
+                JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu đặt!", "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
             
         } catch (Exception e) {
             e.printStackTrace();
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi lưu phiếu đặt: " + e.getMessage(), false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, "Lỗi khi lưu phiếu đặt: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -797,10 +782,9 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             document.close();
             
             // Hiển thị thông báo thành công và hỏi có muốn mở file không
-            CustomJOptionPane confirmPane = new CustomJOptionPane(this,
+            int openOption = JOptionPane.showConfirmDialog(this,
                 "Xuất phiếu đặt PDF thành công!\nFile được lưu tại: " + filePath + "\n\nBạn có muốn mở file không?",
-                true);
-            int openOption = confirmPane.show();
+                "Xác nhận", JOptionPane.YES_NO_OPTION);
                 
             if (openOption == JOptionPane.YES_OPTION) {
                 // Mở file PDF
@@ -811,8 +795,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             
         } catch (Exception e) {
             e.printStackTrace();
-            CustomJOptionPane errorPane = new CustomJOptionPane(this, "Lỗi khi xuất phiếu đặt PDF: " + e.getMessage(), false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, "Lỗi khi xuất phiếu đặt PDF: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     

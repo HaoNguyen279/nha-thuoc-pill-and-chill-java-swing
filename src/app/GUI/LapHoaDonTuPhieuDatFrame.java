@@ -336,10 +336,9 @@ public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
             updatePhieuDatTable(dsPhieuDat);
         } catch (Exception e) {
             e.printStackTrace();
-            CustomJOptionPane errorPane = new CustomJOptionPane(this,
+            JOptionPane.showMessageDialog(this,
                 "Lỗi khi tải dữ liệu phiếu đặt: " + e.getMessage(),
-                false);
-            errorPane.show();
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -430,10 +429,9 @@ public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
             tinhTongTien();
         } catch (Exception e) {
             e.printStackTrace();
-            CustomJOptionPane errorPane = new CustomJOptionPane(this,
+            JOptionPane.showMessageDialog(this,
                 "Lỗi khi tải chi tiết phiếu đặt: " + e.getMessage(),
-                false);
-            errorPane.show();
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -566,10 +564,9 @@ public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
     
     private void xacNhanLapHoaDon() {
         if (phieuDatDuocChon == null || dsChiTietPhieuDat.isEmpty()) {
-            CustomJOptionPane warningPane = new CustomJOptionPane(this,
+            JOptionPane.showMessageDialog(this,
                 "Vui lòng chọn một phiếu đặt để lập hóa đơn!",
-                false);
-            warningPane.show();
+                "Cảnh báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -625,10 +622,9 @@ public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
             
         } catch (Exception ex) {
             ex.printStackTrace();
-            CustomJOptionPane errorPane = new CustomJOptionPane(this,
+            JOptionPane.showMessageDialog(this,
                 "Lỗi khi chuyển đến trang xác nhận: " + ex.getMessage(),
-                false);
-            errorPane.show();
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

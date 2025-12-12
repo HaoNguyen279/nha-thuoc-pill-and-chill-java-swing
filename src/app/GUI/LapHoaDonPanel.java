@@ -462,10 +462,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
             
         } catch (Exception e) {
             e.printStackTrace();
-            CustomJOptionPane errorPane = new CustomJOptionPane(this,
-                "Lỗi khi load dữ liệu thuốc: " + e.getMessage(),
-                false);
-            errorPane.show();
+            JOptionPane.showMessageDialog(this, "Lỗi khi load dữ liệu thuốc: " + e.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
     
@@ -547,8 +544,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         }
         
         if (count == 0) {
-            CustomJOptionPane a = new CustomJOptionPane(this, "Không tìm thấy thuốc nào!", false);
-            a.show();
+            JOptionPane.showMessageDialog(this, "Không tìm thấy thuốc nào!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         }
     }
     
@@ -563,8 +559,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         int selectedRow = tblThuoc.getSelectedRow();
         
         if (selectedRow == -1) {
-            CustomJOptionPane a = new CustomJOptionPane(this, "Vui lòng chọn thuốc cần thêm vào giỏ hàng!", false);
-            a.show();
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn thuốc cần thêm vào giỏ hàng!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -575,8 +570,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         
         // Kiểm tra hết hàng hoặc không khả dụng
         if (slTonObj.toString().equals("Hết hàng")) {
-            CustomJOptionPane a = new CustomJOptionPane(this, "Thuốc này đã hết hàng!", false);
-            a.show();
+            JOptionPane.showMessageDialog(this, "Thuốc này đã hết hàng!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -591,8 +585,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
                            "Khả dụng: 0 viên\n\n" +
                            "Lý do: Toàn bộ tồn kho đã được khách khác đặt trước.";
             
-            CustomJOptionPane a = new CustomJOptionPane(this, message, false);
-            a.show();
+            JOptionPane.showMessageDialog(this, message, "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -616,8 +609,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
                 message += "\n\n" + reserved + " viên đã được khách khác đặt trước.";
             }
             
-            CustomJOptionPane a = new CustomJOptionPane(this, message, false);
-            a.show();
+            JOptionPane.showMessageDialog(this, message, "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -647,8 +639,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
                                    "Tổng sẽ là: " + soLuongMoi + " viên\n" +
                                    "Tối đa có thể mua: " + soLuongAvailable + " viên";
                     
-                    CustomJOptionPane a = new CustomJOptionPane(this, message, false);
-                    a.show();
+                    JOptionPane.showMessageDialog(this, message, "Thông báo", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
                 
@@ -681,8 +672,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         int selectedRow = tblGioHang.getSelectedRow();
         
         if (selectedRow == -1) {
-            CustomJOptionPane a = new CustomJOptionPane(this, "Vui lòng chọn thuốc cần xóa khỏi giỏ hàng!", false);
-            a.show();
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn thuốc cần xóa khỏi giỏ hàng!", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -722,44 +712,21 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
     // Phương thức gọi từ UI với xác nhận người dùng
     private void resetGioHangWithConfirm() {
         if (modelGioHang.getRowCount() == 0) {
-//            JOptionPane.showMessageDialog(this, 
-//                "Giỏ hàng đang trống!", 
-//                "Thông báo", 
-//                JOptionPane.INFORMATION_MESSAGE);
-//            return;
-            CustomJOptionPane a = new CustomJOptionPane(this, "Giỏ hàng đang trống!",  false);
-            a.show();
+            JOptionPane.showMessageDialog(this, "Giỏ hàng đang trống!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             return;
         }
         
-//        int confirm = JOptionPane.showConfirmDialog(this, 
-//            "Bạn có chắc muốn xóa toàn bộ giỏ hàng?", 
-//            "Xác nhận", 
-//            JOptionPane.YES_NO_OPTION,
-//            JOptionPane.QUESTION_MESSAGE);
-//        
-//        if (confirm == JOptionPane.YES_OPTION) {
-//            resetGioHang();
-//            JOptionPane.showMessageDialog(this, 
-//                "Đã xóa toàn bộ giỏ hàng!", 
-//                "Thông báo", 
-//                JOptionPane.INFORMATION_MESSAGE);
-//        }
-        
-        CustomJOptionPane a = new CustomJOptionPane(this, "Bạn có chắc muốn xóa toàn bộ giỏ hàng?", true);
-        int confirm =  a.show();
+        int confirm = JOptionPane.showConfirmDialog(this, "Bạn có chắc muốn xóa toàn bộ giỏ hàng?", "Xác nhận", JOptionPane.YES_NO_OPTION);
 	    if (confirm == JOptionPane.YES_OPTION) {
 	      resetGioHang();
-	        CustomJOptionPane b = new CustomJOptionPane(this, "Đã xóa toàn bộ giỏ hàng!", false);
-	        b.show();
+	        JOptionPane.showMessageDialog(this, "Đã xóa toàn bộ giỏ hàng!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 	    }
     }
     
     // Xác nhận hóa đơn (tạm thời chỉ thông báo)
     private void xacNhanHoaDon() {
         if (modelGioHang.getRowCount() == 0) {
-            CustomJOptionPane a = new CustomJOptionPane(this, "Giỏ hàng đang trống! Vui lòng thêm thuốc vào giỏ hàng.", false);
-            a.show();
+            JOptionPane.showMessageDialog(this, "Giỏ hàng đang trống! Vui lòng thêm thuốc vào giỏ hàng.", "Thông báo", JOptionPane.WARNING_MESSAGE);
             return;
         }
         
@@ -779,8 +746,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
             tongTien
         );
         
-        CustomJOptionPane confirmPane = new CustomJOptionPane(this, message, true);
-        int confirm = confirmPane.show();
+        int confirm = JOptionPane.showConfirmDialog(this, message, "Xác nhận", JOptionPane.YES_NO_OPTION);
         
         if (confirm == JOptionPane.YES_OPTION) {
             // Tạo mã hóa đơn tự động
@@ -834,31 +800,28 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
                     }
                     
                     // Hiển thị thông báo kết quả cho người dùng
-                    CustomJOptionPane successPane = new CustomJOptionPane(this, 
+                    JOptionPane.showMessageDialog(this, 
                         "Đã lập hóa đơn thành công!\n" + 
                         "Mã hóa đơn: " + maHoaDon + "\n" +
                         "Số mặt hàng: " + dsChiTiet.size(), 
-                        false);
-                    successPane.show();
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                         
                 } catch (Exception ex) {
                     ex.printStackTrace();
-                    CustomJOptionPane errorPane = new CustomJOptionPane(this,
+                    JOptionPane.showMessageDialog(this,
                         "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập hóa đơn.\n" +
                         "Vui lòng nhấn Reset để tải lại dữ liệu.",
-                        false);
-                    errorPane.show();
+                        "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             });
             
         } catch (Exception e) {
             e.printStackTrace();
             // Hiển thị thông báo lỗi cho người dùng
-            CustomJOptionPane errorPane = new CustomJOptionPane(this,
+            JOptionPane.showMessageDialog(this,
                 "Đã xảy ra lỗi khi cập nhật dữ liệu sau khi lập hóa đơn.\n" +
                 "Vui lòng nhấn Reset để tải lại dữ liệu.",
-                false);
-            errorPane.show();
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }

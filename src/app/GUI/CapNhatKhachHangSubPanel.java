@@ -1,19 +1,19 @@
 package app.GUI;
 
 import java.awt. BorderLayout;
-import java.awt.CardLayout;
+import java.awt. CardLayout;
 import java.awt. Color;
-import java.awt. Component;
+import java.awt.Component;
 import java.awt. Cursor;
 import java.awt. Dimension;
 import java.awt. FlowLayout;
 import java. awt.Font;
 import java. awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt. event.ActionEvent;
+import java.awt. Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event. MouseEvent;
+import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java. util.ArrayList;
 
@@ -22,22 +22,22 @@ import javax.swing.JButton;
 import javax.swing. JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax. swing.JScrollPane;
+import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing. ListSelectionModel;
-import javax. swing.SwingConstants;
+import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
-import app.ConnectDB. ConnectDB;
-import app. DAO.KhachHangDAO;
+import app.ConnectDB.ConnectDB;
+import app.DAO.KhachHangDAO;
 import app.Entity.KhachHang;
 
-public class CapNhatKhachHangPanel extends JPanel implements ActionListener, MouseListener {
+public class CapNhatKhachHangSubPanel extends JPanel implements ActionListener, MouseListener {
     
     private final Color PRIMARY_COLOR = new Color(0, 150, 136);
     private final Color ACCENT_COLOR = new Color(255, 255, 255);
@@ -45,8 +45,6 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
     private final Color TEXT_COLOR = new Color(51, 51, 51);
     
     private final Color BTN_ADD_COLOR = new Color(46, 204, 113);
-    private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
-    private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
 
     private JLabel lblTieuDe;
@@ -60,11 +58,8 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
     private JTextField txtSoDienThoai;
     private JTextField txtDiemTichLuy;
 
-    private JButton btnXoa;
-    private JButton btnSua;
-    private JButton btnThem;
-    private JButton btnXoaTrang;
-    private JButton btnKhachHangDaXoa;
+    private JButton btnKhoiPhuc;
+    private JButton btnQuayLai;
     
     private DefaultTableModel dtm;
     private JTable tblKhachHang;
@@ -72,15 +67,19 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
     private ArrayList<KhachHang> dsKhachHang;
     private CardLayout cardLayout;
     private JPanel mainContainer;
+    private CapNhatKhachHangPanel pnlCapNhatKhachHang;
+    private KhachHangDAO khachHangDAO;
     
-    public CapNhatKhachHangPanel() {
+    public CapNhatKhachHangSubPanel(CapNhatKhachHangPanel pnlCapNhatKhachHang) {
+        this.pnlCapNhatKhachHang = pnlCapNhatKhachHang;
         FlatLightLaf.setup();
         ConnectDB.getInstance().connect();
+        khachHangDAO = new KhachHangDAO();
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
         
         setLayout(new BorderLayout());
-        
+
         initHeader();
         initInputForm();
         initButtons();
@@ -102,7 +101,7 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
         JPanel pnlMain = new JPanel(new BorderLayout(10, 10));
         pnlMain.setBackground(BG_COLOR);
         pnlMain.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        
+  
         pnlMain.add(pnlTop, BorderLayout.NORTH);
         pnlMain.add(createBotPanel(), BorderLayout.CENTER);
         
@@ -114,7 +113,7 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
     }
 
     private void initHeader() {
-        lblTieuDe = new JLabel("QUẢN LÝ KHÁCH HÀNG", SwingConstants.CENTER);
+        lblTieuDe = new JLabel("QUẢN LÝ KHÁCH HÀNG ĐÃ XÓA", SwingConstants. CENTER);
         lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblTieuDe.setForeground(PRIMARY_COLOR);
         lblTieuDe.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
@@ -162,22 +161,24 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
         gbc.fill = GridBagConstraints. HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 20);
 
+        // Row 0
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.1;
-        pnlForm.add(lblMaKh, gbc);
+        pnlForm. add(lblMaKh, gbc);
         gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.4;
-        pnlForm.add(txtMaKh, gbc);
+        pnlForm. add(txtMaKh, gbc);
         
         gbc.gridx = 2; gbc.gridy = 0; gbc.weightx = 0.1;
         pnlForm.add(lblTenKh, gbc);
         gbc.gridx = 3; gbc.gridy = 0; gbc.weightx = 0.4;
         pnlForm.add(txtTenKh, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.1;
+        // Row 1
+        gbc. gridx = 0; gbc.gridy = 1; gbc.weightx = 0.1;
         pnlForm.add(lblSoDienThoai, gbc);
-        gbc.gridx = 1; gbc. gridy = 1; gbc.weightx = 0.4;
-        pnlForm. add(txtSoDienThoai, gbc);
+        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.4;
+        pnlForm.add(txtSoDienThoai, gbc);
         
-        gbc.gridx = 2; gbc.gridy = 1; gbc.weightx = 0.1;
+        gbc. gridx = 2; gbc.gridy = 1; gbc.weightx = 0.1;
         pnlForm.add(lblDiemTichLuy, gbc);
         gbc.gridx = 3; gbc.gridy = 1; gbc.weightx = 0.4;
         pnlForm.add(txtDiemTichLuy, gbc);
@@ -186,18 +187,11 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
     }
 
     private void initButtons() {
-        btnThem = createStyledButton("Thêm", BTN_ADD_COLOR);
-        btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
-        btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
-        btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
-        btnKhachHangDaXoa = createStyledButton("Khách hàng đã xóa", BTN_EDIT_COLOR);
-        btnKhachHangDaXoa.setPreferredSize(new Dimension(180, 45));
-
-        btnThem.addActionListener(this);
-        btnSua.addActionListener(this);
-        btnXoa.addActionListener(this);
-        btnXoaTrang.addActionListener(this);
-        btnKhachHangDaXoa. addActionListener(this);
+        btnKhoiPhuc = createStyledButton("Khôi phục", BTN_ADD_COLOR);
+        btnQuayLai = createStyledButton("Quay Lại", BTN_CLEAR_COLOR);
+        
+        btnKhoiPhuc.addActionListener(this);
+        btnQuayLai.addActionListener(this);
     }
 
     private JButton createStyledButton(String text, Color bgColor) {
@@ -215,11 +209,8 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
     private JPanel createButtonPanel() {
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         pnlButtons.setBackground(BG_COLOR);
-        pnlButtons.add(btnThem);
-        pnlButtons.add(btnSua);
-        pnlButtons.add(btnXoa);
-        pnlButtons.add(btnXoaTrang);
-        pnlButtons.add(btnKhachHangDaXoa);
+        pnlButtons.add(btnKhoiPhuc);
+        pnlButtons.add(btnQuayLai);
         return pnlButtons;
     }
     
@@ -228,8 +219,8 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
             @Override
             public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
                 Component c = super.prepareRenderer(renderer, row, column);
-                if (!isRowSelected(row)) {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE :  new Color(242, 242, 242));
+                if (! isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
                 }
                 return c;
             }
@@ -252,7 +243,7 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
         header.setReorderingAllowed(false);
         
         DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
-        centerRenderer. setHorizontalAlignment(JLabel.CENTER);
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
         // Center align cho tất cả các cột
         DefaultTableCellRenderer cellCenter = new DefaultTableCellRenderer();
@@ -270,17 +261,17 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
     }
     
     public void loadKhachHangData() {
-        KhachHangDAO khDAO = new KhachHangDAO();
-        dsKhachHang = khDAO.getAllKhachHang();
+        dsKhachHang = khachHangDAO.getAllKhachHangInActive();
+        
         dtm.setRowCount(0);
-        for(KhachHang kh : dsKhachHang) {
+        for(KhachHang kh :  dsKhachHang) {
             Object[] rowData = {
                 kh.getMaKH(),
                 kh.getTenKH(),
                 kh. getSoDienThoai(),
-                kh.getDiemTichLuy() 
+                kh.getDiemTichLuy()
             };
-            dtm. addRow(rowData);
+            dtm.addRow(rowData);
         }
     }
     
@@ -294,179 +285,50 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
         loadKhachHangData();
     }
     
-    public void quayLaiDanhSach() {
-        cardLayout.show(mainContainer, "DanhSach");
-        loadKhachHangData();
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
-        if(o == btnXoa) {
-            int selectedRow = tblKhachHang.getSelectedRow();
-            if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn khách hàng cần xóa!");
+        
+        if(o == btnKhoiPhuc) {
+            String maKH = txtMaKh.getText().trim();
+            
+            if(maKH.isEmpty()) {
+                JOptionPane. showMessageDialog(this, "Vui lòng chọn khách hàng cần khôi phục!");
                 return;
             }
-            String ma = tblKhachHang.getValueAt(selectedRow, 0).toString();
-
-            int option = JOptionPane. showConfirmDialog(this, 
-                    "Có chắc muốn xóa khách hàng " + ma + "?", 
+            
+            int option = JOptionPane.showConfirmDialog(this, 
+                    "Có chắc muốn khôi phục khách hàng " + maKH + "? ", 
                     "Xác nhận", 
                     JOptionPane.YES_NO_OPTION);
             
             if(option == JOptionPane.YES_OPTION) {
-                KhachHangDAO khDAO = new KhachHangDAO();
-                boolean result = khDAO.deleteKhachHang(ma);
+                boolean result = khachHangDAO.reactivateKhachHang(maKH);
                 if(result) {
-                    JOptionPane.showMessageDialog(this, "Xóa khách hàng thành công!");
+                    JOptionPane.showMessageDialog(this, "Khôi phục khách hàng thành công!");
                     loadKhachHangData();
                     xoaTrang();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Xóa khách hàng không thành công!");
+                    JOptionPane.showMessageDialog(this, "Khôi phục khách hàng không thành công!");
                 }
             }
         }
-        else if(o == btnThem) {
-            if(validateInput(true)) {
-                String maKH = txtMaKh.getText().trim();
-                String tenKH = txtTenKh. getText().trim();
-                String soDienThoai = txtSoDienThoai.getText().trim();
-                int diemTichLuy = Integer.parseInt(txtDiemTichLuy.getText().trim());
-                
-                KhachHangDAO khDAO = new KhachHangDAO();
-                KhachHang khNew = new KhachHang(maKH, tenKH, soDienThoai, diemTichLuy, true);
-                boolean result = khDAO.addKhachHang(khNew);
-                if(result) {
-                    JOptionPane.showMessageDialog(this, "Thêm khách hàng thành công!");
-                    loadKhachHangData();
-                    xoaTrang();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Thêm khách hàng không thành công!");
-                }
-            }
-        }
-        else if(o == btnSua) {
-            if(validateInput(false)) {
-                String maKH = txtMaKh.getText().trim();
-                String tenKH = txtTenKh. getText().trim();
-                String soDienThoai = txtSoDienThoai.getText().trim();
-                int diemTichLuy = Integer.parseInt(txtDiemTichLuy.getText().trim());
-                
-                KhachHangDAO khDAO = new KhachHangDAO();
-                KhachHang khNew = new KhachHang(maKH, tenKH, soDienThoai, diemTichLuy, true);
-                boolean result = khDAO.updateKhachHang(khNew);
-                if(result) {
-                    JOptionPane. showMessageDialog(this, "Cập nhật khách hàng thành công!");
-                    loadKhachHangData();
-                    xoaTrang();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Cập nhật khách hàng không thành công!");
-                }
-            }
-        }
-        else if(o == btnXoaTrang) {
-            xoaTrang();
-        }
-        else if(o == btnKhachHangDaXoa) {
-            JPanel pnlKhachHangDaXoa = new CapNhatKhachHangSubPanel(this);
-            
-            try {
-                mainContainer.remove(mainContainer.getComponent(1));
-            } catch (Exception ex) {
-                // Không có panel chi tiết cũ
-            }
-            
-            mainContainer.add(pnlKhachHangDaXoa, "ChiTiet");
-            cardLayout.show(mainContainer, "ChiTiet");
+        else if(o == btnQuayLai) {
+            pnlCapNhatKhachHang.quayLaiDanhSach();
         }
     }
-
-    private boolean validateInput(boolean isAddingNew) {
-        if (dsKhachHang == null || dsKhachHang.isEmpty()) {
-             KhachHangDAO khDAO = new KhachHangDAO();
-             dsKhachHang = khDAO.getAllKhachHang();
-        }
-
-        if (txtMaKh.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Mã khách hàng không được để trống!");
-            txtMaKh.requestFocus();
-            return false;
-        }
-        if (txtTenKh.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên khách hàng không được để trống!");
-            txtTenKh.requestFocus();
-            return false;
-        }
-        if (txtSoDienThoai.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Số điện thoại không được để trống!");
-            txtSoDienThoai.requestFocus();
-            return false;
-        }
-        if (txtDiemTichLuy.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Điểm tích lũy không được để trống!");
-            txtDiemTichLuy.requestFocus();
-            return false;
-        }
-
-        String maKH = txtMaKh.getText().trim();
-        if(isAddingNew) {
-            for(KhachHang item : dsKhachHang) {
-                if(item.getMaKH().equalsIgnoreCase(maKH) && item.isVisible()) {
-                    JOptionPane.showMessageDialog(this, "Mã khách hàng không được trùng!");
-                    txtMaKh.requestFocus();
-                    return false;
-                }
-            }
-        }
-        if (! maKH.matches("KH\\d{3}")) {
-            JOptionPane.showMessageDialog(this, "Mã khách hàng phải có định dạng KH kèm 3 ký số (Ví dụ: KH001)!");
-            txtMaKh.requestFocus();
-            return false;
-        }
-        
-        String tenKH = txtTenKh.getText().trim();
-        if (! tenKH.matches("^[\\p{L}\\s]+$")) {
-            JOptionPane. showMessageDialog(this, "Tên khách hàng không được chứa số hoặc ký tự đặc biệt!");
-            txtTenKh.requestFocus(); 
-            return false;
-        }
-        
-        String soDienThoai = txtSoDienThoai.getText().trim();
-        if (!soDienThoai.matches("\\d{10}")) {
-            JOptionPane.showMessageDialog(this, "Số điện thoại phải có đúng 10 ký số!");
-            txtSoDienThoai.requestFocus();
-            return false;
-        }
-        
-        try {
-            int diemTichLuy = Integer.parseInt(txtDiemTichLuy. getText().trim());
-            if (diemTichLuy < 0) {
-                JOptionPane.showMessageDialog(this, "Điểm tích lũy phải là số nguyên không âm!");
-                txtDiemTichLuy.requestFocus();
-                return false;
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane. showMessageDialog(this, "Điểm tích lũy phải là số nguyên!");
-            txtDiemTichLuy.requestFocus();
-            return false;
-        }
-        
-        return true;
-    }
-
-    @Override
+    
+    @Override   
     public void mouseClicked(MouseEvent e) {
         Object o = e.getSource();
         if(o == tblKhachHang) {
+            txtMaKh.setEnabled(false);
             int row = tblKhachHang.getSelectedRow();
             if (row >= 0) {
                 txtMaKh.setText(tblKhachHang.getValueAt(row, 0).toString());
-                txtTenKh.setText(tblKhachHang.getValueAt(row, 1).toString());
+                txtTenKh.setText(tblKhachHang. getValueAt(row, 1).toString());
                 txtSoDienThoai.setText(tblKhachHang.getValueAt(row, 2).toString());
                 txtDiemTichLuy.setText(tblKhachHang.getValueAt(row, 3).toString());
-                
-                txtMaKh.setEnabled(false);
             }
         }
     }

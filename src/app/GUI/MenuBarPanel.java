@@ -236,6 +236,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         item.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         item.setPreferredSize(new Dimension(220, 35));
         item.setBackground(Color.WHITE);
+        registerGlobalHotkey(name, key, item);
         return item;
     }
 
@@ -290,8 +291,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 
         // --- Hệ thống ---
         else if (o == mniDangXuat) {
-            CustomJOptionPane a = new CustomJOptionPane(parentFrame, "Bạn có chắc muốn đăng xuất?", true);
-            int choice = a.show();
+            int choice = JOptionPane.showConfirmDialog(parentFrame, "Bạn có chắc muốn đăng xuất?", "Xác nhận", JOptionPane.YES_NO_OPTION);
             if(choice == JOptionPane.YES_OPTION) {
                 parentFrame.dangXuatHandle();
             }
@@ -300,17 +300,14 @@ public class MenuBarPanel extends JPanel implements ActionListener {
             parentFrame.showTaiKhoanPanel();
         }
         else if (o == mniDatLai) {
-            CustomJOptionPane a = new CustomJOptionPane(parentFrame, "Bạn có chắc muốn đặt lại ứng dụng?", true);
-            int choice = a.show();
+            int choice = JOptionPane.showConfirmDialog(parentFrame, "Bạn có chắc muốn đặt lại ứng dụng?", "Xác nhận", JOptionPane.YES_NO_OPTION);
             if(choice == JOptionPane.YES_OPTION) {
                 parentFrame.resetApplication();
-                CustomJOptionPane b = new CustomJOptionPane(parentFrame, "Đặt lại ứng dụng thành công!!", false);
-                b.show();
+                JOptionPane.showMessageDialog(parentFrame, "Đặt lại ứng dụng thành công!!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
             }
         }
         else if (o == mniThoat) {
-            CustomJOptionPane a = new CustomJOptionPane(parentFrame, "Bạn có chắc muốn tắt ứng dụng?", true);
-            int choice = a.show();
+            int choice = JOptionPane.showConfirmDialog(parentFrame, "Bạn có chắc muốn tắt ứng dụng?", "Xác nhận", JOptionPane.YES_NO_OPTION);
             if(choice == JOptionPane.YES_OPTION) System.exit(0);
         }
         else if (o == mniHoTro) {
@@ -321,13 +318,13 @@ public class MenuBarPanel extends JPanel implements ActionListener {
                     if(file.exists() && Desktop.isDesktopSupported()) {
                         Desktop.getDesktop().open(file);
                     } else {
-                        new CustomJOptionPane(parentFrame, "File PDF không tồn tại!", false).show();
+                        JOptionPane.showMessageDialog(parentFrame, "File PDF không tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                     }
                 } else {
-                    new CustomJOptionPane(parentFrame, "File PDF không tồn tại!", false).show();
+                    JOptionPane.showMessageDialog(parentFrame, "File PDF không tồn tại!", "Lỗi", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (Exception e1) {
-                new CustomJOptionPane(this, "Gặp lỗi khi mở file PDF: " + e1.getMessage(), false);
+                JOptionPane.showMessageDialog(this, "Gặp lỗi khi mở file PDF: " + e1.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
             }
         }
     }
@@ -348,5 +345,28 @@ public class MenuBarPanel extends JPanel implements ActionListener {
             e.printStackTrace();
         }
         return null;
+    }
+    /**
+     * Đăng ký phím tắt hoạt động toàn cục (kể cả khi popup menu chưa mở)
+     */
+    private void registerGlobalHotkey(String name, KeyStroke keyStroke, JMenuItem item) {
+        if (keyStroke == null) return;
+
+        // Lấy InputMap của Panel khi cửa sổ đang được focus
+        InputMap inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = this.getActionMap();
+
+        // Đăng ký phím tắt vào InputMap
+        inputMap.put(keyStroke, name);
+
+        // Đăng ký hành động tương ứng vào ActionMap
+        actionMap.put(name, new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Khi nhấn phím tắt, giả lập hành động click vào menu item
+                // Điều này sẽ kích hoạt hàm actionPerformed chính của class
+                item.doClick();
+            }
+        });
     }
 }

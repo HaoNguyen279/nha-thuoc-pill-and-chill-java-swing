@@ -48,6 +48,35 @@ public class KhachHangDAO {
         }
         return dsKhachHang;
     }
+    
+    public ArrayList<KhachHang> getAllKhachHangInActive() {
+        ArrayList<KhachHang> dsKhachHang = new ArrayList<>();
+        String sql = "SELECT * FROM KhachHang WHERE isActive = 0 ORDER BY tenKH";
+        Connection con = ConnectDB.getConnection();
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                dsKhachHang.add(mapResultSetToKhachHang(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return dsKhachHang;
+    }
+    
+    
 
     /**
      * Retrieves a single customer by their ID.
@@ -469,6 +498,22 @@ public class KhachHangDAO {
 
         return tongTien;
     }
+
+	public boolean reactivateKhachHang(String maKH) {
+		String sql = "UPDATE KhachHang SET isActive = 1 WHERE maKH = ?";
+        Connection con = ConnectDB.getConnection();
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1,maKH);
+            int n = stmt.executeUpdate();
+            System.out.println("   → Reactivated Thuoc: " + maKH + " (rows: " + n + ")");
+            return n > 0;
+        } catch (SQLException e) {
+            System.err.println("   ❌ Error reactivating Thuoc: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+	}
     
 
 }

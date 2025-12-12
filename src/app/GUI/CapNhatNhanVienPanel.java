@@ -75,12 +75,15 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
     private ArrayList<ChucVu> dsChucVu;
     private Map<String,String> mapChucVu;
     private ChucVuDAO cvDAO;
-    
-    public CapNhatNhanVienPanel() {
+    private String maNvHienTai;
+    public CapNhatNhanVienPanel(String maNvHienTai) {
+
         ConnectDB.getInstance().connect();
         cvDAO = new ChucVuDAO();
         mapChucVu = new HashMap<>();
-        
+    	this.maNvHienTai = maNvHienTai;
+
+    	
         setLayout(new BorderLayout(10, 10));
         setBackground(BG_COLOR);
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -306,7 +309,10 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
                 return;
             }
             String ma = tblNhanVien.getValueAt(selectedRow, 0).toString();
-
+            if(ma.equalsIgnoreCase(maNvHienTai)) {
+                JOptionPane.showMessageDialog(this, "Bạn không thể xóa bản thân!");
+                return;
+            }
             int option = JOptionPane.showConfirmDialog(this, 
                     "Có chắc muốn xóa nhân viên " + ma + "?", 
                     "Xác nhận", 

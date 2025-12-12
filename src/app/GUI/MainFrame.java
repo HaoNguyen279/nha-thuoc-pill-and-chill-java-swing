@@ -166,12 +166,11 @@ public class MainFrame extends JFrame {
     
     public void showCapNhatNhanVienPanel() {
     	if(!isQuanLy) {
-    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
-    		a.show();
+    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
     		return;
     	}
         if (capNhatNhanVienPanel == null) {
-            capNhatNhanVienPanel = new CapNhatNhanVienPanel();
+            capNhatNhanVienPanel = new CapNhatNhanVienPanel(maNhanVien);
         }
         showPanel(capNhatNhanVienPanel);
     }
@@ -228,8 +227,7 @@ public class MainFrame extends JFrame {
     }
     public void showThongKeTheoNhanVienPanel() {
     	if(!isQuanLy) {
-    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
-    		a.show();
+    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
     		return;
     	}
         if (thongKeTheoNhanVienPanel == null) {
@@ -240,8 +238,7 @@ public class MainFrame extends JFrame {
     
     public void showThongKeTheoKhachHangPanel() {
     	if(!isQuanLy) {
-    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
-    		a.show();
+    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
     		return;
     	}
         if (thongKeTheoKhachHangPanel == null) {
@@ -252,8 +249,7 @@ public class MainFrame extends JFrame {
     
     public void showThongKeTheoHSDPanel() {
     	if(!isQuanLy) {
-    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
-    		a.show();
+    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
     		return;
     	}
         if (thongKeTheoHSDPanel == null) {
@@ -264,8 +260,7 @@ public class MainFrame extends JFrame {
     
     public void showThongKeTheoThuocPanel() {
     	if(!isQuanLy) {
-    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
-    		a.show();
+    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
     		return;
     	}
         if (thongKeTheoThuocPanel == null) {
@@ -275,8 +270,7 @@ public class MainFrame extends JFrame {
     }
     public void showThongKeTheoDoanhThuPanelTheoThang() {
     	if(!isQuanLy) {
-    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
-    		a.show();
+    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
     		return;
     	}
     	if (thongKeTheoDoanhThuTheoThangPanel == null) {
@@ -287,8 +281,7 @@ public class MainFrame extends JFrame {
     }
     public void showThongKeTheoDoanhThuPanelTheoNam() {
     	if(!isQuanLy) {
-    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
-    		a.show();
+    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
     		return;
     	}
         if (thongKeTheoDoanhThuPanel == null) {
@@ -299,8 +292,7 @@ public class MainFrame extends JFrame {
     }
     public void showThongKeTheoThuePanel() {
     	if(!isQuanLy) {
-    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
-    		a.show();
+    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
     		return;
     	}
         if (thongKeTheoThuePanel == null) {
@@ -310,8 +302,7 @@ public class MainFrame extends JFrame {
     }
     public void showCapNhatChucVuPanel() {
     	if(!isQuanLy) {
-    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
-    		a.show();
+    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
     		return;
     	}
 		if(capNhatChucVuPanel == null) {
@@ -323,8 +314,7 @@ public class MainFrame extends JFrame {
     
     public void showCapNhatDonViPanel() {
     	if(!isQuanLy) {
-    		CustomJOptionPane a = new CustomJOptionPane(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", false);
-    		a.show();
+    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
     		return;
     	}
 		if(capNhatDonViPanel == null) {

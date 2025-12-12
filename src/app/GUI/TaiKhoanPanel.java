@@ -240,13 +240,11 @@ public class TaiKhoanPanel extends JPanel implements ActionListener{
 				TaiKhoan tk = new TaiKhoan(maNV, mkMoi, true);
 				 
 				if(tkDao.updateTaiKhoan(tk)) {
-					CustomJOptionPane a1 = new CustomJOptionPane(this, "Cập nhật mật khẩu thành công!", false);
-					a1.show();
+					JOptionPane.showMessageDialog(this, "Cập nhật mật khẩu thành công!", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
 					xoaTrang();
 				}
 				else {
-					CustomJOptionPane a1 = new CustomJOptionPane(this, "Cập nhật mật khẩu không thành công!", false);
-					a1.show();
+					JOptionPane.showMessageDialog(this, "Cập nhật mật khẩu không thành công!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 				}
 			}	
 		}
@@ -263,39 +261,33 @@ public class TaiKhoanPanel extends JPanel implements ActionListener{
 	private boolean validateInput() {
 	    // Kiểm tra các trường không được rỗng
 	    if (txtMaNV.getText().trim().isEmpty()) {
-	        CustomJOptionPane a1 = new CustomJOptionPane(this, "Mã nhân viên không được để trống!", false);
-	        a1.show();
+	        JOptionPane.showMessageDialog(this, "Mã nhân viên không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 	        txtMaNV.requestFocus();
 	        return false;
 	    }
 	    if (txtMatKhauCu.getText().trim().isEmpty()) {
-	        CustomJOptionPane a1 = new CustomJOptionPane(this, "Mật khẩu cũ không được để trống!", false);
-	        a1.show();
+	        JOptionPane.showMessageDialog(this, "Mật khẩu cũ không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 	        txtMatKhauCu.requestFocus();
 	        return false;
 	    }
 	    
 	    if (txtMatKhauMoi.getText().trim().isEmpty()) {
-	        CustomJOptionPane a1 = new CustomJOptionPane(this, "Mật khẩu mới không được để trống!", false);
-	        a1.show();
+	        JOptionPane.showMessageDialog(this, "Mật khẩu mới không được để trống!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 	        txtMatKhauMoi.requestFocus();
 	        return false;
 	    }
 	    if(txtMatKhauCu.getText().trim().equals(txtMatKhauMoi.getText().trim())) {
-	    	CustomJOptionPane a1 = new CustomJOptionPane(this, "Mật khẩu cũ phải khác mật khẩu mới!!", false);
-	        a1.show();
+	    	JOptionPane.showMessageDialog(this, "Mật khẩu cũ phải khác mật khẩu mới!!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 	        txtMatKhauMoi.requestFocus();
 	        return false;
 	    }
 	    if (!(txtMaNV.getText().trim().equals(nhanVien.getMaNV()))) {
-	        CustomJOptionPane a1 = new CustomJOptionPane(this, "Mã nhân viên không đúng!! Phải nhập mã nhân viên của tài khoản hiện tại", false);
-	        a1.show();
+	        JOptionPane.showMessageDialog(this, "Mã nhân viên không đúng!! Phải nhập mã nhân viên của tài khoản hiện tại", "Lỗi", JOptionPane.ERROR_MESSAGE);
 	        txtMaNV.requestFocus();
 	        return false;
 	    }
 	    if(!(txtMatKhauCu.getText().equals(tkDao.getTaiKhoanById(txtMaNV.getText().trim()).getMatKhau()))) {
-	    	CustomJOptionPane a1 = new CustomJOptionPane(this, "Sai mật khẩu cũ!!", false);
-	        a1.show();
+	    	JOptionPane.showMessageDialog(this, "Sai mật khẩu cũ!!", "Lỗi", JOptionPane.ERROR_MESSAGE);
 	        txtMaNV.requestFocus();
 	        return false;
 	    }
