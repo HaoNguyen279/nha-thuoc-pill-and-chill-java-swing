@@ -26,6 +26,7 @@ import com.itextpdf.text.pdf.*;
 
 
 import java.awt.*;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -36,6 +37,13 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
 public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListener {
+    
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
+    private final Color ACCENT_COLOR = new Color(255, 255, 255);
+    private final Color BG_COLOR = new Color(245, 245, 245);
+    private final Color TEXT_COLOR = new Color(51, 51, 51);
+    private final Color BTN_ADD_COLOR = new Color(46, 204, 113);
+    private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     
     private String maHoaDon;
     private ArrayList<ChiTietHoaDon> danhSachChiTiet;
@@ -114,26 +122,26 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
     
     private JPanel createCenterPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BG_COLOR);
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 10, 20));
         
         // Title
         JPanel titlePanel = new JPanel();
         titlePanel.setLayout(new BoxLayout(titlePanel, BoxLayout.Y_AXIS));
-        titlePanel.setBackground(Color.WHITE);
+        titlePanel.setBackground(BG_COLOR);
         titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
         
         // Main title
         JLabel lblTitle = new JLabel("LẬP PHIẾU TRẢ THUỐC");
-        lblTitle.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 24));
-        lblTitle.setForeground(Color.BLACK);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        lblTitle.setForeground(PRIMARY_COLOR);
         lblTitle.setAlignmentX(Component.CENTER_ALIGNMENT);
         titlePanel.add(lblTitle);
         
         // Subtitle with code
         JLabel lblMaPhieu = new JLabel("Mã phiếu trả: " + maPhieuTraThuoc);
-        lblMaPhieu.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 16));
-        lblMaPhieu.setForeground(Color.BLACK);
+        lblMaPhieu.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        lblMaPhieu.setForeground(TEXT_COLOR);
         lblMaPhieu.setAlignmentX(Component.CENTER_ALIGNMENT);
         titlePanel.add(Box.createVerticalStrut(5));
         titlePanel.add(lblMaPhieu);
@@ -142,7 +150,7 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
         
         // Main content with two tables
         JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(Color.WHITE);
+        mainPanel.setBackground(BG_COLOR);
         
         // Chi tiết hóa đơn panel (top)
         JPanel chiTietPanel = createChiTietHoaDonPanel();
@@ -161,11 +169,11 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
     
     private JPanel createChiTietHoaDonPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BG_COLOR);
         panel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(Color.GRAY), 
+            BorderFactory.createLineBorder(new Color(220, 220, 220)), 
             "CHI TIẾT HÓA ĐƠN - " + maHoaDon, 
-            0, 0, new java.awt.Font("Arial", java.awt.Font.BOLD, 14)
+            0, 0, new Font("Segoe UI", Font.BOLD, 14), PRIMARY_COLOR
         ));
         
         // Tạo bảng chi tiết hóa đơn
@@ -178,30 +186,47 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
         };
         
         tableChiTietHoaDon = new JTable(modelChiTietHoaDon);
+        tableChiTietHoaDon.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tableChiTietHoaDon.setRowHeight(35);
+        tableChiTietHoaDon.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tableChiTietHoaDon.getTableHeader().setBackground(PRIMARY_COLOR);
+        tableChiTietHoaDon.getTableHeader().setForeground(Color.WHITE);
+        tableChiTietHoaDon.setSelectionBackground(new Color(178, 223, 219));
+        tableChiTietHoaDon.setSelectionForeground(Color.BLACK);
         tableChiTietHoaDon.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableChiTietHoaDon.setRowHeight(25);
+        tableChiTietHoaDon.setShowGrid(true);
+        tableChiTietHoaDon.setGridColor(new Color(224, 224, 224));
         tableChiTietHoaDon.getTableHeader().setReorderingAllowed(false);
-        tableChiTietHoaDon.getTableHeader().setBackground(new Color(248, 248, 248));
+        
+        // Center align header
+        javax.swing.table.DefaultTableCellRenderer centerRenderer = (javax.swing.table.DefaultTableCellRenderer) tableChiTietHoaDon.getTableHeader().getDefaultRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         
         JScrollPane scrollPane = new JScrollPane(tableChiTietHoaDon);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         panel.add(scrollPane, BorderLayout.CENTER);
         
         // Control panel
         JPanel controlPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        controlPanel.setBackground(Color.WHITE);
-        controlPanel.add(new JLabel("Số lượng:"));
+        controlPanel.setBackground(BG_COLOR);
+        JLabel lblSoLuong = new JLabel("Số lượng:");
+        lblSoLuong.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        controlPanel.add(lblSoLuong);
         
         spinnerSoLuong = new JSpinner(new SpinnerNumberModel(1, 1, 999, 1));
-        spinnerSoLuong.setPreferredSize(new Dimension(60, 25));
+        spinnerSoLuong.setPreferredSize(new Dimension(60, 30));
+        spinnerSoLuong.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         controlPanel.add(spinnerSoLuong);
         
         btnThemVaoPhieu = new JButton("Thêm vào danh sách đổi trả");
-        btnThemVaoPhieu.setPreferredSize(new Dimension(200, 35));
-        btnThemVaoPhieu.setBackground(new Color(240, 250, 240));
-        btnThemVaoPhieu.setForeground(Color.BLACK);
-        btnThemVaoPhieu.setBorder(BorderFactory.createLineBorder(new Color(34, 139, 34)));
+        btnThemVaoPhieu.setPreferredSize(new Dimension(220, 40));
+        btnThemVaoPhieu.setBackground(BTN_ADD_COLOR);
+        btnThemVaoPhieu.setForeground(Color.WHITE);
+        btnThemVaoPhieu.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnThemVaoPhieu.setBorderPainted(false);
         btnThemVaoPhieu.setFocusPainted(false);
-        btnThemVaoPhieu.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 12));
+        btnThemVaoPhieu.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnThemVaoPhieu.addActionListener(this);
         controlPanel.add(btnThemVaoPhieu);
         
@@ -212,11 +237,11 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
     
     private JPanel createTraThuocPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BG_COLOR);
         panel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(Color.GRAY), 
+            BorderFactory.createLineBorder(new Color(220, 220, 220)), 
             "DANH SÁCH THUỐC ĐỔI TRẢ", 
-            0, 0, new java.awt.Font("Arial", java.awt.Font.BOLD, 14)
+            0, 0, new Font("Segoe UI", Font.BOLD, 14), PRIMARY_COLOR
         ));
         
         // Tạo bảng danh sách thuốc đổi trả
@@ -229,13 +254,25 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
         };
         
         tableTraThuoc = new JTable(modelTraThuoc);
+        tableTraThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tableTraThuoc.setRowHeight(35);
+        tableTraThuoc.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tableTraThuoc.getTableHeader().setBackground(PRIMARY_COLOR);
+        tableTraThuoc.getTableHeader().setForeground(Color.WHITE);
+        tableTraThuoc.setSelectionBackground(new Color(178, 223, 219));
+        tableTraThuoc.setSelectionForeground(Color.BLACK);
         tableTraThuoc.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableTraThuoc.setRowHeight(25);
+        tableTraThuoc.setShowGrid(true);
+        tableTraThuoc.setGridColor(new Color(224, 224, 224));
         tableTraThuoc.getTableHeader().setReorderingAllowed(false);
-        tableTraThuoc.getTableHeader().setBackground(new Color(248, 248, 248));
+        
+        // Center align header
+        javax.swing.table.DefaultTableCellRenderer centerRenderer = (javax.swing.table.DefaultTableCellRenderer) tableTraThuoc.getTableHeader().getDefaultRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
         
         // Custom cell editor cho cột "Lý do" với placeholder
         JTextField lyDoTextField = new JTextField();
+        lyDoTextField.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         lyDoTextField.setForeground(Color.GRAY);
         lyDoTextField.setText("Nhập lý do");
         
@@ -259,39 +296,50 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
         tableTraThuoc.getColumnModel().getColumn(6).setCellEditor(lyDoEditor);
         
         JScrollPane scrollPane = new JScrollPane(tableTraThuoc);
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         panel.add(scrollPane, BorderLayout.CENTER);
         
         // Control panel
         JPanel controlPanel = new JPanel(new BorderLayout());
-        controlPanel.setBackground(Color.WHITE);
+        controlPanel.setBackground(BG_COLOR);
         
         // Left side - Remove button
         JPanel leftPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        leftPanel.setBackground(Color.WHITE);
+        leftPanel.setBackground(BG_COLOR);
         
         spinnerSoLuong = new JSpinner(new SpinnerNumberModel(1, 1, 999, 1));
-        spinnerSoLuong.setPreferredSize(new Dimension(60, 25));
-        leftPanel.add(new JLabel("Số lượng:"));
+        spinnerSoLuong.setPreferredSize(new Dimension(60, 30));
+        spinnerSoLuong.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        
+        JLabel lblSoLuong = new JLabel("Số lượng:");
+        lblSoLuong.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        leftPanel.add(lblSoLuong);
         leftPanel.add(spinnerSoLuong);
         
         btnXoaKhoiPhieu = new JButton("Xóa khỏi danh sách đổi trả");
-        btnXoaKhoiPhieu.setPreferredSize(new Dimension(200, 35));
-        btnXoaKhoiPhieu.setBackground(new Color(255, 240, 240));
-        btnXoaKhoiPhieu.setForeground(Color.BLACK);
-        btnXoaKhoiPhieu.setBorder(BorderFactory.createLineBorder(Color.RED));
+        btnXoaKhoiPhieu.setPreferredSize(new Dimension(220, 40));
+        btnXoaKhoiPhieu.setBackground(BTN_DELETE_COLOR);
+        btnXoaKhoiPhieu.setForeground(Color.WHITE);
+        btnXoaKhoiPhieu.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnXoaKhoiPhieu.setBorderPainted(false);
         btnXoaKhoiPhieu.setFocusPainted(false);
-        btnXoaKhoiPhieu.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 12));
+        btnXoaKhoiPhieu.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnXoaKhoiPhieu.addActionListener(this);
         leftPanel.add(btnXoaKhoiPhieu);
         
         // Right side - Total amount
         JPanel rightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        rightPanel.setBackground(Color.WHITE);
-        rightPanel.add(new JLabel("Tổng tiền trả lại:"));
+        rightPanel.setBackground(BG_COLOR);
+        
+        JLabel lblTongTien = new JLabel("Tổng tiền trả lại:");
+        lblTongTien.setFont(new Font("Segoe UI", Font.BOLD, 16));
         
         lblTongTienTra = new JLabel("0 VNĐ");
-        lblTongTienTra.setFont(new java.awt.Font("Arial", java.awt.Font.BOLD, 14));
-        lblTongTienTra.setForeground(Color.BLACK);
+        lblTongTienTra.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        lblTongTienTra.setForeground(new Color(231, 76, 60));
+        
+        rightPanel.add(lblTongTien);
         rightPanel.add(lblTongTienTra);
         
         controlPanel.add(leftPanel, BorderLayout.WEST);
@@ -304,15 +352,15 @@ public class XacNhanLapPhieuTraThuocFrame extends JFrame implements ActionListen
     
     private JPanel createBottomPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BG_COLOR);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
         
         btnXacNhan = new JButton("Xác nhận");
-        btnXacNhan.setFont(new java.awt.Font("Arial", java.awt.Font.PLAIN, 16));
-        btnXacNhan.setPreferredSize(new Dimension(150, 40));
-        btnXacNhan.setBackground(new Color(240, 240, 240));
-        btnXacNhan.setForeground(Color.BLACK);
-        btnXacNhan.setBorder(BorderFactory.createLineBorder(Color.GRAY));
+        btnXacNhan.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnXacNhan.setPreferredSize(new Dimension(150, 45));
+        btnXacNhan.setBackground(BTN_ADD_COLOR);
+        btnXacNhan.setForeground(Color.WHITE);
+        btnXacNhan.setBorderPainted(false);
         btnXacNhan.setFocusPainted(false);
         btnXacNhan.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnXacNhan.addActionListener(this);

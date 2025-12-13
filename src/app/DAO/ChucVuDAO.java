@@ -155,8 +155,8 @@ public class ChucVuDAO {
      */
     public boolean delete(String maChucVu) {
         String sql = "UPDATE ChucVu SET isActive = 0 WHERE maChucVu = ?";
-        
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        Connection con = ConnectDB.getInstance().getConnection();
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, maChucVu);
             
             int rowsUpdated = stmt.executeUpdate();
@@ -166,5 +166,47 @@ public class ChucVuDAO {
             return false;
         }
     }
+
+
+	public ArrayList<ChucVu> getAllInactiveChucVu() {
+		ArrayList<ChucVu> danhSachChucVu = new ArrayList<>();
+        String sql = "SELECT * FROM ChucVu WHERE isActive = 0";
+        Connection con = ConnectDB.getInstance().getConnection();
+        Statement stmt = null;
+        ResultSet rs = null;
+        try 
+            {
+        	stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            
+            while (rs.next()) {
+                ChucVu chucVu = new ChucVu();
+                chucVu.setMaChucVu(rs.getString("maChucVu"));
+                chucVu.setTenChucVu(rs.getString("tenChucVu"));
+                chucVu.setIsActive(rs.getBoolean("isActive"));
+                danhSachChucVu.add(chucVu);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return danhSachChucVu;
+	}
+
+
+	public boolean reactivateChucVu(String maCV) {
+		String sql = "UPDATE ChucVu SET isActive = 1 WHERE maChucVu = ?";
+        Connection con = ConnectDB.getConnection();
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1,maCV);
+            int n = stmt.executeUpdate();
+            System.out.println("   → Reactivated Thuoc: " + maCV + " (rows: " + n + ")");
+            return n > 0;
+        } catch (SQLException e) {
+            System.err.println("   ❌ Error reactivating Thuoc: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+	}
 
 }

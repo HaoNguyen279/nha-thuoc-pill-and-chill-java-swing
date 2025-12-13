@@ -10,6 +10,9 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
+import com.formdev.flatlaf.FlatLightLaf;
 
 import app.DAO.ChiTietHoaDonDAO;
 import app.DAO.HoaDonDAO;
@@ -23,6 +26,12 @@ import app.Entity.NhanVien;
 import app.Entity.Thuoc;
 
 public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
+
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
+    private final Color ACCENT_COLOR = new Color(255, 255, 255);
+    private final Color BG_COLOR = new Color(245, 245, 245);
+    private final Color TEXT_COLOR = new Color(51, 51, 51);
+    private final Color BTN_ADD_COLOR = new Color(46, 204, 113);
 
     // DAO objects
     private HoaDonDAO hoaDonDAO;
@@ -54,6 +63,7 @@ public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
     }
 
     public LapPhieuTraThuocPanel(String maNhanVien) {
+        FlatLightLaf.setup();
         this.maNhanVienDangNhap = maNhanVien;
         initDAOs();
         createLapPhieuDoiThuoc();
@@ -70,7 +80,7 @@ public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
 
     private void createLapPhieuDoiThuoc() {
         setLayout(new BorderLayout());
-        setBackground(Color.WHITE);
+        setBackground(BG_COLOR);
 
         // Title Panel
         JPanel titlePanel = createTitlePanel();
@@ -87,20 +97,20 @@ public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
 
     private JPanel createTitlePanel() {
         JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        titlePanel.setBackground(Color.WHITE);
-        titlePanel.setBorder(BorderFactory.createEmptyBorder(20, 0, 20, 0));
+        titlePanel.setBackground(BG_COLOR);
+        titlePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
         JLabel lblTitle = new JLabel("LẬP PHIẾU TRẢ THUỐC");
-        lblTitle.setFont(new Font("Arial", Font.BOLD, 24));
-        lblTitle.setForeground(Color.DARK_GRAY);
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 26));
+        lblTitle.setForeground(PRIMARY_COLOR);
         titlePanel.add(lblTitle);
 
         return titlePanel;
     }
 
     private JPanel createMainPanel() {
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.setBackground(Color.WHITE);
+        JPanel mainPanel = new JPanel(new BorderLayout(0, 20));
+        mainPanel.setBackground(BG_COLOR);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(0, 20, 20, 20));
 
         // Panel hóa đơn (trên)
@@ -118,11 +128,11 @@ public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
 
     private JPanel createHoaDonPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BG_COLOR);
         panel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(Color.GRAY), 
+            BorderFactory.createLineBorder(new Color(220, 220, 220)), 
             "HÓA ĐƠN", 
-            0, 0, new Font("Arial", Font.BOLD, 14)
+            0, 0, new Font("Segoe UI", Font.BOLD, 14), TEXT_COLOR
         ));
         panel.setPreferredSize(new Dimension(0, 300));
 
@@ -135,10 +145,42 @@ public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
             }
         };
 
-        tableHoaDon = new JTable(modelHoaDon);
+        tableHoaDon = new JTable(modelHoaDon) {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };
+        
+        tableHoaDon.setRowHeight(35);
+        tableHoaDon.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tableHoaDon.setFillsViewportHeight(true);
+        tableHoaDon.setShowGrid(true);
+        tableHoaDon.setGridColor(new Color(224, 224, 224));
         tableHoaDon.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableHoaDon.setRowHeight(25);
-        tableHoaDon.getTableHeader().setReorderingAllowed(false);
+        tableHoaDon.setSelectionBackground(new Color(178, 223, 219));
+        tableHoaDon.setSelectionForeground(Color.BLACK);
+        
+        JTableHeader header = tableHoaDon.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(Color.WHITE);
+        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setReorderingAllowed(false);
+        
+        DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        // Center align cho tất cả các cột
+        DefaultTableCellRenderer cellCenter = new DefaultTableCellRenderer();
+        cellCenter.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < tableHoaDon.getColumnCount(); i++) {
+            tableHoaDon.getColumnModel().getColumn(i).setCellRenderer(cellCenter);
+        }
 
         // Listener để hiển thị chi tiết khi chọn hóa đơn
         tableHoaDon.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -155,6 +197,8 @@ public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
         });
 
         scrollHoaDon = new JScrollPane(tableHoaDon);
+        scrollHoaDon.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollHoaDon.getViewport().setBackground(Color.WHITE);
         panel.add(scrollHoaDon, BorderLayout.CENTER);
 
         return panel;
@@ -162,11 +206,11 @@ public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
 
     private JPanel createChiTietPanel() {
         JPanel panel = new JPanel(new BorderLayout());
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BG_COLOR);
         panel.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(Color.GRAY), 
+            BorderFactory.createLineBorder(new Color(220, 220, 220)), 
             "CHI TIẾT HÓA ĐƠN", 
-            0, 0, new Font("Arial", Font.BOLD, 14)
+            0, 0, new Font("Segoe UI", Font.BOLD, 14), TEXT_COLOR
         ));
 
         // Tạo bảng chi tiết hóa đơn
@@ -178,12 +222,46 @@ public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
             }
         };
 
-        tableChiTiet = new JTable(modelChiTiet);
+        tableChiTiet = new JTable(modelChiTiet) {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };
+        
+        tableChiTiet.setRowHeight(35);
+        tableChiTiet.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tableChiTiet.setFillsViewportHeight(true);
+        tableChiTiet.setShowGrid(true);
+        tableChiTiet.setGridColor(new Color(224, 224, 224));
         tableChiTiet.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tableChiTiet.setRowHeight(25);
-        tableChiTiet.getTableHeader().setReorderingAllowed(false);
+        tableChiTiet.setSelectionBackground(new Color(178, 223, 219));
+        tableChiTiet.setSelectionForeground(Color.BLACK);
+        
+        JTableHeader header = tableChiTiet.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(Color.WHITE);
+        header.setPreferredSize(new Dimension(header.getWidth(), 40));
+        header.setReorderingAllowed(false);
+        
+        DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        // Center align cho tất cả các cột
+        DefaultTableCellRenderer cellCenter = new DefaultTableCellRenderer();
+        cellCenter.setHorizontalAlignment(JLabel.CENTER);
+        for (int i = 0; i < tableChiTiet.getColumnCount(); i++) {
+            tableChiTiet.getColumnModel().getColumn(i).setCellRenderer(cellCenter);
+        }
 
         scrollChiTiet = new JScrollPane(tableChiTiet);
+        scrollChiTiet.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollChiTiet.getViewport().setBackground(Color.WHITE);
         panel.add(scrollChiTiet, BorderLayout.CENTER);
 
         return panel;
@@ -191,16 +269,16 @@ public class LapPhieuTraThuocPanel extends JPanel implements ActionListener {
 
     private JPanel createButtonPanel() {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        panel.setBackground(Color.WHITE);
+        panel.setBackground(BG_COLOR);
         panel.setBorder(BorderFactory.createEmptyBorder(10, 20, 20, 20));
 
         btnConfirm = new JButton("Xác nhận");
-        btnConfirm.setFont(new Font("Arial", Font.PLAIN, 14));
-        btnConfirm.setPreferredSize(new Dimension(150, 40));
-        btnConfirm.setBackground(new Color(240, 240, 240)); // Màu xám nhạt
-        btnConfirm.setForeground(Color.BLACK); // Chữ màu đen
-        btnConfirm.setBorder(BorderFactory.createLineBorder(Color.GRAY)); // Viền màu xám
+        btnConfirm.setPreferredSize(new Dimension(150, 45));
+        btnConfirm.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnConfirm.setBackground(PRIMARY_COLOR);
+        btnConfirm.setForeground(Color.WHITE);
         btnConfirm.setFocusPainted(false);
+        btnConfirm.setBorderPainted(false);
         btnConfirm.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnConfirm.addActionListener(this);
 

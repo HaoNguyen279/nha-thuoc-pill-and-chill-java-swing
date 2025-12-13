@@ -82,6 +82,50 @@ public class KhuyenMaiDAO {
         }
         return dsKhuyenMai;
     }
+    
+    public ArrayList<KhuyenMai> getAllKhuyenMaiInactive() {
+        ArrayList<KhuyenMai> dsKhuyenMai = new ArrayList<>();
+        String sql = "SELECT * FROM KhuyenMai WHERE isActive = 0 ORDER BY ngayKetThuc DESC";
+        Connection con = ConnectDB.getInstance().getConnection();
+        Statement stmt = null;
+        ResultSet rs = null;
+
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+
+            while (rs.next()) {
+                dsKhuyenMai.add(mapResultSetToKhuyenMai(rs));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return dsKhuyenMai;
+    }
+    
+    
+    public boolean reactiveKhuyenMai(String id) {
+    	String sql = "UPDATE KhuyenMai SET isActive = 1 WHERE maKM = ?";
+        Connection con = ConnectDB.getConnection();
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1,id);
+            int n = stmt.executeUpdate();
+            System.out.println("   → Reactivated Thuoc: " + id + " (rows: " + n + ")");
+            return n > 0;
+        } catch (SQLException e) {
+            System.err.println("   ❌ Error reactivating Thuoc: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     /**
      * Retrieves a single promotion by its ID.
