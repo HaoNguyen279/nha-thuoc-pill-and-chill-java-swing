@@ -28,6 +28,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
@@ -37,6 +38,24 @@ import app.ConnectDB.ConnectDB;
 import app.DAO.ChucVuDAO;
 import app. Entity.ChucVu;
 
+public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseListener {
+    
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
+    private final Color ACCENT_COLOR = new Color(255, 255, 255);
+    private final Color BG_COLOR = new Color(245, 245, 245);
+    private final Color TEXT_COLOR = new Color(51, 51, 51);
+    
+    private final Color BTN_ADD_COLOR = new Color(46, 204, 113);
+    private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
+    private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
+    private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
+
+    private JLabel lblTieuDe;
+    private JLabel lblMaChucVu;
+    private JLabel lblTenChucVu;
+    
+    private JTextField txtMaChucVu;
+    private JTextField txtTenChucVu;
 public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseListener {
     
     private final Color PRIMARY_COLOR = new Color(0, 150, 136);
@@ -377,6 +396,8 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseL
 
     @Override
     public void mouseClicked(MouseEvent e) {
+    @Override
+    public void mouseClicked(MouseEvent e) {
         Object o = e.getSource();
         if(o == tblChucVu) {
             int row = tblChucVu. getSelectedRow();
@@ -387,16 +408,26 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseL
             }
         }
     }
+    }
 
+    @Override
+    public void mousePressed(MouseEvent e) {}
     @Override
     public void mousePressed(MouseEvent e) {}
 
     @Override
     public void mouseReleased(MouseEvent e) {}
+    @Override
+    public void mouseReleased(MouseEvent e) {}
 
     @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
+    public void mouseEntered(MouseEvent e) {}
 
+    @Override
+    public void mouseExited(MouseEvent e) {}
+}
     @Override
     public void mouseExited(MouseEvent e) {}
 }

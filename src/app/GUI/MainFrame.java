@@ -17,6 +17,7 @@ public class MainFrame extends JFrame {
     private CapNhatNhanVienPanel capNhatNhanVienPanel;
     private CapNhatThuocPanel capNhatThuocPanel;
     private CapNhatDonViPanel capNhatDonViPanel;
+    private CapNhatDonViPanel capNhatDonViPanel;
     private CapNhatKhuyenMaiPanel capNhatKhuyenMaiPanel;
     private LapPhieuDatThuocPanel lapPhieuDatThuocPanel;
     private NhapThuocPanel nhapThuocPanel;

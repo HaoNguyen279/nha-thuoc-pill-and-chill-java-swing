@@ -6,6 +6,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.JTableHeader;
 
 import com.formdev.flatlaf.FlatLightLaf;
+import com.itextpdf.text.log.SysoCounter;
+
+import com.formdev.flatlaf.FlatLightLaf;
 
 
 import app.ConnectDB. ConnectDB;
@@ -61,7 +64,14 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
     public TimKiemThuocPanel() {
     	
     	FlatLightLaf.setup();
+    	
+    	FlatLightLaf.setup();
         setLayout(new BorderLayout());
+        
+        
+     
+        
+        
         
         ConnectDB. getInstance().connect();
         
@@ -77,6 +87,8 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
         mainPanel.add(centerPanel, BorderLayout.CENTER);
         
         add(topPanel,BorderLayout.NORTH);
+        
+        add(topPanel,BorderLayout.NORTH);
         add(mainPanel, BorderLayout.CENTER);
         
         getInputMap(JComponent.WHEN_ANCESTOR_OF_FOCUSED_COMPONENT)
@@ -87,6 +99,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
                 btnTim. doClick();
             }
         });
+        loadNhaSanXuatData();
         loadNhaSanXuatData();
         setVisible(true);
     }
@@ -315,6 +328,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
     public void loadData_Thuoc(ArrayList<Thuoc> dsThuoc) {
         dtmTable.setRowCount(0);
         for(Thuoc thuoc : dsThuoc) {
+        	System.out.println(thuoc);
         	System.out.println(thuoc);
             Object[] rowData = {
                 thuoc.getMaThuoc(),

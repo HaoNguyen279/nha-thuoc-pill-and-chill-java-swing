@@ -4,10 +4,14 @@ import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -23,6 +27,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -31,6 +36,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
+import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -141,7 +147,9 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 
         lblMaThuoc = new JLabel("Mã thuốc:");
         lblMaThuoc.setFont(fontLabel);
+        lblMaThuoc.setFont(fontLabel);
         lblTenThuoc = new JLabel("Tên thuốc:");
+        lblTenThuoc.setFont(fontLabel);
         lblTenThuoc.setFont(fontLabel);
         lblSoLuongTon = new JLabel("Số lượng:");
         lblSoLuongTon.setFont(fontLabel);
@@ -265,6 +273,12 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                     c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
                 }
                 return c;
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+                }
+                return c;
             }
         };        
         
@@ -292,10 +306,16 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 
         tblThuoc.addMouseListener(this);
         
+        
         JScrollPane scrollPane = new JScrollPane(tblThuoc);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
         return scrollPane;
+    }
+    
+    public void loadThuocData() {
     }
     
     public void loadThuocData() {
@@ -505,13 +525,22 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
 
     @Override
     public void mousePressed(MouseEvent e) {}
+    @Override
+    public void mousePressed(MouseEvent e) {}
 
+    @Override
+    public void mouseReleased(MouseEvent e) {}
     @Override
     public void mouseReleased(MouseEvent e) {}
 
     @Override
     public void mouseEntered(MouseEvent e) {}
+    @Override
+    public void mouseEntered(MouseEvent e) {}
 
+    @Override
+    public void mouseExited(MouseEvent e) {}
+}
     @Override
     public void mouseExited(MouseEvent e) {}
 }
