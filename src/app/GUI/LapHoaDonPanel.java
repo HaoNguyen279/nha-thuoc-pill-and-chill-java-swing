@@ -12,6 +12,7 @@ import app.ConnectDB.ConnectDB;
 import app.DAO.ThuocDAO;
 import app.DAO.HoaDonDAO;
 import app.DAO.TonKhoDAO;
+import app.DTO.ThuocKemGiaDTO;
 import app.Entity.Thuoc;
 
 public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCallback {
@@ -26,7 +27,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
     private JTable tblThuoc;
     private JTable tblGioHang;
     private ThuocDAO thuocDAO;
-    private ArrayList<Thuoc> dsThuoc;
+    private ArrayList<ThuocKemGiaDTO> dsThuoc;
     
     // Components cần xử lý sự kiện
     private JTextField txtSearch;
@@ -424,7 +425,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
             thuocDAO = new ThuocDAO();
             
             // Lấy danh sách thuốc mới nhất từ database
-            dsThuoc = thuocDAO.getAllThuoc();
+            dsThuoc = thuocDAO.getAllThuocKemGia();
             
             // Xóa dữ liệu cũ trong bảng
             modelThuoc.setRowCount(0);
@@ -433,7 +434,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
             TonKhoDAO tonKhoDAO = new TonKhoDAO();
             
             // Thêm dữ liệu mới vào bảng với available stock
-            for (Thuoc thuoc : dsThuoc) {
+            for (ThuocKemGiaDTO thuoc : dsThuoc) {
                 int onHand = thuoc.getSoLuongTon();
                 int available = tonKhoDAO.getSoLuongAvailable(thuoc.getMaThuoc());
                 
@@ -515,7 +516,7 @@ public class LapHoaDonPanel extends JPanel implements ActionListener, HoaDonCall
         
         TonKhoDAO tonKhoDAO = new TonKhoDAO();
         
-        for (Thuoc thuoc : dsThuoc) {
+        for (ThuocKemGiaDTO thuoc : dsThuoc) {
             if (thuoc.getMaThuoc().toLowerCase().contains(keyword) || 
                 thuoc.getTenThuoc().toLowerCase().contains(keyword)) {
                 

@@ -175,10 +175,11 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
     // Tính tổng tiền
     private double tinhTongTien() {
         double tong = 0;
-        for (Thuoc thuoc : dsThuoc) {
-            tong += thuoc.getSoLuongTon() * thuoc.getGiaBan();
+        for (ChiTietLoThuoc thuoc : dsCTLT) {
+            tong+=thuoc.getGiaNhap();
         }
-        return tong;
+        
+        return tinhTongSoLuong() * tong;
     }
     
     // Cập nhật thống kê
@@ -270,7 +271,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
                 dsCTLT.get(i).getMaLo(),
                 dsThuoc.get(i).getTenThuoc(),
                 dsThuoc.get(i).getSoLuongTon() == 0 ? "Hết hàng" : dsThuoc.get(i).getSoLuongTon(),
-                df.format(dsThuoc.get(i).getGiaBan()),
+                df.format(dsCTLT.get(i).getGiaNhap()),
                 dsThuoc.get(i).getDonVi(),
                 dsThuoc.get(i).getMaNSX(),
                 sdf.format(dsCTLT.get(i).getNgaySanXuat()),
@@ -328,7 +329,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
                             ctltTim.get(i).getMaLo(),
                             ketQuaTim.get(i).getTenThuoc(),
                             ketQuaTim.get(i).getSoLuongTon() == 0 ? "Hết hàng" : ketQuaTim.get(i).getSoLuongTon(),
-                            df.format(ketQuaTim.get(i).getGiaBan()),
+                            df.format(ctltTim.get(i).getGiaNhap()),
                             ketQuaTim.get(i).getDonVi(),
                             ketQuaTim.get(i).getMaNSX(),
                             sdf.format(ctltTim.get(i).getNgaySanXuat()),
@@ -442,7 +443,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
         }
         
         try {
-            String defaultDir = "D:\\PTUD";
+            String defaultDir = "C:\\PTUD";
             File directory = new File(defaultDir);
             
             if (!directory.exists()) {
@@ -508,7 +509,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
                 Thuoc thuoc = dsThuoc.get(i);
                 ChiTietLoThuoc ctlt = dsCTLT.get(i);
                 
-                double thanhTien = thuoc.getSoLuongTon() * thuoc.getGiaBan();
+                double thanhTien = thuoc.getSoLuongTon() * ctlt.getGiaNhap();
                 tongTien += thanhTien;
                 
                 PdfPCell cellMaThuoc = new PdfPCell(new Phrase(thuoc.getMaThuoc(), normalFont));
@@ -521,7 +522,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
                 cellSoLuong.setHorizontalAlignment(Element.ALIGN_CENTER);
                 table.addCell(cellSoLuong);
                 
-                PdfPCell cellDonGia = new PdfPCell(new Phrase(df.format(thuoc.getGiaBan()), normalFont));
+                PdfPCell cellDonGia = new PdfPCell(new Phrase(df.format(ctlt.getGiaNhap()), normalFont));
                 cellDonGia.setHorizontalAlignment(Element.ALIGN_RIGHT);
                 table.addCell(cellDonGia);
                 

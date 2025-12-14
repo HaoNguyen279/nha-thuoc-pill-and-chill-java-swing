@@ -30,14 +30,12 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
 	private JLabel lblMaThuoc;
 	private JLabel lblTenThuoc;
 	private JLabel lblSoLuongTon;
-	private JLabel lblGiaBan;
 	private JLabel lblDonVi;
 	private JLabel lblNhaSanXuat;
 
 	private JTextField txtMaThuoc;
 	private JTextField txtTenThuoc;
 	private JTextField txtSoLuongTon;
-	private JTextField txtGiaBan;
 	private JComboBox<String> cboDonVi;
 	private JComboBox<String> cboNhaSanXuat;
 
@@ -110,14 +108,14 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
         lblMaThuoc. setOpaque(true);
         lblTenThuoc = new JLabel("Tên thuốc:");
         lblSoLuongTon = new JLabel("Số lượng:");
-        lblGiaBan = new JLabel("Giá bán:");
+       
     	lblDonVi = new JLabel("Đơn vị:");
     	lblNhaSanXuat = new JLabel("Nhà sản xuất:");
     	
         txtMaThuoc = new JTextField(15);
         txtTenThuoc = new JTextField(15);
         txtSoLuongTon = new JTextField(15);
-        txtGiaBan = new JTextField(15);
+        
         
         cboDonVi = new JComboBox<>();
     	cboNhaSanXuat = new JComboBox<>();
@@ -152,10 +150,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
 		pnlr4.add(txtSoLuongTon);
 		pnlr4.setBorder(BorderFactory. createEmptyBorder(0,10,0,10));
 		
-		JPanel pnlr5 = new JPanel(new BorderLayout());
-		pnlr5.add(lblGiaBan, BorderLayout.WEST);
-		pnlr5.add(txtGiaBan);
-		pnlr5.setBorder(BorderFactory.createEmptyBorder(0,10,0,10));
+		
 
 		JPanel pnlr6 = new JPanel(new BorderLayout());
 		pnlr6.add(lblDonVi, BorderLayout. WEST);
@@ -170,7 +165,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
 		pnlCenterOfMain.add(pnlr1);
 		pnlCenterOfMain.add(pnlr3);
 		pnlCenterOfMain. add(pnlr4);
-		pnlCenterOfMain.add(pnlr5);
+
 		pnlCenterOfMain.add(pnlr6);
 		pnlCenterOfMain.add(pnlr8);
 		
@@ -192,7 +187,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
 		
 		JLabel[] lblItems = { 
 			    lblMaThuoc, lblTenThuoc, lblSoLuongTon,
-			    lblGiaBan, lblDonVi, lblNhaSanXuat
+			    lblDonVi, lblNhaSanXuat
 			};
         for(JLabel item : lblItems) {
         	item.setFont(new Font("Segoe UI", Font. PLAIN, 15));
@@ -201,7 +196,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
         
         JTextField[] txtItems = {
         	    txtMaThuoc, txtTenThuoc, txtSoLuongTon,
-        	    txtGiaBan
+        	    
         	};
         for(JTextField item : txtItems) {
         	item.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -259,7 +254,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
         JPanel panel = new JPanel(new BorderLayout());
 
         String[] cols = {"Mã thuốc", "Tên thuốc", "Số lượng", 
-                        "Giá bán", "Đơn vị", "NSX"};
+                         "Đơn vị", "NSX"};
         
         dtmTable = new DefaultTableModel(cols, 0) {
             @Override
@@ -325,7 +320,6 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
                 thuoc.getMaThuoc(),
                 thuoc.getTenThuoc(),
                 thuoc. getSoLuongTon() == 0 ? "Hết hàng" : thuoc.getSoLuongTon(),
-                thuoc.getGiaBan(),
                 thuoc.getDonVi(),
                 thuoc.getMaNSX()
             };
@@ -377,7 +371,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
         	txtMaThuoc.setText("");
             txtTenThuoc.setText("");
             txtSoLuongTon.setText("");
-            txtGiaBan.setText("");
+            
             cboDonVi.setSelectedIndex(0);
             cboNhaSanXuat.setSelectedIndex(0);
             loadData_Thuoc(dsThuoc);
@@ -386,7 +380,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
             String maThuocTim = txtMaThuoc. getText().trim().toLowerCase();
             String tenThuocTim = txtTenThuoc.getText().trim().toLowerCase();
             String soLuongStr = txtSoLuongTon.getText().trim();
-            String giaBanStr = txtGiaBan.getText().trim();
+            
             String donViTim = (String) cboDonVi.getSelectedItem();
             String nsxTim = (String) cboNhaSanXuat. getSelectedItem();
 
@@ -404,16 +398,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
                 }
             }
 
-            if (!giaBanStr. isEmpty()) {
-                try {
-                    giaBanTim = Double.parseDouble(giaBanStr);
-                } catch (NumberFormatException ex) {
-                    JOptionPane.showMessageDialog(this,
-                            "Giá bán phải là số!",
-                            "Lỗi", JOptionPane. ERROR_MESSAGE);
-                    return;
-                }
-            }
+           
 
             ArrayList<Thuoc> ketQua = new ArrayList<>();
 
@@ -435,10 +420,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
                     match = false;
                 }
 
-                if (match && giaBanTim != null &&
-                        t.getGiaBan() < giaBanTim) {
-                    match = false;
-                }
+               
 
                 if (match && donViTim != null && ! donViTim.isEmpty() &&
                         !t. getDonVi().equalsIgnoreCase(donViTim)) {

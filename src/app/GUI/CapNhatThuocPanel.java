@@ -60,14 +60,13 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     private JLabel lblMaThuoc;
     private JLabel lblTenThuoc;
     private JLabel lblSoLuongTon;
-    private JLabel lblGiaBan;
     private JLabel lblDonVi;
     private JLabel lblNhaSanXuat;
 
     private JTextField txtMaThuoc;
     private JTextField txtTenThuoc;
     private JTextField txtSoLuongTon;
-    private JTextField txtGiaBan;
+
     private JComboBox<String> cboDonVi;
     private JComboBox<String> cboNhaSanXuat;
 
@@ -102,7 +101,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         initInputForm();
         initButtons();
         
-        String[] cols = {"Mã thuốc" , "Tên thuốc", "Số lượng", "Giá bán", "Đơn vị", "Nhà SX"};
+        String[] cols = {"Mã thuốc" , "Tên thuốc", "Số lượng", "Đơn vị", "Nhà SX"};
         dtm = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -146,8 +145,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         lblTenThuoc.setFont(fontLabel);
         lblSoLuongTon = new JLabel("Số lượng:");
         lblSoLuongTon.setFont(fontLabel);
-        lblGiaBan = new JLabel("Giá bán:");
-        lblGiaBan.setFont(fontLabel);
+        
         lblDonVi = new JLabel("Đơn vị:");
         lblDonVi.setFont(fontLabel);
         lblNhaSanXuat = new JLabel("Nhà sản xuất:");
@@ -159,8 +157,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         txtTenThuoc.setFont(fontText);
         txtSoLuongTon = new JTextField();
         txtSoLuongTon.setFont(fontText);
-        txtGiaBan = new JTextField();
-        txtGiaBan.setFont(fontText);
+
         
         cboDonVi = new JComboBox<>();
         cboDonVi.setFont(fontText);
@@ -205,10 +202,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.4;
         pnlForm.add(txtSoLuongTon, gbc);
         
-        gbc.gridx = 2; gbc.gridy = 1; gbc.weightx = 0.1;
-        pnlForm.add(lblGiaBan, gbc);
-        gbc.gridx = 3; gbc.gridy = 1; gbc.weightx = 0.4;
-        pnlForm.add(txtGiaBan, gbc);
+      
 
         // Row 2
         gbc.gridx = 0; gbc.gridy = 2; gbc.weightx = 0.1;
@@ -216,9 +210,9 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         gbc.gridx = 1; gbc.gridy = 2; gbc.weightx = 0.4;
         pnlForm.add(cboDonVi, gbc);
         
-        gbc.gridx = 2; gbc.gridy = 2; gbc.weightx = 0.1;
+        gbc.gridx = 2; gbc.gridy = 1; gbc.weightx = 0.1;
         pnlForm.add(lblNhaSanXuat, gbc);
-        gbc.gridx = 3; gbc.gridy = 2; gbc.weightx = 0.4;
+        gbc.gridx = 3; gbc.gridy = 1; gbc.weightx = 0.4;
         pnlForm.add(cboNhaSanXuat, gbc);
 
         return pnlForm;
@@ -294,7 +288,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
         tblThuoc.getColumnModel().getColumn(1).setPreferredWidth(150);
-        tblThuoc.getColumnModel().getColumn(5).setPreferredWidth(150);
+        tblThuoc.getColumnModel().getColumn(4).setPreferredWidth(150);
 
         tblThuoc.addMouseListener(this);
         
@@ -313,7 +307,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                     thuoc.getMaThuoc(),
                     thuoc.getTenThuoc(),
                     thuoc.getSoLuongTon(),
-                    thuoc.getGiaBan(),
+                
                     thuoc.getDonVi(),
                     thuoc.getMaNSX()
             };
@@ -332,7 +326,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     public void xoaTrang() {
         txtMaThuoc.setText("");
         txtTenThuoc.setText("");
-        txtGiaBan.setText("");
+      
         txtSoLuongTon.setText("0");
         cboDonVi.setSelectedIndex(0);
         cboNhaSanXuat.setSelectedIndex(0);
@@ -375,7 +369,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                 String maThuoc = txtMaThuoc.getText().trim();
                 String tenThuoc = txtTenThuoc.getText().trim();
                 int soLuongTon = 0;
-                double giaBan = Double.parseDouble(txtGiaBan.getText().trim());
+               
                 String donVi = cboDonVi.getSelectedItem().toString();
                 int soLuongToiThieu = 0;
                 
@@ -389,7 +383,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                 }
                 
                 ThuocDAO thuocDAO = new ThuocDAO();
-                Thuoc thuocNew = new Thuoc(maThuoc, tenThuoc, soLuongTon, giaBan, 
+                Thuoc thuocNew = new Thuoc(maThuoc, tenThuoc, soLuongTon, 
                                            donVi, soLuongToiThieu, maNSX, true);
                 boolean result = thuocDAO.addThuoc(thuocNew);
                 if(result) {
@@ -406,7 +400,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                 String maThuoc = txtMaThuoc.getText().trim();
                 String tenThuoc = txtTenThuoc.getText().trim();
                 int soLuongTon = Integer.parseInt(txtSoLuongTon.getText().trim());
-                double giaBan = Double.parseDouble(txtGiaBan.getText().trim());
+               
                 String donVi = cboDonVi.getSelectedItem().toString();
                 int soLuongToiThieu = 0;
                 
@@ -420,7 +414,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                 }
                 
                 ThuocDAO thuocDAO = new ThuocDAO();
-                Thuoc thuocUpdate = new Thuoc(maThuoc, tenThuoc, soLuongTon, giaBan, 
+                Thuoc thuocUpdate = new Thuoc(maThuoc, tenThuoc, soLuongTon, 
                                               donVi, soLuongToiThieu, maNSX, true);
                 boolean result = thuocDAO.updateThuoc(thuocUpdate);
                 if(result) {
@@ -468,11 +462,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
             txtTenThuoc.requestFocus();
             return false;
         }
-        if (txtGiaBan.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Giá bán không được để trống!");
-            txtGiaBan.requestFocus();
-            return false;
-        }
+        
         
         String maThuoc = txtMaThuoc.getText().trim();
         if(isAddingNew) {
@@ -490,18 +480,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
             return false;
         }
     
-        try {
-            double giaBan = Double.parseDouble(txtGiaBan.getText().trim());
-            if(giaBan <= 0) {
-                JOptionPane.showMessageDialog(this, "Giá bán phải lớn hơn 0!");
-                txtGiaBan.requestFocus();
-                return false;
-            }
-        } catch (NumberFormatException ex) {
-            JOptionPane.showMessageDialog(this, "Giá bán phải là số!");
-            txtGiaBan.requestFocus();
-            return false;
-        }
+       
         
         return true;
     }
@@ -517,7 +496,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                 txtMaThuoc.setText(tblThuoc.getValueAt(row, 0).toString());
                 txtTenThuoc.setText(tblThuoc.getValueAt(row, 1).toString());
                 txtSoLuongTon.setText(tblThuoc.getValueAt(row, 2).toString());
-                txtGiaBan.setText(tblThuoc.getValueAt(row, 3).toString());
+             
                 cboDonVi.setSelectedItem(tblThuoc.getValueAt(row, 4).toString());
                 cboNhaSanXuat.setSelectedItem(tblThuoc.getValueAt(row, 5).toString());
             }

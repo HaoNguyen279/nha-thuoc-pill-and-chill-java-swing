@@ -12,6 +12,7 @@ import app.DAO.ChiTietPhieuDatDAO;
 import app.DAO.KhachHangDAO;
 import app.DAO.NhanVienDAO;
 import app.DAO.ThuocDAO;
+import app.DTO.ThuocKemGiaDTO;
 import app.DAO.HoaDonDAO;
 import app.Entity.PhieuDat;
 import app.Entity.ChiTietPhieuDat;
@@ -442,7 +443,7 @@ public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
         for (ChiTietPhieuDat chiTiet : dsChiTietPhieuDat) {
             // Lấy thông tin thuốc để có đơn giá
             try {
-                Thuoc thuoc = thuocDAO.getThuocById(chiTiet.getMaThuoc());
+                ThuocKemGiaDTO thuoc = thuocDAO.getThuocKemGiaById(chiTiet.getMaThuoc());
                 if (thuoc != null) {
                     double donGia = thuoc.getGiaBan();
                     double thanhTien = chiTiet.getSoLuong() * donGia;
@@ -469,7 +470,7 @@ public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
         
         for (ChiTietPhieuDat chiTiet : dsChiTietPhieuDat) {
             try {
-                Thuoc thuoc = thuocDAO.getThuocById(chiTiet.getMaThuoc());
+                ThuocKemGiaDTO thuoc = thuocDAO.getThuocKemGiaById(chiTiet.getMaThuoc());
                 if (thuoc != null) {
                     double thanhTien = chiTiet.getSoLuong() * thuoc.getGiaBan();
                     tongTien += thanhTien;
@@ -575,7 +576,7 @@ public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
             ArrayList<Object[]> dsChiTietHoaDon = new ArrayList<>();
             
             for (ChiTietPhieuDat chiTiet : dsChiTietPhieuDat) {
-                Thuoc thuoc = thuocDAO.getThuocById(chiTiet.getMaThuoc());
+                ThuocKemGiaDTO thuoc = thuocDAO.getThuocKemGiaById(chiTiet.getMaThuoc());
                 if (thuoc != null) {
                     Object[] item = {
                         chiTiet.getMaThuoc(),

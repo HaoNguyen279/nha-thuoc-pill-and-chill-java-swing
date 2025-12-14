@@ -221,7 +221,6 @@ public class NhapThuocPanel extends JPanel {
                             maThuoc, 
                             tenThuoc,
                             soLuongTon,
-                            giaBan,
                             donVi,
                             soLuongToiThieu,
                             maNSX,

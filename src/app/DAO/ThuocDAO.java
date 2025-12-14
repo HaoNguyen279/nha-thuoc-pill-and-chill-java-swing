@@ -10,6 +10,7 @@ import java.util.ArrayList;
 
 
 import app.ConnectDB.ConnectDB;
+import app.DTO.ThuocKemGiaDTO;
 import app.Entity.ChiTietLoThuoc;
 import app.Entity.LoThuoc;
 import app.Entity.ThongKeThuoc;
@@ -44,13 +45,12 @@ public class ThuocDAO {
                 String maThuoc = rs.getString("maThuoc");
                 String tenThuoc = rs.getString("tenThuoc");
                 int soLuongTon = rs.getInt("soLuongTon");
-                double giaBan = rs.getDouble("giaBan");
                 String donVi = rs.getString("donVi");
                 int soLuongToiThieu = rs.getInt("soLuongToiThieu");
                 String maNSX = rs.getString("maNSX");
                 boolean isActive = rs.getBoolean("isActive");
 
-                Thuoc thuoc = new Thuoc(maThuoc, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive);
+                Thuoc thuoc = new Thuoc(maThuoc, tenThuoc, soLuongTon, donVi, soLuongToiThieu, maNSX, isActive);
                 dsThuoc.add(thuoc);
             }
         } catch (SQLException e) {
@@ -66,9 +66,59 @@ public class ThuocDAO {
         }
         return dsThuoc;
     }
+    
+    
+    /**
+     * Return list thuốc kèm giá.
+     * @return An ArrayList of Thuoc objects.
+     */
+    public ArrayList<ThuocKemGiaDTO> getAllThuocKemGia() {
+        ArrayList<ThuocKemGiaDTO> dsThuoc = new ArrayList<>();
+        String sql = "{CALL sp_LayDanhSachThuocKemGia}";
+        
+        Connection con = ConnectDB.getConnection();
+        if (con == null) {
+            return dsThuoc;
+        }
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            
+            while (rs.next()) {
+                String maThuoc = rs.getString("maThuoc");
+                String tenThuoc = rs.getString("tenThuoc");
+                int soLuongTon = rs.getInt("soLuongTon");
+                double giaBan = rs.getDouble("donGia");
+                String donVi = rs.getString("donVi");
+                int soLuongToiThieu = rs.getInt("soLuongToiThieu");
+                String maNSX = rs.getString("maNSX");
+                boolean isActive = rs.getBoolean("isActive");
+
+                ThuocKemGiaDTO thuoc = new ThuocKemGiaDTO(maThuoc, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive);
+                dsThuoc.add(thuoc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Đóng ResultSet và Statement, KHÔNG đóng Connection vì nó là singleton
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return dsThuoc;
+    }
+    
+    
+    
     public ArrayList<Thuoc> getAllThuocCoTenNSX() {
         ArrayList<Thuoc> dsThuoc = new ArrayList<>();
-        String sql = "Select  t.maThuoc,t.tenThuoc,t.soLuongTon,t.giaBan,t.donVi,t.soLuongToiThieu,nsx.tenNSX from Thuoc t join NhaSanXuat nsx on t.maNSX = nsx.maNSX where t.isActive = 1;";
+        String sql = "Select  t.maThuoc,t.tenThuoc,t.soLuongTon,t.donVi,t.soLuongToiThieu,nsx.tenNSX from Thuoc t join NhaSanXuat nsx on t.maNSX = nsx.maNSX where t.isActive = 1;";
         
         Connection con = ConnectDB.getConnection();
         if (con == null) {
@@ -86,13 +136,13 @@ public class ThuocDAO {
            
                 String tenThuoc = rs.getString("tenThuoc");
                 int soLuongTon = rs.getInt("soLuongTon");
-                double giaBan = rs.getDouble("giaBan");
+      
                 String donVi = rs.getString("donVi");
                 int soLuongToiThieu = rs.getInt("soLuongToiThieu");
                 String maNSX = rs.getString("tenNSX");
              
 
-                Thuoc thuoc = new Thuoc(maThuoc,  tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, true);
+                Thuoc thuoc = new Thuoc(maThuoc,  tenThuoc, soLuongTon, donVi, soLuongToiThieu, maNSX, true);
                 dsThuoc.add(thuoc);
             }
         } catch (SQLException e) {
@@ -131,13 +181,47 @@ public class ThuocDAO {
                     String maThuoc = rs.getString("maThuoc");
                     String tenThuoc = rs.getString("tenThuoc");
                     int soLuongTon = rs.getInt("soLuongTon");
-                    double giaBan = rs.getDouble("giaBan");
+                  
                     String donVi = rs.getString("donVi");
                     int soLuongToiThieu = rs.getInt("soLuongToiThieu");
                     String maNSX = rs.getString("maNSX");
                     boolean isActive = rs.getBoolean("isActive");
                     
-                    thuoc = new Thuoc(maThuoc, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive);
+                    thuoc = new Thuoc(maThuoc, tenThuoc, soLuongTon, donVi, soLuongToiThieu, maNSX, isActive);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return thuoc;
+    }
+    
+    /**
+     * Return thuốc kèm giá by id
+     * @param id The ID of the drug to find.
+     * @return A Thuoc object if found, otherwise null.
+     */
+    public ThuocKemGiaDTO getThuocKemGiaById(String id) {
+        String sql = "{Call sp_LayThuocKemGiaById(?)}";
+        ThuocKemGiaDTO thuoc = null;
+
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, id);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String maThuoc = rs.getString("maThuoc");
+                    String tenThuoc = rs.getString("tenThuoc");
+                    int soLuongTon = rs.getInt("soLuongTon");
+                    float donGia = rs.getInt("donGia");
+                    String donVi = rs.getString("donVi");
+                    int soLuongToiThieu = rs.getInt("soLuongToiThieu");
+                    String maNSX = rs.getString("maNSX");
+                    boolean isActive = rs.getBoolean("isActive");
+                    
+                    thuoc = new ThuocKemGiaDTO(maThuoc, tenThuoc, soLuongTon,donGia, donVi, soLuongToiThieu, maNSX, isActive);
                 }
             }
         } catch (SQLException e) {
@@ -153,7 +237,7 @@ public class ThuocDAO {
      * @return true if the operation was successful, false otherwise.
      */
     public boolean addThuoc(Thuoc thuoc) {
-        String sql = "INSERT INTO Thuoc (maThuoc,tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Thuoc (maThuoc,tenThuoc, soLuongTon, donVi, soLuongToiThieu, maNSX, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getConnection();
@@ -162,11 +246,11 @@ public class ThuocDAO {
             stmt.setString(1, thuoc.getMaThuoc());
             stmt.setString(2, thuoc.getTenThuoc());
             stmt.setInt(3, thuoc.getSoLuongTon());
-            stmt.setDouble(4, thuoc.getGiaBan());
-            stmt.setString(5, thuoc.getDonVi());
-            stmt.setInt(6, thuoc.getSoLuongToiThieu());
-            stmt.setString(7, thuoc.getMaNSX());
-            stmt.setBoolean(8, thuoc.isIsActive()); // Use the provided getter
+
+            stmt.setString(4, thuoc.getDonVi());
+            stmt.setInt(5, thuoc.getSoLuongToiThieu());
+            stmt.setString(6, thuoc.getMaNSX());
+            stmt.setBoolean(7, thuoc.isIsActive()); // Use the provided getter
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -293,7 +377,7 @@ public class ThuocDAO {
      * @return true if the update was successful, false otherwise.
      */
     public boolean updateThuoc(Thuoc thuoc) {
-        String sql = "UPDATE Thuoc SET tenThuoc = ?, soLuongTon = ?, giaBan = ?, donVi = ?, soLuongToiThieu = ?, maNSX = ?, isActive = ? WHERE maThuoc = ?";
+        String sql = "UPDATE Thuoc SET tenThuoc = ?, soLuongTon = ?, donVi = ?, soLuongToiThieu = ?, maNSX = ?, isActive = ? WHERE maThuoc = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getConnection();
@@ -301,7 +385,6 @@ public class ThuocDAO {
             stmt.setString(1, thuoc.getTenThuoc());
             stmt.setInt(2, thuoc.getSoLuongTon());
             stmt.setString(4, thuoc.getDonVi());
-            stmt.setDouble(3, thuoc.getGiaBan());
             stmt.setInt(5, thuoc.getSoLuongToiThieu());
             stmt.setString(6, thuoc.getMaNSX());
             stmt.setBoolean(7, thuoc.isIsActive()); // Use the provided getter
@@ -351,7 +434,6 @@ public class ThuocDAO {
                     rs.getString("maThuoc"),
                     rs.getString("tenThuoc"),
                     rs.getInt("soLuongTon"),
-                    rs.getDouble("giaBan"),
                     rs.getString("donVi"),
                     rs.getInt("soLuongToiThieu"),
                     rs.getString("maNSX"),

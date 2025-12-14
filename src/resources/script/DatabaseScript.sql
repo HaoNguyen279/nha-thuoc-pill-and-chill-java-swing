@@ -43,12 +43,38 @@ CREATE TABLE Thuoc (
     maThuoc VARCHAR(50) PRIMARY KEY,
     tenThuoc NVARCHAR(100),
     soLuongTon INT DEFAULT 0, -- Tổng số lượng tồn
-    giaBan FLOAT,
     donVi NVARCHAR(50),
     soLuongToiThieu INT,
 	maNSX VARCHAR(50),
 	isActive bit DEFAULT 1,
 	FOREIGN KEY (maNSX) REFERENCES NhaSanXuat(maNSX)
+);
+GO
+
+-- Tạo bảng BangGia
+CREATE TABLE BangGia (
+    maBangGia VARCHAR(50) PRIMARY KEY,
+    tenBangGia NVARCHAR(100),
+    loaiGia NVARCHAR(50),
+	ngayApDung DATE,
+	ngayKetThuc DATE,
+	trangThai VARCHAR(50),
+	ghiChu NVARCHAR(100),
+    doUuTien INT,
+	isActive bit DEFAULT 1,
+);
+GO
+
+-- Tạo bảng ChiTietBangGia
+CREATE TABLE ChiTietBangGia (
+    maBangGia VARCHAR(50),
+    maThuoc VARCHAR(50),
+    donGia FLOAT,
+	donVi NVARCHAR(50),
+	isActive bit DEFAULT 1,
+	PRIMARY KEY (maBangGia, maThuoc),
+	FOREIGN KEY (maBangGia) REFERENCES BangGia(maBangGia),
+	FOREIGN KEY (maThuoc) REFERENCES Thuoc(maThuoc),
 );
 GO
 
@@ -350,112 +376,226 @@ INSERT INTO LoThuoc (maLo, maNSX) VALUES
 GO
 
 -- Chèn dữ liệu bảng Thuoc
-INSERT INTO Thuoc (maThuoc, tenThuoc, soLuongTon, giaBan, donVi, soLuongToiThieu, maNSX, isActive) VALUES
-('T001', N'Paracetamol 500mg', 0, 5000, N'Viên', 100, 'NSX001', 1),
-('T002', N'Efferalgan 500mg', 0, 7500, N'Viên', 80, 'NSX001', 1),
-('T003', N'Ibuprofen 400mg', 0, 8000, N'Viên', 60, 'NSX002', 1),
-('T004', N'Aspirin 100mg', 0, 6500, N'Viên', 90, 'NSX002', 1),
-('T005', N'Mobic 7.5mg', 0, 12000, N'Viên', 50, 'NSX003', 1),
-('T006', N'Amoxicillin 500mg', 0, 15000, N'Viên', 70, 'NSX003', 1),
-('T007', N'Augmentin 625mg', 0, 25000, N'Viên', 40, 'NSX004', 1),
-('T008', N'Cefuroxime 500mg', 0, 22000, N'Viên', 35, 'NSX004', 1),
-('T009', N'Azithromycin 250mg', 0, 18000, N'Viên', 45, 'NSX005', 1),
-('T010', N'Ciprofloxacin 500mg', 0, 16000, N'Viên', 55, 'NSX005', 1),
-('T011', N'Omeprazole 20mg', 0, 14000, N'Viên', 60, 'NSX006', 1),
-('T012', N'Nexium 40mg', 0, 32000, N'Viên', 40, 'NSX006', 1),
-('T013', N'Pantoprazole 40mg', 0, 28000, N'Viên', 45, 'NSX007', 1),
-('T014', N'Maalox', 0, 8500, N'Chai', 80, 'NSX007', 1),
-('T015', N'Phosphalugel', 0, 9500, N'Gói', 70, 'NSX008', 1),
-('T016', N'Smecta', 0, 7000, N'Gói', 90, 'NSX008', 1),
-('T017', N'Imodium 2mg', 0, 12500, N'Viên', 60, 'NSX009', 1),
-('T018', N'Bioflora', 0, 11000, N'Gói', 50, 'NSX009', 1),
-('T019', N'Lacteol Fort', 0, 9000, N'Gói', 70, 'NSX010', 1),
-('T020', N'Enterogermina', 0, 10500, N'Ống', 65, 'NSX010', 1),
-('T021', N'Vitamin C 500mg', 0, 8000, N'Viên', 120, 'NSX001', 1),
-('T022', N'Vitamin E 400UI', 0, 12000, N'Viên', 95, 'NSX001', 1),
-('T023', N'Multivitamin', 0, 15000, N'Viên', 80, 'NSX002', 1),
-('T024', N'Canxi D3', 0, 13500, N'Viên', 100, 'NSX002', 1),
-('T025', N'Zinc 20mg', 0, 9500, N'Viên', 75, 'NSX003', 1),
-('T026', N'Loratadine 10mg', 0, 7500, N'Viên', 85, 'NSX003', 1),
-('T027', N'Cetirizine 10mg', 0, 8000, N'Viên', 90, 'NSX004', 1),
-('T028', N'Fexofenadine 60mg', 0, 12500, N'Viên', 70, 'NSX004', 1),
-('T029', N'Claritine', 0, 14000, N'Viên', 60, 'NSX005', 1),
-('T030', N'Telfast 180mg', 0, 18000, N'Viên', 50, 'NSX005', 1),
-('T031', N'Amlodipine 5mg', 0, 8500, N'Viên', 45, 'NSX006', 1),
-('T032', N'Amlodipine 10mg', 0, 10500, N'Viên', 40, 'NSX006', 1),
-('T033', N'Bisoprolol 2.5mg', 0, 12000, N'Viên', 35, 'NSX007', 1),
-('T034', N'Enalapril 5mg', 0, 9500, N'Viên', 38, 'NSX007', 1),
-('T035', N'Losartan 50mg', 0, 11000, N'Viên', 42, 'NSX008', 1),
-('T036', N'Metformin 500mg', 0, 7000, N'Viên', 48, 'NSX008', 1),
-('T037', N'Metformin 850mg', 0, 8500, N'Viên', 45, 'NSX009', 1),
-('T038', N'Glibenclamide 5mg', 0, 6500, N'Viên', 40, 'NSX009', 1),
-('T039', N'Acarbose 50mg', 0, 13000, N'Viên', 35, 'NSX010', 1),
-('T040', N'Januvia 100mg', 0, 28000, N'Viên', 30, 'NSX010', 1),
-('T041', N'Atorvastatin 10mg', 0, 15000, N'Viên', 48, 'NSX001', 1),
-('T042', N'Atorvastatin 20mg', 0, 19000, N'Viên', 45, 'NSX001', 1),
-('T043', N'Rosuvastatin 10mg', 0, 22000, N'Viên', 42, 'NSX002', 1),
-('T044', N'Simvastatin 20mg', 0, 14000, N'Viên', 40, 'NSX002', 1),
-('T045', N'Lipitor 10mg', 0, 26000, N'Viên', 38, 'NSX003', 1),
-('T046', N'Meloxicam 7.5mg', 0, 11000, N'Viên', 50, 'NSX003', 1),
-('T047', N'Diclofenac 50mg', 0, 8500, N'Viên', 55, 'NSX004', 1),
-('T048', N'Celecoxib 200mg', 0, 16000, N'Viên', 45, 'NSX004', 1),
-('T049', N'Methylprednisolone 16mg', 0, 18000, N'Viên', 40, 'NSX005', 1),
-('T050', N'Prednisone 5mg', 0, 9500, N'Viên', 50, 'NSX005', 1),
-('T051', N'Salbutamol 2mg', 0, 7500, N'Viên', 60, 'NSX001', 1),
-('T052', N'Ventolin inhaler', 0, 85000, N'Bình', 35, 'NSX001', 1),
-('T053', N'Seretide 250mcg', 0, 145000, N'Bình', 30, 'NSX002', 1),
-('T054', N'Combivent', 0, 120000, N'Bình', 32, 'NSX002', 1),
-('T055', N'Bromhexine 8mg', 0, 6500, N'Viên', 70, 'NSX003', 1),
-('T056', N'Ambroxol 30mg', 0, 7000, N'Viên', 75, 'NSX003', 1),
-('T057', N'N-acetylcysteine 200mg', 0, 12000, N'Viên', 60, 'NSX004', 1),
-('T058', N'Bisolvon', 0, 9500, N'Chai', 65, 'NSX004', 1),
-('T059', N'Fluconazole 150mg', 0, 18000, N'Viên', 40, 'NSX005', 1),
-('T060', N'Ketoconazole 200mg', 0, 16000, N'Viên', 45, 'NSX005', 1),
-('T061', N'Metronidazole 250mg', 0, 5500, N'Viên', 80, 'NSX006', 1),
-('T062', N'Albendazole 400mg', 0, 7500, N'Viên', 60, 'NSX006', 1),
-('T063', N'Mebendazole 500mg', 0, 8000, N'Viên', 55, 'NSX007', 1),
-('T064', N'Domperidone 10mg', 0, 9500, N'Viên', 65, 'NSX007', 1),
-('T065', N'Metoclopramide 10mg', 0, 6000, N'Viên', 70, 'NSX008', 1),
-('T066', N'Ondansetron 8mg', 0, 14000, N'Viên', 50, 'NSX008', 1),
-('T067', N'Dexamethasone 0.5mg', 0, 7500, N'Viên', 45, 'NSX009', 1),
-('T068', N'Betamethasone 0.5mg', 0, 8500, N'Viên', 40, 'NSX009', 1),
-('T069', N'Hydrocortisone 10mg', 0, 9500, N'Tuýp', 35, 'NSX010', 1),
-('T070', N'Triamcinolone 4mg', 0, 12000, N'Viên', 30, 'NSX010', 1),
-('T071', N'Furosemide 40mg', 0, 6500, N'Viên', 45, 'NSX001', 1),
-('T072', N'Spironolactone 25mg', 0, 9500, N'Viên', 40, 'NSX001', 1),
-('T073', N'Indapamide 1.5mg', 0, 11000, N'Viên', 35, 'NSX002', 1),
-('T074', N'Hydrochlorothiazide 25mg', 0, 7500, N'Viên', 40, 'NSX002', 1),
-('T075', N'Isosorbide dinitrate 10mg', 0, 10500, N'Viên', 35, 'NSX003', 1),
-('T076', N'Nitroglycerin 0.5mg', 0, 12500, N'Viên', 30, 'NSX003', 1),
-('T077', N'Digoxin 0.25mg', 0, 8500, N'Viên', 25, 'NSX004', 1),
-('T078', N'Verapamil 40mg', 0, 11000, N'Viên', 30, 'NSX004', 1),
-('T079', N'Diltiazem 60mg', 0, 12500, N'Viên', 28, 'NSX005', 1),
-('T080', N'Atenolol 50mg', 0, 9500, N'Viên', 32, 'NSX005', 1),
-('T081', N'Propranolol 40mg', 0, 7500, N'Viên', 35, 'NSX006', 1),
-('T082', N'Carvedilol 6.25mg', 0, 13500, N'Viên', 30, 'NSX006', 1),
-('T083', N'Tamsulosin 0.4mg', 0, 16000, N'Viên', 25, 'NSX007', 1),
-('T084', N'Sildenafil 50mg', 0, 25000, N'Viên', 20, 'NSX007', 1),
-('T085', N'Tadalafil 10mg', 0, 28000, N'Viên', 18, 'NSX008', 1),
-('T086', N'Finasteride 5mg', 0, 18000, N'Viên', 22, 'NSX008', 1),
-('T087', N'Ethinylestradiol 35mcg', 0, 12000, N'Viên', 30, 'NSX009', 1),
-('T088', N'Medroxyprogesterone 5mg', 0, 14000, N'Viên', 28, 'NSX009', 1),
-('T089', N'Clomiphene citrate 50mg', 0, 22000, N'Viên', 22, 'NSX010', 1),
-('T090', N'Levothyroxine 50mcg', 0, 9500, N'Viên', 35, 'NSX010', 1),
-('T091', N'Levothyroxine 100mcg', 0, 11000, N'Viên', 32, 'NSX001', 1),
-('T092', N'Methimazole 5mg', 0, 13500, N'Viên', 28, 'NSX001', 1),
-('T093', N'Gliclazide 30mg', 0, 15000, N'Viên', 35, 'NSX002', 1),
-('T094', N'Pioglitazone 15mg', 0, 18000, N'Viên', 30, 'NSX002', 1),
-('T095', N'Gabapentin 300mg', 0, 16000, N'Viên', 25, 'NSX003', 1),
-('T096', N'Pregabalin 75mg', 0, 22000, N'Viên', 22, 'NSX003', 1),
-('T097', N'Alprazolam 0.5mg', 0, 8500, N'Viên', 30, 'NSX004', 1),
-('T098', N'Diazepam 5mg', 0, 7000, N'Viên', 25, 'NSX004', 1),
-('T099', N'Fluoxetine 20mg', 0, 12500, N'Viên', 28, 'NSX005', 1),
-('T100', N'Sertraline 50mg', 0, 14000, N'Viên', 26, 'NSX005', 1),
-('T101', N'Esomeprazole 20mg', 0, 16500, N'Viên', 32, 'NSX001', 1),
-('T102', N'Lansoprazole 30mg', 0, 15500, N'Viên', 29, 'NSX002', 1),
-('T103', N'Rabeprazole 20mg', 0, 17500, N'Viên', 27, 'NSX003', 1),
-('T104', N'Famotidine 40mg', 0, 9500, N'Viên', 31, 'NSX004', 1),
-('T105', N'Ranitidine 150mg', 0, 8500, N'Viên', 35, 'NSX005', 1);
+INSERT INTO Thuoc (maThuoc, tenThuoc, soLuongTon, donVi, soLuongToiThieu, maNSX, isActive) VALUES
+('T001', N'Paracetamol 500mg', 0, N'Viên', 100, 'NSX001', 1),
+('T002', N'Efferalgan 500mg', 0, N'Viên', 80, 'NSX001', 1),
+('T003', N'Ibuprofen 400mg', 0, N'Viên', 60, 'NSX002', 1),
+('T004', N'Aspirin 100mg', 0, N'Viên', 90, 'NSX002', 1),
+('T005', N'Mobic 7.5mg', 0, N'Viên', 50, 'NSX003', 1),
+('T006', N'Amoxicillin 500mg', 0, N'Viên', 70, 'NSX003', 1),
+('T007', N'Augmentin 625mg', 0, N'Viên', 40, 'NSX004', 1),
+('T008', N'Cefuroxime 500mg', 0, N'Viên', 35, 'NSX004', 1),
+('T009', N'Azithromycin 250mg', 0, N'Viên', 45, 'NSX005', 1),
+('T010', N'Ciprofloxacin 500mg', 0, N'Viên', 55, 'NSX005', 1),
+('T011', N'Omeprazole 20mg', 0, N'Viên', 60, 'NSX006', 1),
+('T012', N'Nexium 40mg', 0, N'Viên', 40, 'NSX006', 1),
+('T013', N'Pantoprazole 40mg', 0, N'Viên', 45, 'NSX007', 1),
+('T014', N'Maalox', 0, N'Chai', 80, 'NSX007', 1),
+('T015', N'Phosphalugel', 0, N'Gói', 70, 'NSX008', 1),
+('T016', N'Smecta', 0, N'Gói', 90, 'NSX008', 1),
+('T017', N'Imodium 2mg', 0, N'Viên', 60, 'NSX009', 1),
+('T018', N'Bioflora', 0, N'Gói', 50, 'NSX009', 1),
+('T019', N'Lacteol Fort', 0, N'Gói', 70, 'NSX010', 1),
+('T020', N'Enterogermina', 0, N'Ống', 65, 'NSX010', 1),
+('T021', N'Vitamin C 500mg', 0, N'Viên', 120, 'NSX001', 1),
+('T022', N'Vitamin E 400UI', 0, N'Viên', 95, 'NSX001', 1),
+('T023', N'Multivitamin', 0, N'Viên', 80, 'NSX002', 1),
+('T024', N'Canxi D3', 0, N'Viên', 100, 'NSX002', 1),
+('T025', N'Zinc 20mg', 0, N'Viên', 75, 'NSX003', 1),
+('T026', N'Loratadine 10mg', 0, N'Viên', 85, 'NSX003', 1),
+('T027', N'Cetirizine 10mg', 0, N'Viên', 90, 'NSX004', 1),
+('T028', N'Fexofenadine 60mg', 0, N'Viên', 70, 'NSX004', 1),
+('T029', N'Claritine', 0, N'Viên', 60, 'NSX005', 1),
+('T030', N'Telfast 180mg', 0, N'Viên', 50, 'NSX005', 1),
+('T031', N'Amlodipine 5mg', 0, N'Viên', 45, 'NSX006', 1),
+('T032', N'Amlodipine 10mg', 0, N'Viên', 40, 'NSX006', 1),
+('T033', N'Bisoprolol 2.5mg', 0, N'Viên', 35, 'NSX007', 1),
+('T034', N'Enalapril 5mg', 0, N'Viên', 38, 'NSX007', 1),
+('T035', N'Losartan 50mg', 0, N'Viên', 42, 'NSX008', 1),
+('T036', N'Metformin 500mg', 0, N'Viên', 48, 'NSX008', 1),
+('T037', N'Metformin 850mg', 0, N'Viên', 45, 'NSX009', 1),
+('T038', N'Glibenclamide 5mg', 0, N'Viên', 40, 'NSX009', 1),
+('T039', N'Acarbose 50mg', 0, N'Viên', 35, 'NSX010', 1),
+('T040', N'Januvia 100mg', 0, N'Viên', 30, 'NSX010', 1),
+('T041', N'Atorvastatin 10mg', 0, N'Viên', 48, 'NSX001', 1),
+('T042', N'Atorvastatin 20mg', 0, N'Viên', 45, 'NSX001', 1),
+('T043', N'Rosuvastatin 10mg', 0, N'Viên', 42, 'NSX002', 1),
+('T044', N'Simvastatin 20mg', 0, N'Viên', 40, 'NSX002', 1),
+('T045', N'Lipitor 10mg', 0, N'Viên', 38, 'NSX003', 1),
+('T046', N'Meloxicam 7.5mg', 0, N'Viên', 50, 'NSX003', 1),
+('T047', N'Diclofenac 50mg', 0, N'Viên', 55, 'NSX004', 1),
+('T048', N'Celecoxib 200mg', 0, N'Viên', 45, 'NSX004', 1),
+('T049', N'Methylprednisolone 16mg', 0, N'Viên', 40, 'NSX005', 1),
+('T050', N'Prednisone 5mg', 0, N'Viên', 50, 'NSX005', 1),
+('T051', N'Salbutamol 2mg', 0, N'Viên', 60, 'NSX001', 1),
+('T052', N'Ventolin inhaler', 0, N'Bình', 35, 'NSX001', 1),
+('T053', N'Seretide 250mcg', 0, N'Bình', 30, 'NSX002', 1),
+('T054', N'Combivent', 0, N'Bình', 32, 'NSX002', 1),
+('T055', N'Bromhexine 8mg', 0, N'Viên', 70, 'NSX003', 1),
+('T056', N'Ambroxol 30mg', 0, N'Viên', 75, 'NSX003', 1),
+('T057', N'N-acetylcysteine 200mg', 0, N'Viên', 60, 'NSX004', 1),
+('T058', N'Bisolvon', 0, N'Chai', 65, 'NSX004', 1),
+('T059', N'Fluconazole 150mg', 0, N'Viên', 40, 'NSX005', 1),
+('T060', N'Ketoconazole 200mg', 0, N'Viên', 45, 'NSX005', 1),
+('T061', N'Metronidazole 250mg', 0, N'Viên', 80, 'NSX006', 1),
+('T062', N'Albendazole 400mg', 0, N'Viên', 60, 'NSX006', 1),
+('T063', N'Mebendazole 500mg', 0, N'Viên', 55, 'NSX007', 1),
+('T064', N'Domperidone 10mg', 0, N'Viên', 65, 'NSX007', 1),
+('T065', N'Metoclopramide 10mg', 0, N'Viên', 70, 'NSX008', 1),
+('T066', N'Ondansetron 8mg', 0, N'Viên', 50, 'NSX008', 1),
+('T067', N'Dexamethasone 0.5mg', 0, N'Viên', 45, 'NSX009', 1),
+('T068', N'Betamethasone 0.5mg', 0, N'Viên', 40, 'NSX009', 1),
+('T069', N'Hydrocortisone 10mg', 0, N'Tuýp', 35, 'NSX010', 1),
+('T070', N'Triamcinolone 4mg', 0, N'Viên', 30, 'NSX010', 1),
+('T071', N'Furosemide 40mg', 0, N'Viên', 45, 'NSX001', 1),
+('T072', N'Spironolactone 25mg', 0, N'Viên', 40, 'NSX001', 1),
+('T073', N'Indapamide 1.5mg', 0, N'Viên', 35, 'NSX002', 1),
+('T074', N'Hydrochlorothiazide 25mg', 0, N'Viên', 40, 'NSX002', 1),
+('T075', N'Isosorbide dinitrate 10mg', 0, N'Viên', 35, 'NSX003', 1),
+('T076', N'Nitroglycerin 0.5mg', 0, N'Viên', 30, 'NSX003', 1),
+('T077', N'Digoxin 0.25mg', 0, N'Viên', 25, 'NSX004', 1),
+('T078', N'Verapamil 40mg', 0, N'Viên', 30, 'NSX004', 1),
+('T079', N'Diltiazem 60mg', 0, N'Viên', 28, 'NSX005', 1),
+('T080', N'Atenolol 50mg', 0, N'Viên', 32, 'NSX005', 1),
+('T081', N'Propranolol 40mg', 0, N'Viên', 35, 'NSX006', 1),
+('T082', N'Carvedilol 6.25mg', 0, N'Viên', 30, 'NSX006', 1),
+('T083', N'Tamsulosin 0.4mg', 0, N'Viên', 25, 'NSX007', 1),
+('T084', N'Sildenafil 50mg', 0, N'Viên', 20, 'NSX007', 1),
+('T085', N'Tadalafil 10mg', 0, N'Viên', 18, 'NSX008', 1),
+('T086', N'Finasteride 5mg', 0, N'Viên', 22, 'NSX008', 1),
+('T087', N'Ethinylestradiol 35mcg', 0, N'Viên', 30, 'NSX009', 1),
+('T088', N'Medroxyprogesterone 5mg', 0, N'Viên', 28, 'NSX009', 1),
+('T089', N'Clomiphene citrate 50mg', 0, N'Viên', 22, 'NSX010', 1),
+('T090', N'Levothyroxine 50mcg', 0, N'Viên', 35, 'NSX010', 1),
+('T091', N'Levothyroxine 100mcg', 0, N'Viên', 32, 'NSX001', 1),
+('T092', N'Methimazole 5mg', 0, N'Viên', 28, 'NSX001', 1),
+('T093', N'Gliclazide 30mg', 0, N'Viên', 35, 'NSX002', 1),
+('T094', N'Pioglitazone 15mg', 0, N'Viên', 30, 'NSX002', 1),
+('T095', N'Gabapentin 300mg', 0, N'Viên', 25, 'NSX003', 1),
+('T096', N'Pregabalin 75mg', 0, N'Viên', 22, 'NSX003', 1),
+('T097', N'Alprazolam 0.5mg', 0, N'Viên', 30, 'NSX004', 1),
+('T098', N'Diazepam 5mg', 0, N'Viên', 25, 'NSX004', 1),
+('T099', N'Fluoxetine 20mg', 0, N'Viên', 28, 'NSX005', 1),
+('T100', N'Sertraline 50mg', 0, N'Viên', 26, 'NSX005', 1),
+('T101', N'Esomeprazole 20mg', 0, N'Viên', 32, 'NSX001', 1),
+('T102', N'Lansoprazole 30mg', 0, N'Viên', 29, 'NSX002', 1),
+('T103', N'Rabeprazole 20mg', 0, N'Viên', 27, 'NSX003', 1),
+('T104', N'Famotidine 40mg', 0, N'Viên', 31, 'NSX004', 1),
+('T105', N'Ranitidine 150mg', 0, N'Viên', 35, 'NSX005', 1);
+GO
+
+-- Chèn dữ liệu bảng BangGia
+INSERT INTO BangGia (maBangGia, tenBangGia, loaiGia, ngayApDung, ngayKetThuc, trangThai, ghiChu,doUuTien, isActive) VALUES
+('BG001', N'Bảng giá chuẩn', N'Giá bán lẻ', '2025-01-01', '2099-01-01', 'DangApDung', N'Bảng giá mặc định',0, 1);
+GO
+
+-- Chèn dữ liệu bảng ChiTietBangGia
+INSERT INTO ChiTietBangGia (maBangGia, maThuoc, donGia, donVi, isActive) VALUES
+('BG001', 'T001', 5000, N'Viên', 1),
+('BG001', 'T002', 7500, N'Viên', 1),
+('BG001', 'T003', 8000, N'Viên', 1),
+('BG001', 'T004', 6500, N'Viên', 1),
+('BG001', 'T005', 12000, N'Viên', 1),
+('BG001', 'T006', 15000, N'Viên', 1),
+('BG001', 'T007', 25000, N'Viên', 1),
+('BG001', 'T008', 22000, N'Viên', 1),
+('BG001', 'T009', 18000, N'Viên', 1),
+('BG001', 'T010', 16000, N'Viên', 1),
+('BG001', 'T011', 14000, N'Viên', 1),
+('BG001', 'T012', 32000, N'Viên', 1),
+('BG001', 'T013', 28000, N'Viên', 1),
+('BG001', 'T014', 8500, N'Chai', 1),
+('BG001', 'T015', 9500, N'Gói', 1),
+('BG001', 'T016', 7000, N'Gói', 1),
+('BG001', 'T017', 12500, N'Viên', 1),
+('BG001', 'T018', 11000, N'Gói', 1),
+('BG001', 'T019', 9000, N'Gói', 1),
+('BG001', 'T020', 10500, N'Ống', 1),
+('BG001', 'T021', 8000, N'Viên', 1),
+('BG001', 'T022', 12000, N'Viên', 1),
+('BG001', 'T023', 15000, N'Viên', 1),
+('BG001', 'T024', 13500, N'Viên', 1),
+('BG001', 'T025', 9500, N'Viên', 1),
+('BG001', 'T026', 7500, N'Viên', 1),
+('BG001', 'T027', 8000, N'Viên', 1),
+('BG001', 'T028', 12500, N'Viên', 1),
+('BG001', 'T029', 14000, N'Viên', 1),
+('BG001', 'T030', 18000, N'Viên', 1),
+('BG001', 'T031', 8500, N'Viên', 1),
+('BG001', 'T032', 10500, N'Viên', 1),
+('BG001', 'T033', 12000, N'Viên', 1),
+('BG001', 'T034', 9500, N'Viên', 1),
+('BG001', 'T035', 11000, N'Viên', 1),
+('BG001', 'T036', 7000, N'Viên', 1),
+('BG001', 'T037', 8500, N'Viên', 1),
+('BG001', 'T038', 6500, N'Viên', 1),
+('BG001', 'T039', 13000, N'Viên', 1),
+('BG001', 'T040', 28000, N'Viên', 1),
+('BG001', 'T041', 15000, N'Viên', 1),
+('BG001', 'T042', 19000, N'Viên', 1),
+('BG001', 'T043', 22000, N'Viên', 1),
+('BG001', 'T044', 14000, N'Viên', 1),
+('BG001', 'T045', 26000, N'Viên', 1),
+('BG001', 'T046', 11000, N'Viên', 1),
+('BG001', 'T047', 8500, N'Viên', 1),
+('BG001', 'T048', 16000, N'Viên', 1),
+('BG001', 'T049', 18000, N'Viên', 1),
+('BG001', 'T050', 9500, N'Viên', 1),
+('BG001', 'T051', 7500, N'Viên', 1),
+('BG001', 'T052', 85000, N'Bình', 1),
+('BG001', 'T053', 145000, N'Bình', 1),
+('BG001', 'T054', 120000, N'Bình', 1),
+('BG001', 'T055', 6500, N'Viên', 1),
+('BG001', 'T056', 7000, N'Viên', 1),
+('BG001', 'T057', 12000, N'Viên', 1),
+('BG001', 'T058', 9500, N'Chai', 1),
+('BG001', 'T059', 18000, N'Viên', 1),
+('BG001', 'T060', 16000, N'Viên', 1),
+('BG001', 'T061', 5500, N'Viên', 1),
+('BG001', 'T062', 7500, N'Viên', 1),
+('BG001', 'T063', 8000, N'Viên', 1),
+('BG001', 'T064', 9500, N'Viên', 1),
+('BG001', 'T065', 6000, N'Viên', 1),
+('BG001', 'T066', 14000, N'Viên', 1),
+('BG001', 'T067', 7500, N'Viên', 1),
+('BG001', 'T068', 8500, N'Viên', 1),
+('BG001', 'T069', 9500, N'Tuýp', 1),
+('BG001', 'T070', 12000, N'Viên', 1),
+('BG001', 'T071', 6500, N'Viên', 1),
+('BG001', 'T072', 9500, N'Viên', 1),
+('BG001', 'T073', 11000, N'Viên', 1),
+('BG001', 'T074', 7500, N'Viên', 1),
+('BG001', 'T075', 10500, N'Viên', 1),
+('BG001', 'T076', 12500, N'Viên', 1),
+('BG001', 'T077', 8500, N'Viên', 1),
+('BG001', 'T078', 11000, N'Viên', 1),
+('BG001', 'T079', 12500, N'Viên', 1),
+('BG001', 'T080', 9500, N'Viên', 1),
+('BG001', 'T081', 7500, N'Viên', 1),
+('BG001', 'T082', 13500, N'Viên', 1),
+('BG001', 'T083', 16000, N'Viên', 1),
+('BG001', 'T084', 25000, N'Viên', 1),
+('BG001', 'T085', 28000, N'Viên', 1),
+('BG001', 'T086', 18000, N'Viên', 1),
+('BG001', 'T087', 12000, N'Viên', 1),
+('BG001', 'T088', 14000, N'Viên', 1),
+('BG001', 'T089', 22000, N'Viên', 1),
+('BG001', 'T090', 9500, N'Viên', 1),
+('BG001', 'T091', 11000, N'Viên', 1),
+('BG001', 'T092', 13500, N'Viên', 1),
+('BG001', 'T093', 15000, N'Viên', 1),
+('BG001', 'T094', 18000, N'Viên', 1),
+('BG001', 'T095', 16000, N'Viên', 1),
+('BG001', 'T096', 22000, N'Viên', 1),
+('BG001', 'T097', 8500, N'Viên', 1),
+('BG001', 'T098', 7000, N'Viên', 1),
+('BG001', 'T099', 12500, N'Viên', 1),
+('BG001', 'T100', 14000, N'Viên', 1),
+('BG001', 'T101', 16500, N'Viên', 1),
+('BG001', 'T102', 15500, N'Viên', 1),
+('BG001', 'T103', 17500, N'Viên', 1),
+('BG001', 'T104', 9500, N'Viên', 1),
+('BG001', 'T105', 8500, N'Viên', 1);
 GO
 
 -- Chèn dữ liệu vào bảng ChiTietLoThuoc
@@ -2241,6 +2381,93 @@ GO
 
 
 
+--==============================  THUỐC  ==============================--
+
+
+-- PROCEDURE Lấy danh sách thuốc kèm giá
+-- Param: none
+-- Return: danh sách thuốc kèm giá ( db cũ )
+CREATE PROCEDURE sp_LayDanhSachThuocKemGia
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    WITH RankedPrice AS (
+        SELECT
+            T.maThuoc,
+            T.tenThuoc,
+            T.soLuongTon,
+            CTBG.donGia,
+            T.donVi,
+            T.soLuongToiThieu,
+            T.maNSX,
+            T.isActive,
+            ROW_NUMBER() OVER (
+                PARTITION BY CTBG.maThuoc
+                ORDER BY 
+                    BG.doUuTien DESC,
+                    BG.ngayApDung DESC,
+                    BG.maBangGia DESC
+            ) AS rn
+        FROM chiTietBangGia CTBG
+        JOIN BANGGIA BG 
+            ON BG.maBangGia = CTBG.maBangGia
+        JOIN Thuoc T 
+            ON T.maThuoc = CTBG.maThuoc
+        WHERE BG.trangThai = 'DangApDung'
+          AND GETDATE() >= BG.ngayApDung
+          AND GETDATE() <= BG.ngayKetThuc
+    )
+    SELECT 
+		maThuoc,
+		tenThuoc,
+		soLuongTon,
+		donGia,
+		donVi,
+		soLuongToiThieu,
+		maNSX,
+		isActive
+    FROM RankedPrice
+    WHERE rn = 1;
+END;
+GO
+
+
+-- PROCEDURE Lấy thuốc by id kèm giá
+-- Param: none
+-- Return: thuốc kèm giá ( db cũ )
+CREATE PROCEDURE sp_LayThuocKemGiaById
+    @maThuoc VARCHAR(20)
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT TOP 1
+        T.maThuoc,
+        T.tenThuoc,
+        T.soLuongTon,
+        CTBG.donGia,
+        T.donVi,
+        T.soLuongToiThieu,
+        T.maNSX,
+        T.isActive
+    FROM chiTietBangGia CTBG
+    JOIN BANGGIA BG 
+        ON BG.maBangGia = CTBG.maBangGia
+    JOIN Thuoc T 
+        ON T.maThuoc = CTBG.maThuoc
+    WHERE CTBG.maThuoc = @maThuoc
+      AND BG.trangThai = 'DangApDung'
+      AND GETDATE() BETWEEN BG.ngayApDung AND BG.ngayKetThuc
+    ORDER BY 
+        BG.doUuTien DESC,
+        BG.ngayApDung DESC,
+        BG.maBangGia DESC;
+END;
+GO
+
+
+
 --==============================  KHÁCH HÀNG ==============================--
 
 
@@ -2311,6 +2538,13 @@ BEGIN
 END
 GO
 
+--==============================  HẠN SỬ DỤNG ==============================--
+
+
+
+-- PROCEDURE Thống kê các lô thuốc đã hết hạn sử dụng 
+-- Param: 
+-- Return: các lô thuốc đã hết hạn sử dụng 
 CREATE PROCEDURE sp_GetLoThuocDaHetHan
 AS
 BEGIN
@@ -2322,6 +2556,9 @@ BEGIN
 END
 GO
 
+-- PROCEDURE Thống kê các lô thuốc đã hết hạn sử dụng 
+-- Param: Số ngày
+-- Return: các lô thuốc sẽ hết hạn trong N ngày
 CREATE PROCEDURE sp_GetLoThuocSapHetHan
     @SoNgay INT = 30
 AS

@@ -18,6 +18,7 @@ import app.ConnectDB.ConnectDB;
 import app.DAO.HoaDonDAO;
 import app.DAO.PhieuDatDAO;
 import app.DAO.ThuocDAO;
+import app.DTO.ThuocKemGiaDTO;
 import app.Entity.Thuoc;
 
 public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, PhieuDatCallback {
@@ -33,7 +34,7 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
     private JTable tblGioHang;
     private ThuocDAO thuocDAO;
     private PhieuDatDAO phieuDatDAO;
-    private ArrayList<Thuoc> dsThuoc;
+    private ArrayList<ThuocKemGiaDTO> dsThuoc;
     
     // Components cần xử lý sự kiện
     private JTextField txtSearch;
@@ -426,13 +427,13 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
             thuocDAO = new ThuocDAO();
             
             // Lấy danh sách thuốc mới nhất từ database
-            dsThuoc = thuocDAO.getAllThuoc();
+            dsThuoc = thuocDAO.getAllThuocKemGia();
             
             // Xóa dữ liệu cũ trong bảng
             modelThuoc.setRowCount(0);
             
             // Thêm dữ liệu mới vào bảng
-            for (Thuoc thuoc : dsThuoc) {
+            for (ThuocKemGiaDTO thuoc : dsThuoc) {
                 Object[] row = {
                         thuoc.getMaThuoc(),
                         thuoc.getTenThuoc(),
@@ -490,7 +491,7 @@ public class LapPhieuDatThuocPanel extends JPanel implements ActionListener, Phi
         modelThuoc.setRowCount(0);
         int count = 0;
         
-        for (Thuoc thuoc : dsThuoc) {
+        for (ThuocKemGiaDTO thuoc : dsThuoc) {
             if (thuoc.getMaThuoc().toLowerCase().contains(keyword) || 
                 thuoc.getTenThuoc().toLowerCase().contains(keyword)) {
                 Object[] row = {

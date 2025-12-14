@@ -1,23 +1,25 @@
-package app.Entity;
+package app.DTO;
 
-public class Thuoc {
+public class ThuocKemGiaDTO {
     private String maThuoc;
     private String tenThuoc;
     private int soLuongTon;
+    private double giaBan;
     private String donVi;
     private int soLuongToiThieu;
     private String maNSX;
     private boolean isActive; // true = đang hiển thị, false = đã xóa (ẩn)
 
     // --- Constructors ---
-    public Thuoc() {
+    public ThuocKemGiaDTO() {
     }
 
-    public Thuoc(String maThuoc, String tenThuoc, int soLuongTon, 
+    public ThuocKemGiaDTO(String maThuoc, String tenThuoc, int soLuongTon, double giaBan, 
                  String donVi, int soLuongToiThieu, String maNSX, boolean isActive) {
         this.maThuoc = maThuoc;
         this.tenThuoc = tenThuoc;
         this.soLuongTon = soLuongTon;
+        this.giaBan = giaBan;
         this.donVi = donVi;
         this.soLuongToiThieu = soLuongToiThieu;
         this.maNSX = maNSX;
@@ -48,7 +50,13 @@ public class Thuoc {
         this.soLuongTon = soLuongTon;
     }
 
-    
+    public double getGiaBan() {
+        return giaBan;
+    }
+
+    public void setGiaBan(double giaBan) {
+        this.giaBan = giaBan;
+    }
 
     public String getDonVi() {
         return donVi;
@@ -106,6 +114,7 @@ public class Thuoc {
                 "maThuoc='" + maThuoc + '\'' +
                 ", tenThuoc='" + tenThuoc + '\'' +
                 ", soLuongTon=" + soLuongTon +
+                ", giaBan=" + giaBan +
                 ", donVi='" + donVi + '\'' +
                 ", soLuongToiThieu=" + soLuongToiThieu +
                 ", maNSX='" + maNSX + '\'' +
