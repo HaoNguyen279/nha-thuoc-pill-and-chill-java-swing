@@ -30,6 +30,7 @@ public class MainFrame extends JFrame {
     private ThongKeTheoThuePanel thongKeTheoThuePanel;
     private TimKiemKhachHangPanel timKiemKhachHangPanel;
     private TimKiemNhanVienPanel timKiemNhanVienPanel;
+    private TimKiemChiTietLoThuocPanel timKiemChiTietLoThuocPanel;
     private TaiKhoanPanel taiKhoanPanel;
     private CapNhatChucVuPanel capNhatChucVuPanel;
     private XemPhieuNhapPanel xemPhieuNhapPanel;
@@ -66,8 +67,8 @@ public class MainFrame extends JFrame {
         contentPanel = new JPanel(new BorderLayout());
         contentPanel.setBackground(Color.WHITE);
         add(contentPanel, BorderLayout.CENTER);
-            // LoThuocDAO loDAO = new LoThuocDAO();
-            // loDAO.capNhatThuocHetHan();
+             LoThuocDAO loDAO = new LoThuocDAO();
+             loDAO.capNhatThuocHetHan();
         setVisible(true);
     }
     
@@ -93,6 +94,7 @@ public class MainFrame extends JFrame {
         
         timKiemKhachHangPanel = null;
         timKiemNhanVienPanel = null;
+        timKiemChiTietLoThuocPanel = null;
         taiKhoanPanel = null;
         capNhatChucVuPanel = null;
         xemPhieuNhapPanel = null;
@@ -202,6 +204,12 @@ public class MainFrame extends JFrame {
             timKiemNhanVienPanel = new TimKiemNhanVienPanel();
         }
         showPanel(timKiemNhanVienPanel);
+    }
+    public void showTimKiemChiTietLoThuocPanel() {
+        if (timKiemChiTietLoThuocPanel == null) {
+            timKiemChiTietLoThuocPanel = new TimKiemChiTietLoThuocPanel();
+        }
+        showPanel(timKiemChiTietLoThuocPanel);
     }
     
     public void showLapPhieuDatThuocPanel() {
@@ -382,7 +390,7 @@ public class MainFrame extends JFrame {
             capNhatChucVuPanel, lapPhieuDatThuocPanel, lapPhieuTraThuocPanel,
             nhapThuocPanel, thongKeTheoDoanhThuPanel, thongKeTheoNhanVienPanel,
             thongKeTheoKhachHangPanel, thongKeTheoHSDPanel, thongKeTheoThuocPanel,
-            thongKeTheoThuePanel, timKiemKhachHangPanel, timKiemNhanVienPanel,
+            thongKeTheoThuePanel, timKiemKhachHangPanel, timKiemNhanVienPanel,timKiemChiTietLoThuocPanel,
             xemPhieuNhapPanel
         };
         

@@ -7,6 +7,7 @@ import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
@@ -44,9 +45,11 @@ public class XemChiTietDoanhThuTheoThangFrame extends JFrame implements MouseLis
     private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
     private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);JTable tblHoaDon;
+    
     private DefaultTableModel dtm;
     private ArrayList<HoaDonKemGiaDTO> dsHoaDon;
-
+    private DecimalFormat df = new DecimalFormat("#,###.##");
+    
     public XemChiTietDoanhThuTheoThangFrame(int thang, int nam) {
         setTitle("Danh Sách Hóa Đơn");
         setSize(1000, 600);
@@ -60,8 +63,9 @@ public class XemChiTietDoanhThuTheoThangFrame extends JFrame implements MouseLis
         lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblTieuDe.setForeground(new Color(0, 150, 136));
         lblTieuDe.setBorder(BorderFactory.createEmptyBorder(20, 0, 10, 0));
+        
+        
         add(lblTieuDe, BorderLayout.NORTH);
-
 
         add(createTablePanel(), BorderLayout.CENTER);
         
@@ -92,7 +96,8 @@ public class XemChiTietDoanhThuTheoThangFrame extends JFrame implements MouseLis
 
        
     public JScrollPane createTablePanel() {
-        String[] cols = {"Mã hóa đơn", "Tên NV", "Tên KH", "Ngày lập", "Ghi chú", "Text"};
+
+        String[] cols = {"Mã hóa đơn", "Tên NV", "Tên KH", "Ngày lập", "Ghi chú", "Tổng tiền"};
         
         dtm = new DefaultTableModel(cols, 0) {
             @Override
@@ -135,6 +140,11 @@ public class XemChiTietDoanhThuTheoThangFrame extends JFrame implements MouseLis
         JScrollPane scrollPane = new JScrollPane(tblHoaDon);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.setBorder(BorderFactory.createCompoundBorder(
+        			BorderFactory.createEmptyBorder(0,20,20,20),
+        			BorderFactory.createLineBorder(Color.black)
+        		));
+        
         return scrollPane;
     }
 
@@ -170,7 +180,7 @@ public class XemChiTietDoanhThuTheoThangFrame extends JFrame implements MouseLis
         			hd.getTenKH(),
         			hd.getNgayBan(),
         			hd.getGhiChu(),
-        			hd.getTongTien()
+        			df.format(hd.getTongTien())
         	};
             dtm.addRow(rowData);
         }

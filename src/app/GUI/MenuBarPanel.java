@@ -30,7 +30,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 
     private JMenuItem mniHoTro, mniDatLai, mniTaiKhoan, mniDangXuat, mniThoat;
     private JMenuItem mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai, mniCapNhatChucVu, mniCapNhatDonVi, mniXemPhieuNhap;
-    private JMenuItem mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien, mniHoaDon, mniPhieuDoiTra, mniPhieuDatThuoc;
+    private JMenuItem mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,mniTimKiemChiTietLoThuoc, mniHoaDon, mniPhieuDoiTra, mniPhieuDatThuoc;
     private JMenuItem mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc, mniNhapThuoc;
     private JMenuItem mniDoanhThuTheoThang, mniDoanhThuTheoNam, mniNhanVien, mniKhachHang, mniHanSuDung, mniThuocDuocMuaNhieu;
 
@@ -81,7 +81,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         // gán menu con (pop up) cho cái button
         setupPopupMenu(btnHeThong, mniHoTro, mniDatLai, mniTaiKhoan, mniDangXuat, mniThoat);
         setupPopupMenu(btnDanhMuc, mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai, mniCapNhatChucVu, mniCapNhatDonVi);
-        setupPopupMenu(btnTimKiem, mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien, mniHoaDon, mniPhieuDatThuoc, mniPhieuDoiTra, mniXemPhieuNhap);
+        setupPopupMenu(btnTimKiem, mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,mniTimKiemChiTietLoThuoc, mniHoaDon, mniPhieuDatThuoc, mniPhieuDoiTra, mniXemPhieuNhap);
         setupPopupMenu(btnXuLy, mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc, mniNhapThuoc);
         setupPopupMenu(btnThongKe, mniDoanhThuTheoThang, mniDoanhThuTheoNam, mniNhanVien, mniKhachHang, mniHanSuDung, mniThuocDuocMuaNhieu);
 
@@ -207,6 +207,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniTimKiemThuoc = createItem("Thuốc", "/resources/icon/drug_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_T, ActionEvent.ALT_MASK));
         mniTimKiemKhachHang = createItem("Khách hàng", "/resources/icon/customer_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_K, ActionEvent.ALT_MASK));
         mniTimKiemNhanVien = createItem("Nhân viên", "/resources/icon/employee_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_N, ActionEvent.ALT_MASK));
+        mniTimKiemChiTietLoThuoc = createItem("Lô thuốc", "/resources/icon/employee_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_L, ActionEvent.ALT_MASK));
         mniHoaDon = createItem("Hóa đơn", "/resources/icon/bill_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_H, ActionEvent.ALT_MASK));
         mniPhieuDatThuoc = createItem("Phiếu đặt thuốc", "/resources/icon/order_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_D, ActionEvent.ALT_MASK));
         mniPhieuDoiTra = createItem("Phiếu đổi trả", "/resources/icon/cash_back_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_C, ActionEvent.ALT_MASK));
@@ -271,6 +272,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         else if (o == mniTimKiemThuoc) parentFrame.showTimKiemThuocPanel();
         else if (o == mniTimKiemKhachHang) parentFrame.showTimKiemKhachHangPanel();
         else if (o == mniTimKiemNhanVien) parentFrame.showTimKiemNhanVienPanel();
+        else if (o == mniTimKiemChiTietLoThuoc) parentFrame.showTimKiemChiTietLoThuocPanel();
         else if (o == mniHoaDon) parentFrame.showDanhMucHoaDonPanel();
         else if (o == mniPhieuDatThuoc) parentFrame.showDanhMucPhieuDatThuocPanel();
         else if (o == mniPhieuDoiTra) parentFrame.showDanhMucPhieuDoiTraPanel();
