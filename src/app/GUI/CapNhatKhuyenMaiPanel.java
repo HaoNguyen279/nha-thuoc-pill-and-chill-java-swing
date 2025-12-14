@@ -31,7 +31,6 @@ import javax.swing.JTextField;
 import javax.swing. ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
@@ -59,28 +58,7 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
     private JLabel lblMucGiam;
     private JLabel lblngayApDung;
     private JLabel lblNgayKetThuc;
-public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, MouseListener {
-    
-    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
-    private final Color ACCENT_COLOR = new Color(255, 255, 255);
-    private final Color BG_COLOR = new Color(245, 245, 245);
-    private final Color TEXT_COLOR = new Color(51, 51, 51);
-    
-    private final Color BTN_ADD_COLOR = new Color(46, 204, 113);
-    private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
-    private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
-    private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
 
-    private JLabel lblTieuDe;
-    private JLabel lblMaKM;
-    private JLabel lblMucGiam;
-    private JLabel lblngayApDung;
-    private JLabel lblNgayKetThuc;
-
-    private JTextField txtMaKM;
-    private JTextField txtMucGiam;
-    private JDateChooser calNgayApDung;
-    private JDateChooser calNgayKetThuc;
     private JTextField txtMaKM;
     private JTextField txtMucGiam;
     private JDateChooser calNgayApDung;
@@ -425,8 +403,6 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
 
     @Override
     public void mouseClicked(MouseEvent e) {
-    @Override
-    public void mouseClicked(MouseEvent e) {
         Object o = e.getSource();
         if(o == tblKhuyenMai) {
             int row = tblKhuyenMai.getSelectedRow();
@@ -436,7 +412,6 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
                 
                 try {
                     SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
                     String dateApDungString = tblKhuyenMai.getValueAt(row, 2).toString();
                     String dateKetThucString = tblKhuyenMai. getValueAt(row, 3).toString();
                     calNgayApDung.setDate(sdf.parse(dateApDungString));
@@ -444,27 +419,8 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
                 } catch (Exception e2) {
                     e2.printStackTrace();
                 }
-                } catch (Exception e2) {
-                    e2.printStackTrace();
-                }
                 txtMaKM.setEnabled(false);
             }
-        }
-    }
-    
-    private boolean validateInput(boolean isAddingNew) {
-        KhuyenMaiDAO dao = new KhuyenMaiDAO();
-        dsKhuyenMai = dao.getAllKhuyenMai();
-
-        if (txtMaKM.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Mã khuyến mãi không được để trống!");
-            txtMaKM.requestFocus();
-            return false;
-        }
-        if (txtMucGiam.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Mức giảm không được để trống!");
-            txtMucGiam.requestFocus();
-            return false;
         }
     }
     
@@ -546,22 +502,13 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
 
     @Override
     public void mousePressed(MouseEvent e) {}
-    @Override
-    public void mousePressed(MouseEvent e) {}
 
-    @Override
-    public void mouseReleased(MouseEvent e) {}
     @Override
     public void mouseReleased(MouseEvent e) {}
 
     @Override
     public void mouseEntered(MouseEvent e) {}
-    @Override
-    public void mouseEntered(MouseEvent e) {}
 
-    @Override
-    public void mouseExited(MouseEvent e) {}
-}
     @Override
     public void mouseExited(MouseEvent e) {}
 }

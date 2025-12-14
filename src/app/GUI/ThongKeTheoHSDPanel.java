@@ -3,14 +3,10 @@ package app.GUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -20,7 +16,6 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -34,47 +29,12 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import app.ConnectDB.ConnectDB;
 import app.DAO.LoThuocDAO;
 import app.Entity.LoThuocHetHan;
-
-public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, MouseListener {
-
-    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
-    private final Color ACCENT_COLOR = new Color(255, 255, 255);
-    private final Color BG_COLOR = new Color(245, 245, 245);
-    private final Color TEXT_COLOR = new Color(51, 51, 51);
-    
-    private final Color BTN_INFO_COLOR = new Color(52, 152, 219);
-    private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
-    private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
-
-    private JButton btnThongKe, btnLamMoi, btnXoaLoThuoc;
-    private JLabel lblTieuDe, lblLoaiThongKe, lblSoNgay;
-    private JComboBox<String> cboLoaiThongKe;
-    private JTextField txtSoNgay;
-    private DefaultTableModel dtm;
-    private JTable tblLoThuoc;
-    private ArrayList<LoThuocHetHan> dsLoThuocHetHan;
-    private LoThuocDAO loThuocDAO;
-    private SimpleDateFormat dateFormat;
-
-    public ThongKeTheoHSDPanel() {
-        ConnectDB.getInstance().connect();
-        loThuocDAO = new LoThuocDAO();
-        dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-
-        setLayout(new BorderLayout(10, 10));
-        setBackground(BG_COLOR);
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-
-        initHeader();
-        initInputForm();
-        initButtons();
 
 public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, MouseListener {
 
@@ -125,121 +85,9 @@ public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, Mouse
         pnlTop.add(createButtonPanel(), BorderLayout.SOUTH);
 
         add(pnlTop, BorderLayout.NORTH);
-
-        JPanel pnlTop = new JPanel(new BorderLayout(0, 15));
-        pnlTop.setBackground(BG_COLOR);
-        pnlTop.add(lblTieuDe, BorderLayout.NORTH);
-        pnlTop.add(createInputPanel(), BorderLayout.CENTER);
-        pnlTop.add(createButtonPanel(), BorderLayout.SOUTH);
-
-        add(pnlTop, BorderLayout.NORTH);
         add(createBotPanel(), BorderLayout.CENTER);
 
-
         loadLoThuocHetHan();
-    }
-
-    private void initHeader() {
-        lblTieuDe = new JLabel("THỐNG KÊ THUỐC HẾT HẠN SỬ DỤNG", SwingConstants.CENTER);
-        lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 26));
-        lblTieuDe.setForeground(PRIMARY_COLOR);
-    }
-
-    private void initInputForm() {
-        Font fontLabel = new Font("Segoe UI", Font.BOLD, 14);
-        Font fontText = new Font("Segoe UI", Font.PLAIN, 14);
-
-        lblLoaiThongKe = new JLabel("Loại thống kê:");
-        lblLoaiThongKe.setFont(fontLabel);
-        
-        lblSoNgay = new JLabel("Số ngày kiểm tra:");
-        lblSoNgay.setFont(fontLabel);
-
-        cboLoaiThongKe = new JComboBox<>();
-        cboLoaiThongKe.addItem("Thuốc đã hết hạn");
-        cboLoaiThongKe.addItem("Thuốc sắp hết hạn");
-        cboLoaiThongKe.setFont(fontText);
-        cboLoaiThongKe.addActionListener(this);
-
-        txtSoNgay = new JTextField("30");
-        txtSoNgay.setFont(fontText);
-        txtSoNgay.setEnabled(false);
-    }
-
-    private JPanel createInputPanel() {
-        JPanel pnlForm = new JPanel(new GridBagLayout());
-        pnlForm.setBackground(ACCENT_COLOR);
-        pnlForm.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(220, 220, 220), 1),
-            BorderFactory.createEmptyBorder(20, 50, 20, 50)
-        ));
-
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.fill = GridBagConstraints.HORIZONTAL;
-        gbc.insets = new Insets(10, 10, 10, 20);
-
- 
-        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.1;
-        pnlForm.add(lblLoaiThongKe, gbc);
-        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.4;
-        pnlForm.add(cboLoaiThongKe, gbc);
-        
-        gbc.gridx = 2; gbc.gridy = 0; gbc.weightx = 0.1;
-        pnlForm.add(lblSoNgay, gbc);
-        gbc.gridx = 3; gbc.gridy = 0; gbc.weightx = 0.4;
-        pnlForm.add(txtSoNgay, gbc);
-
-        return pnlForm;
-    }
-
-    private void initButtons() {
-        btnThongKe = createStyledButton("Thống kê", BTN_INFO_COLOR);
-        btnLamMoi = createStyledButton("Làm mới", BTN_CLEAR_COLOR);
-        btnXoaLoThuoc = createStyledButton("Xóa lô thuốc", BTN_DELETE_COLOR);
-
-        btnThongKe.addActionListener(this);
-        btnLamMoi.addActionListener(this);
-        btnXoaLoThuoc.addActionListener(this);
-    }
-
-    private JButton createStyledButton(String text, Color bgColor) {
-        JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(140, 40));
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        btn.setBackground(bgColor);
-        btn.setForeground(Color.WHITE);
-        btn.setFocusPainted(false);
-        btn.setBorderPainted(false);
-        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        return btn;
-    }
-
-    private JPanel createButtonPanel() {
-        JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
-        pnlButtons.setBackground(BG_COLOR);
-        pnlButtons.add(btnThongKe);
-        pnlButtons.add(btnLamMoi);
-        pnlButtons.add(btnXoaLoThuoc);
-        return pnlButtons;
-    }
-
-    public JScrollPane createBotPanel() {
-        tblLoThuoc = new JTable(dtm) {
-            @Override
-            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
-                Component c = super.prepareRenderer(renderer, row, column);
-                if (!isRowSelected(row)) {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
-                }
-                return c;
-            }
-        };        
-        
-        tblLoThuoc.setRowHeight(35);
-        tblLoThuoc.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        tblLoThuoc.setFillsViewportHeight(true);
-        tblLoThuoc.setShowGrid(true);
-        tblLoThuoc.setGridColor(new Color(224, 224, 224));
     }
 
     private void initHeader() {
@@ -346,8 +194,6 @@ public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, Mouse
         tblLoThuoc.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         tblLoThuoc.setSelectionBackground(new Color(178, 223, 219));
         tblLoThuoc.setSelectionForeground(Color.BLACK);
-        tblLoThuoc.setSelectionBackground(new Color(178, 223, 219));
-        tblLoThuoc.setSelectionForeground(Color.BLACK);
         
         JTableHeader header = tblLoThuoc.getTableHeader();
         header.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -360,20 +206,8 @@ public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, Mouse
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
         tblLoThuoc.addMouseListener(this);
-        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        header.setBackground(PRIMARY_COLOR);
-        header.setForeground(Color.WHITE);
-        header.setPreferredSize(new Dimension(header.getWidth(), 40));
-        header.setReorderingAllowed(false);
-        
-        DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-
-        tblLoThuoc.addMouseListener(this);
         
         JScrollPane scrollPane = new JScrollPane(tblLoThuoc);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        scrollPane.getViewport().setBackground(Color.WHITE);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
         scrollPane.getViewport().setBackground(Color.WHITE);
         return scrollPane;
@@ -538,51 +372,19 @@ public class ThongKeTheoHSDPanel extends JPanel implements ActionListener, Mouse
             xoaLoThuoc();
         }
     }
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        Object o = e.getSource();
-        
-        if(o == cboLoaiThongKe) {
-            String loaiThongKe = (String) cboLoaiThongKe.getSelectedItem();
-            if(loaiThongKe.equals("Thuốc sắp hết hạn")) {
-                txtSoNgay.setEnabled(true);
-                lblSoNgay.setEnabled(true);
-            } else {
-                txtSoNgay.setEnabled(false);
-                lblSoNgay.setEnabled(true);
-            }
-        } else if(o == btnThongKe) {
-            thongKe();
-        } else if(o == btnLamMoi) {
-            lamMoi();
-        } else if(o == btnXoaLoThuoc) {
-            xoaLoThuoc();
-        }
-    }
 
-    @Override
-    public void mouseClicked(MouseEvent e) {}
     @Override
     public void mouseClicked(MouseEvent e) {}
 
     @Override
     public void mousePressed(MouseEvent e) {}
-    @Override
-    public void mousePressed(MouseEvent e) {}
 
-    @Override
-    public void mouseReleased(MouseEvent e) {}
     @Override
     public void mouseReleased(MouseEvent e) {}
 
     @Override
     public void mouseEntered(MouseEvent e) {}
-    @Override
-    public void mouseEntered(MouseEvent e) {}
 
-    @Override
-    public void mouseExited(MouseEvent e) {}
-}
     @Override
     public void mouseExited(MouseEvent e) {}
 }

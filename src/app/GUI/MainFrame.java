@@ -17,7 +17,6 @@ public class MainFrame extends JFrame {
     private CapNhatNhanVienPanel capNhatNhanVienPanel;
     private CapNhatThuocPanel capNhatThuocPanel;
     private CapNhatDonViPanel capNhatDonViPanel;
-    private CapNhatDonViPanel capNhatDonViPanel;
     private CapNhatKhuyenMaiPanel capNhatKhuyenMaiPanel;
     private LapPhieuDatThuocPanel lapPhieuDatThuocPanel;
     private NhapThuocPanel nhapThuocPanel;
@@ -417,17 +416,7 @@ public class MainFrame extends JFrame {
     	this.dispose();
     	new DangNhapFrame();
    }
-//    public static JPanel createImageBackgroundPanel(String imagePath) {
-//        Image backgroundImage = new ImageIcon(imagePath).getImage();
-//
-//        return new JPanel() {
-//            @Override
-//            protected void paintComponent(Graphics g) {
-//                super.paintComponent(g);
-//                g.drawImage(backgroundImage, 0, 0, this);
-//            }
-//        };
-//    }
+
     
 
 }
@@ -468,19 +457,12 @@ class ResizableImageLabel extends JLabel {
             g.drawImage(scaledImage, 0, 0, this);
         }
     }
-    
-    // Ghi đè phương thức này để thông báo cho Layout Manager 
-    // rằng kích thước ưu tiên của JLabel là kích thước của panel chứa nó.
+
     @Override
     public Dimension getPreferredSize() {
-        // Trả về kích thước của imagePanel (hoặc container) 
-        // nếu bạn đặt nó vào BorderLayout.CENTER.
+
         return getParent() != null ? getParent().getSize() : super.getPreferredSize();
     }
 }
 
-// Cách sử dụng:
-// JPanel panel = new JPanel(new BorderLayout()); // Panel chứa ảnh
-// ResizableImageLabel lblImg = new ResizableImageLabel("/resources/image/pharmacy_gemini.png");
-// panel.add(lblImg, BorderLayout.CENTER);
 
