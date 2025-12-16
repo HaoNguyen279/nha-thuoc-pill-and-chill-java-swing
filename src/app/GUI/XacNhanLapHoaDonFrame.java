@@ -8,9 +8,11 @@ import app.DAO.HoaDonDAO;
 import app.DAO.NhanVienDAO;
 import app.DAO.TonKhoDAO;
 import app.DAO.PhieuDatDAO;
+import app.DAO.KhuyenMaiDAO;
 import app.Entity.KhachHang;
 import app.Entity.NhanVien;
 import app.Entity.PhieuDat;
+import app.Entity.KhuyenMai;
 import app.ConnectDB.ConnectDB;
 
 import java.awt.BorderLayout;
@@ -56,12 +58,14 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
     private double tongTien;
     private String maHoaDon;
     private double tongThanhToan;
+    private KhuyenMai khuyenMaiApDung; // Khuyến mãi đang được áp dụng
+    private double tienGiam = 0; // Số tiền được giảm
     
     // Callback khi lập hóa đơn thành công
     private HoaDonCallback hoaDonCallback;
     
     // Components
-    private JButton btnQuayVe, btnTim, btnXacNhan;
+    private JButton btnQuayVe, btnTim,btnApDung, btnXacNhan;
     private JTextField txtSDTKhachHang, txtTenKhachHang, txtMaKhuyenMai;
     private JTextField txtNhanVienLap, txtNgayMua;
     private JTextArea txtGhiChu;
@@ -310,10 +314,24 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         txtDiemTichLuyKhachHang.setFocusable(false); // Không thể focus vào
         panel.add(txtDiemTichLuyKhachHang);
 
-        // Mã khuyến mãi
+        // Mã khuyến mãi (với nút Áp dụng)
         panel.add(createInfoRow("Mã khuyến mãi:", labelFont));
+        JPanel khuyenMaiPanel = new JPanel(new BorderLayout(5, 0));
+        khuyenMaiPanel.setBackground(Color.WHITE);
+        khuyenMaiPanel.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
         txtMaKhuyenMai = createTextField(fieldFont);
-        panel.add(txtMaKhuyenMai);
+        
+        btnApDung = new JButton("Áp dụng");
+        btnApDung.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnApDung.setBackground(PRIMARY_COLOR);
+        btnApDung.setForeground(Color.WHITE);
+        btnApDung.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
+        btnApDung.setFocusPainted(false);
+        btnApDung.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnApDung.addActionListener(this);
+        khuyenMaiPanel.add(txtMaKhuyenMai, BorderLayout.CENTER);
+        khuyenMaiPanel.add(btnApDung, BorderLayout.EAST);
+        panel.add(khuyenMaiPanel);
          
         
         // Nhân viên lập
@@ -610,10 +628,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
                 diemSuDung = Integer.parseInt(diemSuDungStr);
             }
             
-            // Tính tổng cộng = tổng tiền + thuế - điểm sử dụng (1 điểm = 1 VNĐ)
+            // Tính tổng cộng = tổng tiền + thuế - tiền giảm khuyến mãi - điểm sử dụng (1 điểm = 1 VNĐ)
             double tyLeThue = 0.10;
             double tienThue = tongTien * tyLeThue;
-            tongThanhToan = tongTien + tienThue - diemSuDung;
+            tongThanhToan = tongTien + tienThue - tienGiam - diemSuDung;
             
             // Đảm bảo tổng thanh toán không âm
             if (tongThanhToan < 0) {
@@ -631,7 +649,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             // Nếu có lỗi, giữ nguyên tính toán cũ
             double tyLeThue = 0.10;
             double tienThue = tongTien * tyLeThue;
-            tongThanhToan = tongTien + tienThue;
+            tongThanhToan = tongTien + tienThue - tienGiam;
             
             DecimalFormat df = new DecimalFormat("#,###");
             txtTongCong.setText(df.format(tongThanhToan) + " VNĐ");
@@ -665,6 +683,8 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             }
         } else if (o == btnTim) {
             timKhachHang();
+        } else if (o == btnApDung) {
+            apDungKhuyenMai();
         } else if (o == btnXacNhan) {
             xacNhanHoaDon();
         }
@@ -763,6 +783,72 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
         }
     }
     
+    private void apDungKhuyenMai() {
+        String maKM = txtMaKhuyenMai.getText().trim();
+        
+        // Kiểm tra có nhập mã khuyến mãi không
+        if (maKM.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Vui lòng nhập mã khuyến mãi!",
+                "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        
+        try {
+            KhuyenMaiDAO khuyenMaiDAO = new KhuyenMaiDAO();
+            KhuyenMai khuyenMai = khuyenMaiDAO.getKhuyenMaiById(maKM);
+            
+            // Kiểm tra khuyến mãi có tồn tại không
+            if (khuyenMai == null) {
+                JOptionPane.showMessageDialog(this,
+                    "Không tồn tại khuyến mãi hoặc nhập sai mã khuyến mãi!",
+                    "Thông báo", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Kiểm tra khuyến mãi có đang hoạt động và còn thời hạn không
+            if (!kiemTraKhuyenMaiHopLe(khuyenMai)) {
+                JOptionPane.showMessageDialog(this,
+                    "Khuyến mãi đã hết hạn hoặc không còn hiệu lực!",
+                    "Thông báo", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            // Áp dụng khuyến mãi
+            this.khuyenMaiApDung = khuyenMai;
+            this.tienGiam = tongTien * khuyenMai.getMucGiamGia();
+            
+            // Cập nhật hiển thị
+            DecimalFormat df = new DecimalFormat("#,###");
+            txtTienGiam.setText(df.format(tienGiam) + " VNĐ");
+            
+            // Tính lại tổng cộng
+            tinhLaiTongCong();
+            
+            // Thông báo thành công
+            JOptionPane.showMessageDialog(this,
+                String.format("Áp dụng khuyến mãi thành công!\\nMức giảm: %.0f%%\\nTiền giảm: %s VNĐ", 
+                    khuyenMai.getMucGiamGia() * 100, df.format(tienGiam)),
+                "Thành công", JOptionPane.INFORMATION_MESSAGE);
+                
+        } catch (Exception e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this,
+                "Đã xảy ra lỗi khi áp dụng khuyến mãi: " + e.getMessage(),
+                "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+    
+    /**
+     * Kiểm tra khuyến mãi có hợp lệ không (còn thời hạn và đang hoạt động)
+     * @param khuyenMai Khuyến mãi cần kiểm tra
+     * @return true nếu hợp lệ, false nếu không hợp lệ
+     */
+    private boolean kiemTraKhuyenMaiHopLe(KhuyenMai khuyenMai) {
+        // Sử dụng method isHieuLuc() có sẵn để kiểm tra khuyến mãi còn hiệu lực không
+        return khuyenMai.isHieuLuc();
+    }
+    
     private void xacNhanHoaDon() {
         // Kiểm tra thông tin bắt buộc - nhập tiền khách thanh toán
         if (txtTienNhan.getText().trim().isEmpty()) {
@@ -824,9 +910,10 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             // Nếu không có thông tin khách hàng, maKhachHang sẽ là null (khách vãng lai)
             
             // Lấy thông tin khuyến mãi và ghi chú
-            String maKhuyenMai = txtMaKhuyenMai.getText().trim();
-            if (maKhuyenMai.isEmpty()) {
-                maKhuyenMai = null;
+            String maKhuyenMai = null;
+            // Chỉ lưu mã khuyến mãi nếu đã được áp dụng thành công
+            if (khuyenMaiApDung != null) {
+                maKhuyenMai = khuyenMaiApDung.getMaKM();
             }
             
             String ghiChu = txtGhiChu.getText().trim();
