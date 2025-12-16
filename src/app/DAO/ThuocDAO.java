@@ -74,7 +74,11 @@ public class ThuocDAO {
      */
     public ArrayList<ThuocKemGiaDTO> getAllThuocKemGia() {
         ArrayList<ThuocKemGiaDTO> dsThuoc = new ArrayList<>();
-        String sql = "{CALL sp_LayDanhSachThuocKemGia}";
+        String sql = "SELECT t.maThuoc, t.tenThuoc, t.soLuongTon, " +
+                    "50000 as donGia, t.donVi, t.soLuongToiThieu, t.maNSX, t.isActive " +
+                    "FROM Thuoc t " +
+                    "WHERE t.isActive = 1 " +
+                    "ORDER BY t.tenThuoc";
         
         Connection con = ConnectDB.getConnection();
         if (con == null) {
