@@ -1,4 +1,4 @@
-package app. GUI;
+package app.GUI;
 
 import java.awt. BorderLayout;
 import java.awt.CardLayout;
@@ -10,11 +10,11 @@ import java.awt. FlowLayout;
 import java. awt.Font;
 import java. awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt. event.ActionEvent;
+import java.awt. Insets;
+import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event. MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.MouseEvent;
+import java. awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -23,11 +23,11 @@ import javax.swing.BorderFactory;
 import javax.swing. JButton;
 import javax.swing. JComboBox;
 import javax.swing.JLabel;
-import javax. swing.JOptionPane;
-import javax.swing.JPanel;
+import javax.swing.JOptionPane;
+import javax.swing. JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing. JTextField;
+import javax.swing.JTextField;
 import javax.swing. ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.table.DefaultTableCellRenderer;
@@ -38,11 +38,11 @@ import com.formdev.flatlaf.FlatLightLaf;
 
 import app.ConnectDB. ConnectDB;
 import app. DAO.ChucVuDAO;
-import app.DAO.NhanVienDAO;
+import app. DAO.NhanVienDAO;
 import app.Entity.ChucVu;
 import app.Entity.NhanVien;
 
-public class CapNhatNhanVienPanel extends JPanel implements ActionListener, MouseListener {
+public class CapNhatNhanVienSubPanel extends JPanel implements ActionListener, MouseListener {
     
     private final Color PRIMARY_COLOR = new Color(0, 150, 136);
     private final Color ACCENT_COLOR = new Color(255, 255, 255);
@@ -50,11 +50,8 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
     private final Color TEXT_COLOR = new Color(51, 51, 51);
     
     private final Color BTN_ADD_COLOR = new Color(46, 204, 113);
-    private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
-    private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
-    private final Color BTN_REFRESH_COLOR = new Color(57, 155, 226);
-    
+
     private JLabel lblTieuDe;
     private JLabel lblMaNv;
     private JLabel lblTenNv;
@@ -64,37 +61,35 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
     private JTextField txtMaNv;
     private JTextField txtTenNv;
     private JTextField txtSoDienThoai;
-
-    private JButton btnXoa;
-    private JButton btnSua;
-    private JButton btnThem;
-    private JButton btnXoaTrang;
-    private JButton btnLamMoi;
-    private JButton btnNhanVienDaXoa;
-    
     private JComboBox<String> cboChucVu;
+
+    private JButton btnKhoiPhuc;
+    private JButton btnQuayLai;
+    
     private DefaultTableModel dtm;
     private JTable tblNhanVien;
     
     private ArrayList<NhanVien> dsNhanVien;
     private ArrayList<ChucVu> dsChucVu;
-    private Map<String,String> mapChucVu;
+    private Map<String, String> mapChucVu;
     private ChucVuDAO cvDAO;
     private CardLayout cardLayout;
     private JPanel mainContainer;
-    private String maNhanVien;
+    private CapNhatNhanVienPanel pnlCapNhatNhanVien;
+    private NhanVienDAO nhanVienDAO;
     
-    public CapNhatNhanVienPanel(String maNhanVien) {
+    public CapNhatNhanVienSubPanel(CapNhatNhanVienPanel pnlCapNhatNhanVien) {
+        this.pnlCapNhatNhanVien = pnlCapNhatNhanVien;
         FlatLightLaf.setup();
         ConnectDB.getInstance().connect();
         cvDAO = new ChucVuDAO();
         mapChucVu = new HashMap<>();
+        nhanVienDAO = new NhanVienDAO();
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
-        this.maNhanVien = maNhanVien;
         
         setLayout(new BorderLayout());
-        
+
         initHeader();
         initInputForm();
         initButtons();
@@ -116,7 +111,7 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
         JPanel pnlMain = new JPanel(new BorderLayout(10, 10));
         pnlMain.setBackground(BG_COLOR);
         pnlMain.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        
+  
         pnlMain.add(pnlTop, BorderLayout.NORTH);
         pnlMain.add(createBotPanel(), BorderLayout.CENTER);
         
@@ -125,10 +120,11 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
         
         add(mainContainer, BorderLayout.CENTER);
         loadNhanVienData();
+        loadChucVuData();
     }
 
     private void initHeader() {
-        lblTieuDe = new JLabel("QUẢN LÝ NHÂN VIÊN", SwingConstants.CENTER);
+        lblTieuDe = new JLabel("QUẢN LÝ NHÂN VIÊN ĐÃ XÓA", SwingConstants.CENTER);
         lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblTieuDe.setForeground(PRIMARY_COLOR);
         lblTieuDe.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
@@ -161,8 +157,7 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
         
         cboChucVu = new JComboBox<>();
         cboChucVu.setFont(fontText);
-        cboChucVu. setPreferredSize(new Dimension(200, 35));
-        loadChucVuData();
+        cboChucVu.setPreferredSize(new Dimension(200, 35));
     }
 
     private JPanel createInputPanel() {
@@ -177,22 +172,24 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
         gbc.fill = GridBagConstraints. HORIZONTAL;
         gbc.insets = new Insets(10, 10, 10, 20);
 
-        gbc.gridx = 0; gbc.gridy = 0; gbc. weightx = 0.1;
+        // Row 0
+        gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.1;
         pnlForm.add(lblMaNv, gbc);
-        gbc.gridx = 1; gbc.gridy = 0; gbc. weightx = 0.4;
-        pnlForm.add(txtMaNv, gbc);
+        gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.4;
+        pnlForm. add(txtMaNv, gbc);
         
         gbc.gridx = 2; gbc.gridy = 0; gbc.weightx = 0.1;
         pnlForm.add(lblTenNv, gbc);
         gbc.gridx = 3; gbc.gridy = 0; gbc.weightx = 0.4;
         pnlForm.add(txtTenNv, gbc);
 
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.1;
+        // Row 1
+        gbc. gridx = 0; gbc.gridy = 1; gbc.weightx = 0.1;
         pnlForm.add(lblSoDienThoai, gbc);
-        gbc.gridx = 1; gbc. gridy = 1; gbc.weightx = 0.4;
-        pnlForm. add(txtSoDienThoai, gbc);
+        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.4;
+        pnlForm.add(txtSoDienThoai, gbc);
         
-        gbc.gridx = 2; gbc.gridy = 1; gbc.weightx = 0.1;
+        gbc. gridx = 2; gbc.gridy = 1; gbc.weightx = 0.1;
         pnlForm.add(lblChucVu, gbc);
         gbc.gridx = 3; gbc.gridy = 1; gbc.weightx = 0.4;
         pnlForm.add(cboChucVu, gbc);
@@ -201,19 +198,11 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
     }
 
     private void initButtons() {
-        btnThem = createStyledButton("Thêm", BTN_ADD_COLOR);
-        btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
-        btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
-        btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
-        btnLamMoi = createStyledButton("Làm mới", BTN_REFRESH_COLOR);
-        btnNhanVienDaXoa = createStyledButton("Nhân viên đã xóa", new Color(153,102,204));
-        btnNhanVienDaXoa. setPreferredSize(new Dimension(160, 40));
-
-        btnThem.addActionListener(this);
-        btnSua.addActionListener(this);
-        btnXoa.addActionListener(this);
-        btnXoaTrang.addActionListener(this);
-        btnNhanVienDaXoa.addActionListener(this);
+        btnKhoiPhuc = createStyledButton("Khôi phục", BTN_ADD_COLOR);
+        btnQuayLai = createStyledButton("Quay Lại", BTN_CLEAR_COLOR);
+        
+        btnKhoiPhuc.addActionListener(this);
+        btnQuayLai.addActionListener(this);
     }
 
     private JButton createStyledButton(String text, Color bgColor) {
@@ -231,12 +220,8 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
     private JPanel createButtonPanel() {
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         pnlButtons.setBackground(BG_COLOR);
-        pnlButtons.add(btnThem);
-        pnlButtons.add(btnSua);
-        pnlButtons.add(btnXoa);
-        pnlButtons.add(btnXoaTrang);
-        pnlButtons.add(btnLamMoi);
-        pnlButtons.add(btnNhanVienDaXoa);
+        pnlButtons.add(btnKhoiPhuc);
+        pnlButtons.add(btnQuayLai);
         return pnlButtons;
     }
     
@@ -252,13 +237,13 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
             }
         };        
         
-        tblNhanVien.setRowHeight(35);
+        tblNhanVien. setRowHeight(35);
         tblNhanVien.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         tblNhanVien.setFillsViewportHeight(true);
         tblNhanVien. setShowGrid(true);
         tblNhanVien.setGridColor(new Color(224, 224, 224));
-        tblNhanVien.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblNhanVien. setSelectionBackground(new Color(178, 223, 219));
+        tblNhanVien. setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblNhanVien.setSelectionBackground(new Color(178, 223, 219));
         tblNhanVien.setSelectionForeground(Color.BLACK);
         
         JTableHeader header = tblNhanVien.getTableHeader();
@@ -281,17 +266,16 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
         tblNhanVien.addMouseListener(this);
         
         JScrollPane scrollPane = new JScrollPane(tblNhanVien);
-        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        scrollPane. getViewport().setBackground(Color.WHITE);
+        scrollPane. setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
         return scrollPane;
     }
     
     public void loadNhanVienData() {
-        NhanVienDAO nvDAO = new NhanVienDAO();
-        dsNhanVien = nvDAO.getAllNhanVien();
+        dsNhanVien = nhanVienDAO.getAllNhanVienInActive();
         
         if (dsChucVu == null || dsChucVu.isEmpty()) {
-             loadChucVuData();
+            loadChucVuData();
         }
         
         Map<String, String> mapTenChucVu = new HashMap<>();
@@ -306,7 +290,7 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
             Object[] rowData = {
                 nv.getMaNV(),
                 nv.getTenNV(),
-                nv. getSoDienThoai(),
+                nv.getSoDienThoai(),
                 tenChucVu
             };
             dtm.addRow(rowData);
@@ -314,7 +298,7 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
     }
     
     public void loadChucVuData() {
-        dsChucVu = cvDAO. getAllChucVu();
+        dsChucVu = cvDAO.getAllChucVu();
         cboChucVu.removeAllItems();
         for(ChucVu item : dsChucVu) {
             cboChucVu.addItem(item.getTenChucVu());
@@ -332,184 +316,51 @@ public class CapNhatNhanVienPanel extends JPanel implements ActionListener, Mous
         loadNhanVienData();
     }
     
-    public void quayLaiDanhSach() {
-        cardLayout.show(mainContainer, "DanhSach");
-        loadNhanVienData();
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
-        if(o == btnXoa) {
-            int selectedRow = tblNhanVien. getSelectedRow();
-            if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn nhân viên cần xóa!");
+        
+        if(o == btnKhoiPhuc) {
+            String maNV = txtMaNv.getText().trim();
+            
+            if(maNV.isEmpty()) {
+                JOptionPane. showMessageDialog(this, "Vui lòng chọn nhân viên cần khôi phục!");
                 return;
             }
-
-            String ma = tblNhanVien.getValueAt(selectedRow, 0).toString();
-            if(maNhanVien.equalsIgnoreCase(ma)) {
-                JOptionPane.showMessageDialog(this, "Không thể tự xóa bản thân!");
-                return;
-            }
-
+            
             int option = JOptionPane.showConfirmDialog(this, 
-                    "Có chắc muốn xóa nhân viên " + ma + "?", 
+                    "Có chắc muốn khôi phục nhân viên " + maNV + "?", 
                     "Xác nhận", 
                     JOptionPane.YES_NO_OPTION);
             
             if(option == JOptionPane.YES_OPTION) {
-                NhanVienDAO nvDAO = new NhanVienDAO();
-                boolean result = nvDAO.deleteNhanVien(ma);
+                boolean result = nhanVienDAO.reactiveNhanVien(maNV);
                 if(result) {
-                    JOptionPane.showMessageDialog(this, "Xóa nhân viên thành công!");
+                    JOptionPane.showMessageDialog(this, "Khôi phục nhân viên thành công!");
                     loadNhanVienData();
                     xoaTrang();
                 } else {
-                    JOptionPane.showMessageDialog(this, "Xóa nhân viên không thành công!");
+                    JOptionPane.showMessageDialog(this, "Khôi phục nhân viên không thành công!");
                 }
             }
         }
-        else if(o == btnThem) {
-            if(validateInput(true)) {
-                String maNV = txtMaNv. getText().trim();
-                String tenNV = txtTenNv.getText().trim();
-                String soDienThoai = txtSoDienThoai.getText().trim();
-                String chucVu = cboChucVu.getSelectedItem().toString();
-                
-                ChucVu cv = cvDAO.getByName(chucVu);
-                NhanVienDAO nvDAO = new NhanVienDAO();
-                
-                String maCV = (cv != null) ? cv.getMaChucVu() : ""; 
-                
-                NhanVien nvNew = new NhanVien(maNV, tenNV, maCV, soDienThoai, true);
-                boolean result = nvDAO.addNhanVien(nvNew);
-
-                if(result) {
-                    JOptionPane.showMessageDialog(this, "Thêm nhân viên thành công!");
-                    loadNhanVienData();
-                    xoaTrang();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Thêm nhân viên không thành công!");
-                }
-            }
-        }
-        else if(o == btnSua) {
-            if(validateInput(false)) {
-                String maNV = txtMaNv.getText().trim();
-                String tenNV = txtTenNv.getText().trim();
-                String soDienThoai = txtSoDienThoai.getText().trim();
-                String chucVu = cboChucVu. getSelectedItem().toString();
-                String macv = "BHA";
-                
-                for (Map.Entry<String, String> item : mapChucVu.entrySet()) {
-                    if(chucVu.equalsIgnoreCase(item.getValue())) {
-                        macv = item.getKey();
-                        break;
-                    }
-                }
-                
-                NhanVienDAO nvDAO = new NhanVienDAO();
-                NhanVien nvNew = new NhanVien(maNV, tenNV, macv, soDienThoai, true);
-                boolean result = nvDAO.updateNhanVien(nvNew);
-                if(result) {
-                    JOptionPane.showMessageDialog(this, "Cập nhật nhân viên thành công!");
-                    loadNhanVienData();
-                    xoaTrang();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Cập nhật nhân viên không thành công!");
-                }
-            }
-        }
-        else if(o == btnXoaTrang) {
-            xoaTrang();
-        }
-        else if(o == btnLamMoi) {
-            xoaTrang();
-            loadNhanVienData();
-            loadChucVuData();
-        }
-        else if(o == btnNhanVienDaXoa) {
-            System.out.println("Chuyển sang panel nhân viên đã xóa");
-            
-            JPanel pnlNhanVienDaXoa = new CapNhatNhanVienSubPanel(this);
-            
-            try {
-                mainContainer.remove(mainContainer.getComponent(1));
-            } catch (Exception ex) {
-                // Không có panel chi tiết cũ
-            }
-            
-            mainContainer.add(pnlNhanVienDaXoa, "ChiTiet");
-            cardLayout.show(mainContainer, "ChiTiet");
+        else if(o == btnQuayLai) {
+            pnlCapNhatNhanVien.quayLaiDanhSach();
         }
     }
     
-    private boolean validateInput(boolean isAddingNew) {
-        NhanVienDAO nvDAO = new NhanVienDAO();
-        dsNhanVien = nvDAO. getAllNhanVien();
-
-        if (txtMaNv.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Mã nhân viên không được để trống!");
-            txtMaNv.requestFocus();
-            return false;
-        }
-        if (txtTenNv.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên nhân viên không được để trống!");
-            txtTenNv. requestFocus();
-            return false;
-        }
-        if (txtSoDienThoai. getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Số điện thoại không được để trống!");
-            txtSoDienThoai.requestFocus();
-            return false;
-        }
-
-        String maNV = txtMaNv. getText().trim();
-        if(isAddingNew) {
-            for(NhanVien item : dsNhanVien) {
-                if(item.getMaNV().equalsIgnoreCase(maNV)) {
-                    JOptionPane.showMessageDialog(this, "Mã nhân viên không được trùng!");
-                    txtMaNv. requestFocus();
-                    return false;
-                }
-            }
-        }
-        if (! maNV.matches("NV\\d{3}")) {
-            JOptionPane.showMessageDialog(this, "Mã nhân viên phải có định dạng NV kèm 3 ký số (Ví dụ: NV001)!");
-            txtMaNv.requestFocus();
-            return false;
-        }
-        
-        String tenNV = txtTenNv.getText().trim();
-        if (! tenNV.matches("^[\\p{L}\\s]+$")) {
-            JOptionPane.showMessageDialog(this, "Tên nhân viên không được chứa số hoặc ký tự đặc biệt!");
-            txtTenNv.requestFocus(); 
-            return false;
-        }
-        
-        String soDienThoai = txtSoDienThoai.getText().trim();
-        if (!soDienThoai.matches("\\d{10}")) {
-            JOptionPane.showMessageDialog(this, "Số điện thoại phải có đúng 10 ký số!");
-            txtSoDienThoai.requestFocus();
-            return false;
-        }
-        return true;
-    }
-
-    @Override
+    @Override   
     public void mouseClicked(MouseEvent e) {
         Object o = e.getSource();
         if(o == tblNhanVien) {
-            int row = tblNhanVien. getSelectedRow();
+            txtMaNv.setEnabled(false);
+            int row = tblNhanVien.getSelectedRow();
             if (row >= 0) {
                 txtMaNv.setText(tblNhanVien.getValueAt(row, 0).toString());
                 txtTenNv. setText(tblNhanVien.getValueAt(row, 1).toString());
                 txtSoDienThoai.setText(tblNhanVien.getValueAt(row, 2).toString());
-                String txt = tblNhanVien. getValueAt(row, 3).toString();
-                cboChucVu.setSelectedItem(txt);
-                
-                txtMaNv.setEnabled(false);
+                String tenChucVu = tblNhanVien.getValueAt(row, 3).toString();
+                cboChucVu.setSelectedItem(tenChucVu);
             }
         }
     }

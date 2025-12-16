@@ -26,7 +26,7 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
     private CategoryChart chart;
     private XChartPanel<CategoryChart> chartPanel;
     private JPanel pnlStats;
-    
+    private JButton btnXemChiTiet;
     // Data
     private int namHienTai = 2025;
     private String maNVHienTai = "ALL"; // ALL = tất cả nhân viên
@@ -35,6 +35,7 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
     private HoaDonDAO hdDAO = new HoaDonDAO();
     
     private ArrayList<ThongKeNhanVien> dsThongKe;
+	private XemChiTietDoanhThuTheoNhanVien XemChiTietDoanhThuTheoNhanVien;
     
     public ThongKeTheoNhanVienPanel() {
         initData();
@@ -125,13 +126,22 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
         
         panel.add(pnlTitle);
         panel.add(Box.createVerticalStrut(15));
+        
+        JPanel pnlDetailButton = new JPanel();
+        btnXemChiTiet = new JButton("Xem chi tiết");
+        btnXemChiTiet.addActionListener(this);
+        pnlDetailButton.setBackground(new Color(248, 250, 252));
+        pnlDetailButton.add(btnXemChiTiet);
+        
 
         if(maNVHienTai.equals("ALL")) {
             double tongDoanhThu = dsThongKe.stream().mapToDouble(ThongKeNhanVien::getDoanhThu).sum();
             int tongDonHang = dsThongKe.stream().mapToInt(ThongKeNhanVien::getSoLuongDonHang).sum();
             int tongKhachHang = dsThongKe.stream().mapToInt(ThongKeNhanVien::getSoLuongKhachHang).sum();
             double giaTriTrungBinh = dsThongKe.isEmpty() ? 0 : tongDoanhThu / dsThongKe.size();
-
+            
+            
+            
             panel.add(createStatCard("Tổng doanh thu", df.format(tongDoanhThu), new Color(13, 148, 136)));
             panel.add(Box.createVerticalStrut(10));
             panel.add(createStatCard("Tổng số nhân viên", String.valueOf(dsThongKe.size()), new Color(234, 88, 12)));
@@ -161,6 +171,8 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
                 panel.add(createStatCard("Tỷ lệ đóng góp", dfPercent.format(nv.getTyLeDongGop()), new Color(8, 145, 178)));
                 panel.add(Box.createVerticalStrut(10));
                 panel.add(createStatCard("Thứ hạng", "#" + thuHang + " / " + dsThongKe.size(), new Color(100, 116, 139)));
+                panel.add(Box.createVerticalStrut(10));
+                panel.add(pnlDetailButton);
             }
         }
         
@@ -176,15 +188,18 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
             BorderFactory.createEmptyBorder(10, 15, 10, 15)
         ));
         card.setMaximumSize(new Dimension(Integer.MAX_VALUE, 80)); 
-
+        
         JLabel lblTitle = new JLabel(title);
         lblTitle.setForeground(Color.GRAY);
         
         JLabel lblValue = new JLabel(value);
         lblValue.putClientProperty(FlatClientProperties.STYLE, "font:bold +2");
+        
+      
 
         card.add(lblTitle, BorderLayout.NORTH);
         card.add(lblValue, BorderLayout.CENTER);
+       
         return card;
     }
     
@@ -335,6 +350,14 @@ public class ThongKeTheoNhanVienPanel extends JPanel implements ActionListener {
                 }
                 updateChartForEmployee();
             }
+        }
+        else if(e.getSource() == btnXemChiTiet) {
+        	if(XemChiTietDoanhThuTheoNhanVien!= null) {
+
+        		XemChiTietDoanhThuTheoNhanVien.dispose();
+        		XemChiTietDoanhThuTheoNhanVien = null;
+        	}
+        	XemChiTietDoanhThuTheoNhanVien = new XemChiTietDoanhThuTheoNhanVien((Integer)cboNam.getSelectedItem(),maNVHienTai);
         }
     }
 }            

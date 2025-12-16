@@ -230,6 +230,7 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseL
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
         header.setReorderingAllowed(false);
         
+        // center note
         DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 

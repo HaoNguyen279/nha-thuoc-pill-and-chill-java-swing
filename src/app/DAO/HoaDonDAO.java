@@ -908,6 +908,38 @@ public class HoaDonDAO {
         
         return dsHoaDonKemGia;
     }
+    
+    public ArrayList<HoaDonKemGiaDTO> getHoaDonTrongNamCuaNhanVien(int nam,String maNV) {
+        ArrayList<HoaDonKemGiaDTO> dsHoaDonKemGia = new ArrayList<>();
+        String sql = "SELECT hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu, SUM(cthd.donGia*cthd.soLuong ) as tongTien\n"
+        		+ "FROM HoaDon hd JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
+        		+ "	JOIN NhanVien nv ON nv.maNV = hd.maNV\n"
+        		+ "	JOIN ChiTietHoaDon cthd ON cthd.maHoaDon = hd.maHoaDon\n"
+        		+ "WHERE hd.isActive = 1 AND year(hd.ngayBan) = ?  AND nv.maNV = ?\n"
+        		+ "GROUP BY hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu\n"
+        		+ "ORDER BY ngayBan DESC, hd.maHoaDon DESC";
+
+        try {
+            Connection con = ConnectDB.getInstance().getConnection();
+            PreparedStatement stmt = con.prepareStatement(sql);
+            stmt.setInt(1, nam);
+            stmt.setString(2,maNV);
+            ResultSet rs = stmt.executeQuery();
+            
+            while(rs.next()) {
+            	dsHoaDonKemGia.add(mapResToInvoiceWithTotal(rs));
+            }
+        } catch(SQLException e) {
+            e.printStackTrace();
+        }
+        
+        return dsHoaDonKemGia;
+    }
+    
+    
+    
+    
+    
     /**
      * Clone function, map res to invoice with total
      * Hao
@@ -935,7 +967,7 @@ public class HoaDonDAO {
     
     
     
-    // lala
+    
     public ArrayList<HoaDon> getAllHoaDon5Field() {
         ArrayList<HoaDon> dsHoaDon = new ArrayList<>();
         String sql = "SELECT maHoaDon, tenNV, tenKH, ngayBan, ghiChu, hd.isActive\n"
@@ -956,7 +988,39 @@ public class HoaDonDAO {
         }
         return dsHoaDon;
     }
-    //lala
+    
+    public ArrayList<HoaDon> getAllHoaDon5Field(String maThuoc) {
+        ArrayList<HoaDon> dsHoaDon = new ArrayList<>();
+        String sql =
+        	    "SELECT hd.maHoaDon, nv.tenNV, kh.tenKH, ngayBan, ghiChu, hd.isActive\n" +
+        	    "FROM HoaDon hd \n" +
+        	    "JOIN NhanVien nv ON hd.maNV = nv.maNV \n" +
+        	    "JOIN KhachHang kh ON kh.maKH = hd.maKH \n" +
+        	    "JOIN ChiTietHoaDon cthd ON cthd.maHoaDon = hd.maHoaDon \n" +
+        	    "WHERE hd.isActive = 1 AND cthd.maThuoc = ? \n" +
+        	    "GROUP BY hd.maHoaDon, nv.tenNV, kh.tenKH, ngayBan, ghiChu, hd.isActive \n" +
+        	    "ORDER BY ngayBan DESC, hd.maHoaDon DESC";
+
+        try (Connection con = ConnectDB.getInstance().getConnection()) {
+             PreparedStatement stmt = con.prepareStatement(sql);
+        	 stmt.setString(1, maThuoc);
+            
+        	 try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    dsHoaDon.add(mapResultSetToHoaDon5Field(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsHoaDon;
+        
+        
+        
+        
+        
+    }
+    
     private HoaDon mapResultSetToHoaDon5Field(ResultSet rs) throws SQLException {
         return new HoaDon(
             rs.getString("maHoaDon"),

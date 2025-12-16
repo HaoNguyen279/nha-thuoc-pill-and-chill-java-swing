@@ -22,16 +22,17 @@ import app.DAO.ThuocDAO;
 import app.DAO.HoaDonDAO;
 import app.Entity.ThongKeThuoc;
 
-public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
+public class ThongKeTheoThuocPanel extends JPanel implements ActionListener,MouseListener{
     // Components
     private JComboBox<String> cboLoai;
     private JDateChooser calThoiGian;
-    private JComboBox<String> cboTop;
     
     private CategoryChart chart;
     private XChartPanel<CategoryChart> chartPanel;
     private JPanel pnlStats;
     private JPanel pnlCenter;
+    
+    private JButton btnXemChiTiet;
     
     // Data
     private String loaiThongKe = "Năm"; // Năm, Tháng, Ngày
@@ -40,6 +41,7 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
     private ThuocDAO thuocDAO = new ThuocDAO();
     
     private ArrayList<ThongKeThuoc> dsThongKe;
+	private XemChiTietThongKeThuoc XemChiTietThongKeThuoc;
     
     public ThongKeTheoThuocPanel() {
         initData();
@@ -101,13 +103,7 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
             }
         });
         
-        // Top
-        JLabel lblTop = new JLabel("Top:");
-        String[] topOptions = {"Top 10", "Top 5"};
-        cboTop = new JComboBox<>(topOptions);
-        cboTop.setSelectedItem("Top 10");
-        cboTop.setPreferredSize(new Dimension(100, 30));
-        cboTop.addActionListener(this);
+        
 
         pnlControls.add(lblLoai);
         pnlControls.add(cboLoai);
@@ -115,8 +111,7 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
         pnlControls.add(lblThoiGian);
         pnlControls.add(calThoiGian);
         pnlControls.add(Box.createHorizontalStrut(10));
-        pnlControls.add(lblTop);
-        pnlControls.add(cboTop);
+
 
         pnlHeader.add(lblTitle, BorderLayout.WEST);
         pnlHeader.add(pnlControls, BorderLayout.EAST);
@@ -163,6 +158,13 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
         }
         
         double slTrungBinh = soHoaDon > 0 ? (double) tongSoLuong / soHoaDon : 0;
+        
+        
+        JPanel pnlDetailButton = new JPanel();
+        btnXemChiTiet = new JButton("Xem chi tiết");
+        btnXemChiTiet.addActionListener(this);
+        pnlDetailButton.setBackground(new Color(248, 250, 252));
+        pnlDetailButton.add(btnXemChiTiet);
 
         panel.add(createStatCard("Tổng doanh thu", df.format(tongDoanhThu), new Color(13, 148, 136)));
         panel.add(Box.createVerticalStrut(10));
@@ -172,8 +174,9 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
         panel.add(Box.createVerticalStrut(10));
         panel.add(createStatCard("Số hóa đơn", String.valueOf(soHoaDon), new Color(219, 39, 119)));
         panel.add(Box.createVerticalStrut(10));
-        panel.add(createStatCard("TB/Hóa đơn", String.format("%.1f đơn vị", slTrungBinh), new Color(8, 145, 178)));
         
+    
+        panel.add(pnlDetailButton);
         panel.add(Box.createVerticalGlue());
         
         return panel;
@@ -376,20 +379,65 @@ public class ThongKeTheoThuocPanel extends JPanel implements ActionListener {
             
             updateChart();
         }
-        // Thay đổi Top
-        else if (o == cboTop) {
-            String topStr = (String) cboTop.getSelectedItem();
-            
-            switch (topStr) {
-                case "Top 10":
-                    topN = 10;
-                    break;
-                case "Top 5":
-                    topN = 5;
-                    break;
-            }
-            
-            updateChart();
+        else if(e.getSource() == btnXemChiTiet) {
+        	if(XemChiTietThongKeThuoc!= null) {
+
+        		XemChiTietThongKeThuoc.dispose();
+        		XemChiTietThongKeThuoc = null;
+        	}
+        	loaiThongKe = (String) cboLoai.getSelectedItem();
+        	Date selectedDate = calThoiGian.getDate();
+        	Calendar cal = Calendar.getInstance();
+        	cal.setTime(selectedDate);
+        	int ngay = cal.get(Calendar.DAY_OF_MONTH); 
+        	int thang = cal.get(Calendar. MONTH) + 1;    
+        	int nam = cal.get(Calendar. YEAR); 
+            cal.setTime(selectedDate);
+        	switch (loaiThongKe) {
+            case "Năm":
+            	XemChiTietThongKeThuoc = new XemChiTietThongKeThuoc(nam, dsThongKe);
+                break;
+            case "Tháng":
+            	XemChiTietThongKeThuoc = new XemChiTietThongKeThuoc(thang,nam, dsThongKe);
+                break;
+            case "Ngày":
+            	XemChiTietThongKeThuoc = new XemChiTietThongKeThuoc(ngay,thang,nam, dsThongKe);
+                break;
+        	}
+        
+        	
         }
+        // Thay đổi Top
+        
     }
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
 }

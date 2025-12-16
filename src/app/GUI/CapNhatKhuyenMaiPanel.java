@@ -52,7 +52,8 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
     private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
     private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
-
+    private final Color BTN_REFRESH_COLOR = new Color(57, 155, 226);
+    
     private JLabel lblTieuDe;
     private JLabel lblMaKM;
     private JLabel lblMucGiam;
@@ -68,6 +69,7 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
     private JButton btnSua;
     private JButton btnThem;
     private JButton btnXoaTrang;
+    private JButton btnLamMoi;
     private JButton btnKhuyenMaiDaXoa;
     
     private DefaultTableModel dtm;
@@ -205,13 +207,15 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
         btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
         btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
         btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
-        btnKhuyenMaiDaXoa = createStyledButton("Khuyến mãi đã xóa", BTN_EDIT_COLOR);
+        btnLamMoi = createStyledButton("Làm mới", BTN_REFRESH_COLOR);
+        btnKhuyenMaiDaXoa = createStyledButton("Khuyến mãi đã xóa", new Color(153,102,204));
         btnKhuyenMaiDaXoa.setPreferredSize(new Dimension(180, 45));
 
         btnThem.addActionListener(this);
         btnSua.addActionListener(this);
         btnXoa.addActionListener(this);
         btnXoaTrang.addActionListener(this);
+        btnLamMoi.addActionListener(this);
         btnKhuyenMaiDaXoa.addActionListener(this);
     }
 
@@ -234,6 +238,7 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
         pnlButtons.add(btnSua);
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnXoaTrang);
+        pnlButtons.add(btnLamMoi);
         pnlButtons.add(btnKhuyenMaiDaXoa);
         return pnlButtons;
     }
@@ -384,6 +389,10 @@ public class CapNhatKhuyenMaiPanel extends JPanel implements ActionListener, Mou
         }
         else if(o == btnXoaTrang) {
             xoaTrang();
+        }
+        else if(o == btnLamMoi) {
+        	xoaTrang();
+        	loadKhuyenMaiData();
         }
         else if(o == btnKhuyenMaiDaXoa) {
             System.out.println("Chuyển sang panel khuyến mãi đã xóa");

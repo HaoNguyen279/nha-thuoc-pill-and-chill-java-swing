@@ -33,7 +33,9 @@ import javax.swing.table.JTableHeader;
 
 import app.ConnectDB.ConnectDB;
 import app.DAO.ChucVuDAO;
+import app.DAO.DonViDAO;
 import app.Entity.ChucVu;
+import app.Entity.DonVi;
 
 public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseListener {
     
@@ -62,12 +64,12 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
     private DefaultTableModel dtm;
     private JTable tblChucVu;
     
-    private ArrayList<ChucVu> dsChucVu;
-    private ChucVuDAO cvDao;
+    private ArrayList<DonVi> dsDonVi;
+    private DonViDAO dvDAO;
     
     public CapNhatDonViPanel() {
         ConnectDB.getInstance().connect();
-        cvDao = new ChucVuDAO();
+        dvDAO = new DonViDAO();
         
         setLayout(new BorderLayout(10, 10));
         setBackground(BG_COLOR);
@@ -94,7 +96,7 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
         add(pnlTop, BorderLayout.NORTH);
         add(createBotPanel(), BorderLayout.CENTER);
         
-        loadChucVuData();
+        loadDonViData();
     }
 
     private void initHeader() {
@@ -210,9 +212,19 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
         header.setReorderingAllowed(false);
         
+        // center note
         DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        
 
+        // Center align cho tất cả các cột
+        DefaultTableCellRenderer cellCenter = new DefaultTableCellRenderer();
+        cellCenter.setHorizontalAlignment(JLabel.CENTER);
+        
+        for (int i = 0; i < tblChucVu. getColumnCount(); i++) {
+            tblChucVu. getColumnModel().getColumn(i).setCellRenderer(cellCenter);
+        }
+        
         tblChucVu.addMouseListener(this);
         
         JScrollPane scrollPane = new JScrollPane(tblChucVu);
@@ -221,13 +233,13 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
         return scrollPane;
     }
     
-    public void loadChucVuData() {
-        dsChucVu = cvDao.getAllChucVu();
+    public void loadDonViData() {
+        dsDonVi = dvDAO.getAllDonVi();
         dtm.setRowCount(0);
-        for(ChucVu cv : dsChucVu) {
+        for(DonVi dv : dsDonVi) {
             Object[] rowData = {
-                cv.getMaChucVu(),
-                cv.getTenChucVu(),
+            		dv.getMaDonVi(),
+            		dv.getTenDonVi(),
             };
             dtm.addRow(rowData);
         }
@@ -238,7 +250,6 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
         txtTenDonVi.setText("");
         txtMaDonVi.setEnabled(true);
         tblChucVu.clearSelection();
-        loadChucVuData();
     }
 
     @Override
@@ -258,10 +269,10 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
                     JOptionPane.YES_NO_OPTION);
             
             if(option == JOptionPane.YES_OPTION) {
-                boolean result = cvDao.delete(maCV);
+                boolean result = dvDAO.deleteDonVi(maCV);
                 if(result) {
                     JOptionPane.showMessageDialog(this, "Xóa đơn vị thành công!");
-                    loadChucVuData();
+                    loadDonViData();
                     xoaTrang();
                 }
                 else {
@@ -275,11 +286,11 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
                 String maChucVu = txtMaDonVi.getText().trim();
                 String tenChucVu = txtTenDonVi.getText().trim();
                 
-                ChucVu cv = new ChucVu(maChucVu, tenChucVu, true);
-                boolean result = cvDao.insert(cv);
+                DonVi cv = new DonVi(maChucVu, tenChucVu, true);
+                boolean result = dvDAO.addDonVi(cv);
                 if(result) {
                     JOptionPane.showMessageDialog(this, "Thêm đơn vị thành công!");
-                    loadChucVuData();
+                    loadDonViData();
                     xoaTrang();
                 }
                 else {
@@ -292,11 +303,11 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
                 String maChucVu = txtMaDonVi.getText().trim();
                 String tenChucVu = txtTenDonVi.getText().trim();
                 
-                ChucVu cv = new ChucVu(maChucVu, tenChucVu, true);
-                boolean result = cvDao.update(cv);
+                DonVi cv = new DonVi(maChucVu, tenChucVu, true);
+                boolean result = dvDAO.updateDonVi(cv);
                 if(result) {
                     JOptionPane.showMessageDialog(this, "Cập nhật đơn vị thành công!");
-                    loadChucVuData();
+                    loadDonViData();
                     xoaTrang();
                 }
                 else {
@@ -323,8 +334,8 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
         
         if (isAddingNew) {
             String maMoi = txtMaDonVi.getText().trim();
-            for (ChucVu cv : dsChucVu) {
-                if (cv.getMaChucVu().equalsIgnoreCase(maMoi)) {
+            for (DonVi cv : dsDonVi) {
+                if (cv.getMaDonVi().equalsIgnoreCase(maMoi)) {
                     JOptionPane.showMessageDialog(this, "Mã đơn vị đã tồn tại!");
                     txtMaDonVi.requestFocus();
                     return false;
