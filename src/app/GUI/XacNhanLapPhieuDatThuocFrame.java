@@ -676,7 +676,7 @@ public class XacNhanLapPhieuDatThuocFrame extends JFrame implements ActionListen
             document.add(title);
             
             // Thông tin nhà thuốc
-            Paragraph shopInfo = new Paragraph("NHÀ THUỐC PILL & CHILL\nĐịa chỉ: 12 Nguyễn Văn Bảo, P.4, Q.Gò Vấp, TP.HCM\nHotline: 0987654321", normalFont);
+            Paragraph shopInfo = new Paragraph("NHÀ THUỐC PILL & CHILL\nĐịa chỉ: 12/312 Ngô Quyền, Gò Vấp, TP.HCM\nHotline: 0987654321", normalFont);
             shopInfo.setAlignment(Element.ALIGN_CENTER);
             document.add(shopInfo);
             

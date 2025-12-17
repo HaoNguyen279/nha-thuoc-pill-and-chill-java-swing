@@ -1146,7 +1146,7 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             document.add(title);
             
             // Thông tin nhà thuốc
-            Paragraph shopInfo = new Paragraph("NHÀ THUỐC PILL & CHILL\nĐịa chỉ: 12 Nguyễn Văn Bảo, P.4, Q.Gò Vấp, TP.HCM\nHotline: 0987654321", normalFont);
+            Paragraph shopInfo = new Paragraph("NHÀ THUỐC PILL & CHILL\nĐịa chỉ: 12/312 Ngô Quyền, Gò Vấp, TP.HCM\nHotline: 0987654321", normalFont);
             shopInfo.setAlignment(Element.ALIGN_CENTER);
             document.add(shopInfo);
             
@@ -1233,11 +1233,35 @@ public class XacNhanLapHoaDonFrame extends JFrame implements ActionListener {
             double tyLeThue = 0.10;
             String tenThue = "VAT (10%)";
             double tienThue = tongTien * tyLeThue;
-            double tongThanhToan = tongTien + tienThue;
+            
+            // Lấy thông tin điểm sử dụng
+            double diemGiam = 0;
+            try {
+                String diemSuDungStr = txtDiemSuDung.getText().trim();
+                if (!diemSuDungStr.isEmpty()) {
+                    diemGiam = Double.parseDouble(diemSuDungStr);
+                }
+            } catch (NumberFormatException ex) {
+                diemGiam = 0;
+            }
+            
+            // Tính tổng thanh toán cuối cùng
+            double tongThanhToan = tongTien + tienThue - tienGiam - diemGiam;
+            if (tongThanhToan < 0) tongThanhToan = 0;
             
             Paragraph summary = new Paragraph();
             summary.add(new Chunk("Tổng tiền hàng: " + df.format(tongTien) + " VNĐ\n", normalFont));
             summary.add(new Chunk("Thuế " + tenThue + ": " + df.format(tienThue) + " VNĐ\n", normalFont));
+            
+            // Hiển thị thông tin giảm giá nếu có
+            if (tienGiam > 0 && khuyenMaiApDung != null) {
+                summary.add(new Chunk("Giảm giá khuyến mãi (" + khuyenMaiApDung.getMaKM() + "): -" + df.format(tienGiam) + " VNĐ\n", normalFont));
+            }
+            
+            if (diemGiam > 0) {
+                summary.add(new Chunk("Giảm giá điểm tích lũy (" + (int)diemGiam + " điểm): -" + df.format(diemGiam) + " VNĐ\n", normalFont));
+            }
+            
             summary.add(new Chunk("Tổng thanh toán: " + df.format(tongThanhToan) + " VNĐ\n", totalFont));
             summary.setAlignment(Element.ALIGN_RIGHT);
             document.add(summary);
