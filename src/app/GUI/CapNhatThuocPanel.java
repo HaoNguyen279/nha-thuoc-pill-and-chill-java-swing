@@ -38,9 +38,12 @@ import javax.swing.table.JTableHeader;
 import com.formdev.flatlaf.FlatLightLaf;
 
 import app.ConnectDB.ConnectDB;
+import app.DAO.DonViDAO;
 import app.DAO.HoaDonDAO;
 import app.DAO.NhaSanXuatDAO;
 import app.DAO.ThuocDAO;
+import app.DTO.ThuocKemGiaDTO;
+import app.Entity.DonVi;
 import app.Entity.NhaSanXuat;
 import app.Entity.Thuoc;
 
@@ -55,7 +58,8 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
     private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
-
+    private final Color BTN_REFRESH_COLOR = new Color(57, 155, 226);
+    
     private JLabel lblTieuDe;
     private JLabel lblMaThuoc;
     private JLabel lblTenThuoc;
@@ -74,12 +78,15 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     private JButton btnSua;
     private JButton btnThem;
     private JButton btnXoaTrang;
+    private JButton btnLamMoi;
     private JButton btnSuaTrangThai;
     
     private DefaultTableModel dtm;
     private JTable tblThuoc;
     
-    private ArrayList<Thuoc> dsThuoc;
+    private ArrayList<ThuocKemGiaDTO> dsThuoc;
+    private ArrayList<DonVi> dsDonVi;
+    private Map<String,String> mapDonVi;
     private ArrayList<NhaSanXuat> dsNhaSanXuat;
     private NhaSanXuatDAO nsxDAO;
     private Map<String, String> mapNhaSanXuat;
@@ -101,7 +108,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         initInputForm();
         initButtons();
         
-        String[] cols = {"Mã thuốc" , "Tên thuốc", "Số lượng", "Đơn vị", "Nhà SX"};
+        String[] cols = {"Mã thuốc" , "Tên thuốc", "Số lượng","Giá hiện tại", "Đơn vị", "Nhà SX"};
         dtm = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -161,13 +168,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         
         cboDonVi = new JComboBox<>();
         cboDonVi.setFont(fontText);
-        cboDonVi.addItem("Viên");
-        cboDonVi.addItem("Hộp");
-        cboDonVi.addItem("Vỉ");
-        cboDonVi.addItem("Chai");
-        cboDonVi.addItem("Ống");
-        cboDonVi.addItem("Tuýp");
-        cboDonVi.addItem("Gói");
+        loadDonViData();
         
         cboNhaSanXuat = new JComboBox<>();
         cboNhaSanXuat.setFont(fontText);
@@ -223,13 +224,15 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
         btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
         btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
-        btnSuaTrangThai = createStyledButton("Thuốc đã xóa", BTN_EDIT_COLOR);
+        btnLamMoi = createStyledButton("Làm mới", BTN_REFRESH_COLOR);
+        btnSuaTrangThai = createStyledButton("Thuốc đã xóa", new Color(153,102,204));
         btnSuaTrangThai.setPreferredSize(new Dimension(150,40));
         
         btnThem.addActionListener(this);
         btnSua.addActionListener(this);
         btnXoa.addActionListener(this);
         btnXoaTrang.addActionListener(this);
+        btnLamMoi.addActionListener(this);
         btnSuaTrangThai.addActionListener(this);
     }
 
@@ -252,6 +255,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         pnlButtons.add(btnSua);
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnXoaTrang);
+        pnlButtons.add(btnLamMoi);
         pnlButtons.add(btnSuaTrangThai);
         return pnlButtons;
     }
@@ -288,7 +292,8 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
         tblThuoc.getColumnModel().getColumn(1).setPreferredWidth(150);
-        tblThuoc.getColumnModel().getColumn(4).setPreferredWidth(150);
+        tblThuoc.getColumnModel().getColumn(4).setPreferredWidth(50);
+        tblThuoc.getColumnModel().getColumn(5).setPreferredWidth(150);
 
         tblThuoc.addMouseListener(this);
         
@@ -300,23 +305,36 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
     
     public void loadThuocData() {
         ThuocDAO thuocDAO = new ThuocDAO();
-        dsThuoc = thuocDAO.getAllThuocCoTenNSX();
+        dsThuoc = thuocDAO.getAllThuocCoTenNSXvaGia();
         dtm.setRowCount(0);
-        for(Thuoc thuoc : dsThuoc) {
+        for(ThuocKemGiaDTO thuoc : dsThuoc) {
             Object[] rowData = {
                     thuoc.getMaThuoc(),
                     thuoc.getTenThuoc(),
                     thuoc.getSoLuongTon(),
-                
+                    thuoc.getGiaBan(),
                     thuoc.getDonVi(),
                     thuoc.getMaNSX()
             };
             dtm.addRow(rowData);
+            System.out.println(thuoc.toString());
+        }
+    }
+    
+    public void loadDonViData() {
+        DonViDAO donViDAO = new DonViDAO();
+        dsDonVi = donViDAO.getAllDonVi();
+        mapDonVi = new HashMap<String, String>();
+        cboDonVi.removeAllItems();
+        for(DonVi dv : dsDonVi) {
+            cboDonVi.addItem(dv.getTenDonVi());
+            mapDonVi.put(dv.getTenDonVi(), dv.getMaDonVi());
         }
     }
     
     public void loadNhaSanXuatData() {
         dsNhaSanXuat = nsxDAO.getAllNhaSanXuat();
+        cboNhaSanXuat.removeAllItems();
         for(NhaSanXuat item : dsNhaSanXuat) {
             cboNhaSanXuat.addItem(item.getTenNSX());
             mapNhaSanXuat.put(item.getMaNSX(), item.getTenNSX());
@@ -369,8 +387,10 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                 String maThuoc = txtMaThuoc.getText().trim();
                 String tenThuoc = txtTenThuoc.getText().trim();
                 int soLuongTon = 0;
-               
-                String donVi = cboDonVi.getSelectedItem().toString();
+                
+                String tenDonVi = cboDonVi.getSelectedItem().toString();
+                String maDonVi = mapDonVi.get(tenDonVi);
+                
                 int soLuongToiThieu = 0;
                 
                 String tenNSX = cboNhaSanXuat.getSelectedItem().toString();
@@ -384,7 +404,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                 
                 ThuocDAO thuocDAO = new ThuocDAO();
                 Thuoc thuocNew = new Thuoc(maThuoc, tenThuoc, soLuongTon, 
-                                           donVi, soLuongToiThieu, maNSX, true);
+                                           maDonVi, soLuongToiThieu, maNSX, true);
                 boolean result = thuocDAO.addThuoc(thuocNew);
                 if(result) {
                     JOptionPane.showMessageDialog(this, "Thêm thuốc thành công!");
@@ -429,6 +449,12 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         else if(o == btnXoaTrang) {
             xoaTrang();
         }
+        else if(o == btnLamMoi) {
+        	xoaTrang();
+            loadThuocData();
+            loadDonViData();
+            loadNhaSanXuatData();
+        }
         else if(o == btnSuaTrangThai) {
         	System.out.println("cc");
         	
@@ -466,7 +492,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         
         String maThuoc = txtMaThuoc.getText().trim();
         if(isAddingNew) {
-            for(Thuoc item : dsThuoc) {
+            for(ThuocKemGiaDTO item : dsThuoc) {
                 if(item.getMaThuoc().equalsIgnoreCase(maThuoc)) {
                     JOptionPane.showMessageDialog(this, "Mã thuốc không được trùng!");
                     txtMaThuoc.requestFocus();

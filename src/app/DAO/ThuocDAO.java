@@ -26,9 +26,12 @@ public class ThuocDAO {
      * Retrieves a list of all active drugs from the database.
      * @return An ArrayList of Thuoc objects.
      */
-    public ArrayList<Thuoc> getAllThuoc() {
+    public ArrayList<Thuoc> getAllThuoc() { // check later dv
         ArrayList<Thuoc> dsThuoc = new ArrayList<>();
-        String sql = "SELECT * FROM Thuoc WHERE isActive = 1";
+        String sql = "SELECT T.maThuoc, T.tenThuoc, T.soLuongTon, DV.tenDonVi, T.soLuongToiThieu, T.maNSX, T.isActive\n"
+        		+ "FROM Thuoc T\n"
+        		+ "JOIN DonVi DV on T.maDonVi = DV.maDonVi\n"
+        		+ "WHERE T.isActive = 1";
         
         Connection con = ConnectDB.getConnection();
         if (con == null) {
@@ -45,7 +48,7 @@ public class ThuocDAO {
                 String maThuoc = rs.getString("maThuoc");
                 String tenThuoc = rs.getString("tenThuoc");
                 int soLuongTon = rs.getInt("soLuongTon");
-                String donVi = rs.getString("donVi");
+                String donVi = rs.getString("tenDonVi");
                 int soLuongToiThieu = rs.getInt("soLuongToiThieu");
                 String maNSX = rs.getString("maNSX");
                 boolean isActive = rs.getBoolean("isActive");
@@ -72,14 +75,10 @@ public class ThuocDAO {
      * Return list thuốc kèm giá.
      * @return An ArrayList of Thuoc objects.
      */
-    public ArrayList<ThuocKemGiaDTO> getAllThuocKemGia() {
+    public ArrayList<ThuocKemGiaDTO> getAllThuocKemGia() { //check later dv  +1
         ArrayList<ThuocKemGiaDTO> dsThuoc = new ArrayList<>();
-        String sql = "SELECT t.maThuoc, t.tenThuoc, t.soLuongTon, " +
-                    "50000 as donGia, t.donVi, t.soLuongToiThieu, t.maNSX, t.isActive " +
-                    "FROM Thuoc t " +
-                    "WHERE t.isActive = 1 " +
-                    "ORDER BY t.tenThuoc";
-        
+        String sql = "{CALL sp_LayDanhSachThuocKemGia}";
+       
         Connection con = ConnectDB.getConnection();
         if (con == null) {
             return dsThuoc;
@@ -96,7 +95,7 @@ public class ThuocDAO {
                 String tenThuoc = rs.getString("tenThuoc");
                 int soLuongTon = rs.getInt("soLuongTon");
                 double giaBan = rs.getDouble("donGia");
-                String donVi = rs.getString("donVi");
+                String donVi = rs.getString("tenDonVi");
                 int soLuongToiThieu = rs.getInt("soLuongToiThieu");
                 String maNSX = rs.getString("maNSX");
                 boolean isActive = rs.getBoolean("isActive");
@@ -120,9 +119,11 @@ public class ThuocDAO {
     
     
     
-    public ArrayList<Thuoc> getAllThuocCoTenNSX() {
+    public ArrayList<Thuoc> getAllThuocCoTenNSX() { // check later dv +1
         ArrayList<Thuoc> dsThuoc = new ArrayList<>();
-        String sql = "Select  t.maThuoc,t.tenThuoc,t.soLuongTon,t.donVi,t.soLuongToiThieu,nsx.tenNSX from Thuoc t join NhaSanXuat nsx on t.maNSX = nsx.maNSX where t.isActive = 1;";
+        String sql = "Select  t.maThuoc,t.tenThuoc,t.soLuongTon,DV.tenDonVi,t.soLuongToiThieu,nsx.tenNSX\n"
+        		+ "from Thuoc t join NhaSanXuat nsx on t.maNSX = nsx.maNSX join DonVi DV on DV.maDonVi = t.maDonVi\n"
+        		+ "where t.isActive = 1;";
         
         Connection con = ConnectDB.getConnection();
         if (con == null) {
@@ -141,7 +142,7 @@ public class ThuocDAO {
                 String tenThuoc = rs.getString("tenThuoc");
                 int soLuongTon = rs.getInt("soLuongTon");
       
-                String donVi = rs.getString("donVi");
+                String donVi = rs.getString("tenDonVi");
                 int soLuongToiThieu = rs.getInt("soLuongToiThieu");
                 String maNSX = rs.getString("tenNSX");
              
@@ -152,7 +153,51 @@ public class ThuocDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         } finally {
-            // Đóng ResultSet và Statement, KHÔNG đóng Connection vì nó là singleton
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return dsThuoc;
+    }
+    /**
+     * Return list thuốc kèm giá và tên nsx
+     * @return An ArrayList of Thuoc objects.
+     * Hao
+     */
+    public ArrayList<ThuocKemGiaDTO> getAllThuocCoTenNSXvaGia() { // check later dv +1
+        ArrayList<ThuocKemGiaDTO> dsThuoc = new ArrayList<>();
+        String sql = "{Call sp_LayDanhSachThuocKemGiaKemTenNhaSanXuat}";
+        
+        Connection con = ConnectDB.getConnection();
+        if (con == null) {
+            return dsThuoc;
+        }
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            
+            while (rs.next()) {
+                String maThuoc = rs.getString("maThuoc");
+                String tenThuoc = rs.getString("tenThuoc");
+                int soLuongTon = rs.getInt("soLuongTon");
+                double donGia = rs.getInt("donGia");
+                String donVi = rs.getString("tenDonVi");
+                int soLuongToiThieu = rs.getInt("soLuongToiThieu");
+                String maNSX = rs.getString("tenNSX");
+             
+
+                ThuocKemGiaDTO thuoc = new ThuocKemGiaDTO(maThuoc,  tenThuoc, soLuongTon,donGia, donVi, soLuongToiThieu, maNSX, true);
+                dsThuoc.add(thuoc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
             try {
                 if (rs != null) rs.close();
                 if (stmt != null) stmt.close();
@@ -171,8 +216,12 @@ public class ThuocDAO {
      * @param id The ID of the drug to find.
      * @return A Thuoc object if found, otherwise null.
      */
-    public Thuoc getThuocById(String id) {
-        String sql = "SELECT * FROM Thuoc WHERE maThuoc = ?";
+    public Thuoc getThuocById(String id) { // check later dv +1
+        String sql = "SELECT T.maThuoc, T.tenThuoc, T.soLuongTon, DV.tenDonVi, T.soLuongToiThieu, T.maNSX, T.isActive\n"
+        		+ "FROM Thuoc T\n"
+        		+ "JOIN DonVi DV on T.maDonVi = DV.maDonVi\n"
+        		+ "WHERE T.isActive = 1 and T.maThuoc =?";
+//        String sql = "SELECT * FROM Thuoc WHERE maThuoc = ?";
         Thuoc thuoc = null;
 
         try (Connection con = ConnectDB.getConnection();
@@ -186,7 +235,7 @@ public class ThuocDAO {
                     String tenThuoc = rs.getString("tenThuoc");
                     int soLuongTon = rs.getInt("soLuongTon");
                   
-                    String donVi = rs.getString("donVi");
+                    String donVi = rs.getString("tenDonVi");
                     int soLuongToiThieu = rs.getInt("soLuongToiThieu");
                     String maNSX = rs.getString("maNSX");
                     boolean isActive = rs.getBoolean("isActive");
@@ -205,7 +254,7 @@ public class ThuocDAO {
      * @param id The ID of the drug to find.
      * @return A Thuoc object if found, otherwise null.
      */
-    public ThuocKemGiaDTO getThuocKemGiaById(String id) {
+    public ThuocKemGiaDTO getThuocKemGiaById(String id) { // +1
         String sql = "{Call sp_LayThuocKemGiaById(?)}";
         ThuocKemGiaDTO thuoc = null;
 
@@ -220,7 +269,7 @@ public class ThuocDAO {
                     String tenThuoc = rs.getString("tenThuoc");
                     int soLuongTon = rs.getInt("soLuongTon");
                     float donGia = rs.getInt("donGia");
-                    String donVi = rs.getString("donVi");
+                    String donVi = rs.getString("tenDonVi");
                     int soLuongToiThieu = rs.getInt("soLuongToiThieu");
                     String maNSX = rs.getString("maNSX");
                     boolean isActive = rs.getBoolean("isActive");
@@ -241,7 +290,7 @@ public class ThuocDAO {
      * @return true if the operation was successful, false otherwise.
      */
     public boolean addThuoc(Thuoc thuoc) {
-        String sql = "INSERT INTO Thuoc (maThuoc,tenThuoc, soLuongTon, donVi, soLuongToiThieu, maNSX, isActive) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO Thuoc (maThuoc,tenThuoc, soLuongTon, maDonVi, soLuongToiThieu, maNSX, isActive) VALUES (?, ?, ?, ?, ?, ?, ?)";
         int n = 0;
 
         try (Connection con = ConnectDB.getConnection();
@@ -254,7 +303,7 @@ public class ThuocDAO {
             stmt.setString(4, thuoc.getDonVi());
             stmt.setInt(5, thuoc.getSoLuongToiThieu());
             stmt.setString(6, thuoc.getMaNSX());
-            stmt.setBoolean(7, thuoc.isIsActive()); // Use the provided getter
+            stmt.setBoolean(7, thuoc.isIsActive()); 
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {
@@ -380,8 +429,8 @@ public class ThuocDAO {
      * @param thuoc The Thuoc object with updated information.
      * @return true if the update was successful, false otherwise.
      */
-    public boolean updateThuoc(Thuoc thuoc) {
-        String sql = "UPDATE Thuoc SET tenThuoc = ?, soLuongTon = ?, donVi = ?, soLuongToiThieu = ?, maNSX = ?, isActive = ? WHERE maThuoc = ?";
+    public boolean updateThuoc(Thuoc thuoc) { // +1
+        String sql = "UPDATE Thuoc SET tenThuoc = ?, soLuongTon = ?, maDonVi = ?, soLuongToiThieu = ?, maNSX = ?, isActive = ? WHERE maThuoc = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getConnection();
@@ -427,7 +476,11 @@ public class ThuocDAO {
     
     public ArrayList<Thuoc> getAllInactiveThuoc() {
         ArrayList<Thuoc> dsThuoc = new ArrayList<>();
-        String sql = "SELECT * FROM Thuoc WHERE isActive = 0";
+        String sql = "SELECT T.maThuoc, T.tenThuoc, T.soLuongTon, DV.tenDonVi, T.soLuongToiThieu, T.maNSX, T.isActive\n"
+        		+ "FROM Thuoc T\n"
+        		+ "JOIN DonVi DV on T.maDonVi = DV.maDonVi\n"
+        		+ "WHERE T.isActive = 0";
+//        String sql = "SELECT * FROM Thuoc WHERE isActive = 0";
         Connection con = ConnectDB.getConnection();
         
         try (Statement stmt = con.createStatement();
@@ -438,7 +491,7 @@ public class ThuocDAO {
                     rs.getString("maThuoc"),
                     rs.getString("tenThuoc"),
                     rs.getInt("soLuongTon"),
-                    rs.getString("donVi"),
+                    rs.getString("tenDonVi"),
                     rs.getInt("soLuongToiThieu"),
                     rs.getString("maNSX"),
                     rs.getBoolean("isActive")
@@ -450,6 +503,7 @@ public class ThuocDAO {
         }
         return dsThuoc;
     }
+    
 
     /**
      * Kích hoạt lại thuốc đã bị xóa mềm
@@ -470,13 +524,13 @@ public class ThuocDAO {
         }
     }
     
-    public ArrayList<ThongKeThuoc> thongKeThuocTheoNgay(Date ngay, int topN) {
+    public ArrayList<ThongKeThuoc> thongKeThuocTheoNgay(Date ngay, int topN) { // not ok
         ArrayList<ThongKeThuoc> dsThongKe = new ArrayList<>();
         
         String sql = "SELECT " +
             "t.maThuoc, " +
             "t.tenThuoc, " +
-            "t.donVi, " +
+            "t.maDonVi, " +
             "SUM(ct.soLuong) AS soLuongBan, " +
             "COUNT(DISTINCT ct.maHoaDon) AS soLanXuatHien, " +
             "(SELECT COUNT(*) FROM HoaDon WHERE CAST(ngayBan AS DATE) = ? AND isActive = 1) AS tongSoHoaDon, " +
@@ -487,7 +541,7 @@ public class ThuocDAO {
             "INNER JOIN HoaDon hd ON ct.maHoaDon = hd.maHoaDon " +
             "WHERE CAST(hd.ngayBan AS DATE) = ? " +
             "AND hd.isActive = 1 AND ct.isActive = 1 " +
-            "GROUP BY t.maThuoc, t.tenThuoc, t.donVi " +
+            "GROUP BY t.maThuoc, t.tenThuoc, t.maDonVi " +
             "ORDER BY soLuongBan DESC";
         
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -527,7 +581,7 @@ public class ThuocDAO {
         String sql = "SELECT " +
             "t.maThuoc, " +
             "t.tenThuoc, " +
-            "t.donVi, " +
+            "t.maDonVi, " +
             "SUM(ct.soLuong) AS soLuongBan, " +
             "COUNT(DISTINCT ct.maHoaDon) AS soLanXuatHien, " +
             "(SELECT COUNT(*) FROM HoaDon WHERE MONTH(ngayBan) = ? AND YEAR(ngayBan) = ? AND isActive = 1) AS tongSoHoaDon, " +
@@ -538,7 +592,7 @@ public class ThuocDAO {
             "INNER JOIN HoaDon hd ON ct.maHoaDon = hd.maHoaDon " +
             "WHERE MONTH(hd.ngayBan) = ? AND YEAR(hd.ngayBan) = ? " +
             "AND hd.isActive = 1 AND ct.isActive = 1 " +
-            "GROUP BY t.maThuoc, t.tenThuoc, t.donVi " +
+            "GROUP BY t.maThuoc, t.tenThuoc, t.maDonVi " +
             "ORDER BY soLuongBan DESC";
         
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -579,7 +633,7 @@ public class ThuocDAO {
         String sql = "SELECT " +
             "t.maThuoc, " +
             "t.tenThuoc, " +
-            "t.donVi, " +
+            "t.maDonVi, " +
             "SUM(ct.soLuong) AS soLuongBan, " +
             "COUNT(DISTINCT ct.maHoaDon) AS soLanXuatHien, " +
             "(SELECT COUNT(*) FROM HoaDon WHERE YEAR(ngayBan) = ? AND isActive = 1) AS tongSoHoaDon, " +
@@ -590,7 +644,7 @@ public class ThuocDAO {
             "INNER JOIN HoaDon hd ON ct.maHoaDon = hd.maHoaDon " +
             "WHERE YEAR(hd.ngayBan) = ? " +
             "AND hd.isActive = 1 AND ct.isActive = 1 " +
-            "GROUP BY t.maThuoc, t.tenThuoc, t.donVi " +
+            "GROUP BY t.maThuoc, t.tenThuoc, t.maDonVi " +
             "ORDER BY soLuongBan DESC";
         
         try (Connection con = ConnectDB.getInstance().getConnection();
@@ -739,7 +793,7 @@ public class ThuocDAO {
         while (rs.next()) {
             String maThuoc = rs.getString("maThuoc");
             String tenThuoc = rs.getString("tenThuoc");
-            String donViTinh = rs.getString("donVi");
+            String donViTinh = rs.getString("maDonVi");
             int soLuongBan = rs.getInt("soLuongBan");
             int soLanXuatHien = rs.getInt("soLanXuatHien");
             int tongSoHoaDon = rs.getInt("tongSoHoaDon");

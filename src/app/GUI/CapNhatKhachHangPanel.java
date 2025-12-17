@@ -49,6 +49,7 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
     private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
     private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
+    private final Color BTN_REFRESH_COLOR = new Color(57, 155, 226);
 
     private JLabel lblTieuDe;
     private JLabel lblMaKh;
@@ -65,6 +66,7 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
     private JButton btnSua;
     private JButton btnThem;
     private JButton btnXoaTrang;
+    private JButton btnLamMoi;
     private JButton btnKhachHangDaXoa;
     
     private DefaultTableModel dtm;
@@ -191,13 +193,15 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
         btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
         btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
         btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
-        btnKhachHangDaXoa = createStyledButton("Khách hàng đã xóa", BTN_EDIT_COLOR);
+        btnLamMoi = createStyledButton("Làm mới", BTN_REFRESH_COLOR);
+        btnKhachHangDaXoa = createStyledButton("Khách đã xóa", new Color(153,102,204));
         btnKhachHangDaXoa.setPreferredSize(new Dimension(180, 45));
 
         btnThem.addActionListener(this);
         btnSua.addActionListener(this);
         btnXoa.addActionListener(this);
         btnXoaTrang.addActionListener(this);
+        btnLamMoi.addActionListener(this);
         btnKhachHangDaXoa. addActionListener(this);
     }
 
@@ -220,6 +224,7 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
         pnlButtons.add(btnSua);
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnXoaTrang);
+        pnlButtons.add(btnLamMoi);
         pnlButtons.add(btnKhachHangDaXoa);
         return pnlButtons;
     }
@@ -374,6 +379,10 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
         }
         else if(o == btnXoaTrang) {
             xoaTrang();
+        }
+        else if(o == btnLamMoi) {
+            xoaTrang();
+            loadKhachHangData();
         }
         else if(o == btnKhachHangDaXoa) {
             JPanel pnlKhachHangDaXoa = new CapNhatKhachHangSubPanel(this);

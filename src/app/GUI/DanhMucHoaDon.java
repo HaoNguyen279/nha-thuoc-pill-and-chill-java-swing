@@ -21,6 +21,7 @@ import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.swing.BorderFactory;
@@ -70,6 +71,8 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
     private final Color PRIMARY_COLOR = new Color(0, 150, 136);
     private final Color BG_COLOR = new Color(245, 245, 245);
     private final Color ACCENT_COLOR = new Color(255, 255, 255);
+    
+    private ThuocDAO thuocDAO = new ThuocDAO();
 
 	private JButton btnXuatHoaDon;
 	
@@ -93,6 +96,7 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
 	private JTextField searchField;
 
 	private JRadioButton radTimKiemThangNam;
+	private XemChiTietThongKeThuoc parent;
 	
 	
 	public DanhMucHoaDon() {
@@ -126,6 +130,44 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
         
         loadHoaDonData();
         //timKiemHoaDonTheoThangNam();
+        
+        setVisible(true);
+
+        
+	}
+	
+public DanhMucHoaDon(XemChiTietThongKeThuoc parent,String maThuoc,int thang, int ngay ,int nam) {
+		this.parent = parent;
+        // Table init
+        String[] colsHoaDon = {"Mã hóa đơn", "Tên NV", "Tên KH", "Ngày lập", "Ghi chú"};
+        dtmHoaDon = new DefaultTableModel(colsHoaDon, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false, ngăn edit trên cell
+               return false;
+            }
+        };
+        
+        String[] colsChiTietHoaDon = {"Tên thuốc", "Mã thuốc", "Mã lô", "Số lượng", "Đơn giá"};
+        dtmChiTietHoaDon = new DefaultTableModel(colsChiTietHoaDon, 0) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+               //all cells false, ngăn edit trên cell
+               return false;
+            }
+        };
+        
+        // Frame
+        setLayout(new GridLayout(2,1,10,10));
+        setBackground(BG_COLOR);
+        setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        
+        add(createTopPanelForDetail(maThuoc));
+
+
+        add(createBotPanel());
+        
+        loadHoaDonData(maThuoc,thang,ngay,nam);
         
         setVisible(true);
 
@@ -349,6 +391,87 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
         return pnlTop;
 
 	}
+public JPanel createTopPanelForDetail(String maThuoc) {
+		
+		JPanel pnlTop = new JPanel();
+		pnlTop.setLayout(new BorderLayout());
+		pnlTop.setBackground(BG_COLOR);
+		tblHoaDon = new JTable(dtmHoaDon) {
+            @Override
+            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+                Component c = super.prepareRenderer(renderer, row, column);
+                if (!isRowSelected(row)) {
+                    c.setBackground(row % 2 == 0 ? Color.WHITE :  new Color(242, 242, 242));
+                }
+                return c;
+            }
+        };        
+        tblHoaDon.setRowHeight(35);
+        tblHoaDon.setFont(new Font("Segoe UI", Font. PLAIN, 14));
+        tblHoaDon.setFillsViewportHeight(true);
+        tblHoaDon.setShowGrid(true);
+        tblHoaDon. setGridColor(new Color(224, 224, 224));
+        tblHoaDon. setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        tblHoaDon.setSelectionBackground(new Color(178, 223, 219));
+        tblHoaDon.setSelectionForeground(Color.BLACK);
+        
+        JTableHeader header = tblHoaDon.getTableHeader();
+        header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        header.setBackground(PRIMARY_COLOR);
+        header.setForeground(Color.WHITE);
+        header.setPreferredSize(new Dimension(header. getWidth(), 40));
+        header.setReorderingAllowed(false);
+        
+        DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
+        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+        
+        JScrollPane scrollPane = new JScrollPane(tblHoaDon);
+        scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
+        scrollPane.getViewport().setBackground(Color.WHITE);
+        
+      
+        JButton btnQuayLai = new JButton("← Quay lại");
+        btnQuayLai.setFont(new Font("Segoe UI", Font. BOLD, 14));
+        btnQuayLai.setForeground(Color.BLACK);
+        btnQuayLai.setPreferredSize(new Dimension(120, 40));
+        btnQuayLai.setBorderPainted(false);
+        btnQuayLai.setFocusPainted(false);
+        btnQuayLai.setCursor(new Cursor(Cursor. HAND_CURSOR));
+        btnQuayLai.addActionListener(e -> parent.quayLaiDanhSach());
+        
+      
+        JPanel pnlLeft = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        pnlLeft.setBackground(BG_COLOR);
+        pnlLeft.setPreferredSize(new Dimension(120, 40));
+        pnlLeft.add(btnQuayLai);
+        
+        
+        JPanel pnlRight = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        pnlRight.setBackground(BG_COLOR);
+        pnlRight.setPreferredSize(new Dimension(120, 40));
+        
+        String tenThuoc = thuocDAO.getThuocById(maThuoc).getTenThuoc();
+        lblHoaDon = new JLabel("HÓA ĐƠN CỦA THUỐC " +tenThuoc, SwingConstants. CENTER);
+        lblHoaDon.setFont(new Font("Segoe UI", Font. BOLD, 26));
+        lblHoaDon.setForeground(PRIMARY_COLOR);
+        
+        
+        JPanel pnlTieuDe = new JPanel(new BorderLayout());
+        pnlTieuDe. setBackground(BG_COLOR);
+        pnlTieuDe.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
+        
+       
+        pnlTieuDe.add(pnlLeft, BorderLayout. WEST);
+        pnlTieuDe.add(lblHoaDon, BorderLayout. CENTER);
+        pnlTieuDe.add(pnlRight, BorderLayout. EAST);
+        
+        pnlTop.add(pnlTieuDe, BorderLayout.NORTH);
+        pnlTop.add(scrollPane, BorderLayout.CENTER);
+        
+        tblHoaDon. addMouseListener(this);
+        
+        return pnlTop;
+}
 	
 	
 	public void loadHoaDonData() {
@@ -368,6 +491,52 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
 			};
 			dtmHoaDon.addRow(rowData);
 		}
+	}
+	public void loadHoaDonData(String maThuoc, int thang, int ngay, int nam) {
+	    ConnectDB.getInstance().connect();
+	    HoaDonDAO hdDAO = new HoaDonDAO();
+	    dsHoaDon = hdDAO.getAllHoaDon5Field(maThuoc);
+	    dtmHoaDon.setRowCount(0);
+	    dtmChiTietHoaDon.setRowCount(0);
+	    SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+	    
+	    Calendar cal = Calendar.getInstance();
+	    
+	    for(HoaDon hd : dsHoaDon) {
+	        cal.setTime(hd.getNgayBan());
+	        int namHD = cal.get(Calendar. YEAR);
+	        int thangHD = cal.get(Calendar. MONTH) + 1; 
+	        int ngayHD = cal.get(Calendar.DAY_OF_MONTH);
+	        
+	        boolean match = true;
+	        
+	        
+	        if (nam != 0 && namHD != nam) {
+	            match = false;
+	        }
+	        
+	       
+	        if (match && thang != 0 && thangHD != thang) {
+	            match = false;
+	        }
+	        
+	  
+	        if (match && ngay != 0 && ngayHD != ngay) {
+	            match = false;
+	        }
+	        
+	       
+	        if (match) {
+	            Object[] rowData = {
+	                hd.getMaHoaDon(),
+	                hd.getMaNV(),
+	                hd.getMaKH(),
+	                sdf.format(hd.getNgayBan()),
+	                hd.getGhiChu()
+	            };
+	            dtmHoaDon.addRow(rowData);
+	        }
+	    }
 	}
 	
 	public void loadChiTietHoaDonData(String mahd) {
@@ -569,7 +738,7 @@ public class DanhMucHoaDon extends JPanel implements ActionListener, MouseListen
             double tongTien = 0;
             
             for (ChiTietHoaDon item : dsChiTietHoaDon) {
-            	ThuocDAO thuocDAO = new ThuocDAO();
+            	
             	Thuoc thuoc = thuocDAO.getThuocById(item.getMaThuoc()); 
             	
                 String maThuoc = item.getMaThuoc();

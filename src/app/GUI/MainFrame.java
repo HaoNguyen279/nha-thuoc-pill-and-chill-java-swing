@@ -172,7 +172,7 @@ public class MainFrame extends JFrame {
     		return;
     	}
         if (capNhatNhanVienPanel == null) {
-            capNhatNhanVienPanel = new CapNhatNhanVienPanel(maNhanVien);
+            capNhatNhanVienPanel = new CapNhatNhanVienPanel(maNhanVien); /// check later
         }
         showPanel(capNhatNhanVienPanel);
     }

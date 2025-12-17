@@ -24,7 +24,6 @@ import javax.swing.JPanel;
 
 import org.knowm.xchart.CategoryChart;
 import org.knowm.xchart.CategoryChartBuilder;
-import org.knowm.xchart.CategorySeries.CategorySeriesRenderStyle;
 import org.knowm.xchart.XChartPanel;
 import org.knowm.xchart.style.Styler;
 
