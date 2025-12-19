@@ -1,7 +1,7 @@
 package app.DAO;
 
 import java.sql.Connection;
-import java.sql.Date;
+import java.util.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,12 +10,13 @@ import java.util.ArrayList;
 
 import app.ConnectDB.ConnectDB;
 import app.Entity.BangGia;
+import app.Entity.KhuyenMai;
 
 public class BangGiaDAO {
 
     public ArrayList<BangGia> getAllBangGia() {
         ArrayList<BangGia> dsBangGia = new ArrayList<>();
-        String sql = "SELECT * FROM BangGia";
+        String sql = "SELECT * FROM BangGia WHERE isActive = 1 ORDER BY ngayKetThuc DESC";
         Connection con = ConnectDB.getConnection();
         if (con == null) return dsBangGia;
 
@@ -70,7 +71,7 @@ public class BangGiaDAO {
         return bg;
     }
 
-    public boolean themBangGia(BangGia bg) {
+    public boolean addBangGia(BangGia bg) {
         Connection con = ConnectDB.getConnection();
         String sql = "INSERT INTO BangGia VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try {
@@ -78,8 +79,8 @@ public class BangGiaDAO {
             stmt.setString(1, bg.getMaBangGia());
             stmt.setString(2, bg.getTenBangGia());
             stmt.setString(3, bg.getLoaiGia());
-            stmt.setDate(4, bg.getNgayApDung());
-            stmt.setDate(5, bg.getNgayKetThuc());
+            stmt.setDate(4, new java.sql.Date(bg.getNgayApDung().getTime()));
+            stmt.setDate(5, new java.sql.Date(bg.getNgayKetThuc().getTime()));
             stmt.setString(6, bg.getTrangThai());
             stmt.setString(7, bg.getGhiChu());
             stmt.setInt(8, bg.getDoUuTien());
@@ -91,15 +92,15 @@ public class BangGiaDAO {
         return false;
     }
 
-    public boolean capNhatBangGia(BangGia bg) {
+    public boolean updateBangGia(BangGia bg) {
         Connection con = ConnectDB.getConnection();
         String sql = "UPDATE BangGia SET tenBangGia=?, loaiGia=?, ngayApDung=?, ngayKetThuc=?, trangThai=?, ghiChu=?, doUuTien=?, isActive=? WHERE maBangGia=?";
         try {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setString(1, bg.getTenBangGia());
             stmt.setString(2, bg.getLoaiGia());
-            stmt.setDate(3, bg.getNgayApDung());
-            stmt.setDate(4, bg.getNgayKetThuc());
+            stmt.setDate(3, new java.sql.Date(bg.getNgayApDung().getTime()));
+            stmt.setDate(4, new java.sql.Date(bg.getNgayKetThuc().getTime()));
             stmt.setString(5, bg.getTrangThai());
             stmt.setString(6, bg.getGhiChu());
             stmt.setInt(7, bg.getDoUuTien());
@@ -110,5 +111,71 @@ public class BangGiaDAO {
             e.printStackTrace();
         }
         return false;
+    }
+    
+    public boolean deleteBangGia(String id) {
+        String sql = "UPDATE BangGia SET isActive = 0 WHERE maBangGia = ?";
+        int n = 0;
+        Connection con = ConnectDB.getInstance().getConnection();
+        PreparedStatement stmt = null;
+
+        try {
+            stmt = con.prepareStatement(sql);
+            stmt.setString(1, id);
+            n = stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return n > 0;
+    }
+    
+    public boolean reactiveBangGia(String id) {
+    	String sql = "UPDATE BangGia SET isActive = 1 WHERE maBangGia = ?";
+        Connection con = ConnectDB.getConnection();
+        
+        try (PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1,id);
+            int n = stmt.executeUpdate();
+            System.out.println("   → Reactivated Bang gia: " + id + " (rows: " + n + ")");
+            return n > 0;
+        } catch (SQLException e) {
+            System.err.println("   ❌ Error reactivating Bang Gia: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+    
+    public ArrayList<BangGia> getAllBangGiaInactive() {
+        ArrayList<BangGia> dsBangGia = new ArrayList<>();
+        String sql = "SELECT * FROM BangGia WHERE isActive = 0 ORDER BY ngayKetThuc DESC";
+        Connection con = ConnectDB.getInstance().getConnection();
+
+        try {
+        	Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery(sql);
+            while (rs.next()) {
+                String maBangGia = rs.getString("maBangGia");
+                String tenBangGia = rs.getString("tenBangGia");
+                String loaiGia = rs.getString("loaiGia");
+                Date ngayApDung = rs.getDate("ngayApDung");
+                Date ngayKetThuc = rs.getDate("ngayKetThuc");
+                String trangThai = rs.getString("trangThai");
+                String ghiChu = rs.getString("ghiChu");
+                int doUuTien = rs.getInt("doUuTien");
+                boolean isActive = rs.getBoolean("isActive");
+
+                BangGia bg = new BangGia(maBangGia, tenBangGia, loaiGia, ngayApDung, ngayKetThuc, trangThai, ghiChu, doUuTien, isActive);
+                dsBangGia.add(bg);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return dsBangGia;
     }
 }

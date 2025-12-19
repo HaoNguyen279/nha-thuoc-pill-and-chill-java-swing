@@ -50,7 +50,8 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseL
     private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
     private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
-
+    private final Color BTN_REFRESH_COLOR = new Color(57, 155, 226);
+    
     private JLabel lblTieuDe;
     private JLabel lblMaChucVu;
     private JLabel lblTenChucVu;
@@ -62,6 +63,7 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseL
     private JButton btnSua;
     private JButton btnThem;
     private JButton btnXoaTrang;
+    private JButton btnLamMoi;
     private JButton btnChucVuDaXoa;
     
     private DefaultTableModel dtm;
@@ -169,13 +171,15 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseL
         btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
         btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
         btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
-        btnChucVuDaXoa = createStyledButton("Chức vụ đã xóa", BTN_EDIT_COLOR);
+        btnLamMoi = createStyledButton("Làm mới", BTN_REFRESH_COLOR);
+        btnChucVuDaXoa = createStyledButton("Chức vụ đã xóa",  new Color(153,102,204));
         btnChucVuDaXoa. setPreferredSize(new Dimension(160, 45));
 
         btnThem.addActionListener(this);
         btnSua.addActionListener(this);
         btnXoa.addActionListener(this);
         btnXoaTrang.addActionListener(this);
+        btnLamMoi.addActionListener(this);
         btnChucVuDaXoa.addActionListener(this);
     }
 
@@ -198,6 +202,7 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseL
         pnlButtons.add(btnSua);
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnXoaTrang);
+        pnlButtons.add(btnLamMoi);
         pnlButtons.add(btnChucVuDaXoa);
         return pnlButtons;
     }
@@ -298,7 +303,7 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseL
                     xoaTrang();
                 } else {
                     JOptionPane.showMessageDialog(this, 
-                        "Không thể xóa chức vụ này!\nHãy chắc chắn rằng chức vụ muốn xóa không có nhân viên.");
+                        "Không thể xóa chức vụ này!\nHãy đảm bảo không còn nhân viên có chức vụ này.");
                 }
             }
         }
@@ -336,6 +341,10 @@ public class CapNhatChucVuPanel extends JPanel implements ActionListener, MouseL
         }
         else if(o == btnXoaTrang) {
             xoaTrang();
+        }
+        else if(o == btnLamMoi) {
+            xoaTrang();
+            loadChucVuData();
         }
         else if(o == btnChucVuDaXoa) {
             System.out.println("Chuyển sang panel chức vụ đã xóa");

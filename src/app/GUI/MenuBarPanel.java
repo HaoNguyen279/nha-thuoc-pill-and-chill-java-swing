@@ -31,7 +31,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
     private MainFrame parentFrame;
 
     private JMenuItem mniHoTro, mniDatLai, mniTaiKhoan, mniDangXuat, mniThoat;
-    private JMenuItem mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai, mniCapNhatChucVu, mniCapNhatDonVi, mniXemPhieuNhap;
+    private JMenuItem mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai, mniCapNhatChucVu, mniCapNhatDonVi, mniXemPhieuNhap, mniCapNhatBangGia;
     private JMenuItem mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,mniTimKiemChiTietLoThuoc, mniHoaDon, mniPhieuDoiTra, mniPhieuDatThuoc;
     private JMenuItem mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc, mniNhapThuoc;
     private JMenuItem mniDoanhThuTheoThang, mniDoanhThuTheoNam, mniNhanVien, mniKhachHang, mniHanSuDung, mniThuocDuocMuaNhieu;
@@ -82,7 +82,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
 
         // gán menu con (pop up) cho cái button
         setupPopupMenu(btnHeThong, mniHoTro, mniDatLai, mniTaiKhoan, mniDangXuat, mniThoat);
-        setupPopupMenu(btnDanhMuc, mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai, mniCapNhatChucVu, mniCapNhatDonVi);
+        setupPopupMenu(btnDanhMuc, mniCapNhatThuoc, mniCapNhatKhachHang, mniCapNhatNhanVien, mniCapNhatKhuyenMai, mniCapNhatChucVu, mniCapNhatDonVi, mniCapNhatBangGia);
         setupPopupMenu(btnTimKiem, mniTimKiemThuoc, mniTimKiemKhachHang, mniTimKiemNhanVien,mniTimKiemChiTietLoThuoc, mniHoaDon, mniPhieuDatThuoc, mniPhieuDoiTra, mniXemPhieuNhap);
         setupPopupMenu(btnXuLy, mniLapHoaDon, mniLapPhieuDatThuoc, mniLapPhieuTraThuoc, mniNhapThuoc);
         setupPopupMenu(btnThongKe, mniDoanhThuTheoThang, mniDoanhThuTheoNam, mniNhanVien, mniKhachHang, mniHanSuDung, mniThuocDuocMuaNhieu);
@@ -203,6 +203,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         mniCapNhatKhuyenMai = createItem("Khuyến mãi", "/resources/icon/sale_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_M, ActionEvent.CTRL_MASK));
         mniCapNhatChucVu = createItem("Chức vụ", "/resources/icon/suitcase_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_V, ActionEvent.CTRL_MASK));
         mniCapNhatDonVi = createItem("Đơn vị", "/resources/icon/unit_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_U, ActionEvent.CTRL_MASK));
+        mniCapNhatBangGia = createItem("Bảng giá", "/resources/icon/price_icon.png", KeyStroke.getKeyStroke(KeyEvent.VK_O, ActionEvent.CTRL_MASK));
        
 
         // TÌM KIẾM
@@ -269,6 +270,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         else if (o == mniCapNhatChucVu) parentFrame.showCapNhatChucVuPanel();
         else if (o == mniCapNhatDonVi) parentFrame.showCapNhatDonViPanel();
         else if (o == mniXemPhieuNhap) parentFrame.showPhieuNhap();
+        else if (o == mniCapNhatBangGia) parentFrame.showCapNhatBangGiaPanel();
         
         // --- Tìm kiếm ---
         else if (o == mniTimKiemThuoc) parentFrame.showTimKiemThuocPanel();
@@ -351,25 +353,23 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         return null;
     }
     /**
-     * Đăng ký phím tắt hoạt động toàn cục (kể cả khi popup menu chưa mở)
+     * Đăng ký phím tắt hoạt động toàn cục ( khi popup menu chưa mở)
      */
     private void registerGlobalHotkey(String name, KeyStroke keyStroke, JMenuItem item) {
         if (keyStroke == null) return;
 
-        // Lấy InputMap của Panel khi cửa sổ đang được focus
+        // get input map của panel khi frame này dc fô cus
         InputMap inputMap = this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
         ActionMap actionMap = this.getActionMap();
 
-        // Đăng ký phím tắt vào InputMap
+        // gán phím vào keymap
         inputMap.put(keyStroke, name);
 
-        // Đăng ký hành động tương ứng vào ActionMap
+        // gán vào action map
         actionMap.put(name, new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Khi nhấn phím tắt, giả lập hành động click vào menu item
-                // Điều này sẽ kích hoạt hàm actionPerformed chính của class
-                item.doClick();
+                item.doClick(); // giả lập click
             }
         });
     }

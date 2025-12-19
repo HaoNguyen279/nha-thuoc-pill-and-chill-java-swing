@@ -154,18 +154,35 @@ public class ChucVuDAO {
      * Xóa chức vụ (cập nhật trạng thái isActive thành false)
      */
     public boolean delete(String maChucVu) {
-        String sql = "UPDATE ChucVu SET isActive = 0 WHERE maChucVu = ?";
         Connection con = ConnectDB.getInstance().getConnection();
-        try (PreparedStatement stmt = con.prepareStatement(sql)) {
-            stmt.setString(1, maChucVu);
-            
-            int rowsUpdated = stmt.executeUpdate();
-            return rowsUpdated > 0;
+        String checkSql = """
+            SELECT COUNT(*) 
+            FROM NhanVien 
+            WHERE maChucVu = ? AND isActive = 1
+        """;
+        String deleteSql = """
+            UPDATE ChucVu 
+            SET isActive = 0 
+            WHERE maChucVu = ?
+        """;
+        try (
+            PreparedStatement checkStmt = con.prepareStatement(checkSql);
+            PreparedStatement deleteStmt = con.prepareStatement(deleteSql)
+        ){
+            checkStmt.setString(1, maChucVu);
+            ResultSet rs = checkStmt.executeQuery();
+            if (rs.next() && rs.getInt(1) > 0) {
+                // Có nhân viên → không cho xóa
+                return false;
+            }
+            deleteStmt.setString(1, maChucVu);
+            return deleteStmt.executeUpdate() > 0;
         } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
     }
+
 
 
 	public ArrayList<ChucVu> getAllInactiveChucVu() {

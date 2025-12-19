@@ -24,7 +24,7 @@ public class ChiTietBangGiaDAO {
             while (rs.next()) {
                 String maThuoc = rs.getString("maThuoc");
                 double donGia = rs.getDouble("donGia");
-                String donVi = rs.getString("donVi");
+                String donVi = rs.getString("maDonVi");
                 boolean isActive = rs.getBoolean("isActive");
 
                 ChiTietBangGia ct = new ChiTietBangGia(maBangGia, maThuoc, donGia, donVi, isActive);
@@ -55,7 +55,7 @@ public class ChiTietBangGiaDAO {
 
     public boolean capNhatChiTietBangGia(ChiTietBangGia ct) {
         Connection con = ConnectDB.getConnection();
-        String sql = "UPDATE ChiTietBangGia SET donGia=?, donVi=?, isActive=? WHERE maBangGia=? AND maThuoc=?";
+        String sql = "UPDATE ChiTietBangGia SET donGia=?, maDonVi=?, isActive=? WHERE maBangGia=? AND maThuoc=?";
         try {
             PreparedStatement stmt = con.prepareStatement(sql);
             stmt.setDouble(1, ct.getDonGia());

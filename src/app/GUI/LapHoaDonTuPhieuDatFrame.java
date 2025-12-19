@@ -29,6 +29,11 @@ import java.util.ArrayList;
 
 public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
     
+    private final Color PRIMARY_COLOR = new Color(0, 150, 136);
+    private final Color BG_COLOR = new Color(245, 245, 245);
+    private final Color ACCENT_COLOR = new Color(255, 255, 255);
+    private final Color TEXT_COLOR = new Color(51, 51, 51);
+
     // DAO instances
     private PhieuDatDAO phieuDatDAO;
     private ChiTietPhieuDatDAO chiTietPhieuDatDAO;
@@ -211,10 +216,19 @@ public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
         };
         
         tblPhieuDat = new JTable(modelPhieuDat);
-        tblPhieuDat.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tblPhieuDat.setRowHeight(30);
-        tblPhieuDat.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        tblPhieuDat.getTableHeader().setBackground(new Color(240, 250, 240));
+        tblPhieuDat.setRowHeight(35);
+        tblPhieuDat.setBackground(Color.WHITE);
+        tblPhieuDat.setGridColor(new Color(224, 224, 224));
+        tblPhieuDat.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tblPhieuDat.setSelectionBackground(new Color(178, 223, 219));
+        tblPhieuDat.setSelectionForeground(Color.BLACK);
+        tblPhieuDat.setShowGrid(true);
+        tblPhieuDat.setIntercellSpacing(new Dimension(1, 1));
+        
+        tblPhieuDat.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tblPhieuDat.getTableHeader().setBackground(PRIMARY_COLOR);
+        tblPhieuDat.getTableHeader().setForeground(Color.WHITE);
+        tblPhieuDat.getTableHeader().setPreferredSize(new Dimension(tblPhieuDat.getTableHeader().getWidth(), 40));
         tblPhieuDat.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         // Căn giữa cho một số cột
@@ -263,10 +277,19 @@ public class LapHoaDonTuPhieuDatFrame extends JFrame implements ActionListener {
         };
         
         tblChiTietPhieuDat = new JTable(modelChiTietPhieuDat);
-        tblChiTietPhieuDat.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        tblChiTietPhieuDat.setRowHeight(30);
-        tblChiTietPhieuDat.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        tblChiTietPhieuDat.getTableHeader().setBackground(new Color(240, 250, 240));
+        tblChiTietPhieuDat.setRowHeight(35);
+        tblChiTietPhieuDat.setBackground(Color.WHITE);
+        tblChiTietPhieuDat.setGridColor(new Color(224, 224, 224));
+        tblChiTietPhieuDat.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        tblChiTietPhieuDat.setSelectionBackground(new Color(178, 223, 219));
+        tblChiTietPhieuDat.setSelectionForeground(Color.BLACK);
+        tblChiTietPhieuDat.setShowGrid(true);
+        tblChiTietPhieuDat.setIntercellSpacing(new Dimension(1, 1));
+        
+        tblChiTietPhieuDat.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
+        tblChiTietPhieuDat.getTableHeader().setBackground(PRIMARY_COLOR);
+        tblChiTietPhieuDat.getTableHeader().setForeground(Color.WHITE);
+        tblChiTietPhieuDat.getTableHeader().setPreferredSize(new Dimension(tblChiTietPhieuDat.getTableHeader().getWidth(), 40));
         tblChiTietPhieuDat.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         
         // Căn phải cho các cột số

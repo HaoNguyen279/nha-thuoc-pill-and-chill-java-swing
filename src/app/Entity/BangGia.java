@@ -1,6 +1,6 @@
 package app.Entity;
 
-import java.sql.Date;
+import java.util.Date;
 
 public class BangGia {
     private String maBangGia;
@@ -28,7 +28,8 @@ public class BangGia {
         this.isActive = isActive;
     }
 
-    public String getMaBangGia() {
+
+	public String getMaBangGia() {
         return maBangGia;
     }
 

@@ -19,7 +19,6 @@ import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -38,7 +37,7 @@ import app.ConnectDB.ConnectDB;
 import app.DAO.DonViDAO;
 import app.Entity.DonVi;
 
-public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseListener {
+public class CapNhatDonViSubPanel extends JPanel implements ActionListener, MouseListener {
     
     private final Color PRIMARY_COLOR = new Color(0, 150, 136);
     private final Color ACCENT_COLOR = new Color(255, 255, 255);
@@ -46,10 +45,8 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
     private final Color TEXT_COLOR = new Color(51, 51, 51);
     
     private final Color BTN_ADD_COLOR = new Color(46, 204, 113);
-    private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
-    private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
-    private final Color BTN_REFRESH_COLOR = new Color(57, 155, 226);
+
     private JLabel lblTieuDe;
     private JLabel lblMaDonVi;
     private JLabel lblTenDonVi;
@@ -57,35 +54,33 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
     private JTextField txtMaDonVi;
     private JTextField txtTenDonVi;
 
-    private JButton btnXoa;
-    private JButton btnSua;
-    private JButton btnThem;
-    private JButton btnXoaTrang;
-    private JButton btnLamMoi;
-    private JButton btnDonViDaXoa;
+    private JButton btnKhoiPhuc;
+    private JButton btnQuayLai;
     
     private DefaultTableModel dtm;
     private JTable tblDonVi;
     
     private ArrayList<DonVi> dsDonVi;
-    private DonViDAO dvDAO;
+    private DonViDAO dvDao;
     private CardLayout cardLayout;
     private JPanel mainContainer;
+    private CapNhatDonViPanel pnlCapNhatDonVi;
     
-    public CapNhatDonViPanel() {
+    public CapNhatDonViSubPanel(CapNhatDonViPanel pnlCapNhatDonVi) {
+        this.pnlCapNhatDonVi = pnlCapNhatDonVi;
         FlatLightLaf.setup();
         ConnectDB.getInstance().connect();
-        dvDAO = new DonViDAO();
+        dvDao = new DonViDAO();
         cardLayout = new CardLayout();
         mainContainer = new JPanel(cardLayout);
         
         setLayout(new BorderLayout());
-        
+
         initHeader();
         initInputForm();
         initButtons();
         
-        String[] cols = {"Mã đơn vị" , "Tên đơn vị"};
+        String[] cols = {"Mã đơn vị", "Tên đơn vị"};
         dtm = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -102,23 +97,22 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
         JPanel pnlMain = new JPanel(new BorderLayout(10, 10));
         pnlMain.setBackground(BG_COLOR);
         pnlMain.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        
+  
         pnlMain.add(pnlTop, BorderLayout.NORTH);
         pnlMain.add(createBotPanel(), BorderLayout.CENTER);
         
         mainContainer.add(pnlMain, "DanhSach");
-        mainContainer.add(new CapNhatDonViSubPanel(this), "DonViDaXoa");
         cardLayout.show(mainContainer, "DanhSach");
         
         add(mainContainer, BorderLayout.CENTER);
-        
         loadDonViData();
     }
 
     private void initHeader() {
-        lblTieuDe = new JLabel("QUẢN LÝ ĐƠN VỊ", SwingConstants.CENTER);
+        lblTieuDe = new JLabel("QUẢN LÝ ĐƠN VỊ ĐÃ XÓA", SwingConstants.CENTER);
         lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblTieuDe.setForeground(PRIMARY_COLOR);
+        lblTieuDe.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
     }
 
     private void initInputForm() {
@@ -133,9 +127,11 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
         
         txtMaDonVi = new JTextField();
         txtMaDonVi.setFont(fontText);
+        txtMaDonVi.setPreferredSize(new Dimension(200, 35));
         
         txtTenDonVi = new JTextField();
         txtTenDonVi.setFont(fontText);
+        txtTenDonVi.setPreferredSize(new Dimension(200, 35));
     }
 
     private JPanel createInputPanel() {
@@ -152,13 +148,11 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
 
         gbc.gridx = 0; gbc.gridy = 0; gbc.weightx = 0.1;
         pnlForm.add(lblMaDonVi, gbc);
-        
         gbc.gridx = 1; gbc.gridy = 0; gbc.weightx = 0.9;
         pnlForm.add(txtMaDonVi, gbc);
 
         gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.1;
         pnlForm.add(lblTenDonVi, gbc);
-        
         gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.9;
         pnlForm.add(txtTenDonVi, gbc);
 
@@ -166,43 +160,30 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
     }
 
     private void initButtons() {
-        btnThem = createStyledButton("Thêm", BTN_ADD_COLOR);
-        btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
-        btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
-        btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
-        btnLamMoi = createStyledButton("Làm mới", BTN_REFRESH_COLOR);
-        btnDonViDaXoa = createStyledButton("Đơn vị đã xóa", new Color(153,102,204));
+        btnKhoiPhuc = createStyledButton("Khôi phục", BTN_ADD_COLOR);
+        btnQuayLai = createStyledButton("Quay Lại", BTN_CLEAR_COLOR);
         
-        btnThem.addActionListener(this);
-        btnSua.addActionListener(this);
-        btnXoa.addActionListener(this);
-        btnXoaTrang.addActionListener(this);
-        btnLamMoi.addActionListener(this);
-        btnDonViDaXoa.addActionListener(this);
+        btnKhoiPhuc.addActionListener(this);
+        btnQuayLai.addActionListener(this);
     }
-    
+
     private JButton createStyledButton(String text, Color bgColor) {
         JButton btn = new JButton(text);
-        btn.setPreferredSize(new Dimension(120, 40));
+        btn.setPreferredSize(new Dimension(130, 45));
         btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btn.setBackground(bgColor);
         btn.setForeground(Color.WHITE);
         btn.setFocusPainted(false);
         btn.setBorderPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        
         return btn;
     }
 
     private JPanel createButtonPanel() {
         JPanel pnlButtons = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 10));
         pnlButtons.setBackground(BG_COLOR);
-        pnlButtons.add(btnThem);
-        pnlButtons.add(btnSua);
-        pnlButtons.add(btnXoa);
-        pnlButtons.add(btnXoaTrang);
-        pnlButtons.add(btnLamMoi);
-        pnlButtons.add(btnDonViDaXoa);
+        pnlButtons.add(btnKhoiPhuc);
+        pnlButtons.add(btnQuayLai);
         return pnlButtons;
     }
     
@@ -234,19 +215,16 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
         header.setReorderingAllowed(false);
         
-        // center note
         DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        
 
         // Center align cho tất cả các cột
         DefaultTableCellRenderer cellCenter = new DefaultTableCellRenderer();
         cellCenter.setHorizontalAlignment(JLabel.CENTER);
-        
-        for (int i = 0; i < tblDonVi. getColumnCount(); i++) {
-            tblDonVi. getColumnModel().getColumn(i).setCellRenderer(cellCenter);
+        for (int i = 0; i < tblDonVi.getColumnCount(); i++) {
+            tblDonVi.getColumnModel().getColumn(i).setCellRenderer(cellCenter);
         }
-        
+
         tblDonVi.addMouseListener(this);
         
         JScrollPane scrollPane = new JScrollPane(tblDonVi);
@@ -256,12 +234,12 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
     }
     
     public void loadDonViData() {
-        dsDonVi = dvDAO.getAllDonVi();
+        dsDonVi = dvDao.getAllInactiveDonVi();
         dtm.setRowCount(0);
         for(DonVi dv : dsDonVi) {
             Object[] rowData = {
-            		dv.getMaDonVi(),
-            		dv.getTenDonVi(),
+                dv.getMaDonVi(),
+                dv.getTenDonVi(),
             };
             dtm.addRow(rowData);
         }
@@ -275,122 +253,48 @@ public class CapNhatDonViPanel extends JPanel implements ActionListener, MouseLi
         loadDonViData();
     }
     
-    public void quayLaiDanhSach() {
-        cardLayout.show(mainContainer, "DanhSach");
-        loadDonViData();
-    }
-
     @Override
     public void actionPerformed(ActionEvent e) {
         Object o = e.getSource();
-        if(o == btnXoa) {
-            int selectedRow = tblDonVi.getSelectedRow();
-            if (selectedRow == -1) {
-                JOptionPane.showMessageDialog(this, "Vui lòng chọn đơn vị cần xóa!");
+        
+        if(o == btnKhoiPhuc) {
+            String maDV = txtMaDonVi.getText().trim();
+            
+            if(maDV.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn đơn vị cần khôi phục!");
                 return;
             }
-            String maCV = tblDonVi.getValueAt(selectedRow, 0).toString();
-
+            
             int option = JOptionPane.showConfirmDialog(this, 
-                    "Có chắc muốn xóa đơn vị " + maCV + "?", 
+                    "Có chắc muốn khôi phục đơn vị " + maDV + "?", 
                     "Xác nhận", 
                     JOptionPane.YES_NO_OPTION);
             
             if(option == JOptionPane.YES_OPTION) {
-                boolean result = dvDAO.deleteDonVi(maCV);
+                boolean result = dvDao.reactivateDonVi(maDV);
                 if(result) {
-                    JOptionPane.showMessageDialog(this, "Xóa đơn vị thành công!");
+                    JOptionPane.showMessageDialog(this, "Khôi phục đơn vị thành công!");
                     loadDonViData();
                     xoaTrang();
-                }
-                else {
-                    JOptionPane.showMessageDialog(this, 
-                        "Không thể xóa đơn vị này!\nHãy đảm bảo không tồn tại thuốc có đơn vị này.");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Khôi phục đơn vị không thành công!");
                 }
             }
         }
-        else if(o == btnThem) {
-            if(validateInput(true)) {
-                String maChucVu = txtMaDonVi.getText().trim();
-                String tenChucVu = txtTenDonVi.getText().trim();
-                
-                DonVi cv = new DonVi(maChucVu, tenChucVu, true);
-                boolean result = dvDAO.addDonVi(cv);
-                if(result) {
-                    JOptionPane.showMessageDialog(this, "Thêm đơn vị thành công!");
-                    loadDonViData();
-                    xoaTrang();
-                }
-                else {
-                    JOptionPane.showMessageDialog(this, "Thêm đơn vị không thành công!");
-                }
-            }
-        }
-        else if(o == btnSua) {
-            if(validateInput(false)) {
-                String maChucVu = txtMaDonVi.getText().trim();
-                String tenChucVu = txtTenDonVi.getText().trim();
-                
-                DonVi cv = new DonVi(maChucVu, tenChucVu, true);
-                boolean result = dvDAO.updateDonVi(cv);
-                if(result) {
-                    JOptionPane.showMessageDialog(this, "Cập nhật đơn vị thành công!");
-                    loadDonViData();
-                    xoaTrang();
-                }
-                else {
-                    JOptionPane.showMessageDialog(this, "Cập nhật đơn vị không thành công!");
-                }
-            }
-        }
-        else if(o == btnXoaTrang) {
-            xoaTrang();
-        }
-        else if(o == btnLamMoi) {
-            loadDonViData();
-            xoaTrang();
-        }
-        else if(o == btnDonViDaXoa) {
-            mainContainer.add(new CapNhatDonViSubPanel(this), "DonViDaXoa");
-            cardLayout.show(mainContainer, "DonViDaXoa");
+        else if(o == btnQuayLai) {
+            pnlCapNhatDonVi.quayLaiDanhSach();
         }
     }
     
-    private boolean validateInput(boolean isAddingNew) {
-        if (txtMaDonVi.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Mã đơn vị không được để trống!");
-            txtMaDonVi.requestFocus();
-            return false;
-        }
-        if (txtTenDonVi.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Tên đơn vị không được để trống!");
-            txtTenDonVi.requestFocus();
-            return false;
-        }
-        
-        if (isAddingNew) {
-            String maMoi = txtMaDonVi.getText().trim();
-            for (DonVi cv : dsDonVi) {
-                if (cv.getMaDonVi().equalsIgnoreCase(maMoi)) {
-                    JOptionPane.showMessageDialog(this, "Mã đơn vị đã tồn tại!");
-                    txtMaDonVi.requestFocus();
-                    return false;
-                }
-            }
-        }
-        
-        return true;
-    }
-
-    @Override
+    @Override   
     public void mouseClicked(MouseEvent e) {
         Object o = e.getSource();
         if(o == tblDonVi) {
+            txtMaDonVi.setEnabled(false);
             int row = tblDonVi.getSelectedRow();
             if (row >= 0) {
                 txtMaDonVi.setText(tblDonVi.getValueAt(row, 0).toString());
                 txtTenDonVi.setText(tblDonVi.getValueAt(row, 1).toString());
-                txtMaDonVi.setEnabled(false);
             }
         }
     }
