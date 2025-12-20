@@ -67,7 +67,7 @@ CREATE TABLE BangGia (
     loaiGia NVARCHAR(50),
 	ngayApDung DATE,
 	ngayKetThuc DATE,
-	trangThai VARCHAR(50),
+	trangThai NVARCHAR(50),
 	ghiChu NVARCHAR(100),
     doUuTien INT,
 	isActive bit DEFAULT 1,
@@ -501,7 +501,7 @@ GO
 
 -- Chèn dữ liệu bảng BangGia
 INSERT INTO BangGia (maBangGia, tenBangGia, loaiGia, ngayApDung, ngayKetThuc, trangThai, ghiChu,doUuTien, isActive) VALUES
-('BG001', N'Bảng giá chuẩn', N'Giá bán lẻ', '2025-01-01', '2099-01-01', 'DangApDung', N'Bảng giá mặc định',0, 1);
+('BG001', N'Bảng giá chuẩn', N'Giá bán lẻ', '2025-01-01', '2099-01-01', N'Đang áp dụng', N'Bảng giá mặc định',0, 1);
 GO
 
 -- Chèn dữ liệu bảng ChiTietBangGia
@@ -2246,6 +2246,12 @@ BEGIN
 END
 GO
 
+--================================================--
+
+-- 			PROCEDURE GỌI UPDATE HẠN SỬ DỤNG / CẬP NHẬT TRẠNG THÁI BẢNG GIÁ
+
+--================================================--
+
 -- PROCEDURE: Cập nhật thuốc hết hạn sử dụng
 CREATE PROCEDURE sp_CapNhatThuocHetHan
 AS
@@ -2263,6 +2269,35 @@ BEGIN
     END CATCH
 END;
 GO
+
+-- PROCEDURE: Cập nhật trạng thái bảng giá kết thúc
+CREATE PROCEDURE sp_CapNhatTrangThaiBangGia
+AS
+BEGIN
+    SET NOCOUNT ON;
+    BEGIN TRY
+        BEGIN TRANSACTION;
+        UPDATE BangGia
+        SET trangThai = N'Đã kết thúc'
+        WHERE ngayKetThuc < GETDATE() AND isActive = 1;
+
+		UPDATE BangGia
+        SET trangThai = N'Đang áp dụng'
+        WHERE ngayApDung <= GETDATE()
+          AND ngayKetThuc >= GETDATE() AND isActive = 1;
+
+        COMMIT TRANSACTION;
+    END TRY
+    BEGIN CATCH
+        IF @@TRANCOUNT > 0 ROLLBACK TRANSACTION;
+    END CATCH
+END;
+GO
+
+
+--================================================--
+
+
 
 -- Các Procedure thống kê khác (Giữ nguyên)
 CREATE PROCEDURE sp_ThongKeDoanhThuTheoThang
@@ -2431,7 +2466,7 @@ BEGIN
             ON T.maThuoc = CTBG.maThuoc
 		JOIN DonVi DV
 			ON DV.maDonVi = T.maDonVi
-        WHERE BG.trangThai = 'DangApDung'
+        WHERE BG.trangThai = N'Đang áp dụng'
           AND GETDATE() >= BG.ngayApDung
           AND GETDATE() <= BG.ngayKetThuc
     )
@@ -2446,6 +2481,57 @@ BEGIN
 		isActive
     FROM RankedPrice
     WHERE rn = 1;
+END;
+GO
+
+-- PROCEDURE Lấy danh sách thuốc kèm giá cũ và giá hiện tại
+-- Param: none
+-- Return: danh sách thuốc kèm giá chuẩn và giá hiện tại 
+CREATE PROCEDURE sp_LayDanhSachThuocKemGiaChuanVaGiaHienTai
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    WITH RankedPrice AS (
+        SELECT
+            T.maThuoc,
+            T.tenThuoc,
+            T.soLuongTon,
+            CTBG.donGia,
+            DV.tenDonVi,
+            T.soLuongToiThieu,
+            T.maNSX,
+            T.isActive,
+            ROW_NUMBER() OVER (
+                PARTITION BY CTBG.maThuoc
+                ORDER BY 
+                    BG.doUuTien DESC,
+                    BG.ngayApDung DESC,
+                    BG.maBangGia DESC
+            ) AS rn
+        FROM chiTietBangGia CTBG
+        JOIN BANGGIA BG 
+            ON BG.maBangGia = CTBG.maBangGia
+        JOIN Thuoc T
+            ON T.maThuoc = CTBG.maThuoc
+		JOIN DonVi DV
+			ON DV.maDonVi = T.maDonVi
+        WHERE BG.trangThai = N'Đang áp dụng'
+          AND GETDATE() >= BG.ngayApDung
+          AND GETDATE() <= BG.ngayKetThuc
+    )
+    SELECT 
+		RP.maThuoc,
+		RP.tenThuoc,
+		RP.soLuongTon,
+		CTBG.donGia as giaChuan,
+		RP.donGia as giaHienTai,
+		RP.tenDonVi,
+		RP.soLuongToiThieu,
+		RP.maNSX,
+		RP.isActive
+    FROM RankedPrice RP JOIN ChiTietBangGia CTBG ON RP.maThuoc = CTBG.maThuoc
+    WHERE rn = 1 AND CTBG.maBangGia = 'BG001';
 END;
 GO
 
@@ -2483,7 +2569,7 @@ BEGIN
 			ON DV.maDonVi = T.maDonVi
 		JOIN NhaSanXuat NSX
 			ON NSX.maNSX = T.maNSX
-        WHERE BG.trangThai = 'DangApDung'
+        WHERE BG.trangThai = N'Đang áp dụng'
           AND GETDATE() >= BG.ngayApDung
           AND GETDATE() <= BG.ngayKetThuc
     )
@@ -2527,7 +2613,7 @@ BEGIN
 	JOIN DonVi DV
 		ON DV.maDonVi = T.maDonVi
     WHERE CTBG.maThuoc = @maThuoc
-      AND BG.trangThai = 'DangApDung'
+      AND BG.trangThai = N'Đang áp dụng'
       AND GETDATE() BETWEEN BG.ngayApDung AND BG.ngayKetThuc
     ORDER BY 
         BG.doUuTien DESC,
