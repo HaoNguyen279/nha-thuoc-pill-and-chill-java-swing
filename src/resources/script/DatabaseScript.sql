@@ -2523,13 +2523,9 @@ BEGIN
     SELECT 
 		RP.maThuoc,
 		RP.tenThuoc,
-		RP.soLuongTon,
-		CTBG.donGia as giaChuan,
-		RP.donGia as giaHienTai,
 		RP.tenDonVi,
-		RP.soLuongToiThieu,
-		RP.maNSX,
-		RP.isActive
+		CTBG.donGia as giaChuan,
+		RP.donGia as giaHienTai
     FROM RankedPrice RP JOIN ChiTietBangGia CTBG ON RP.maThuoc = CTBG.maThuoc
     WHERE rn = 1 AND CTBG.maBangGia = 'BG001';
 END;
