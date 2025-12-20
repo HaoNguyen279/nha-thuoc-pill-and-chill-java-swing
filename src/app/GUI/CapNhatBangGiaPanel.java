@@ -411,49 +411,55 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
             }
         }
         else if(o == btnThem) {
-            if(validateInput(true)) {
-                String maBangGia = txtMaBangGia. getText();
-                String tenBangGia = txtTenBangGia.getText();
-                int doUuTien = Integer.parseInt(txtDoUuTien. getText());
-                String loaiBangGia = txtLoaiBangGia.getText();
-                String ghiChu = txtGhiChu. getText();
-                String trangThai = txtTrangThai.getText();
-                Date apDung = calNgayApDung.getDate();
-                Date ketThuc = calNgayKetThuc.getDate();
+          if(validateInput(true)) {
+          String maBangGia = txtMaBangGia. getText();
+          String tenBangGia = txtTenBangGia.getText();
+          int doUuTien = Integer.parseInt(txtDoUuTien. getText());
+          String loaiBangGia = txtLoaiBangGia.getText();
+          String ghiChu = txtGhiChu. getText();
+          String trangThai = txtTrangThai.getText();
+          Date apDung = calNgayApDung.getDate();
+          Date ketThuc = calNgayKetThuc.getDate();
+          
+          BangGiaDAO bgDAO = new BangGiaDAO();
+          BangGia bgNew = new BangGia(maBangGia, tenBangGia, loaiBangGia, apDung, ketThuc, trangThai, ghiChu, doUuTien, true);
+          boolean result = bgDAO.addBangGia(bgNew);
+          if(result) {
+              JOptionPane.showMessageDialog(this, "Thêm bảng giá thành công!");
+              loadBangGiaData();
+              xoaTrang();
+              
+				CapNhatChiTietBangGiaPanel t1 = new CapNhatChiTietBangGiaPanel(maBangGia, this);
+			    if(mainContainer.getComponentCount() > 1) {
+			        mainContainer.remove(mainContainer.getComponent(1));
+			    }
+				mainContainer.add(t1, "ChiTiet");
+				cardLayout.show(mainContainer, "ChiTiet");
+
                 
-                BangGiaDAO bgDAO = new BangGiaDAO();
-                BangGia bgNew = new BangGia(maBangGia, tenBangGia, loaiBangGia, apDung, ketThuc, trangThai, ghiChu, doUuTien, true);
-                boolean result = bgDAO.addBangGia(bgNew);
-                if(result) {
-                    JOptionPane.showMessageDialog(this, "Thêm bảng giá thành công!");
-                    loadBangGiaData();
-                    xoaTrang();
-                } else {
-                    JOptionPane. showMessageDialog(this, "Thêm bảng giá không thành công!");
-                }
-            }
+          } else {
+              JOptionPane. showMessageDialog(this, "Thêm bảng giá không thành công!");
+          }
+      }
+
+
         }
         else if(o == btnSua) {
-            if(validateInput(false)) {
-            	String maBangGia = txtMaBangGia. getText();
-                String tenBangGia = txtTenBangGia.getText();
-                int doUuTien = Integer.parseInt(txtDoUuTien. getText());
-                String loaiBangGia = txtLoaiBangGia.getText();
-                String ghiChu = txtGhiChu. getText();
-                String trangThai = txtTrangThai.getText();
-                Date apDung = calNgayApDung.getDate();
-                Date ketThuc = calNgayKetThuc.getDate();
+            String trangThai = txtTrangThai.getText();
+            String maBangGia = txtMaBangGia.getText();
+            if(trangThai.equalsIgnoreCase("Chưa áp dụng")) {
+                loadBangGiaData();
+                xoaTrang();
                 
-                BangGiaDAO bgDAO = new BangGiaDAO();
-                BangGia bgNew = new BangGia(maBangGia, tenBangGia, loaiBangGia, apDung, ketThuc, trangThai, ghiChu, doUuTien, true);
-                boolean result = bgDAO.updateBangGia(bgNew);
-                if(result) {
-                    JOptionPane.showMessageDialog(this, "Cập nhật bảng giá thành công!");
-                    loadBangGiaData();
-                    xoaTrang();
-                } else {
-                    JOptionPane.showMessageDialog(this, "Cập nhật bảng giá không thành công!");
-                }
+				CapNhatChiTietBangGiaPanel t1 = new CapNhatChiTietBangGiaPanel(maBangGia, this);
+			    if(mainContainer.getComponentCount() > 1) {
+			        mainContainer.remove(mainContainer.getComponent(1));
+			    }
+				mainContainer.add(t1, "ChiTiet");
+				cardLayout.show(mainContainer, "ChiTiet");
+				
+            } else {
+                JOptionPane.showMessageDialog(this, "Chỉ có thể sửa bảng giá chưa áp dụng!");
             }
         }
         else if(o == btnXoaTrang) {
@@ -516,7 +522,7 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
                 txtTrangThai.setText(tblBangGia. getValueAt(row, 6).toString());
                 txtGhiChu.setText(tblBangGia. getValueAt(row, 7).toString());
                 
-                txtMaBangGia.setEnabled(false);
+//                txtMaBangGia.setEnabled(false);
             }
         }
     }
@@ -562,6 +568,20 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
             return false;
         }
         
+        String tenBangGia = txtTenBangGia.getText();
+        if (tenBangGia.length() > 50 && !tenBangGia.trim().equalsIgnoreCase("")) {
+        	JOptionPane.showMessageDialog(this, "Tên bảng giá chỉ được nhập <50 ký tự!");
+        	txtTenBangGia.requestFocus();
+            return false;
+        }
+        
+        String loaiBangGia = txtLoaiBangGia.getText();
+        if (loaiBangGia.length() > 50 && !loaiBangGia.trim().equalsIgnoreCase("")) {
+        	JOptionPane.showMessageDialog(this, "Loại bảng giá chỉ được nhập <50 ký tự!");
+        	txtLoaiBangGia.requestFocus();
+            return false;
+        }
+        
         try {
             int doUuTien = Integer.parseInt(txtDoUuTien.getText().trim());
             if (doUuTien < 0 || doUuTien > 10) {
@@ -602,6 +622,13 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
         if (ketThuc.before(apDung)) {
             JOptionPane.showMessageDialog(this, "Ngày kết thúc phải bằng hoặc sau ngày áp dụng!");
             calNgayKetThuc.requestFocus();
+            return false;
+        }
+        
+        String ghiChu = txtGhiChu.getText();
+        if (ghiChu.length() > 50 && !ghiChu.trim().equalsIgnoreCase("")) {
+        	JOptionPane.showMessageDialog(this, "Ghi chú chỉ được nhập <50 ký tự!");
+        	txtGhiChu.requestFocus();
             return false;
         }
         return true;

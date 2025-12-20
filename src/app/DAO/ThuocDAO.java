@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 
 import app.ConnectDB.ConnectDB;
+import app.DTO.ThuocDTO;
+import app.DTO.ThuocKemGiaChuanVaGiaHienTaiDTO;
 import app.DTO.ThuocKemGiaDTO;
 import app.Entity.ChiTietLoThuoc;
 import app.Entity.LoThuoc;
@@ -838,5 +840,175 @@ public class ThuocDAO {
         }
     }
         
+    
+    /**
+     * Lấy danh sách tất cả thuốc dạng ThuocDTO
+     * @return ArrayList<ThuocDTO>
+     */
+    public ArrayList<ThuocDTO> getAllThuocDTO() {
+        ArrayList<ThuocDTO> dsThuoc = new ArrayList<>();
+        String sql = "{CALL sp_LayDanhSachThuocDTO}";
+       
+        Connection con = ConnectDB.getConnection();
+        if (con == null) {
+            return dsThuoc;
+        }
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            
+            while (rs.next()) {
+                String maThuoc = rs.getString("maThuoc");
+                String tenThuoc = rs.getString("tenThuoc");
+                int soLuongTon = rs.getInt("soLuongTon");
+                double giaChuan = rs.getDouble("giaChuan");
+                double giaHienTai = rs.getDouble("giaHienTai");
+                String tenDonVi = rs.getString("tenDonVi");
+                String maDonVi = rs.getString("maDonVi");      // ✅ Lấy maDonVi
+                int soLuongToiThieu = rs.getInt("soLuongToiThieu");
+                String maNSX = rs.getString("maNSX");
+                boolean isActive = rs.getBoolean("isActive");
+
+                ThuocDTO thuoc = new ThuocDTO(
+                    maThuoc, 
+                    tenThuoc, 
+                    soLuongTon, 
+                    giaChuan, 
+                    giaHienTai, 
+                    tenDonVi,
+                    maDonVi,        // ✅ Truyền maDonVi
+                    soLuongToiThieu, 
+                    maNSX, 
+                    isActive
+                );
+                dsThuoc.add(thuoc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return dsThuoc;
+    }
+
+    /**
+     * Lấy thông tin thuốc theo mã dạng ThuocDTO
+     * @param maThuoc Mã thuốc cần lấy
+     * @return ThuocDTO hoặc null nếu không tìm thấy
+     */
+    public ThuocDTO getThuocDTOById(String maThuoc) {
+        String sql = "{CALL sp_LayThuocDTOTheoMa(?)}";
+        ThuocDTO thuoc = null;
+
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            
+            stmt.setString(1, maThuoc);
+            
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String tenThuoc = rs.getString("tenThuoc");
+                    int soLuongTon = rs.getInt("soLuongTon");
+                    double giaChuan = rs.getDouble("giaChuan");
+                    double giaHienTai = rs.getDouble("giaHienTai");
+                    String tenDonVi = rs.getString("tenDonVi");
+                    String maDonVi = rs.getString("maDonVi");    // ✅ Lấy maDonVi
+                    int soLuongToiThieu = rs.getInt("soLuongToiThieu");
+                    String maNSX = rs.getString("maNSX");
+                    boolean isActive = rs.getBoolean("isActive");
+
+                    thuoc = new ThuocDTO(
+                        maThuoc, 
+                        tenThuoc, 
+                        soLuongTon, 
+                        giaChuan, 
+                        giaHienTai, 
+                        tenDonVi,
+                        maDonVi,        // ✅ Truyền maDonVi
+                        soLuongToiThieu, 
+                        maNSX, 
+                        isActive
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.err.println("Lỗi khi lấy thông tin thuốc: " + maThuoc);
+        }
+        
+        return thuoc;
+    }
+
+    /**
+     * Tìm kiếm thuốc theo tên hoặc mã (dạng ThuocDTO)
+     * @param keyword Từ khóa tìm kiếm
+     * @return ArrayList<ThuocDTO> các thuốc khớp với từ khóa
+     */
+    public ArrayList<ThuocDTO> timKiemThuocDTO(String keyword) {
+        ArrayList<ThuocDTO> allThuoc = getAllThuocDTO();
+        ArrayList<ThuocDTO> result = new ArrayList<>();
+        
+        String searchKeyword = keyword.toLowerCase().trim();
+        
+        for (ThuocDTO thuoc : allThuoc) {
+            if (thuoc.getTenThuoc().toLowerCase().contains(searchKeyword) ||
+                thuoc.getMaThuoc().toLowerCase().contains(searchKeyword)) {
+                result.add(thuoc);
+            }
+        }
+        
+        return result;
+    }
+    
+    /**
+     * Return list thuốc kèm giá cũ và giá hiện tại 
+     * @return An ArrayList of Thuoc objects.
+     */
+    public ArrayList<ThuocKemGiaChuanVaGiaHienTaiDTO> getAllThuocKemGiaChuanVaGiaHienTai() { //
+        ArrayList<ThuocKemGiaChuanVaGiaHienTaiDTO> dsThuoc = new ArrayList<>();
+        String sql = "{CALL sp_LayDanhSachThuocKemGiaChuanVaGiaHienTai}";
+       
+        Connection con = ConnectDB.getConnection();
+        if (con == null) {
+            return dsThuoc;
+        }
+
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            stmt = con.createStatement();
+            rs = stmt.executeQuery(sql);
+            
+            while (rs.next()) {
+                String maThuoc = rs.getString("maThuoc");
+                String tenThuoc = rs.getString("tenThuoc");
+                String donVi = rs.getString("tenDonVi");
+                double giaChuan = rs.getDouble("giaChuan");
+                double giaHienTai = rs.getDouble("giaHienTai");
+
+                ThuocKemGiaChuanVaGiaHienTaiDTO thuoc = new ThuocKemGiaChuanVaGiaHienTaiDTO(maThuoc, tenThuoc, donVi, giaChuan, giaHienTai);
+                dsThuoc.add(thuoc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            // Đóng ResultSet và Statement, KHÔNG đóng Connection vì nó là singleton
+            try {
+                if (rs != null) rs.close();
+                if (stmt != null) stmt.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+        return dsThuoc;
+    }
         
 }
