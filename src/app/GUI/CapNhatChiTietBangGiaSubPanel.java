@@ -188,7 +188,7 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(BG_COLOR);
         
-        String[] colsThuoc = {"Mã thuốc", "Tên thuốc", "Đơn vị", "Giá chuẩn", "Giá hiện tại"};
+        String[] colsThuoc = {"Mã thuốc", "Tên thuốc", "Mã đơn vị", "Giá chuẩn", "Giá hiện tại"};
         
         // Table 1: Danh sách thuốc có sẵn
         dtmThuoc = new DefaultTableModel(colsThuoc, 0) {

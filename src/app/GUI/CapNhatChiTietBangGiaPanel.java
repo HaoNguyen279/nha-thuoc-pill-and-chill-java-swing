@@ -134,7 +134,7 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
             }
         };
         
-        String[] colsChiTietBangGia = {"Mã bảng giá", "Mã thuốc", "Tên thuốc", "Giá bán", "Đơn vị"};
+        String[] colsChiTietBangGia = {"Mã bảng giá", "Mã thuốc", "Tên thuốc", "Giá bán", "Mã đơn vị"};
         dtmChiTietBangGia = new DefaultTableModel(colsChiTietBangGia, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {

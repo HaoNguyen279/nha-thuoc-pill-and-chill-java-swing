@@ -2480,7 +2480,7 @@ BEGIN
 		maNSX,
 		isActive
     FROM RankedPrice
-    WHERE rn = 1;
+    WHERE rn = 1 AND isActive = 1;
 END;
 GO
 
@@ -2539,48 +2539,111 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
+    -- CTE lấy giá ưu tiên cao nhất cho mỗi thuốc (nếu có)
     WITH RankedPrice AS (
         SELECT
-            T.maThuoc,
-            T.tenThuoc,
-            T.soLuongTon,
+            CTBG.maThuoc,
             CTBG.donGia,
-            DV.tenDonVi,
-            T.soLuongToiThieu,
-            NSX.tenNSX,
-            T.isActive,
             ROW_NUMBER() OVER (
                 PARTITION BY CTBG.maThuoc
                 ORDER BY 
                     BG.doUuTien DESC,
-                    BG.ngayApDung DESC,
+                    BG. ngayApDung DESC,
                     BG.maBangGia DESC
             ) AS rn
-        FROM chiTietBangGia CTBG
-        JOIN BANGGIA BG 
+        FROM ChiTietBangGia CTBG
+        JOIN BangGia BG 
             ON BG.maBangGia = CTBG.maBangGia
-        JOIN Thuoc T
-            ON T.maThuoc = CTBG.maThuoc
-		JOIN DonVi DV
-			ON DV.maDonVi = T.maDonVi
-		JOIN NhaSanXuat NSX
-			ON NSX.maNSX = T.maNSX
         WHERE BG.trangThai = N'Đang áp dụng'
           AND GETDATE() >= BG.ngayApDung
           AND GETDATE() <= BG.ngayKetThuc
+          AND CTBG.isActive = 1
     )
+    
+    -- Lấy toàn bộ thuốc, LEFT JOIN với giá
     SELECT 
-		maThuoc,
-		tenThuoc,
-		soLuongTon,
-		donGia,
-		tenDonVi,
-		soLuongToiThieu,
-		tenNSX,
-		isActive
-    FROM RankedPrice
-    WHERE rn = 1;
+        T. maThuoc,
+        T.tenThuoc,
+        T.soLuongTon,
+        ISNULL(RP.donGia, 0) AS donGia,  -- Nếu không có giá thì = 0
+        DV.tenDonVi,
+        T.soLuongToiThieu,
+        NSX.tenNSX,
+        T. isActive
+    FROM Thuoc T
+    LEFT JOIN DonVi DV
+        ON DV. maDonVi = T.maDonVi
+    LEFT JOIN NhaSanXuat NSX
+        ON NSX.maNSX = T.maNSX
+    LEFT JOIN RankedPrice RP
+        ON RP.maThuoc = T. maThuoc AND RP.rn = 1
+	where T.isActive = 1
+    ORDER BY T.maThuoc;
 END;
+GO
+
+
+
+-- PROCEDURE:  Cập nhật chi tiết bảng giá BG001 cho thuốc
+-- Param: @maThuoc - Mã thuốc cần cập nhật
+--        @giaBase - Giá cơ bản của thuốc
+-- Return:  Thông báo kết quả
+CREATE PROCEDURE sp_CapNhatGiaThuocBase
+    @maThuoc VARCHAR(50),
+    @giaBase FLOAT
+AS
+BEGIN
+    BEGIN TRY
+        -- Kiểm tra thuốc có tồn tại không
+        IF NOT EXISTS (SELECT 1 FROM Thuoc WHERE maThuoc = @maThuoc)
+        BEGIN
+            RAISERROR(N'Mã thuốc không tồn tại trong hệ thống! ', 16, 1);
+            RETURN;
+        END
+        
+        -- Kiểm tra giá hợp lệ
+        IF @giaBase < 0
+        BEGIN
+            RAISERROR(N'Giá không được âm!', 16, 1);
+            RETURN;
+        END
+        
+        -- Lấy mã đơn vị của thuốc
+        DECLARE @maDonVi VARCHAR(50);
+        SELECT @maDonVi = maDonVi FROM Thuoc WHERE maThuoc = @maThuoc;
+        
+        -- Kiểm tra chi tiết bảng giá đã tồn tại chưa
+        IF EXISTS (
+            SELECT 1 
+            FROM ChiTietBangGia 
+            WHERE maBangGia = 'BG001' AND maThuoc = @maThuoc
+        )
+        BEGIN
+            -- Cập nhật giá nếu đã tồn tại
+            UPDATE ChiTietBangGia
+            SET donGia = @giaBase,
+                maDonVi = @maDonVi,
+                isActive = 1
+            WHERE maBangGia = 'BG001' 
+              AND maThuoc = @maThuoc;
+              
+            PRINT N'Đã cập nhật giá thuốc ' + @maThuoc + N' thành ' + CAST(@giaBase AS NVARCHAR(20));
+        END
+        ELSE
+        BEGIN
+            -- Thêm mới nếu chưa tồn tại
+            INSERT INTO ChiTietBangGia (maBangGia, maThuoc, donGia, maDonVi, isActive)
+            VALUES ('BG001', @maThuoc, @giaBase, @maDonVi, 1);
+            
+            PRINT N'Đã thêm mới giá thuốc ' + @maThuoc + N' với giá ' + CAST(@giaBase AS NVARCHAR(20));
+        END
+        
+    END TRY
+    BEGIN CATCH
+        DECLARE @ErrorMessage NVARCHAR(4000) = ERROR_MESSAGE();
+        RAISERROR(@ErrorMessage, 16, 1);
+    END CATCH
+END
 GO
 
 -- PROCEDURE Lấy thuốc by id kèm giá

@@ -22,6 +22,7 @@ import java.util.Date;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -67,7 +68,7 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
 	private JTextField txtTenBangGia;
 	private JTextField txtGhiChu;
 	private JTextField txtDoUuTien;
-	private JTextField txtTrangThai;
+	private JComboBox<String> cboTrangThai;
 	private JTextField txtLoaiBangGia;
 	
     private JDateChooser calNgayApDung;
@@ -75,6 +76,7 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
 
     private JButton btnXoa;
     private JButton btnSua;
+    private JButton btnSuaChiTiet;
     private JButton btnThem;
     private JButton btnXoaTrang;
     private JButton btnKhuyenMaiDaXoa;
@@ -179,9 +181,15 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
         txtDoUuTien.setFont(fontText);
         txtDoUuTien.setPreferredSize(new Dimension(200, 35));
         
-        txtTrangThai = new JTextField();
-        txtTrangThai.setFont(fontText);
-        txtTrangThai.setPreferredSize(new Dimension(200, 35));
+        cboTrangThai = new JComboBox<String>();
+        cboTrangThai.addItem("Chưa áp dụng");
+        cboTrangThai.addItem("Đang áp dụng");
+        cboTrangThai.addItem("Đã kết thúc");
+        cboTrangThai.setSelectedIndex(0);
+        cboTrangThai.setPreferredSize(new Dimension(200, 35));
+//        txtTrangThai = new JTextField();
+//        txtTrangThai.setFont(fontText);
+//        txtTrangThai.setPreferredSize(new Dimension(200, 35));
         
         txtLoaiBangGia = new JTextField();
         txtLoaiBangGia.setFont(fontText);
@@ -250,7 +258,7 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
         gbc.gridx = 2; gbc.gridy = 3; gbc.weightx = 0.1;
         pnlForm.add(lblTrangThai, gbc);
         gbc.gridx = 3; gbc.gridy = 3; gbc.weightx = 0.4;
-        pnlForm.add(txtTrangThai,gbc);
+        pnlForm.add(cboTrangThai,gbc);
         
         return pnlForm;
     }
@@ -258,14 +266,16 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
     private void initButtons() {
         btnThem = createStyledButton("Thêm", BTN_ADD_COLOR);
         btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
+        btnSuaChiTiet = createStyledButton("Sửa chi tiết", Color.orange);
         btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
         btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
-        btnKhuyenMaiDaXoa = createStyledButton("Bảng giá đã xóa", BTN_EDIT_COLOR);
+        btnKhuyenMaiDaXoa = createStyledButton("Bảng giá đã xóa", Color.pink);
         btnKhuyenMaiDaXoa.setPreferredSize(new Dimension(180, 45));
         btnXemChiTiet = createStyledButton("Xem chi tiết", BTN_ADD_COLOR);
 
         btnThem.addActionListener(this);
         btnSua.addActionListener(this);
+        btnSuaChiTiet.addActionListener(this);
         btnXoa.addActionListener(this);
         btnXoaTrang.addActionListener(this);
         btnKhuyenMaiDaXoa.addActionListener(this);
@@ -289,6 +299,7 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
         pnlButtons.setBackground(BG_COLOR);
         pnlButtons.add(btnThem);
         pnlButtons.add(btnSua);
+        pnlButtons.add(btnSuaChiTiet);
         pnlButtons.add(btnXoa);
         pnlButtons.add(btnXoaTrang);
         pnlButtons.add(btnKhuyenMaiDaXoa);
@@ -371,7 +382,7 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
         txtDoUuTien.setText("0");
         txtGhiChu.setText("");
         txtLoaiBangGia.setText("");
-        txtTrangThai.setText("");
+//        txtTrangThai.setText("");
         txtMaBangGia.setEnabled(true);
         tblBangGia. clearSelection();
         loadBangGiaData();
@@ -387,12 +398,16 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
         Object o = e.getSource();
         if(o == btnXoa) {
             int selectedRow = tblBangGia.getSelectedRow();
+            
             if (selectedRow == -1) {
                 JOptionPane.showMessageDialog(this, "Vui lòng chọn bảng giá cần xóa!");
                 return;
             }
             String ma = tblBangGia.getValueAt(selectedRow, 0).toString();
-
+            if(ma.equalsIgnoreCase("BG001")) {
+                JOptionPane.showMessageDialog(this, "Không thể xóa bảng giá chuẩn");
+            	return;
+            }
             int option = JOptionPane.showConfirmDialog(this, 
                     "Có chắc muốn xóa bảng giá " + ma + "?", 
                     "Xác nhận", 
@@ -417,7 +432,8 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
           int doUuTien = Integer.parseInt(txtDoUuTien. getText());
           String loaiBangGia = txtLoaiBangGia.getText();
           String ghiChu = txtGhiChu. getText();
-          String trangThai = txtTrangThai.getText();
+          String trangThai =  cboTrangThai.getSelectedItem().toString();
+//          String trangThai = txtTrangThai.getText();
           Date apDung = calNgayApDung.getDate();
           Date ketThuc = calNgayKetThuc.getDate();
           
@@ -445,8 +461,48 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
 
         }
         else if(o == btnSua) {
-            String trangThai = txtTrangThai.getText();
+            int selectedRow = tblBangGia.getSelectedRow();
+            if (selectedRow == -1) {
+                JOptionPane.showMessageDialog(this, "Vui lòng chọn bảng giá cần sửa!");
+                return;
+            }
+            
+            if(validateInput(false)) {
+                String maBangGia = txtMaBangGia.getText();
+                
+                if(maBangGia.equalsIgnoreCase("BG001")) {
+                    JOptionPane.showMessageDialog(this, "Không thể sửa bảng giá chuẩn");
+                    return;
+                }
+                String tenBangGia = txtTenBangGia.getText();
+                int doUuTien = Integer.parseInt(txtDoUuTien.getText());
+                String loaiBangGia = txtLoaiBangGia.getText();
+                String ghiChu = txtGhiChu.getText();
+                String trangThai = cboTrangThai.getSelectedItem().toString();
+                Date apDung = calNgayApDung.getDate();
+                Date ketThuc = calNgayKetThuc.getDate();
+                
+                BangGiaDAO bgDAO = new BangGiaDAO();
+                BangGia bgNew = new BangGia(maBangGia, tenBangGia, loaiBangGia, apDung, ketThuc, trangThai, ghiChu, doUuTien, true);
+                
+                boolean result = bgDAO.updateBangGia(bgNew);
+                if(result) {
+                    JOptionPane.showMessageDialog(this, "Cập nhật bảng giá thành công!");
+                    loadBangGiaData();
+                    xoaTrang();
+                } else {
+                    JOptionPane.showMessageDialog(this, "Cập nhật bảng giá không thành công!");
+                }
+            }
+        }
+        else if(o == btnSuaChiTiet) {
+//            String trangThai = txtTrangThai.getText();
+            String trangThai =  cboTrangThai.getSelectedItem().toString();
             String maBangGia = txtMaBangGia.getText();
+            if(maBangGia.equalsIgnoreCase("BG001")) {
+                JOptionPane.showMessageDialog(this, "Không thể sửa bảng giá chuẩn");
+                return;
+            }
             if(trangThai.equalsIgnoreCase("Chưa áp dụng")) {
                 loadBangGiaData();
                 xoaTrang();
@@ -519,10 +575,11 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
                     e2.printStackTrace();
                 }
                 
-                txtTrangThai.setText(tblBangGia. getValueAt(row, 6).toString());
+//                txtTrangThai.setText(tblBangGia. getValueAt(row, 6).toString());
+                cboTrangThai.setSelectedItem(tblBangGia. getValueAt(row, 6).toString());
                 txtGhiChu.setText(tblBangGia. getValueAt(row, 7).toString());
                 
-//                txtMaBangGia.setEnabled(false);
+                txtMaBangGia.setEnabled(false);
             }
         }
     }
@@ -546,11 +603,11 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
             txtLoaiBangGia.requestFocus();
             return false;
         }
-        if (txtTrangThai.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Trạng thái không được để trống!");
-            txtTrangThai.requestFocus();
-            return false;
-        }
+//        if (txtTrangThai.getText().trim().isEmpty()) {
+//            JOptionPane.showMessageDialog(this, "Trạng thái không được để trống!");
+//            txtTrangThai.requestFocus();
+//            return false;
+//        }
 
         String maBangGia = txtMaBangGia.getText().trim();
         if(isAddingNew) {

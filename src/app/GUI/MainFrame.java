@@ -117,10 +117,9 @@ public class MainFrame extends JFrame {
         
         // Thêm hình ảnh nền
         try {
-//        	ImageIcon img = new ImageIcon(getClass().getResource("/resources/image/pharmacy_gemini.png"));
-        	ResizableImageLabel lblImg = new ResizableImageLabel("/resources/image/pharmacy_gemini.png");
-//        	JLabel lblImg = new JLabel();
-//        	lblImg.setIcon(img);
+        	ImageIcon img = new ImageIcon(getClass().getResource("/resources/image/pharmacy_gemini.png"));
+        	JLabel lblImg = new JLabel();
+        	lblImg.setIcon(img);
             panel.add(lblImg, BorderLayout.CENTER);
         } catch (Exception e) {
             // Nếu không tìm thấy hình ảnh, hiển thị text
@@ -322,10 +321,6 @@ public class MainFrame extends JFrame {
 	}
     
     public void showCapNhatDonViPanel() {
-    	if(!isQuanLy) {
-    		JOptionPane.showMessageDialog(this, "Chỉ có Nhân viên Quản lý mới có thể dùng chức năng này!", "Thông báo", JOptionPane.WARNING_MESSAGE);
-    		return;
-    	}
 		if(capNhatDonViPanel == null) {
 			capNhatDonViPanel = new CapNhatDonViPanel();
 		}
@@ -434,48 +429,5 @@ public class MainFrame extends JFrame {
 
 }
 
-/**
- * Custom JLabel để tự động scale ảnh theo kích thước của nó.
- */
-class ResizableImageLabel extends JLabel {
-
-    private Image originalImage;
-
-    public ResizableImageLabel(String imagePath) {
-        // Load ảnh gốc
-        try {
-            this.originalImage = new ImageIcon(getClass().getResource(imagePath)).getImage();
-        } catch (Exception e) {
-            System.err.println("Không tìm thấy ảnh: " + imagePath);
-            this.originalImage = null;
-        }
-    }
-
-    @Override
-    protected void paintComponent(Graphics g) {
-        super.paintComponent(g);
-        
-        if (originalImage != null) {
-            // Lấy kích thước hiện tại của JLabel
-            int labelWidth = getWidth();
-            int labelHeight = getHeight();
-            
-            // 1. Scale ảnh
-            // Lấy ảnh đã được scale
-            Image scaledImage = originalImage.getScaledInstance(
-                labelWidth, labelHeight, Image.SCALE_SMOOTH);
-            
-            // 2. Vẽ ảnh lên JLabel
-            // Vẽ ở tọa độ (0, 0) để lấp đầy toàn bộ JLabel
-            g.drawImage(scaledImage, 0, 0, this);
-        }
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-
-        return getParent() != null ? getParent().getSize() : super.getPreferredSize();
-    }
-}
 
 

@@ -318,7 +318,7 @@ public class MenuBarPanel extends JPanel implements ActionListener {
         }
         else if (o == mniHoTro) {
             try {
-                URL fileURL = App.class.getResource("/pdf/HuongDanSuDungPhanMem.pdf");
+                URL fileURL = App.class.getResource("/resources/pdf/HuongDanSuDungPhanMem.pdf");
                 if(fileURL != null) {
                     File file = new File(fileURL.toURI());
                     if(file.exists() && Desktop.isDesktopSupported()) {

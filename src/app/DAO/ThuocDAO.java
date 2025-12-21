@@ -209,7 +209,21 @@ public class ThuocDAO {
         }
         return dsThuoc;
     }
-    
+    public boolean capNhatGiaThuocBase(float gia, String ma) {
+        String sql = "{Call sp_CapNhatGiaThuocBase(?,?)}";
+        int n = 0;
+
+        try (Connection con = ConnectDB.getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, ma);
+            stmt.setFloat(2, gia);
+
+            n = stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return n > 0;
+    }
     
     
 
@@ -439,11 +453,11 @@ public class ThuocDAO {
              PreparedStatement stmt = con.prepareStatement(sql)) {
             stmt.setString(1, thuoc.getTenThuoc());
             stmt.setInt(2, thuoc.getSoLuongTon());
-            stmt.setString(4, thuoc.getDonVi());
-            stmt.setInt(5, thuoc.getSoLuongToiThieu());
-            stmt.setString(6, thuoc.getMaNSX());
-            stmt.setBoolean(7, thuoc.isIsActive()); // Use the provided getter
-            stmt.setString(8, thuoc.getMaThuoc());
+            stmt.setString(3, thuoc.getDonVi());
+            stmt.setInt(4, thuoc.getSoLuongToiThieu());
+            stmt.setString(5, thuoc.getMaNSX());
+            stmt.setBoolean(6, thuoc.isIsActive()); // Use the provided getter
+            stmt.setString(7, thuoc.getMaThuoc());
             
             n = stmt.executeUpdate();
         } catch (SQLException e) {

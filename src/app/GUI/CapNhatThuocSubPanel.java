@@ -103,7 +103,7 @@ public class CapNhatThuocSubPanel extends JPanel implements ActionListener, Mous
         initInputForm();
         initButtons();
         
-        String[] cols = {"Mã thuốc" , "Tên thuốc", "Số lượng", "Giá bán", "Đơn vị", "Nhà SX"};
+        String[] cols = {"Mã thuốc" , "Tên thuốc", "Số lượng", "Đơn vị", "Nhà SX"};
         dtm = new DefaultTableModel(cols, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {

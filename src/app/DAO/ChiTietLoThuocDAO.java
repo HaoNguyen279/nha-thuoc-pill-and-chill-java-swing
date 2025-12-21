@@ -34,6 +34,8 @@ public class ChiTietLoThuocDAO {
                     rs.getString("maThuoc"),
                     rs.getDate("ngaySanXuat"),
                     rs.getDate("hanSuDung"),
+                    rs.getInt("soLuong"),
+                    rs.getDouble("giaNhap"),
                     rs.getBoolean("isActive")
                 );
                 dsChiTiet.add(ct);
