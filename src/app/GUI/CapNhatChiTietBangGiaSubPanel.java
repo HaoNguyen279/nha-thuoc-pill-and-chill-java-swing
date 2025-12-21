@@ -471,9 +471,7 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
             // Reset
             dsThuocDaChon.clear();
             
-            // Quay về main panel
-            CardLayout cl = (CardLayout) getParent().getLayout();
-            cl.show(getParent(), "mainPanel");
+            parentPanel.quayLaiDanhSach();
         }
     }
 

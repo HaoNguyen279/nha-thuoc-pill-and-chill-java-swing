@@ -346,6 +346,7 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
     
     private void initButtons() {
         btnThem = createStyledButton("Chọn thuốc cần thêm", BTN_ADD_COLOR);
+        btnThem.setPreferredSize(new Dimension(180,45));
         btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
         btnLuu = createStyledButton("Lưu", PRIMARY_COLOR);
 

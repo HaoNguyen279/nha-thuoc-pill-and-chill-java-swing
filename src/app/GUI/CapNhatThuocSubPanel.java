@@ -313,8 +313,8 @@ public class CapNhatThuocSubPanel extends JPanel implements ActionListener, Mous
     public void loadNhaSanXuatData() {
         dsNhaSanXuat = nsxDAO.getAllNhaSanXuat();
         for(NhaSanXuat item : dsNhaSanXuat) {
-            cboNhaSanXuat.addItem(item.getTenNSX());
-            mapNhaSanXuat.put(item.getMaNSX(), item.getTenNSX());
+            cboNhaSanXuat.addItem(item.getMaNSX());
+//            mapNhaSanXuat.put(item.getMaNSX(), item.getTenNSX());
         }
     }
     
@@ -463,8 +463,8 @@ public class CapNhatThuocSubPanel extends JPanel implements ActionListener, Mous
                 txtTenThuoc.setText(tblThuoc.getValueAt(row, 1).toString());
                 txtSoLuongTon.setText(tblThuoc.getValueAt(row, 2).toString());
               
-                cboDonVi.setSelectedItem(tblThuoc.getValueAt(row, 4).toString());
-                cboNhaSanXuat.setSelectedItem(tblThuoc.getValueAt(row, 5).toString());
+                cboDonVi.setSelectedItem(tblThuoc.getValueAt(row, 3).toString());
+                cboNhaSanXuat.setSelectedItem(tblThuoc.getValueAt(row, 4).toString());
             }
         }
     }

@@ -266,7 +266,7 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
     private void initButtons() {
         btnThem = createStyledButton("Thêm", BTN_ADD_COLOR);
         btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
-        btnSuaChiTiet = createStyledButton("Sửa chi tiết", Color.orange);
+        btnSuaChiTiet = createStyledButton("Sửa chi tiết", Color.BLUE);
         btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
         btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
         btnKhuyenMaiDaXoa = createStyledButton("Bảng giá đã xóa", Color.pink);

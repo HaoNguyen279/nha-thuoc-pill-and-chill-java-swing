@@ -114,7 +114,7 @@ public class BangGiaDAO {
     }
     
     public boolean deleteBangGia(String id) {
-        String sql = "UPDATE BangGia SET isActive = 0 WHERE maBangGia = ?";
+        String sql = "UPDATE BangGia SET isActive = 0, trangThai = N'Đã kết thúc'  WHERE maBangGia = ?";
         int n = 0;
         Connection con = ConnectDB.getInstance().getConnection();
         PreparedStatement stmt = null;

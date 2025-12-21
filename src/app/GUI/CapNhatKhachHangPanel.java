@@ -449,8 +449,8 @@ public class CapNhatKhachHangPanel extends JPanel implements ActionListener, Mou
         }
         
         String soDienThoai = txtSoDienThoai.getText().trim();
-        if (!soDienThoai.matches("\\d{10}")) {
-            JOptionPane.showMessageDialog(this, "Số điện thoại phải có đúng 10 ký số!");
+        if (!soDienThoai.matches("^0\\d{9}")) {
+            JOptionPane.showMessageDialog(this, "Số điện thoại phải có đúng 10 ký số và bắt đầu bằng 0!");
             txtSoDienThoai.requestFocus();
             return false;
         }
