@@ -72,6 +72,37 @@ public class HoaDonDAO {
         return hd;
     }
     
+
+    /**
+     * Lấy danh sách hóa đơn của một khách hàng kèm tổng tiền
+     */
+    public ArrayList<HoaDonKemGiaDTO> getHoaDonTheoKhachHang(String maKH) {
+        ArrayList<HoaDonKemGiaDTO> dsHoaDonKemGia = new ArrayList<>();
+        String sql = "SELECT hd.maHoaDon, nv.tenNV, kh.tenKH, hd.ngayBan, hd.ghiChu, SUM(cthd.donGia * cthd.soLuong) AS tongTien\n"
+                + "FROM HoaDon hd\n"
+                + "JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
+                + "JOIN NhanVien nv ON nv.maNV = hd.maNV\n"
+                + "JOIN ChiTietHoaDon cthd ON cthd.maHoaDon = hd.maHoaDon\n"
+                + "WHERE hd.isActive = 1 AND hd.maKH = ?\n"
+                + "GROUP BY hd.maHoaDon, nv.tenNV, kh.tenKH, hd.ngayBan, hd.ghiChu\n"
+                + "ORDER BY hd.ngayBan DESC, hd.maHoaDon DESC";
+
+        try (Connection con = ConnectDB.getInstance().getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+            stmt.setString(1, maKH);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    dsHoaDonKemGia.add(mapResToInvoiceWithTotal(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return dsHoaDonKemGia;
+    }
+
     /**
      * Finds active invoices within a specific date range.
      * @param fromDate The start date of the range.

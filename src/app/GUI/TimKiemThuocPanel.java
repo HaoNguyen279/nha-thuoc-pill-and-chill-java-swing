@@ -12,8 +12,10 @@ import com.formdev.flatlaf.FlatLightLaf;
 
 
 import app.ConnectDB. ConnectDB;
+import app.DAO.DonViDAO;
 import app. DAO.NhaSanXuatDAO;
 import app.DAO.ThuocDAO;
+import app.Entity.DonVi;
 import app. Entity.NhaSanXuat;
 import app.Entity.Thuoc;
 
@@ -60,6 +62,8 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
 	private ArrayList<NhaSanXuat> dsNhaSanXuat;
 	private NhaSanXuatDAO nsxDAO = new NhaSanXuatDAO();
 	private HashMap mapNhaSanXuat;
+	private DonViDAO donViDAO;
+	private ArrayList<DonVi> dsDonVi;
 	
     public TimKiemThuocPanel() {
     	
@@ -76,6 +80,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
         ConnectDB. getInstance().connect();
         
         nsxDAO = new NhaSanXuatDAO();
+        donViDAO = new DonViDAO();
         mapNhaSanXuat = new HashMap<>();
         
         dsThuoc = thuocdao.getAllThuocCoTenNSX();
@@ -100,7 +105,7 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
             }
         });
         loadNhaSanXuatData();
-        loadNhaSanXuatData();
+
         setVisible(true);
     }
     
@@ -134,14 +139,14 @@ public class TimKiemThuocPanel extends JPanel implements ActionListener,MouseLis
     	cboNhaSanXuat = new JComboBox<>();
     	
     	// Thêm các đơn vị phổ biến
-    	cboDonVi.addItem("");
-    	cboDonVi.addItem("Viên");
-    	cboDonVi.addItem("Hộp");
-    	cboDonVi.addItem("Vỉ");
-    	cboDonVi.addItem("Chai");
-    	cboDonVi.addItem("Ống");
-    	cboDonVi.addItem("Tuýp");
-    	cboDonVi.addItem("Gói");
+    	
+    	dsDonVi = donViDAO.getAllDonVi();
+	    cboDonVi.addItem("");
+	    for(DonVi item : dsDonVi) {
+	        cboDonVi.addItem(item.getTenDonVi());
+	       
+	    }
+    	
     	
         btnXoaTrang = new JButton("Xóa trắng");
         btnTimKiem = new JButton("Tìm kiếm");

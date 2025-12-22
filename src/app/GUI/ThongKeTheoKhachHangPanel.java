@@ -4,14 +4,19 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
+import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -21,11 +26,13 @@ import java.util.Map;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
+import javax.swing.SwingUtilities;
 
 import app.ConnectDB.ConnectDB;
 import app.DAO.ChiTietHoaDonDAO;
 import app.DAO.HoaDonDAO;
 import app.DAO.KhachHangDAO;
+import app.DTO.HoaDonKemGiaDTO;
 import app.Entity.ChiTietHoaDon;
 import app.Entity.HoaDon;
 import app.Entity.KhachHang;
@@ -48,6 +55,8 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener{
 	private ArrayList<KhachHang> dsKhachHang;
 	private ArrayList<ChiTietHoaDon> dsChiTietHoaDon;
 	private ArrayList<HoaDon> dsHoaDon;
+	private final HoaDonDAO hdDAO = new HoaDonDAO();
+	private final DecimalFormat currencyFormat = new DecimalFormat("#,### 'VNĐ'");
 
 	public ThongKeTheoKhachHangPanel() {
 		// Table init
@@ -198,6 +207,20 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener{
         tblThongKe.setSelectionForeground(Color.BLACK);
         tblThongKe.setShowGrid(true);
         tblThongKe.setIntercellSpacing(new Dimension(1, 1));
+
+		tblThongKe.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				if (e.getClickCount() == 2 && SwingUtilities.isLeftMouseButton(e)) {
+					int row = tblThongKe.rowAtPoint(e.getPoint());
+					if (row >= 0) {
+						String maKH = (String) dtmThongKe.getValueAt(row, 0);
+						String tenKH = (String) dtmThongKe.getValueAt(row, 1);
+						showHoaDonCuaKhachHang(maKH, tenKH);
+					}
+				}
+			}
+		});
 
         JTableHeader header = tblThongKe.getTableHeader();
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
@@ -365,6 +388,81 @@ public class ThongKeTheoKhachHangPanel extends JPanel implements ActionListener{
 	    };
 
 	    dtmThongKe.addRow(rowData);
+	}
+
+	private void showHoaDonCuaKhachHang(String maKH, String tenKH) {
+		ArrayList<HoaDonKemGiaDTO> hoaDons = hdDAO.getHoaDonTheoKhachHang(maKH);
+		if (hoaDons.isEmpty()) {
+			JOptionPane.showMessageDialog(this, "Khách hàng " + tenKH + " chưa có hóa đơn.");
+			return;
+		}
+
+		Window window = SwingUtilities.getWindowAncestor(this);
+		JDialog dialog;
+		if (window instanceof Frame) {
+		    dialog = new JDialog((Frame) window, "Hóa đơn của " + tenKH, true);
+		} else if (window instanceof Dialog) {
+		    dialog = new JDialog((Dialog) window, "Hóa đơn của " + tenKH, true);
+		} else {
+		    dialog = new JDialog((Frame) null, "Hóa đơn của " + tenKH, true);
+		}
+		dialog.setSize(850, 500);
+		dialog.setLocationRelativeTo(this);
+		dialog.setLayout(new BorderLayout(10, 10));
+
+		String[] cols = {"Mã hóa đơn", "Ngày lập", "Nhân viên lập", "Tổng tiền", "Ghi chú"};
+		DefaultTableModel model = new DefaultTableModel(cols, 0) {
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+		};
+
+		JTable tblHoaDon = new JTable(model) {
+			@Override
+			public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
+				Component c = super.prepareRenderer(renderer, row, column);
+				if (!isRowSelected(row)) {
+					c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
+				}
+				return c;
+			}
+		};
+
+		tblHoaDon.setRowHeight(32);
+		tblHoaDon.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+		tblHoaDon.setSelectionBackground(new Color(178, 223, 219));
+		tblHoaDon.setSelectionForeground(Color.BLACK);
+		tblHoaDon.setGridColor(new Color(224, 224, 224));
+		tblHoaDon.setShowGrid(true);
+
+		JTableHeader header = tblHoaDon.getTableHeader();
+		header.setPreferredSize(new Dimension(header.getWidth(), 40));
+		header.setBackground(PRIMARY_COLOR);
+		header.setForeground(Color.WHITE);
+		header.setFont(new Font("Segoe UI", Font.BOLD, 14));
+		header.setReorderingAllowed(false);
+
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		for (HoaDonKemGiaDTO hd : hoaDons) {
+			Object[] rowData = {
+				hd.getMaHoaDon(),
+				sdf.format(hd.getNgayBan()),
+				hd.getTenNV(),
+				currencyFormat.format(hd.getTongTien()),
+				hd.getGhiChu()
+			};
+			model.addRow(rowData);
+		}
+
+		JScrollPane scrollPane = new JScrollPane(tblHoaDon);
+		scrollPane.setBorder(BorderFactory.createCompoundBorder(
+				BorderFactory.createEmptyBorder(10, 10, 10, 10),
+				BorderFactory.createLineBorder(new Color(220, 220, 220))));
+		scrollPane.getViewport().setBackground(Color.WHITE);
+
+		dialog.add(scrollPane, BorderLayout.CENTER);
+		dialog.setVisible(true);
 	}
 
 	

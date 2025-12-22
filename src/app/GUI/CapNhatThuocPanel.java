@@ -226,6 +226,12 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         pnlForm.add(lblGiaBanDau, gbc);
         gbc.gridx = 3; gbc.gridy = 2; gbc.weightx = 0.4;
         pnlForm.add(txtGiaBanDau, gbc);
+        
+        // test them
+//        gbc.gridx = 4; gbc.gridy = 1; gbc.weightx = 0.1;
+//        pnlForm.add(new JLabel("dawd"), gbc);
+//        gbc.gridx = 5; gbc.gridy = 1; gbc.weightx = 0.4;
+//        pnlForm.add(new JTextField(20), gbc);
 
         return pnlForm;
     }
@@ -299,6 +305,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         header.setPreferredSize(new Dimension(header.getWidth(), 40));
         header.setReorderingAllowed(false);
         
+        // center align
         DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
@@ -310,7 +317,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
         
         JScrollPane scrollPane = new JScrollPane(tblThuoc);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        scrollPane.getViewport().setBackground(Color.WHITE);
+        scrollPane.getViewport().setBackground(Color.WHITE); // set background của view port vì set bth ko có tác dụng
         return scrollPane;
     }
     
@@ -435,7 +442,11 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                 String tenThuoc = txtTenThuoc.getText().trim();
                 int soLuongTon = Integer.parseInt(txtSoLuongTon.getText().trim());
                
-                String donVi = cboDonVi.getSelectedItem().toString();
+//                String donVi = cboDonVi.getSelectedItem().toString();  check
+                
+                
+                String tenDonVi = cboDonVi.getSelectedItem().toString();
+                String maDonVi = mapDonVi.get(tenDonVi);
                 int soLuongToiThieu = 0;
                 
                 String tenNSX = cboNhaSanXuat.getSelectedItem().toString();
@@ -449,7 +460,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                 
                 ThuocDAO thuocDAO = new ThuocDAO();
                 Thuoc thuocUpdate = new Thuoc(maThuoc, tenThuoc, soLuongTon, 
-                                              donVi, soLuongToiThieu, maNSX, true);
+                                              maDonVi, soLuongToiThieu, maNSX, true);
                 boolean result = thuocDAO.updateThuoc(thuocUpdate);
                 if(result) {
                     JOptionPane.showMessageDialog(this, "Cập nhật thuốc thành công!");
@@ -497,11 +508,6 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
             txtMaThuoc.requestFocus();
             return false;
         }
-        if (txtGiaBanDau.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Giá ban đầu không được để trống!");
-            txtGiaBanDau.requestFocus();
-            return false;
-        }
         if (txtTenThuoc.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Tên thuốc không được để trống!");
             txtTenThuoc.requestFocus();
@@ -518,18 +524,24 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
                     return false;
                 }
             }
+            if (txtGiaBanDau.getText().trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Giá ban đầu không được để trống!");
+                txtGiaBanDau.requestFocus();
+                return false;
+            }
+            try {
+            	double gia = Double.parseDouble(txtGiaBanDau.getText().trim());
+    		} catch (Exception e) {
+                JOptionPane.showMessageDialog(this, "Giá ban đầu phải là số");
+    			return false;
+    		}
         }
         if (!maThuoc.matches("T\\d{3}")) {
             JOptionPane.showMessageDialog(this, "Mã thuốc phải có định dạng T kèm 3 ký số (Ví dụ: T001)!");
             txtMaThuoc.requestFocus();
             return false;
         }
-        try {
-        	double gia = Double.parseDouble(txtGiaBanDau.getText().trim());
-		} catch (Exception e) {
-            JOptionPane.showMessageDialog(this, "Giá ban đầu phải là số");
-			return false;
-		}
+
     
        
         
