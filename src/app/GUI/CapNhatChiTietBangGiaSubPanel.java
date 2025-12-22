@@ -47,8 +47,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
 
     private JLabel lblTieuDe;
     private JTextField txtTim;
-    private JButton btnTim;
-    private JButton btnReset;
     private JComboBox<String> cboTieuChi;
     private String tieuChi = "Tên thuốc";
     
@@ -59,6 +57,8 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
     private ArrayList<ThuocKemGiaChuanVaGiaHienTaiDTO> dsThuoc;
     private ArrayList<ThuocKemGiaChuanVaGiaHienTaiDTO> dsThuocDaChon = new ArrayList<>();
     
+    private JButton btnTim;
+    private JButton btnReset;
     private JButton btnChon;
     private JButton btnBoChon;
     private JButton btnXacNhan;
@@ -78,22 +78,17 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
     }
 
     private void initComponents() {
-        // Header
         lblTieuDe = new JLabel("CHỌN THUỐC CẦN THÊM VÀO BẢNG GIÁ", SwingConstants.CENTER);
         lblTieuDe.setFont(new Font("Segoe UI", Font.BOLD, 26));
         lblTieuDe.setForeground(PRIMARY_COLOR);
         lblTieuDe.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
 
-        // Search Panel
         JPanel searchPanel = createSearchPanel();
         
-        // Table Panel
         JPanel tablePanel = createTablePanel();
         
-        // Button Panel
         JPanel buttonPanel = createButtonPanel();
 
-        // Main Panel
         JPanel mainPanel = new JPanel(new BorderLayout(10, 10));
         mainPanel.setBackground(BG_COLOR);
         mainPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
@@ -114,7 +109,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
         searchPanel.setBackground(BG_COLOR);
         
-        // ComboBox tiêu chí tìm kiếm
         String[] tieuChiTim = {"Tên thuốc", "Mã thuốc"};
         cboTieuChi = new JComboBox<>(tieuChiTim);
         cboTieuChi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -125,7 +119,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         cboTieuChi.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220), 1));
         cboTieuChi.addActionListener(this);
         
-        // Text field tìm kiếm
         txtTim = new JTextField(25);
         txtTim.setText("Nhập từ khóa tìm kiếm...");
         txtTim.setForeground(Color.GRAY);
@@ -136,7 +129,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
             BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
         
-        // Add focus listener for placeholder text
         txtTim.addFocusListener(new java.awt.event.FocusAdapter() {
             public void focusGained(java.awt.event.FocusEvent evt) {
                 if (txtTim.getText().equals("Nhập từ khóa tìm kiếm...")) {
@@ -154,7 +146,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
             }
         });
         
-        // Button Tìm
         btnTim = new JButton("Tìm");
         btnTim.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnTim.setPreferredSize(new Dimension(90, 40));
@@ -165,7 +156,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         btnTim.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnTim.addActionListener(this);
         
-        // Button Reset
         btnReset = new JButton("Làm mới");
         btnReset.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnReset.setPreferredSize(new Dimension(100, 40));
@@ -190,7 +180,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         
         String[] colsThuoc = {"Mã thuốc", "Tên thuốc", "Mã đơn vị", "Giá chuẩn", "Giá hiện tại"};
         
-        // Table 1: Danh sách thuốc có sẵn
         dtmThuoc = new DefaultTableModel(colsThuoc, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -210,7 +199,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         ));
         scrollPaneThuoc.getViewport().setBackground(Color.WHITE);
 
-        // Table 2: Danh sách thuốc đã chọn
         dtmThuocDaChon = new DefaultTableModel(colsThuoc, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -230,7 +218,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         ));
         scrollPaneDaChon.getViewport().setBackground(Color.WHITE);
 
-        // Split Pane
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, scrollPaneThuoc, scrollPaneDaChon);
         splitPane.setResizeWeight(0.5);
         splitPane.setDividerSize(10);
@@ -285,7 +272,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 20, 15));
         panel.setBackground(BG_COLOR);
         
-        // Button Chọn (thêm thuốc vào danh sách đã chọn)
         btnChon = new JButton("Thêm xuống");
         btnChon.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnChon.setPreferredSize(new Dimension(150, 45));
@@ -296,7 +282,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         btnChon.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnChon.addActionListener(this);
 
-        // Button Bỏ chọn
         btnBoChon = new JButton("Bỏ chọn");
         btnBoChon.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnBoChon.setPreferredSize(new Dimension(150, 45));
@@ -307,7 +292,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         btnBoChon.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnBoChon.addActionListener(this);
         
-        // Button Xác nhận (hoàn tất và quay lại)
         btnXacNhan = new JButton("Xác nhận");
         btnXacNhan.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnXacNhan.setPreferredSize(new Dimension(150, 45));
@@ -318,7 +302,6 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
         btnXacNhan.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnXacNhan.addActionListener(this);
         
-        // Button Quay lại (hủy và quay lại)
         btnQuayLai = new JButton("Quay lại");
         btnQuayLai.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnQuayLai.setPreferredSize(new Dimension(150, 45));
@@ -346,18 +329,15 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
     }
 
     private void updateTables() {
-        // Update Top Table (Available)
         dtmThuoc.setRowCount(0);
         String timString = txtTim.getText().toLowerCase().trim();
         boolean isSearching = !timString.equals("nhập từ khóa tìm kiếm...") && !timString.isBlank();
 
         for (ThuocKemGiaChuanVaGiaHienTaiDTO thuoc : dsThuoc) {
-            // Check if already selected
             boolean isSelected = dsThuocDaChon.stream()
                 .anyMatch(t -> t.getMaThuoc().equals(thuoc.getMaThuoc()));
             
             if (!isSelected) {
-                // Apply search filter if needed
                 boolean match = true;
                 if (isSearching) {
                     if (tieuChi.equals("Tên thuốc")) {
@@ -465,10 +445,7 @@ public class CapNhatChiTietBangGiaSubPanel extends JPanel implements ActionListe
             JOptionPane.YES_NO_OPTION);
         
         if (confirm == JOptionPane.YES_OPTION) {
-            // ✅ Truyền ArrayList<ThuocDTO> cho parent
             parentPanel.nhanDanhSachThuocDaChon(dsThuocDaChon);
-            
-            // Reset
             dsThuocDaChon.clear();
             
             parentPanel.quayLaiDanhSach();

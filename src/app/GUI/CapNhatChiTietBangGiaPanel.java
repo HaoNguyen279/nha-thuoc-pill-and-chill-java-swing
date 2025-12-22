@@ -13,18 +13,19 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import javax.swing.Timer;
+import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -35,8 +36,6 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.SwingConstants;
 import javax.swing.border.TitledBorder;
-import javax.swing.event.DocumentEvent;
-import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
@@ -46,12 +45,12 @@ import com.formdev.flatlaf.FlatLightLaf;
 import app.ConnectDB.ConnectDB;
 import app.DAO.BangGiaDAO;
 import app.DAO.ChiTietBangGiaDAO;
+import app.DAO.DonViDAO;
 import app.DAO.ThuocDAO;
-import app.DTO.ThuocDTO;
 import app.DTO.ThuocKemGiaChuanVaGiaHienTaiDTO;
-import app.DTO.ThuocKemGiaDTO;
 import app.Entity.BangGia;
 import app.Entity.ChiTietBangGia;
+import app.Entity.DonVi;
 import app.Entity.Thuoc;
 
 public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener, MouseListener{
@@ -62,45 +61,39 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
     private final Color TEXT_COLOR = new Color(51, 51, 51);
     
     private final Color BTN_ADD_COLOR = new Color(46, 204, 113);
-    private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
     private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
     private final Color BTN_BACK_COLOR = new Color(70, 70, 70);
 
-    private JLabel lblTieuDe;
+    
     private ArrayList<ChiTietBangGia> dsChiTietBangGia;
     private CardLayout cardLayout;
     private JPanel mainContainer;
     
     Date today;
-	private DefaultTableModel dtmBangGia;
-	private JTable tblBangGia;
 	private String maBangGia;
 	private CapNhatBangGiaPanel parentPanel;
-	
 	private BangGia bangGia;
-	private JTable tblChiTietBangGia;
-	private DefaultTableModel dtmChiTietBangGia;
-	private JButton btnQuayLai;
+	
+	private JLabel lblTieuDe;
+	private JLabel lblMaThuoc;
+	private JLabel lblTenThuoc;
 	private JTextField txtTim;
+	private JTextField txtMaThuoc;
+	private JTextField txtTenThuoc;
+	
+	private JButton btnQuayLai;
 	private JButton btnTim;
 	private JButton btnReset;
     private JButton btnLuu;
-	private JComboBox<String> cboTieuChi;
-	private String tieuChi = "Mã thuốc";
-	private ThuocDAO thuocDao = new ThuocDAO();
-	private JLabel lblMaThuoc;
-	private JLabel lblTenThuoc;
-	private JLabel lblGiaBan;
-	private JLabel lblDonVi;
-	private JTextField txtMaThuoc;
-	private JTextField txtTenThuoc;
-	private JTextField txtGiaBan;
-	private JTextField txtDonVi;
 	private JButton btnThem;
 	private JButton btnXoa;
 	
-	// Danh sách thuốc đã chọn từ SubPanel
+	private JComboBox<String> cboTieuChi;
+	private String tieuChi = "Mã thuốc";
+	private JTable tblChiTietBangGia;
+	private DefaultTableModel dtmChiTietBangGia;
+	private ThuocDAO thuocDao = new ThuocDAO();
 	private ArrayList<ThuocKemGiaChuanVaGiaHienTaiDTO> dsThuocDaChon = new ArrayList<>();
     
     public CapNhatChiTietBangGiaPanel(String maBangGia, CapNhatBangGiaPanel parentPanel) {
@@ -126,14 +119,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         initInputForm();
         initButtons();
         
-        String[] colsBangGia = {"Mã bảng giá", "Tên bảng giá", "Loại bảng giá", "Độ Ưu Tiên", "Ngày áp dụng", "Ngày kết thúc", "Trạng thái", "Ghi chú"};
-        dtmBangGia = new DefaultTableModel(colsBangGia, 0) {
-            @Override
-            public boolean isCellEditable(int row, int column) {
-               return false;
-            }
-        };
-        
         String[] colsChiTietBangGia = {"Mã bảng giá", "Mã thuốc", "Tên thuốc", "Giá bán", "Mã đơn vị"};
         dtmChiTietBangGia = new DefaultTableModel(colsChiTietBangGia, 0) {
             @Override
@@ -147,11 +132,11 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
                     try {
                         double val = Double.parseDouble(aValue.toString());
                         if (val < 0) {
-                            return; // Revert to old value
+                            return;
                         }
                         super.setValueAt(aValue, row, column);
                     } catch (NumberFormatException e) {
-                        super.setValueAt("0", row, column); // Set to 0 if not a number
+                        super.setValueAt("0", row, column);
                     }
                 } else {
                     super.setValueAt(aValue, row, column);
@@ -176,7 +161,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         cardLayout.show(mainContainer, "DanhSach");
         
         add(mainContainer, BorderLayout.CENTER);
-        loadBangGiaData();
         loadChiTietBangGiaData();
     }
 
@@ -192,7 +176,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 15));
         searchPanel.setBackground(BG_COLOR);
         
-        // Nút quay lại
         btnQuayLai = new JButton("← Quay lại");
         btnQuayLai.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnQuayLai.setPreferredSize(new Dimension(120, 40));
@@ -203,7 +186,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         btnQuayLai.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnQuayLai.addActionListener(this);
         
-        // Text field
         txtTim = new JTextField(25);
         txtTim.setText("Nhập từ khóa tìm kiếm...");
         txtTim.setForeground(Color.GRAY);
@@ -214,16 +196,15 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
             BorderFactory.createEmptyBorder(8, 12, 8, 12)
         ));
         
-        // Add focus listener for placeholder text
-        txtTim.addFocusListener(new java.awt.event.FocusAdapter() {
-            public void focusGained(java.awt.event.FocusEvent evt) {
+        txtTim.addFocusListener(new FocusAdapter() {
+            public void focusGained(FocusEvent evt) {
                 if (txtTim.getText().equals("Nhập từ khóa tìm kiếm...")) {
                     txtTim.setText("");
                     txtTim.setForeground(Color.BLACK);
                     txtTim.setFont(new Font("Segoe UI", Font.PLAIN, 14));
                 }
             }
-            public void focusLost(java.awt.event.FocusEvent evt) {
+            public void focusLost(FocusEvent evt) {
                 if (txtTim.getText().isEmpty()) {
                     txtTim.setText("Nhập từ khóa tìm kiếm...");
                     txtTim.setForeground(Color.GRAY);
@@ -232,7 +213,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
             }
         });
         
-        // Button Tìm
         btnTim = new JButton("Tìm");
         btnTim.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnTim.setPreferredSize(new Dimension(90, 40));
@@ -243,7 +223,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         btnTim.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnTim.addActionListener(this);
         
-        // Button Reset
         btnReset = new JButton("Làm mới");
         btnReset.setFont(new Font("Segoe UI", Font.BOLD, 14));
         btnReset.setPreferredSize(new Dimension(100, 40));
@@ -254,7 +233,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         btnReset.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnReset.addActionListener(this);
         
-        // ComboBox
         String[] tieuChiTim = {"Mã thuốc", "Mã đơn vị", "Tên thuốc"};
         cboTieuChi = new JComboBox<String>(tieuChiTim);
         cboTieuChi.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -282,10 +260,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         lblMaThuoc.setFont(fontLabel);
         lblTenThuoc = new JLabel("Tên thuốc:");
         lblTenThuoc.setFont(fontLabel);
-        lblGiaBan = new JLabel("Giá bán:");
-        lblGiaBan.setFont(fontLabel);
-        lblDonVi = new JLabel("Đơn vị:");
-        lblDonVi.setFont(fontLabel);
         
         txtMaThuoc = new JTextField();
         txtMaThuoc.setFont(fontText);
@@ -298,15 +272,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         txtTenThuoc.setPreferredSize(new Dimension(200, 35));
         txtTenThuoc.setEditable(false);
         txtTenThuoc.setBackground(new Color(240, 240, 240));
-        
-        txtGiaBan = new JTextField();
-        txtGiaBan.setFont(fontText);
-        txtGiaBan.setPreferredSize(new Dimension(200, 35));
-        
-        
-        txtDonVi = new JTextField();
-        txtDonVi.setFont(fontText);
-        txtDonVi.setPreferredSize(new Dimension(200, 35));
     }
     
     private JPanel createInputPanel() {
@@ -330,23 +295,13 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         pnlForm.add(lblTenThuoc, gbc);
         gbc.gridx = 3; gbc.gridy = 0; gbc.weightx = 0.4;
         pnlForm.add(txtTenThuoc, gbc);
-
-        gbc.gridx = 0; gbc.gridy = 1; gbc.weightx = 0.1;
-        pnlForm.add(lblGiaBan, gbc);
-        gbc.gridx = 1; gbc.gridy = 1; gbc.weightx = 0.4;
-        pnlForm.add(txtGiaBan, gbc);
-        
-        gbc.gridx = 2; gbc.gridy = 1; gbc.weightx = 0.1;
-        pnlForm.add(lblDonVi, gbc);
-        gbc.gridx = 3; gbc.gridy = 1; gbc.weightx = 0.4;
-        pnlForm.add(txtDonVi, gbc);
         
         return pnlForm;
     }
     
     private void initButtons() {
         btnThem = createStyledButton("Chọn thuốc cần thêm", BTN_ADD_COLOR);
-        btnThem.setPreferredSize(new Dimension(180,45));
+        btnThem.setPreferredSize(new Dimension(180, 45));
         btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
         btnLuu = createStyledButton("Lưu", PRIMARY_COLOR);
 
@@ -448,17 +403,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
     	
     	JPanel panelAddButton = new JPanel(new BorderLayout(5, 15));
     	panelAddButton.setBackground(BG_COLOR);
-    	
-        tblBangGia = new JTable(dtmBangGia) {
-            @Override
-            public Component prepareRenderer(javax.swing.table.TableCellRenderer renderer, int row, int column) {
-                Component c = super.prepareRenderer(renderer, row, column);
-                if (!isRowSelected(row)) {
-                    c.setBackground(row % 2 == 0 ? Color.WHITE : new Color(242, 242, 242));
-                }
-                return c;
-            }
-        }; 
         
         tblChiTietBangGia = new JTable(dtmChiTietBangGia) {
             @Override
@@ -471,17 +415,7 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
             }
         };
         
-        // Thêm mouse listener cho bảng chi tiết
         tblChiTietBangGia.addMouseListener(this);
-        
-        tblBangGia.setRowHeight(35);
-        tblBangGia.setFont(new Font("Segoe UI", Font.PLAIN, 14));
-        tblBangGia.setFillsViewportHeight(true);
-        tblBangGia.setShowGrid(true);
-        tblBangGia.setGridColor(new Color(224, 224, 224));
-        tblBangGia.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        tblBangGia.setSelectionBackground(new Color(178, 223, 219));
-        tblBangGia.setSelectionForeground(Color.BLACK);
         
         tblChiTietBangGia.setRowHeight(35);
         tblChiTietBangGia.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -492,16 +426,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         tblChiTietBangGia.setSelectionBackground(new Color(178, 223, 219));
         tblChiTietBangGia.setSelectionForeground(Color.BLACK);
         
-        JTableHeader headerBangGia = tblBangGia.getTableHeader();
-        headerBangGia.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        headerBangGia.setBackground(PRIMARY_COLOR);
-        headerBangGia.setForeground(Color.WHITE);
-        headerBangGia.setPreferredSize(new Dimension(headerBangGia.getWidth(), 40));
-        headerBangGia.setReorderingAllowed(false);
-        
-        DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) headerBangGia.getDefaultRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-        
         JTableHeader headerChiTietBangGia = tblChiTietBangGia.getTableHeader();
         headerChiTietBangGia.setFont(new Font("Segoe UI", Font.BOLD, 14));
         headerChiTietBangGia.setBackground(PRIMARY_COLOR);
@@ -511,29 +435,12 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         
         DefaultTableCellRenderer centerRendererChiTietBangGia = (DefaultTableCellRenderer) headerChiTietBangGia.getDefaultRenderer();
         centerRendererChiTietBangGia.setHorizontalAlignment(JLabel.CENTER);
-
-        // Center align cho tất cả các cột
-        DefaultTableCellRenderer cellCenterBangGia = new DefaultTableCellRenderer();
-        cellCenterBangGia.setHorizontalAlignment(JLabel.CENTER);
-        for (int i = 0; i < tblBangGia.getColumnCount(); i++) {
-        	tblBangGia.getColumnModel().getColumn(i).setCellRenderer(cellCenterBangGia);
-        }
         
         DefaultTableCellRenderer cellCenterChiTietBangGia = new DefaultTableCellRenderer();
         cellCenterChiTietBangGia.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < tblChiTietBangGia.getColumnCount(); i++) {
         	tblChiTietBangGia.getColumnModel().getColumn(i).setCellRenderer(cellCenterChiTietBangGia);
         }
-        
-        JScrollPane scrollPaneBangGia = new JScrollPane(tblBangGia);
-        scrollPaneBangGia.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
-        scrollPaneBangGia.getViewport().setBackground(Color.WHITE);
-        
-        int rowHeight = tblBangGia.getRowHeight();
-        int rowCount = Math.max(tblBangGia.getRowCount(), 1);
-        int headerHeight = tblBangGia.getTableHeader().getPreferredSize().height;
-
-        scrollPaneBangGia.setPreferredSize(new Dimension(0, rowHeight * rowCount + headerHeight + 2));
 
         JScrollPane scrollPaneChiTietBangGia = new JScrollPane(tblChiTietBangGia);
         scrollPaneChiTietBangGia.setBorder(BorderFactory.createLineBorder(new Color(220, 220, 220)));
@@ -551,24 +458,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         return panel;
     }
     
-    public void loadBangGiaData() {
-        BangGiaDAO bgDAO = new BangGiaDAO();
-        bangGia = bgDAO.getBangGiaTheoMa(maBangGia);
-        dtmBangGia.setRowCount(0);
-        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
-        
-        Object[] rowData = {
-            	bangGia.getMaBangGia(),
-            	bangGia.getTenBangGia(),
-            	bangGia.getLoaiGia(),
-            	bangGia.getDoUuTien(),
-                sdf.format(bangGia.getNgayApDung()),
-                sdf.format(bangGia.getNgayKetThuc()),
-                bangGia.getTrangThai(),
-                bangGia.getGhiChu()
-        };
-        dtmBangGia.addRow(rowData);
-    }
 
     
     public void loadChiTietBangGiaData() {
@@ -628,38 +517,28 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
     public void xoaTrang() {
         txtMaThuoc.setText("");
         txtTenThuoc.setText("");
-        txtDonVi.setText("");
-        txtGiaBan.setText("");
         tblChiTietBangGia.clearSelection();
         dsThuocDaChon.clear();
         loadChiTietBangGiaData();
     }
     
-    /**
-     * Phương thức để nhận danh sách thuốc đã chọn từ SubPanel
-     */
     public void nhanDanhSachThuocDaChon(ArrayList<ThuocKemGiaChuanVaGiaHienTaiDTO> listThuoc) {
         if (listThuoc == null || listThuoc.isEmpty()) {
             return;
         }
 
-        // Copy danh sách để tránh lỗi tham chiếu
         ArrayList<ThuocKemGiaChuanVaGiaHienTaiDTO> dsThuoc = new ArrayList<>(listThuoc);
         
         ChiTietBangGiaDAO ctbgDAO = new ChiTietBangGiaDAO();
-        app.DAO.DonViDAO donViDAO = new app.DAO.DonViDAO();
+        DonViDAO donViDAO = new DonViDAO();
         int soThuocThemThanhCong = 0;
         int soThuocDaTonTai = 0;
         
-        // Đảm bảo danh sách hiện tại đã được load để kiểm tra trùng
         if (dsChiTietBangGia == null) {
             loadChiTietBangGiaData();
         }
         
-   
-        
         for (ThuocKemGiaChuanVaGiaHienTaiDTO thuoc : dsThuoc) {
-            // Kiểm tra trùng
             boolean daTonTai = false;
             if (dsChiTietBangGia != null) {
                 for (ChiTietBangGia ct : dsChiTietBangGia) {
@@ -675,14 +554,12 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
                 String donViValue = thuoc.getDonVi();
                 String maDonVi = donViValue;
                 
-                // Kiểm tra xem có phải là mã đơn vị không
-                app.Entity.DonVi dvCheck = donViDAO.getDonViByMa(donViValue);
+                DonVi dvCheck = donViDAO.getDonViByMa(donViValue);
                 if (dvCheck != null) {
                     maDonVi = dvCheck.getMaDonVi();
                 } else {
-                    // Nếu không phải mã, tìm theo tên
-                    java.util.List<app.Entity.DonVi> listDonVi = donViDAO.getDonViByTen(donViValue);
-                    for (app.Entity.DonVi dv : listDonVi) {
+                    List<DonVi> listDonVi = donViDAO.getDonViByTen(donViValue);
+                    for (DonVi dv : listDonVi) {
                         if (dv.getTenDonVi().equalsIgnoreCase(donViValue)) {
                             maDonVi = dv.getMaDonVi();
                             break;
@@ -704,7 +581,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
             }
         }
         
-        // Hiển thị thông báo
         String message = "";
         if (soThuocThemThanhCong > 0) {
             message += "Đã thêm thành công " + soThuocThemThanhCong + " thuốc vào bảng giá!\n";
@@ -718,17 +594,14 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         
         JOptionPane.showMessageDialog(this, message, "Thông báo", JOptionPane.INFORMATION_MESSAGE);
         
-        // Load lại dữ liệu
         loadChiTietBangGiaData();
         xoaTrang();
     }
     
-    // Phương thức để quay lại danh sách chính
     public void quayLaiDanhSach() {
         try {
             mainContainer.remove(mainContainer.getComponent(1));
         } catch (Exception ex) {
-            // Không có panel chi tiết
         }
         cardLayout.show(mainContainer, "DanhSach");
         loadChiTietBangGiaData();
@@ -830,7 +703,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
         	try {
                 mainContainer.remove(mainContainer.getComponent(1));
             } catch (Exception ex) {
-                // Không có panel chi tiết cũ
             }
             
             mainContainer.add(pnlChonThuoc, "ChiTiet");
@@ -842,7 +714,6 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
             
             for (int i = 0; i < tblChiTietBangGia.getRowCount(); i++) {
                 String maThuoc = tblChiTietBangGia.getValueAt(i, 1).toString();
-                // Column 3 is price.
                 double giaBan = 0;
                 try {
                     giaBan = Double.parseDouble(tblChiTietBangGia.getValueAt(i, 3).toString());
@@ -873,13 +744,9 @@ public class CapNhatChiTietBangGiaPanel extends JPanel implements ActionListener
             if(selectedRow != -1) {
                 String maThuoc = tblChiTietBangGia.getValueAt(selectedRow, 1).toString();
                 String tenThuoc = tblChiTietBangGia.getValueAt(selectedRow, 2).toString();
-                String giaBan = tblChiTietBangGia.getValueAt(selectedRow, 3).toString();
-                String donVi = tblChiTietBangGia.getValueAt(selectedRow, 4).toString();
                 
                 txtMaThuoc.setText(maThuoc);
                 txtTenThuoc.setText(tenThuoc);
-                txtGiaBan.setText(giaBan);
-                txtDonVi.setText(donVi);
             }
         }
 	}

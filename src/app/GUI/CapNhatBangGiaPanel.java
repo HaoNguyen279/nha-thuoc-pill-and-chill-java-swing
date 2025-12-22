@@ -53,6 +53,7 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
     private final Color BTN_EDIT_COLOR = new Color(241, 196, 15);
     private final Color BTN_DELETE_COLOR = new Color(231, 76, 60);
     private final Color BTN_CLEAR_COLOR = new Color(149, 165, 166);
+    private final Color BTN_EDIT_DETAIL_COLOR = new Color(57, 155, 226);
 
     private JLabel lblTieuDe;
     private JLabel lblngayApDung;
@@ -187,9 +188,6 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
         cboTrangThai.addItem("Đã kết thúc");
         cboTrangThai.setSelectedIndex(0);
         cboTrangThai.setPreferredSize(new Dimension(200, 35));
-//        txtTrangThai = new JTextField();
-//        txtTrangThai.setFont(fontText);
-//        txtTrangThai.setPreferredSize(new Dimension(200, 35));
         
         txtLoaiBangGia = new JTextField();
         txtLoaiBangGia.setFont(fontText);
@@ -266,7 +264,7 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
     private void initButtons() {
         btnThem = createStyledButton("Thêm", BTN_ADD_COLOR);
         btnSua = createStyledButton("Sửa", BTN_EDIT_COLOR);
-        btnSuaChiTiet = createStyledButton("Sửa chi tiết", Color.BLUE);
+        btnSuaChiTiet = createStyledButton("Sửa chi tiết", BTN_EDIT_DETAIL_COLOR);
         btnXoa = createStyledButton("Xóa", BTN_DELETE_COLOR);
         btnXoaTrang = createStyledButton("Xóa trắng", BTN_CLEAR_COLOR);
         btnKhuyenMaiDaXoa = createStyledButton("Bảng giá đã xóa", Color.pink);
@@ -338,7 +336,6 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
         DefaultTableCellRenderer centerRenderer = (DefaultTableCellRenderer) header.getDefaultRenderer();
         centerRenderer.setHorizontalAlignment(JLabel.CENTER);
 
-        // Center align cho tất cả các cột
         DefaultTableCellRenderer cellCenter = new DefaultTableCellRenderer();
         cellCenter.setHorizontalAlignment(JLabel.CENTER);
         for (int i = 0; i < tblBangGia.getColumnCount(); i++) {
@@ -382,7 +379,6 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
         txtDoUuTien.setText("0");
         txtGhiChu.setText("");
         txtLoaiBangGia.setText("");
-//        txtTrangThai.setText("");
         txtMaBangGia.setEnabled(true);
         tblBangGia. clearSelection();
         loadBangGiaData();
@@ -433,7 +429,6 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
           String loaiBangGia = txtLoaiBangGia.getText();
           String ghiChu = txtGhiChu. getText();
           String trangThai =  cboTrangThai.getSelectedItem().toString();
-//          String trangThai = txtTrangThai.getText();
           Date apDung = calNgayApDung.getDate();
           Date ketThuc = calNgayKetThuc.getDate();
           
@@ -496,7 +491,6 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
             }
         }
         else if(o == btnSuaChiTiet) {
-//            String trangThai = txtTrangThai.getText();
             String trangThai =  cboTrangThai.getSelectedItem().toString();
             String maBangGia = txtMaBangGia.getText();
             if(maBangGia.equalsIgnoreCase("BG001")) {
@@ -529,7 +523,6 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
             try {
                 mainContainer.remove(mainContainer.getComponent(1));
             } catch (Exception ex) {
-                // Không có panel chi tiết cũ
             }
             
             mainContainer.add(pnlBangGiaDaXoa, "ChiTiet");
@@ -546,7 +539,6 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
         	try {
                 mainContainer.remove(mainContainer.getComponent(1));
             } catch (Exception ex) {
-                // Không có panel chi tiết cũ
             }
             
             mainContainer.add(pnlChiTietBangGia, "ChiTiet");
@@ -575,7 +567,6 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
                     e2.printStackTrace();
                 }
                 
-//                txtTrangThai.setText(tblBangGia. getValueAt(row, 6).toString());
                 cboTrangThai.setSelectedItem(tblBangGia. getValueAt(row, 6).toString());
                 txtGhiChu.setText(tblBangGia. getValueAt(row, 7).toString());
                 
@@ -603,11 +594,6 @@ public class CapNhatBangGiaPanel extends JPanel implements ActionListener, Mouse
             txtLoaiBangGia.requestFocus();
             return false;
         }
-//        if (txtTrangThai.getText().trim().isEmpty()) {
-//            JOptionPane.showMessageDialog(this, "Trạng thái không được để trống!");
-//            txtTrangThai.requestFocus();
-//            return false;
-//        }
 
         String maBangGia = txtMaBangGia.getText().trim();
         if(isAddingNew) {
