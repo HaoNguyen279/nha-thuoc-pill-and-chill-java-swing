@@ -157,7 +157,7 @@ public class XemChiTietDoanhThuTheoThangFrame extends JFrame implements MouseLis
         for (HoaDonKemGiaDTO hd : dsHoaDon) {
         	Object[] rowData = {
         			hd.getMaHoaDon(),
-        			hd.getTenKH(),
+        			hd.getTenNV(),
         			hd.getTenKH(),
         			hd.getNgayBan(),
         			hd.getGhiChu(),
@@ -176,7 +176,7 @@ public class XemChiTietDoanhThuTheoThangFrame extends JFrame implements MouseLis
         for (HoaDonKemGiaDTO hd : dsHoaDon) {
         	Object[] rowData = {
         			hd.getMaHoaDon(),
-        			hd.getTenKH(),
+        			hd.getTenNV(),
         			hd.getTenKH(),
         			hd.getNgayBan(),
         			hd.getGhiChu(),

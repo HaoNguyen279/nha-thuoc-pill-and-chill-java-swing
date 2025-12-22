@@ -46,6 +46,7 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
     private JButton btnNhapThuoc;
     private JButton btnXuatPDF;
     private DecimalFormat df = new DecimalFormat("#,###");
+	private double tongTien =0;
 
     public NhapThuocExcelPanel(ArrayList<Thuoc> dsThuoc1, ArrayList<ChiTietLoThuoc> dsCTLT1) {
         //  Sử dụng BorderLayout
@@ -174,15 +175,17 @@ public class NhapThuocExcelPanel extends JPanel implements ActionListener{
     
     // Tính tổng tiền
     private double tinhTongTien() {
-        double tong = 0;
-        for (ChiTietLoThuoc thuoc : dsCTLT) {
-            tong+=thuoc.getGiaNhap();
-        }
-        
-        return tinhTongSoLuong() * tong;
+    	for (int i = 0; i < dsThuoc.size(); i++) {
+            Thuoc thuoc = dsThuoc.get(i);
+            ChiTietLoThuoc ctlt = dsCTLT.get(i);
+            
+            double thanhTien = thuoc.getSoLuongTon() * ctlt.getGiaNhap();
+            tongTien += thanhTien;
+    	}
+    	return tongTien/2;
     }
     
-    // Cập nhật thống kê
+    // Cập nhật thống kênv00
     private void capNhatThongKe() {
         lblTongSoBanGhi.setText("Tổng số bản ghi: " + dsThuoc.size());
         lblTongSoLuong.setText("Tổng số lượng: " + df.format(tinhTongSoLuong()));

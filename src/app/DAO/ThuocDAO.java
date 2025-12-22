@@ -474,8 +474,8 @@ public class ThuocDAO {
     public boolean deleteThuoc(String id) {
         String sql = "UPDATE Thuoc SET isActive = 0 WHERE maThuoc = ?";
         int n = 0;
-        ChiTietLoThuocDAO ctltDao = new ChiTietLoThuocDAO();
-        ctltDao.softDelete(id);
+//        ChiTietLoThuocDAO ctltDao = new ChiTietLoThuocDAO();
+//        ctltDao.softDelete(id);
         try (Connection con = ConnectDB.getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
             
@@ -534,7 +534,7 @@ public class ThuocDAO {
             System.out.println("   → Reactivated Thuoc: " + maThuoc + " (rows: " + n + ")");
             return n > 0;
         } catch (SQLException e) {
-            System.err.println("   ❌ Error reactivating Thuoc: " + e.getMessage());
+            System.err.println("   Error reactivating Thuoc: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

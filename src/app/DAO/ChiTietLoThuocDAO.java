@@ -154,7 +154,7 @@ public class ChiTietLoThuocDAO {
      * @return true nếu thành công, false nếu thất bại.
      */
     public boolean softDelete( String maThuoc) {
-        String sql = "UPDATE ChiTietLoThuoc isActive = 0 WHERE maThuoc = ?";
+        String sql = "UPDATE ChiTietLoThuoc SET isActive = 0 WHERE maThuoc = ?";
         int n = 0;
 
         try (Connection con = ConnectDB.getInstance().getConnection();

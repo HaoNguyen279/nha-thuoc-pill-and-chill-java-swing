@@ -481,7 +481,7 @@ public class CapNhatThuocPanel extends JPanel implements ActionListener, MouseLi
             loadNhaSanXuatData();
         }
         else if(o == btnSuaTrangThai) {
-        	System.out.println("cc");
+
         	
             
             JPanel pnlThuocDaXoa = new CapNhatThuocSubPanel(this);

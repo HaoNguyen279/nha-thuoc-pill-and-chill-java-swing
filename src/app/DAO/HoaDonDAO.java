@@ -885,7 +885,7 @@ public class HoaDonDAO {
     public ArrayList<HoaDonKemGiaDTO> getHoaDonTrongThang(int thang, int nam) {
         ArrayList<HoaDonKemGiaDTO> dsHoaDonKemGia = new ArrayList<>();
         String sql = "SELECT hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu, SUM(cthd.donGia*cthd.soLuong ) as tongTien\n"
-        		+ "FROM HoaDon hd JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
+        		+ "FROM HoaDon hd LEFT JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
         		+ "	JOIN NhanVien nv ON nv.maNV = hd.maNV\n"
         		+ "	JOIN ChiTietHoaDon cthd ON cthd.maHoaDon = hd.maHoaDon\n"
         		+ "WHERE hd.isActive = 1 AND datepart(MM, hd.ngayBan) = ? AND year(hd.ngayBan) = ?\n"
@@ -917,16 +917,22 @@ public class HoaDonDAO {
     public ArrayList<HoaDonKemGiaDTO> getHoaDonTrongNam(int nam) {
         ArrayList<HoaDonKemGiaDTO> dsHoaDonKemGia = new ArrayList<>();
         String sql = "SELECT hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu, SUM(cthd.donGia*cthd.soLuong ) as tongTien\n"
-        		+ "FROM HoaDon hd JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
+        		+ "FROM HoaDon hd LEFT JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
         		+ "	JOIN NhanVien nv ON nv.maNV = hd.maNV\n"
         		+ "	JOIN ChiTietHoaDon cthd ON cthd.maHoaDon = hd.maHoaDon\n"
         		+ "WHERE hd.isActive = 1 AND year(hd.ngayBan) = ?\n"
         		+ "GROUP BY hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu\n"
         		+ "ORDER BY ngayBan DESC, hd.maHoaDon DESC";
-
+        String sql2 = "SELECT hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu, SUM(cthd.donGia*cthd.soLuong ) as tongTien\n"
+        		+ "FROM HoaDon hd JOIN NhanVien nv ON nv.maNV = hd.maNV\n"
+        		+ "LEFT JOIN KhachHang kh ON hd.maKH = kh.maKH \n"
+        		+ "	JOIN ChiTietHoaDon cthd ON cthd.maHoaDon = hd.maHoaDon\n"
+        		+ "WHERE hd.isActive = 1 AND year(hd.ngayBan) = ?\n"
+        		+ "GROUP BY hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu\n"
+        		+ "ORDER BY ngayBan DESC, hd.maHoaDon DESC";
         try {
             Connection con = ConnectDB.getInstance().getConnection();
-            PreparedStatement stmt = con.prepareStatement(sql);
+            PreparedStatement stmt = con.prepareStatement(sql2);
             stmt.setInt(1, nam);
             ResultSet rs = stmt.executeQuery();
             
@@ -949,10 +955,16 @@ public class HoaDonDAO {
         		+ "WHERE hd.isActive = 1 AND year(hd.ngayBan) = ?  AND nv.maNV = ?\n"
         		+ "GROUP BY hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu\n"
         		+ "ORDER BY ngayBan DESC, hd.maHoaDon DESC";
-
+        String sql2 = "SELECT hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu, SUM(cthd.donGia*cthd.soLuong ) as tongTien\n"
+        		+ "FROM HoaDon hd JOIN NhanVien nv ON nv.maNV = hd.maNV \n"
+        		+ "LEFT JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
+        		+ "	JOIN ChiTietHoaDon cthd ON cthd.maHoaDon = hd.maHoaDon\n"
+        		+ "WHERE hd.isActive = 1 AND year(hd.ngayBan) = ?  AND nv.maNV = ?\n"
+        		+ "GROUP BY hd.maHoaDon, tenNV, tenKH, ngayBan, ghiChu\n"
+        		+ "ORDER BY ngayBan DESC, hd.maHoaDon DESC";
         try {
             Connection con = ConnectDB.getInstance().getConnection();
-            PreparedStatement stmt = con.prepareStatement(sql);
+            PreparedStatement stmt = con.prepareStatement(sql2);
             stmt.setInt(1, nam);
             stmt.setString(2,maNV);
             ResultSet rs = stmt.executeQuery();
@@ -1002,7 +1014,7 @@ public class HoaDonDAO {
     public ArrayList<HoaDon> getAllHoaDon5Field() {
         ArrayList<HoaDon> dsHoaDon = new ArrayList<>();
         String sql = "SELECT maHoaDon, tenNV, tenKH, ngayBan, ghiChu, hd.isActive\n"
-        		+ "FROM HoaDon hd JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
+        		+ "FROM HoaDon hd left JOIN KhachHang kh ON hd.maKH = kh.maKH\n"
         		+ "	JOIN NhanVien nv ON nv.maNV = hd.maNV\n"
         		+ "WHERE hd.isActive = 1"
         		+ "ORDER BY ngayBan DESC, maHoaDon DESC";
@@ -1026,7 +1038,7 @@ public class HoaDonDAO {
         	    "SELECT hd.maHoaDon, nv.tenNV, kh.tenKH, ngayBan, ghiChu, hd.isActive\n" +
         	    "FROM HoaDon hd \n" +
         	    "JOIN NhanVien nv ON hd.maNV = nv.maNV \n" +
-        	    "JOIN KhachHang kh ON kh.maKH = hd.maKH \n" +
+        	    "LEFT JOIN KhachHang kh ON kh.maKH = hd.maKH \n" +
         	    "JOIN ChiTietHoaDon cthd ON cthd.maHoaDon = hd.maHoaDon \n" +
         	    "WHERE hd.isActive = 1 AND cthd.maThuoc = ? \n" +
         	    "GROUP BY hd.maHoaDon, nv.tenNV, kh.tenKH, ngayBan, ghiChu, hd.isActive \n" +
